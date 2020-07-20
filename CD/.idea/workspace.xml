@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="2c4f43e8-48f5-4c90-8fe1-3f5ce7983535" name="Default Changelist" comment="" />
+    <ignored path="$PROJECT_DIR$/.tmp/" />
+    <ignored path="$PROJECT_DIR$/temp/" />
+    <ignored path="$PROJECT_DIR$/tmp/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Scripts/Five/GraphSelectionModel.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="425">
+              <caret line="25" column="40" selection-start-line="25" selection-start-column="40" selection-end-line="25" selection-end-column="40" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Scripts/Five/GraphView.ts">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphSelectionModel.ts" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1723" />
+    <option name="height" value="1193" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="CD" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CD" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CD" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CD" type="462c0819:PsiDirectoryNode" />
+              <item name="Scripts" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CD" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CD" type="462c0819:PsiDirectoryNode" />
+              <item name="Scripts" type="462c0819:PsiDirectoryNode" />
+              <item name="Five" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CD" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CD" type="462c0819:PsiDirectoryNode" />
+              <item name="Scripts" type="462c0819:PsiDirectoryNode" />
+              <item name="Five" type="462c0819:PsiDirectoryNode" />
+              <item name="GraphSelectionModel.ts" type="620a8d5e:NestingTreeNode" />
+            </path>
+            <path>
+              <item name="CD" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CD" type="462c0819:PsiDirectoryNode" />
+              <item name="Views" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="ts.external.directory.path" value="C:\Program Files\JetBrains\WebStorm 2019.1.3\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2c4f43e8-48f5-4c90-8fe1-3f5ce7983535" name="Default Changelist" comment="" />
+      <created>1566102856392</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1566102856392</updated>
+      <workItem from="1566102858491" duration="767000" />
+      <workItem from="1571364048559" duration="599000" />
+      <workItem from="1572057959806" duration="6000" />
+      <workItem from="1572395934451" duration="5000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="1377000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="3456" height="1416" extended-state="6" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12317145" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="TypeScript" order="9" />
+      <window_info anchor="bottom" id="Terminal" order="10" />
+      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+    <option name="exactExcludedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphSelectionModel.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphSelectionModel.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/PolylineShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/PolylineShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/RootChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/RootChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/AbstractCanvas2D.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/AbstractCanvas2D.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Events.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Events.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/StyleChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/StyleChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/PopupMenuHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/PopupMenuHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/UndoableEdit.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/UndoableEdit.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CollapseChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CollapseChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Effects.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Effects.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ConnectorShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ConnectorShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DefaultToolbar.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DefaultToolbar.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/EdgeSegmentHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/EdgeSegmentHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/LayoutManager.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/LayoutManager.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/SwimlaneShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/SwimlaneShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DiagramContainer.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DiagramContainer.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/RhombusShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/RhombusShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/EventObject.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/EventObject.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/FastOrganicLayout.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/FastOrganicLayout.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/FileStructure.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/FileStructure.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphModel.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphModel.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellSizeRestrictions.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellSizeRestrictions.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ObjectIdentity.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ObjectIdentity.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Morphing.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Morphing.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DragSource.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DragSource.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Stencil.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Stencil.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ConnectionConstraint.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ConnectionConstraint.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Animation.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Animation.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Client.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Client.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/HexagonShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/HexagonShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DefaultPopupMenu.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DefaultPopupMenu.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ConstraintHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ConstraintHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ChildChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ChildChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/EdgeHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/EdgeHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphLayout.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphLayout.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/LineShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/LineShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DivResizer.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DivResizer.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/XmlRequest.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/XmlRequest.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ActorShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ActorShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DoubleEllipseShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DoubleEllipseShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/SwimlaneManager.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/SwimlaneManager.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellEditor.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellEditor.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/VertexHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/VertexHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Cell.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Cell.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/TriangleShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/TriangleShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ImageShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ImageShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/LabelShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/LabelShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Graph.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Graph.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ImageBundle.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ImageBundle.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/RectangleShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/RectangleShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphView.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphView.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/StackLayout.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/StackLayout.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/TextShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/TextShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellAttributeChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellAttributeChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/TerminalChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/TerminalChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/StencilRegistry.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/StencilRegistry.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Form.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Form.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/SelectionChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/SelectionChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GeometryChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GeometryChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Stylesheet.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Stylesheet.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CurrentRootChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CurrentRootChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Session.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Session.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/MouseEventContext.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/MouseEventContext.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Multiplicity.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Multiplicity.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/PopupMenu.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/PopupMenu.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CloudShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CloudShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Outline.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Outline.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/VisibleChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/VisibleChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellHighlight.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellHighlight.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/GraphHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Codec.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Codec.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Guide.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Guide.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Marker.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Marker.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/SvgCanvas2D.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/SvgCanvas2D.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellState.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellState.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Geometry.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Geometry.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Shape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Shape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellOverlay.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellOverlay.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/EdgeStyle.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/EdgeStyle.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ConnectionHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ConnectionHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/PanningHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/PanningHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellRenderer.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellRenderer.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ElbowEdgeHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ElbowEdgeHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/PanningManager.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/PanningManager.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/EllipseShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/EllipseShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/UndoManager.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/UndoManager.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DefaultKeyHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/DefaultKeyHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Utils.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Utils.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Editor.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Editor.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CompactTreeLayout.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CompactTreeLayout.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/StyleRegistry.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/StyleRegistry.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Window.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Window.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Common.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Common.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/KeyHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/KeyHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/TooltipHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/TooltipHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CylinderShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CylinderShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellPath.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellPath.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ArrowShape.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ArrowShape.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Toolbar.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Toolbar.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/UrlConverter.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/UrlConverter.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/SelectionCellsHandler.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/SelectionCellsHandler.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CircleLayout.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CircleLayout.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ValueChange.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/ValueChange.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellMarker.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CellMarker.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Rubberband.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Rubberband.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CanvasState.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/CanvasState.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Clipboard.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Clipboard.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Perimeter.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Perimeter.js" />
+        <option value="$PROJECT_DIR$/Scripts/App/Enums.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/App/Enums.js" />
+        <option value="$PROJECT_DIR$/Scripts/App/ServerConnection.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/App/ServerConnection.js" />
+        <option value="$PROJECT_DIR$/Scripts/App/CreateNewDialog.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/App/CreateNewDialog.js" />
+        <option value="$PROJECT_DIR$/Scripts/App/Application.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/App/Application.js" />
+        <option value="$PROJECT_DIR$/Scripts/App/DiagramEditor.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/App/DiagramEditor.js" />
+        <option value="$PROJECT_DIR$/Scripts/App/Menus.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/App/Menus.js" />
+        <option value="$PROJECT_DIR$/Scripts/App/MindMap/MindMap.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/App/MindMap/MindMap.js" />
+        <option value="$PROJECT_DIR$/Scripts/App/Widgets/TreeWidget.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/App/Widgets/TreeWidget.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Behavior/Behavior.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Behavior/Behavior.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Presentation/GraphPresenter.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Presentation/GraphPresenter.js" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Presentation/Presenter.js.map" />
+        <option value="$PROJECT_DIR$/Scripts/Five/Presentation/Presenter.js" />
+      </list>
+    </option>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Scripts/Five/GraphSelectionModel.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scripts/Five/GraphSelectionModel.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="25" column="40" selection-start-line="25" selection-start-column="40" selection-end-line="25" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scripts/Five/GraphView.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+  </component>
+</project>

@@ -1,0 +1,141 @@
+﻿@model dynamic
+
+@{
+	Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>CloudDiagram</title>
+    <link href="~/Content/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="~/Content/bootstrap-dialog.css" rel="stylesheet"/>
+    <link href="~/Content/css/Site.css" rel="stylesheet"/>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/bootstrap-dialog.js"></script>
+    <script src="~/Scripts/clouddiagram.js"></script>
+</head>
+
+<body>
+
+<svg id="svg-source" height="0" version="1.1" xmlns="http://www.w3.org/2000/svg" style="position: absolute; margin-left: -100%" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="cloud-fog">
+        <path id="cloud-fog" d="M30.545,24.728H1.455C0.652,24.728,0,24.076,0,23.272c0-0.803,0.652-1.454,1.455-1.454h29.09
+c0.803,0,1.455,0.651,1.455,1.454S31.35,24.728,30.545,24.728z M30.545,18.908H1.455C0.652,18.908,0,18.258,0,17.454
+c0-0.803,0.652-1.455,1.455-1.455h29.09c0.803,0,1.455,0.652,1.455,1.455C32,18.258,31.35,18.908,30.545,18.908z M23.273,10.182
+c-1.166,0-2.244,0.349-3.152,0.939c-0.896-3.867-4.346-6.758-8.484-6.758c-4.82,0-8.728,3.908-8.728,8.729H0
+C0,6.666,5.21,1.455,11.637,1.455c4.367,0,8.168,2.409,10.156,5.967c0.484-0.083,0.973-0.149,1.48-0.149
+c3.797,0,7.02,2.431,8.219,5.819h-3.186C27.299,11.353,25.424,10.182,23.273,10.182z M1.455,27.636h29.09
+c0.803,0,1.455,0.651,1.455,1.454c0,0.805-0.652,1.455-1.455,1.455H1.455C0.652,30.545,0,29.895,0,29.09
+C0,28.287,0.65,27.636,1.455,27.636z">
+        </path>
+    </g>
+    <g id="cloud">
+        <path style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+              d="m 27.723367,13.49963 c -2.755568,0 -5.106522,1.765955 -6.017406,4.248615 -1.297702,-0.740459 -2.794539,-1.162743 -4.387843,-1.162743 -4.964535,0 -8.9873118,4.098506 -8.9873118,9.154269 0,0.194368 0.00587,0.388164 0.017627,0.579523 -0.048035,-9.42e-4 -0.096355,-0.0037 -0.1446162,-0.0037 -4.2553142,0 -7.70341019,3.510369 -7.70341019,7.843878 0,1.293769 0.30899445,2.515718 0.85358329,3.591571 1.8817394,5.537392 11.3624049,9.748552 22.7751489,9.748552 12.347341,0 22.433823,-4.927923 23.082016,-11.132768 0.187603,-0.614245 0.289232,-1.268172 0.289232,-1.945284 0,-2.996998 -1.980136,-5.520922 -4.6806,-6.293556 0.128486,-0.591706 0.201052,-1.205829 0.201052,-1.838236 0,-4.566497 -3.537369,-8.268371 -7.900935,-8.268371 -0.426353,0 -0.844107,0.03532 -1.252155,0.103353 -0.802699,-2.678919 -3.251165,-4.625118 -6.14439,-4.625118 z" />
+
+    </g>
+
+    <g id="error">
+        <g>
+            <g>
+                <path d="M16,0C7.178,0,0,7.178,0,16c0,8.822,7.178,16,16,16s16-7.178,16-16C32,7.178,24.822,0,16,0z M16,28.888
+			C8.895,28.888,3.111,23.106,3.111,16C3.111,8.894,8.895,3.112,16,3.112S28.889,8.894,28.889,16
+			C28.889,23.106,23.105,28.888,16,28.888z"></path>
+            </g>
+            <g>
+                <path d="M22.203,9.393c-0.626-0.587-1.611-0.558-2.199,0.07L16,13.727l-4.004-4.265c-0.588-0.627-1.573-0.657-2.199-0.07
+			c-0.627,0.589-0.658,1.573-0.069,2.199L13.867,16l-4.14,4.408c-0.589,0.626-0.558,1.61,0.069,2.199
+			c0.301,0.281,0.683,0.421,1.065,0.421c0.414,0,0.827-0.165,1.134-0.491L16,18.273l4.004,4.265c0.307,0.326,0.72,0.491,1.134,0.491
+			c0.383,0,0.765-0.14,1.065-0.421c0.627-0.589,0.657-1.573,0.069-2.199L18.133,16l4.14-4.408
+			C22.86,10.966,22.83,9.981,22.203,9.393z"></path>
+            </g>
+        </g>
+    </g>
+    
+    <g id="close">
+        <g>
+            <path d="M22.203,9.393c-0.626-0.587-1.611-0.558-2.199,0.07L16,13.727l-4.004-4.265c-0.588-0.627-1.573-0.657-2.199-0.07
+	    c-0.627,0.589-0.658,1.573-0.069,2.199L13.867,16l-4.14,4.408c-0.589,0.626-0.558,1.61,0.069,2.199
+	    c0.301,0.281,0.683,0.421,1.065,0.421c0.414,0,0.827-0.165,1.134-0.491L16,18.273l4.004,4.265c0.307,0.326,0.72,0.491,1.134,0.491
+	    c0.383,0,0.765-0.14,1.065-0.421c0.627-0.589,0.657-1.573,0.069-2.199L18.133,16l4.14-4.408
+	    C22.86,10.966,22.83,9.981,22.203,9.393z"></path>
+        </g>
+    </g>
+
+</svg>
+
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">
+                <svg viewBox="0 0 140 32" style="width:140px; height: 100%; margin-top: -1px;">
+                    <g filter="">
+                        <use xlink:href="#cloud-fog">
+                        </use>
+                    </g>
+                    <g font-size="20px" text-anchor="middle">
+                    <text x="105" y="22"><tspan>Cloud Diagram</tspan></text></g>
+                </svg>
+            </a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav" id="navbar-menu"></ul>
+            <ul class="nav navbar-nav navbar-right" id="navbar-menu-right"></ul>
+        </div>
+    </div>
+</nav>
+
+
+<div class="container-fluid" id="editor-container">
+    <div id="diagram">
+    </div>
+</div>
+
+<script>
+    CloudDiagram.Menus.groupFactory = function(caption, id, beforeDropdown, rightSide) {
+        var li = $('<li class="dropdown"></li>');
+        var a = $('<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">' + caption + '<span class="caret"></span></a>');
+        var ul = $('<ul class="dropdown-menu" role="menu" id="' + id + '"></ul>');
+        li = $(li).append($(a)).append($(ul));
+        li.on('show.bs.dropdown', function() {
+            beforeDropdown(id);
+        });
+        var menu = rightSide ? $("#navbar-menu-right") : $("#navbar-menu");
+        menu.append(li);
+        var parent = li[0];
+        return parent;
+    };
+
+    CloudDiagram.Menus.groupRecycler = function (id) {
+        $("#" + id).empty();
+    };
+
+    CloudDiagram.Menus.itemFactory = function(group, caption, hotkey) {
+        var a = $('<a href="#"></a>').text(caption);
+        if (hotkey)
+            a = a.prepend($('<kbd class="pull-right"></kbd>').text(hotkey));
+//            a = a.prepend($('<span class="badge pull-right"></span>').text(hotkey));
+        var li = $('<li></li>').append(a);
+        $("#" + group).append(li);
+        return li[0];
+    };
+
+    CloudDiagram.Menus.dividerFactory = function(group) {
+        var li = $('<li></li>').addClass("divider");
+        $("#" + group).append(li);
+        return li[0];
+    };
+    CloudDiagram.Application.initialize();
+</script>
+</body>
+</html>
