@@ -1,7 +1,25 @@
 import React from 'react';
-import { Stack, Text, Link, FontWeights, IStackTokens, IStackStyles, ITextStyles } from '@fluentui/react';
-import logo from './logo.svg';
+import {
+    Depths,
+    FontWeights,
+    ILabelStyles,
+    INavLinkGroup,
+    INavStyles,
+    IStackStyles,
+    IStackTokens,
+    IStyleSet,
+    ITextStyles,
+    mergeStyles,
+    PivotItem,
+    registerIcons,
+    Separator,
+    Stack,
+    Text
+} from '@fluentui/react';
+import {FontIcon} from '@fluentui/react/lib/Icon';
 import './App.css';
+import {MainPivot} from "./MainPivot";
+import {MainNav} from "./MainNav";
 
 const boldStyle: Partial<ITextStyles> = { root: { fontWeight: FontWeights.semibold } };
 const stackTokens: IStackTokens = { childrenGap: 15 };
@@ -14,31 +32,91 @@ const stackStyles: Partial<IStackStyles> = {
   },
 };
 
+registerIcons({
+    icons: {
+        'logo-svg': (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0,0,2048,2048" aria-hidden="true" focusable="false">
+                <g fill="#1B559B">
+                    <path
+                        d="M 1860 1196 q 53 10 94 37 q 18 12 35 29 q 16 16 30 40 q 13 23 21 53 q 8 30 8 68 q 0 37 -10 75 q -11 38 -34 69 q -23 31 -58 51 q -36 20 -86 20 h -1079 q -78 0 -131 -24 q -54 -25 -87 -65 q -34 -40 -49 -91 q -15 -52 -15 -107 q 0 -46 12 -81 q 11 -35 31 -61 q 19 -27 43 -45 q 24 -19 50 -31 q 60 -29 136 -35 q 0 -1 4 -26 q 3 -25 16 -61 q 12 -37 36 -80 q 24 -43 64 -79 q 39 -37 98 -61 q 59 -25 141 -25 q 57 0 103 15 q 45 15 81 38 q 35 23 62 52 q 26 28 44 55 q 18 -10 42 -18 q 20 -7 48 -12 q 27 -6 60 -6 q 40 0 91 15 q 50 14 94 48 q 44 33 75 88 q 30 55 30 136 m -1463 174 q 0 53 10 99 q 10 46 29 86 h -170 q -52 0 -100 -23 q -48 -23 -85 -61 q -37 -38 -59 -87 q -22 -50 -22 -104 q 0 -49 11 -87 q 10 -38 27 -66 q 17 -29 39 -49 q 21 -21 44 -35 q 53 -33 121 -41 q -1 -9 -1 -18 q -1 -9 -1 -17 q 0 -72 27 -134 q 27 -63 73 -110 q 45 -47 106 -74 q 60 -27 127 -27 q 36 0 66 7 q 29 6 51 14 q 25 10 45 21 q 27 -48 65 -89 q 37 -41 84 -71 q 46 -30 101 -47 q 55 -17 115 -17 q 39 0 80 8 q 41 7 83 24 q 72 28 121 71 q 49 42 81 90 q 32 47 49 94 q 16 46 22 82 q -23 2 -43 5 q -21 3 -40 8 q -66 -69 -148 -104 q -82 -36 -177 -36 q -76 0 -136 17 q -60 17 -106 45 q -47 28 -81 64 q -34 36 -58 75 q -24 38 -39 76 q -15 37 -23 67 q -51 12 -102 38 q -52 26 -93 68 q -42 42 -67 101 q -26 59 -26 137"/>
+                </g>
+            </svg>
+        )
+    }
+});
+
+const iconClass = mergeStyles({
+    fontSize: 50,
+    height: 50,
+    width: 50,
+    margin: '0 5px',
+});
+
+const BorderBlindsIcon: React.FunctionComponent<{ color1?: string; color2?: string; color3?: string }> = props => {
+    const { color1 = 'red', color2 = 'green', color3 = 'blue' } = props;
+
+    // FontIcon is an optimized variant of standard Icon.
+    // You could also use the standard Icon here.
+    // This example demonstrates how to expose the SVG itself as an image with
+    // an accessible name. To do that, set aria-label or aria-labelledby directly
+    // on the SVG, and set aria-hidden to undefined or false on the FontIcon.
+    return (
+        <FontIcon
+            iconName="borderblinds-svg"
+            aria-hidden={undefined}
+            className={mergeStyles(iconClass, {
+                width: 50,
+                height: 50,
+                selectors: {
+                    '.borderblinds-part1': {
+                        fill: color1,
+                    },
+                    '.borderblinds-part2': {
+                        fill: color2,
+                    },
+                    '.borderblinds-part3': {
+                        fill: color3,
+                    },
+                },
+            })}
+        />
+    );
+};
+
+const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
+    root: { marginTop: 10 },
+};
+
+const verticalStyle = mergeStyles({
+});
+
 export const App: React.FunctionComponent = () => {
-  return (
-    <Stack horizontalAlign="center" verticalAlign="center" verticalFill styles={stackStyles} tokens={stackTokens}>
-      <img className="App-logo" src={logo} alt="logo" />
-      <Text variant="xxLarge" styles={boldStyle}>
-        Welcome to your Fluent UI app
-      </Text>
-      <Text variant="large">For a guide on how to customize this project, check out the Fluent UI documentation.</Text>
-      <Text variant="large" styles={boldStyle}>
-        Essential links
-      </Text>
-      <Stack horizontal tokens={stackTokens} horizontalAlign="center">
-        <Link href="https://developer.microsoft.com/en-us/fluentui#/get-started/web">Docs</Link>
-        <Link href="https://stackoverflow.com/questions/tagged/office-ui-fabric">Stack Overflow</Link>
-        <Link href="https://github.com/microsoft/fluentui/">Github</Link>
-        <Link href="https://twitter.com/fluentui">Twitter</Link>
-      </Stack>
-      <Text variant="large" styles={boldStyle}>
-        Design system
-      </Text>
-      <Stack horizontal tokens={stackTokens} horizontalAlign="center">
-        <Link href="https://developer.microsoft.com/en-us/fluentui#/styles/web/icons">Icons</Link>
-        <Link href="https://developer.microsoft.com/en-us/fluentui#/styles/web">Styles</Link>
-        <Link href="https://aka.ms/themedesigner">Theme designer</Link>
-      </Stack>
+    const [selectedKey, setSelectedKey] = React.useState('rectangleRed');
+
+    const handleLinkClick = (item?: PivotItem) => {
+        if (item) {
+            setSelectedKey(item.props.itemKey!);
+        }
+    };
+
+    return (
+    <Stack verticalFill styles={stackStyles} tokens={stackTokens}>
+        <Stack horizontal tokens={stackTokens}>
+            <FontIcon aria-label="Cloud diagram" iconName="logo-svg" className={iconClass}/>
+            <Text variant="xLarge" styles={boldStyle} >
+                Cloud Diagram
+            </Text>
+            <Stack.Item className={verticalStyle}>
+                <Separator vertical/>
+            </Stack.Item>
+            <MainPivot onLinkClick={handleLinkClick}/>
+        </Stack>
+        <Stack horizontal tokens={stackTokens}>
+            <MainNav/>
+            <Stack verticalFill>
+                <div  style={{ boxShadow: Depths.depth8 }}/>
+            </Stack>
+        </Stack>
     </Stack>
   );
 };
