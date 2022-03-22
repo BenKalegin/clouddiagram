@@ -1,13 +1,8 @@
 import React from 'react';
 import {
-    Depths,
     FontWeights,
-    ILabelStyles,
-    INavLinkGroup,
-    INavStyles,
     IStackStyles,
     IStackTokens,
-    IStyleSet,
     ITextStyles,
     mergeStyles,
     PivotItem,
@@ -20,6 +15,7 @@ import {FontIcon} from '@fluentui/react/lib/Icon';
 import './App.css';
 import {MainPivot} from "./MainPivot";
 import {MainNav} from "./MainNav";
+import {DiagramContainer} from "./DiagramContainer/DiagramContainer";
 
 const boldStyle: Partial<ITextStyles> = { root: { fontWeight: FontWeights.semibold } };
 const stackTokens: IStackTokens = { childrenGap: 15 };
@@ -51,42 +47,6 @@ const iconClass = mergeStyles({
     width: 50,
     margin: '0 5px',
 });
-
-const BorderBlindsIcon: React.FunctionComponent<{ color1?: string; color2?: string; color3?: string }> = props => {
-    const { color1 = 'red', color2 = 'green', color3 = 'blue' } = props;
-
-    // FontIcon is an optimized variant of standard Icon.
-    // You could also use the standard Icon here.
-    // This example demonstrates how to expose the SVG itself as an image with
-    // an accessible name. To do that, set aria-label or aria-labelledby directly
-    // on the SVG, and set aria-hidden to undefined or false on the FontIcon.
-    return (
-        <FontIcon
-            iconName="borderblinds-svg"
-            aria-hidden={undefined}
-            className={mergeStyles(iconClass, {
-                width: 50,
-                height: 50,
-                selectors: {
-                    '.borderblinds-part1': {
-                        fill: color1,
-                    },
-                    '.borderblinds-part2': {
-                        fill: color2,
-                    },
-                    '.borderblinds-part3': {
-                        fill: color3,
-                    },
-                },
-            })}
-        />
-    );
-};
-
-const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
-    root: { marginTop: 10 },
-};
-
 const verticalStyle = mergeStyles({
 });
 
@@ -113,9 +73,7 @@ export const App: React.FunctionComponent = () => {
         </Stack>
         <Stack horizontal tokens={stackTokens}>
             <MainNav/>
-            <Stack verticalFill>
-                <div  style={{ boxShadow: Depths.depth8 }}/>
-            </Stack>
+            <DiagramContainer />
         </Stack>
     </Stack>
   );
