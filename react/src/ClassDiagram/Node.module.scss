@@ -1,0 +1,88 @@
+.node {
+  position: absolute;
+  user-select: none;
+  cursor: move;
+  pointer-events: all;
+}
+
+.defaultNode {
+  width: 100px;
+  height: 80px;
+  border-radius: 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, .12);
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+
+  .selected {
+    border: 1px solid #6e9fd4;
+
+    .port {
+      width: 20px;
+      height: 20px;
+      margin: -10px;
+      border-radius: 50%;
+      background-color: #f5f5f5;
+      cursor: pointer;
+      position: absolute;
+      border: 1px solid #6e9fd4;
+
+      &_bottom {
+        bottom: 0;
+        left: 50%;
+      }
+    }
+  }
+
+
+  .port:hover, .defaultNode .port.has-links, .default.group .port.has-links {
+    background-color: black;
+  }
+
+}
+
+
+
+.defaultNode .port.bottomleft, .default.group .port.bottomleft {
+  bottom: 0;
+  left: 0;
+}
+
+.defaultNode .port.bottomright, .default.group .port.bottomright {
+  bottom: 0;
+  right: 0;
+}
+
+.defaultNode .port.top, .default.group .port.top {
+  top: 0;
+  left: 50%;
+}
+
+.defaultNode .port.topleft, .default.group .port.topleft {
+  top: 0;
+  left: 0;
+}
+
+.defaultNode .port.topright, .default.group .port.topright {
+  top: 0;
+  right: 0;
+}
+
+.defaultNode .port.left, .default.group .port.left {
+  left: 0;
+  top: 50%;
+}
+
+.defaultNode .port.right, .default.group .port.right {
+  right: 0;
+  top: 50%;
+}
