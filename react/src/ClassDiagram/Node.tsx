@@ -1,11 +1,15 @@
 import styles from './Node.module.scss';
 import classNames from 'classnames';
 
+interface INodeProps {
+    top: number;
+    left: number;
+}
 
-export const Node = () =>
+export const Node = (props: INodeProps) =>
     <div data-node-id="20d03193-e747-4c79-9567-119dde522a33"
          className={styles.node}
-         style={{top: 50, left: 50}}>
+         style={{top: props.top, left: props.left}}>
         <div className={styles.defaultNode}>
             Hello
             <div className={classNames(styles.port, styles.bottom)} data-port-id="72f55820-671a-4142-bb1d-523af53639af"/>
