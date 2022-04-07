@@ -3,23 +3,10 @@ import {Node} from "../ClassDiagram/Node";
 import React, {MouseEventHandler, useState} from "react";
 import {Link} from "../ClassDiagram/Link";
 import {InteractionDispatch} from "./InteractionDispatch";
+import {NodeState, Port, PortPosition} from "../ClassDiagram/Models";
+import {DiagramElement} from "../Common/Model";
 
-export enum PortPosition {
-    Left,
-    Right,
-    Top,
-    Bottom
-};
-
-export interface Port {
-    position: PortPosition;
-}
-
-export interface NodeState {
-    top: number;
-    left: number;
-    ports: Port[];
-}
+;
 
 export interface LinkState {
     port1: Port;
@@ -31,9 +18,14 @@ interface ClassDiagramState {
     Links: LinkState[];
 }
 
-function getDefaultDiagramState() {
+interface ClassDiagramViewState extends ClassDiagramState {
+    elementsById: Map<string, DiagramElement>
+}
+
+function getDefaultDiagramState(): ClassDiagramState {
     let port1 = {position: PortPosition.Right};
     const node1: NodeState = {
+        id: "node1",
         ports: [
             {position: PortPosition.Left},
             port1,
@@ -47,6 +39,7 @@ function getDefaultDiagramState() {
     let port2 = {position: PortPosition.Left};
 
     const node2: NodeState = {
+        id: "node2",
         ports: [
             port2,
             {position: PortPosition.Right},
@@ -64,20 +57,47 @@ function getDefaultDiagramState() {
     return diagram;
 }
 
+
+function getDefaultDiagramViewState(): ClassDiagramViewState {
+    const diagramState = getDefaultDiagramState();
+    return {
+        ...diagramState,
+        elementsById: new Map<string, DiagramElement>(
+            diagramState.Nodes.map(n => [n.id, n])
+        )
+    };
+}
+
 export interface InteractionHandler {
     onMouseMove: MouseEventHandler;
     onMouseUp: MouseEventHandler;
-    onMouseDown: MouseEventHandler;
+    onMouseDown: (element: DiagramElement, x: number, y: number) => void;
 }
 
-const defaultDiagramState = getDefaultDiagramState();
+const defaultDiagramState = getDefaultDiagramViewState();
 
-export const DiagramCanvas = function () {
+export function DiagramCanvas() {
     const [diagram, setDiagram] = useState(defaultDiagramState);
     const handler: InteractionHandler = new InteractionDispatch();
 
+    function findElement(target: EventTarget): DiagramElement | undefined {
+        const div = target as HTMLDivElement;
+        if (div) {
+            const dataId = div.getAttribute("data-id");
+            if (dataId)
+                return diagram.elementsById.get(dataId);
+        }
+        return undefined;
+    }
+
+    function handleMouseDown(e: React.MouseEvent<HTMLDivElement>) {
+        let element = findElement(e.target);
+        if (element)
+            handler.onMouseDown(element, e.clientX, e.clientY);
+    }
+
     return <div className={styles.canvas}
-                onMouseDown={(e) => handler.onMouseDown(e)}
+                onMouseDown={(e) => handleMouseDown(e)}
                 onMouseUp={(e) => handler.onMouseUp(e)}
                 onMouseMove={(e) => handler.onMouseMove(e)}>
         <svg className={styles.svgLayer} scale="1">
@@ -91,4 +111,4 @@ export const DiagramCanvas = function () {
             })}
         </div>
     </div>;
-};
+}

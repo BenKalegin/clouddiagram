@@ -1,18 +1,19 @@
 import React from "react";
 import {InteractionHandler} from "./DiagramCanvas";
 import {DragMovableNodeInteraction} from "./DragMovableNodeInteraction";
+import {DiagramElement} from "../Common/Model";
 
 
 export class InteractionDispatch implements InteractionHandler {
     private activeInteraction?: InteractionHandler;
 
-    onMouseDown(event: React.MouseEvent<Element>): void {
+    onMouseDown(element: DiagramElement, x: number, y: number): void {
         if (!this.activeInteraction)
             this.activeInteraction = new DragMovableNodeInteraction();
 
 
         if (this.activeInteraction)
-            this.activeInteraction.onMouseDown(event);
+            this.activeInteraction.onMouseDown(element, x, y);
         else {
             console.log("Mouse down undecided");
         }
@@ -23,4 +24,5 @@ export class InteractionDispatch implements InteractionHandler {
 
     onMouseUp(event: React.MouseEvent<Element>): void {
     }
+
 }

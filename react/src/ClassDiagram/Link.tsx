@@ -1,5 +1,6 @@
 import styles from './Link.module.scss';
-import {LinkState, NodeState} from "../DiagramContainer/DiagramCanvas";
+import {LinkState} from "../DiagramContainer/DiagramCanvas";
+import {NodeState} from "./Models";
 
 export const Link = function (link: LinkState)
 {
