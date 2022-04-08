@@ -4,9 +4,14 @@ export interface Port {
     position: PortPosition;
 }
 
-export interface NodeState extends DiagramElement {
+export interface Coordinate {
     top: number;
     left: number;
+}
+
+export const ZeroCoordinate : Coordinate = {left: 0, top: 0};
+
+export interface NodeState extends DiagramElement, Coordinate {
     ports: Port[];
 }
 
@@ -16,3 +21,4 @@ export enum PortPosition {
     Top,
     Bottom
 }
+

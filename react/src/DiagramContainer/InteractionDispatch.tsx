@@ -19,10 +19,10 @@ export class InteractionDispatch implements InteractionHandler {
         }
     }
 
-    onMouseMove(event: React.MouseEvent<Element>): void {
+    onMouseMove(element: DiagramElement, x: number, y: number): void {
     }
 
-    onMouseUp(event: React.MouseEvent<Element>): void {
+    onMouseUp(element: DiagramElement, x: number, y: number): void {
     }
 
 }

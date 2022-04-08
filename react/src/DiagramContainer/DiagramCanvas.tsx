@@ -69,8 +69,8 @@ function getDefaultDiagramViewState(): ClassDiagramViewState {
 }
 
 export interface InteractionHandler {
-    onMouseMove: MouseEventHandler;
-    onMouseUp: MouseEventHandler;
+    onMouseMove: (element: DiagramElement, x: number, y: number) => void;
+    onMouseUp: (element: DiagramElement, x: number, y: number) => void;
     onMouseDown: (element: DiagramElement, x: number, y: number) => void;
 }
 
