@@ -22,3 +22,18 @@ export enum PortPosition {
     Bottom
 }
 
+export interface LinkState {
+    port1: Port;
+    port2: Port;
+}
+
+export interface ClassDiagramState {
+    Nodes: NodeState[];
+    Links: LinkState[];
+}
+
+export interface ClassDiagramViewState extends ClassDiagramState {
+    elementsById: Map<string, DiagramElement>
+}
+
+

@@ -1,26 +1,11 @@
 import styles from './DiagramCanvas.module.scss';
 import {Node} from "../ClassDiagram/Node";
-import React, {MouseEventHandler, useState} from "react";
+import React, {MouseEventHandler, useReducer, useState} from "react";
 import {Link} from "../ClassDiagram/Link";
 import {InteractionDispatch} from "./InteractionDispatch";
-import {NodeState, Port, PortPosition} from "../ClassDiagram/Models";
+import {ClassDiagramState, ClassDiagramViewState, NodeState, Port, PortPosition} from "../ClassDiagram/Models";
 import {DiagramElement} from "../Common/Model";
-
-;
-
-export interface LinkState {
-    port1: Port;
-    port2: Port;
-}
-
-interface ClassDiagramState {
-    Nodes: NodeState[];
-    Links: LinkState[];
-}
-
-interface ClassDiagramViewState extends ClassDiagramState {
-    elementsById: Map<string, DiagramElement>
-}
+import {reducer} from "../ClassDiagram/Reducer";
 
 function getDefaultDiagramState(): ClassDiagramState {
     let port1 = {position: PortPosition.Right};
@@ -74,10 +59,10 @@ export interface InteractionHandler {
     onMouseDown: (element: DiagramElement, x: number, y: number) => void;
 }
 
-const defaultDiagramState = getDefaultDiagramViewState();
+const defaultDiagramState: ClassDiagramViewState = getDefaultDiagramViewState();
 
 export function DiagramCanvas() {
-    const [diagram, setDiagram] = useState(defaultDiagramState);
+    const [diagram, dispatch] = useReducer(reducer, defaultDiagramState);
     const handler: InteractionHandler = new InteractionDispatch();
 
     function findElement(target: EventTarget): DiagramElement | undefined {
@@ -96,10 +81,22 @@ export function DiagramCanvas() {
             handler.onMouseDown(element, e.clientX, e.clientY);
     }
 
+    function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+        let element = findElement(e.target);
+        if (element)
+            handler.onMouseMove(element, e.clientX, e.clientY);
+    }
+
+    function handleMouseUp(e: React.MouseEvent<HTMLDivElement>) {
+        let element = findElement(e.target);
+        if (element)
+            handler.onMouseUp(element, e.clientX, e.clientY);
+    }
+
     return <div className={styles.canvas}
                 onMouseDown={(e) => handleMouseDown(e)}
-                onMouseUp={(e) => handler.onMouseUp(e)}
-                onMouseMove={(e) => handler.onMouseMove(e)}>
+                onMouseUp={(e) => handleMouseUp(e)}
+                onMouseMove={(e) => handleMouseMove(e)}>
         <svg className={styles.svgLayer} scale="1">
             {diagram.Links.map((link, index) => {
                 return <Link key={index} {...link} />
