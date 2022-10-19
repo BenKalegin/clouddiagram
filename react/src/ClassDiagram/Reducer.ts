@@ -1,6 +1,15 @@
 import {ClassDiagramViewState} from "./Models";
 
-export const reducer = (state: ClassDiagramViewState ): void => {
+enum CloudDiagramActionKind {
+    DRAG = "DRAG"
+}
 
-};
+interface CloudDiagramAction {
+    type: CloudDiagramActionKind;
+    payload: number;
+}
+
+export function cloudDiagramReducer(state: ClassDiagramViewState, action: CloudDiagramAction): ClassDiagramViewState {
+    return state;
+}
 

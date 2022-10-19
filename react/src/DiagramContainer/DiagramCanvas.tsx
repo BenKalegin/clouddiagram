@@ -5,7 +5,7 @@ import {Link} from "../ClassDiagram/Link";
 import {InteractionDispatch} from "./InteractionDispatch";
 import {ClassDiagramState, ClassDiagramViewState, NodeState, Port, PortPosition} from "../ClassDiagram/Models";
 import {DiagramElement} from "../Common/Model";
-import {reducer} from "../ClassDiagram/Reducer";
+import {cloudDiagramReducer} from "../ClassDiagram/Reducer";
 
 function getDefaultDiagramState(): ClassDiagramState {
     let port1 = {position: PortPosition.Right};
@@ -62,7 +62,7 @@ export interface InteractionHandler {
 const defaultDiagramState: ClassDiagramViewState = getDefaultDiagramViewState();
 
 export function DiagramCanvas() {
-    const [diagram, dispatch] = useReducer(reducer, defaultDiagramState);
+    const [diagram, dispatch] = useReducer(cloudDiagramReducer, defaultDiagramState);
     const handler: InteractionHandler = new InteractionDispatch();
 
     function findElement(target: EventTarget): DiagramElement | undefined {

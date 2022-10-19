@@ -30,8 +30,7 @@ export class DragMovableNodeInteraction implements InteractionHandler {
         const deltaX = (clientX - this.lastClientCoordinate.left); // TODO /zoom
         const deltaY = (clientY - this.lastClientCoordinate.top);
 
-        const newCoordinate: Coordinate = { left this.initialCoordinate.;
-
+        //const newCoordinate: Coordinate = { left: this.initialCoordinate.;
 
     }
 }
