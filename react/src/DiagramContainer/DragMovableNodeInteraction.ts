@@ -20,15 +20,15 @@ export class DragMovableNodeInteraction implements InteractionHandler {
 
     private start(node: NodeState, clientX: number, clientY: number) {
         this.initialCoordinate = {...node};
-        this.lastClientCoordinate = {left: clientX, top: clientY};
+        this.lastClientCoordinate = {x: clientX, y: clientY};
     }
 
     private move(element: NodeState, clientX: number, clientY: number) {
         if(!this.initialCoordinate || !this.lastClientCoordinate )
             return;
 
-        const deltaX = (clientX - this.lastClientCoordinate.left); // TODO /zoom
-        const deltaY = (clientY - this.lastClientCoordinate.top);
+        const deltaX = (clientX - this.lastClientCoordinate.x); // TODO /zoom
+        const deltaY = (clientY - this.lastClientCoordinate.y);
 
         //const newCoordinate: Coordinate = { left: this.initialCoordinate.;
 

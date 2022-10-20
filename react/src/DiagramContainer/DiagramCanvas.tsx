@@ -100,8 +100,10 @@ function getDefaultDiagramState(): ClassDiagramState {
             {position: PortPosition.Top},
             {position: PortPosition.Bottom}
         ],
-        top: 50,
-        left: 50
+        y: 50,
+        x: 50,
+        width: 100,
+        height: 80
     };
 
     let port2 = {position: PortPosition.Left};
@@ -114,8 +116,10 @@ function getDefaultDiagramState(): ClassDiagramState {
             {position: PortPosition.Top},
             {position: PortPosition.Bottom}
         ],
-        top: 300,
-        left: 300
+        y: 300,
+        x: 300,
+        width: 100,
+        height: 80
     };
 
     const diagram: ClassDiagramState = {
@@ -145,7 +149,8 @@ export interface InteractionHandler {
 const defaultDiagramState: ClassDiagramViewState = getDefaultDiagramViewState();
 
 export function DiagramCanvas() {
-    const [diagram, dispatch] = useReducer(cloudDiagramReducer, defaultDiagramState);
+    // TODO const [diagram, dispatch] = useReducer(cloudDiagramReducer, defaultDiagramState);
+    const [diagram, setDiagram] = useState(defaultDiagramState);
     const handler: InteractionHandler = new InteractionDispatch();
 
     function findElement(target: EventTarget): DiagramElement | undefined {
@@ -214,20 +219,21 @@ export function DiagramCanvas() {
             onMouseDown={checkDeselect}
         >
             <Layer>
-                {rectangles.map((rect, i) => {
+                {diagram.Nodes.map((node, i) => {
                     return (
-                        <Rectangle
+                        <Node
                             key={i}
-                            shapeProps={rect}
-                            isSelected={rect.id === selectedId}
+                            // shapeProps={node}
+                            isSelected={node.id === selectedId}
                             onSelect={() => {
-                                selectShape(rect.id);
+                                selectShape(node.id);
                             }}
-                            onChange={(newAttrs: RectAttrs) => {
-                                const rects = rectangles.slice();
-                                rects[i] = newAttrs;
-                                setRectangles(rects);
+                            onChange={(nodeState: NodeState) => {
+                                const nodes = diagram.Nodes.slice();
+                                nodes[i] = nodeState;
+                                setDiagram({...diagram, Nodes: nodes})
                             }}
+                            {...node}
                         />
                     );
                 })}

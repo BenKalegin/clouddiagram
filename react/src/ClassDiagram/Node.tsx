@@ -1,8 +1,18 @@
 import styles from './Node.module.scss';
 import classNames from 'classnames';
 import {NodeState, Port, PortPosition} from "./Models";
+import React, {RefObject} from "react";
+import {Rect, Transformer} from "react-konva";
+import Konva from "konva";
 
-export const Node = function (node: NodeState) {
+export interface NodeProps extends NodeState {
+    isSelected: boolean;
+    onSelect: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
+    onChange: (newState: NodeState) => void;
+
+}
+
+export const Node = (node: NodeProps) => {
     const portPositionClass = (pos: PortPosition) => {
         switch (pos) {
             case PortPosition.Top:
@@ -20,12 +30,70 @@ export const Node = function (node: NodeState) {
         return classNames(styles.port, portPositionClass(port.position));
     };
 
-    return <div className={styles.node}
-                style={{top: node.top, left: node.left}}>
-        <div className={styles.defaultNode} data-id={node.id}>
-            Hello
-            {node.ports.map((port, index) => <div key={index} className={portClasses(port)}/>
+    const shapeRef: RefObject<Konva.Rect> = React.useRef(null);
+    const trRef: RefObject<Konva.Transformer> = React.useRef(null);
+
+    React.useEffect(() => {
+        if (node.isSelected) {
+            // we need to attach transformer manually
+            // @ts-ignore
+            trRef.current.nodes([shapeRef.current]);
+            // @ts-ignore
+            trRef.current.getLayer().batchDraw();
+        }
+    }, [node.isSelected]);
+
+    return (
+        <React.Fragment>
+            <Rect
+                onClick={node.onSelect}
+                ref={shapeRef}
+                fill={"red"}
+                {...node}
+                cornerRadius={10}
+                draggable
+                onDragEnd={(e) => {
+                    node.onChange({...node, x: e.target.x(), y: e.target.y()});
+                }}
+                onTransformEnd={() => {
+                    // transformer is changing scale of the node
+                    // and NOT its width or height
+                    // but in the store we have only width and height
+                    // to match the data better we will reset scale on transform end
+                    const n = shapeRef.current!;
+                    const scaleX = n.scaleX();
+                    const scaleY = n.scaleY();
+
+                    // we will reset it back
+                    n.scaleX(1);
+                    n.scaleY(1);
+                    node.onChange({
+                        ...node,
+                        // set minimal value
+                        width: Math.max(5, n.width() * scaleX),
+                        height: Math.max(n.height() * scaleY),
+                    });
+                }}
+            />
+            {node.isSelected && (
+                <Transformer
+                    ref={trRef}
+                    boundBoxFunc={(oldBox, newBox) => {
+                        // limit resize
+                        if (newBox.width < 5 || newBox.height < 5) {
+                            return oldBox;
+                        }
+                        return newBox;
+                    }}
+                />
             )}
-        </div>
-    </div>;
+        </React.Fragment>)
+    // return <div className={styles.node}
+    //             style={{top: node.top, left: node.left}}>
+    //     <div className={styles.defaultNode} data-id={node.id}>
+    //         Hello
+    //         {node.ports.map((port, index) => <div key={index} className={portClasses(port)}/>
+    //         )}
+    //     </div>
+    // </div>;
 };

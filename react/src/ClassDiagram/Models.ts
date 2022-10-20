@@ -5,13 +5,18 @@ export interface Port {
 }
 
 export interface Coordinate {
-    top: number;
-    left: number;
+    y: number;
+    x: number;
 }
 
-export const ZeroCoordinate : Coordinate = {left: 0, top: 0};
+export const ZeroCoordinate : Coordinate = {x: 0, y: 0};
 
-export interface NodeState extends DiagramElement, Coordinate {
+export interface Bounds extends Coordinate {
+    width: number;
+    height: number;
+}
+
+export interface NodeState extends DiagramElement, Bounds {
     ports: Port[];
 }
 
