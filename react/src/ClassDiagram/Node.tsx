@@ -5,14 +5,15 @@ import React, {RefObject} from "react";
 import {Rect, Transformer} from "react-konva";
 import Konva from "konva";
 
-export interface NodeProps extends NodeState {
+export interface NodeProps {
     isSelected: boolean;
     onSelect: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
     onChange: (newState: NodeState) => void;
+    node: NodeState;
 
 }
 
-export const Node = (node: NodeProps) => {
+export const Node = (props: NodeProps) => {
     const portPositionClass = (pos: PortPosition) => {
         switch (pos) {
             case PortPosition.Top:
@@ -34,26 +35,28 @@ export const Node = (node: NodeProps) => {
     const trRef: RefObject<Konva.Transformer> = React.useRef(null);
 
     React.useEffect(() => {
-        if (node.isSelected) {
+        if (props.isSelected) {
             // we need to attach transformer manually
             // @ts-ignore
             trRef.current.nodes([shapeRef.current]);
             // @ts-ignore
             trRef.current.getLayer().batchDraw();
         }
-    }, [node.isSelected]);
+    }, [props.isSelected]);
+
+    console.log( "Node: " + props.node.id +  " selected " + props.isSelected);
 
     return (
         <React.Fragment>
             <Rect
-                onClick={node.onSelect}
+                onClick={props.onSelect}
                 ref={shapeRef}
                 fill={"red"}
-                {...node}
+                {...props.node}
                 cornerRadius={10}
                 draggable
                 onDragEnd={(e) => {
-                    node.onChange({...node, x: e.target.x(), y: e.target.y()});
+                    props.onChange({...props.node, x: e.target.x(), y: e.target.y()});
                 }}
                 onTransformEnd={() => {
                     // transformer is changing scale of the node
@@ -67,15 +70,17 @@ export const Node = (node: NodeProps) => {
                     // we will reset it back
                     n.scaleX(1);
                     n.scaleY(1);
-                    node.onChange({
-                        ...node,
+                    props.onChange({
+                        ...props.node,
+                        x: n.x(),
+                        y: n.y(),
                         // set minimal value
                         width: Math.max(5, n.width() * scaleX),
                         height: Math.max(n.height() * scaleY),
                     });
                 }}
             />
-            {node.isSelected && (
+            {props.isSelected && (
                 <Transformer
                     ref={trRef}
                     boundBoxFunc={(oldBox, newBox) => {

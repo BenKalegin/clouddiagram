@@ -201,17 +201,17 @@ export function DiagramCanvas() {
     ];
 
 
-    const [rectangles, setRectangles] = React.useState(initialRectangles);
-    const [selectedId, selectShape] = React.useState<string | null>(null);
+    const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on empty area
         const clickedOnEmpty = e.target === e.target.getStage();
         if (clickedOnEmpty) {
-            selectShape(null);
+            setSelectedId(null);
         }
     };
 
+    console.log("selected: " + selectedId);
     return (
         <Stage
             width={window.innerWidth}
@@ -226,14 +226,16 @@ export function DiagramCanvas() {
                             // shapeProps={node}
                             isSelected={node.id === selectedId}
                             onSelect={() => {
-                                selectShape(node.id);
+                                console.log("selecting: " + node.id);
+                                setSelectedId(node.id);
                             }}
                             onChange={(nodeState: NodeState) => {
+                                console.log("changed: " + nodeState.id);
                                 const nodes = diagram.Nodes.slice();
-                                nodes[i] = nodeState;
+                                nodes[i] = {...nodeState};
                                 setDiagram({...diagram, Nodes: nodes})
                             }}
-                            {...node}
+                            node={node}
                         />
                     );
                 })}
