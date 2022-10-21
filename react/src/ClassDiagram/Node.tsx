@@ -2,7 +2,7 @@ import styles from './Node.module.scss';
 import classNames from 'classnames';
 import {NodeState, Port, PortPosition} from "./Models";
 import React, {RefObject} from "react";
-import {Rect, Transformer} from "react-konva";
+import {Circle, Rect, Text, Transformer} from "react-konva";
 import Konva from "konva";
 
 export interface NodeProps {
@@ -80,6 +80,15 @@ export const Node = (props: NodeProps) => {
                     });
                 }}
             />
+            <Text
+                x={props.node.x}
+                y={props.node.y}
+                width={props.node.width}
+                height={props.node.height}
+                align={"center"}
+                verticalAlign={"middle"}
+                text={"Hello"}
+            />
             {props.isSelected && (
                 <Transformer
                     ref={trRef}
@@ -92,13 +101,16 @@ export const Node = (props: NodeProps) => {
                     }}
                 />
             )}
+            {props.node.ports.map((port, index) =>
+                <Circle
+                    x={props.node.x + (port.position === PortPosition.Left ? 0 : props.node.width)}
+                    y={props.node.y + (port.position === PortPosition.Top ? 0 : props.node.height)}
+                    radius={5}
+                    fill={"green"}
+                    key={index}
+                    {...port}
+                    className={portClasses(port)}
+                />)}
+
         </React.Fragment>)
-    // return <div className={styles.node}
-    //             style={{top: node.top, left: node.left}}>
-    //     <div className={styles.defaultNode} data-id={node.id}>
-    //         Hello
-    //         {node.ports.map((port, index) => <div key={index} className={portClasses(port)}/>
-    //         )}
-    //     </div>
-    // </div>;
 };
