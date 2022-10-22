@@ -1,6 +1,6 @@
 import {DiagramElement} from "../Common/Model";
 
-export interface Port {
+export interface PortState {
     position: PortPosition;
 }
 
@@ -17,7 +17,7 @@ export interface Bounds extends Coordinate {
 }
 
 export interface NodeState extends DiagramElement, Bounds {
-    ports: Port[];
+    ports: PortState[];
 }
 
 export enum PortPosition {
@@ -28,8 +28,8 @@ export enum PortPosition {
 }
 
 export interface LinkState {
-    port1: Port;
-    port2: Port;
+    port1: PortState;
+    port2: PortState;
 }
 
 export interface ClassDiagramState {
