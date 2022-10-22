@@ -1,6 +1,6 @@
 import {Bounds, Coordinate, NodeState, Port, PortPosition} from "./Models";
 import React, {RefObject} from "react";
-import {Circle, Group, Label, Rect, Text, Transformer} from "react-konva";
+import {Circle, Rect, Text, Transformer} from "react-konva";
 import Konva from "konva";
 
 export interface NodeProps {
@@ -112,10 +112,6 @@ export const Node = (props: NodeProps) => {
                     draggable={false}
                     listening={false}
                     preventDefault={true}
-                    // https://stackoverflow.com/questions/49692354/is-there-a-way-to-define-text-inside-a-konva-rect-class-by-using-only-konva-rect
-                    // Use Konva.Label
-                    // Create a draggable group with rectangle and text inside
-                    // Create one custom shape. Draw rectangle and text inside sceneFunc
                 />
                 {props.node.ports.map((port, index) =>
                     <Circle
