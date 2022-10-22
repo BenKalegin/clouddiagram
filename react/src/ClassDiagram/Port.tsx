@@ -45,7 +45,8 @@ export const Port = function (props: PortProps) {
         <Circle
             {...portPos()}
             radius={6}
-            fill={isHover ? "green": "blue"}
+            stroke={"burlywood"}
+            fill={isHover ? "burlywood": "cornsilk"}
             onMouseEnter={() => {setIsHover(true)}}
             onMouseLeave={() => {setIsHover(false)}}
         />

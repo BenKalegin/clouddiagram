@@ -34,7 +34,8 @@ export const Node = (props: NodeProps) => {
             <Rect
                 onClick={props.onSelect}
                 ref={shapeRef}
-                fill={"red"}
+                fill={"cornsilk"}
+                stroke={"burlywood"}
                 {...props.node}
                 cornerRadius={10}
                 draggable
