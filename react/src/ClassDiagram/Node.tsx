@@ -1,11 +1,13 @@
 import {NodeState} from "./Models";
 import React, {RefObject} from "react";
-import {Rect, Text, Transformer} from "react-konva";
+import {Rect, Text} from "react-konva";
 import Konva from "konva";
 import {Port} from "./Port";
+import {Scaffold} from "./Scaffold";
 
 export interface NodeProps {
     isSelected: boolean;
+    isFocused: boolean;
     onSelect: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
     onChange: (newState: NodeState) => void;
     node: NodeState;
@@ -15,19 +17,17 @@ export interface NodeProps {
 export const Node = (props: NodeProps) => {
 
     const shapeRef: RefObject<Konva.Rect> = React.useRef(null);
-    const trRef: RefObject<Konva.Transformer> = React.useRef(null);
+    // const trRef: RefObject<Scaffold> = React.useRef(null);
 
-    React.useEffect(() => {
-        if (props.isSelected) {
-            // we need to attach transformer manually
-            // @ts-ignore
-            trRef.current.nodes([shapeRef.current]);
-            // @ts-ignore
-            trRef.current.getLayer().batchDraw();
-        }
-    }, [props.isSelected]);
-
-    console.log("Node: " + props.node.id + " selected " + props.isSelected);
+    // React.useEffect(() => {
+    //     if (props.isSelected) {
+    //         // we need to attach transformer manually
+    //         // @ts-ignore
+    //         trRef.current.nodes([shapeRef.current]);
+    //         // @ts-ignore
+    //         trRef.current.getLayer().batchDraw();
+    //     }
+    // }, [props.isSelected]);
 
     return (
         <React.Fragment>
@@ -38,7 +38,7 @@ export const Node = (props: NodeProps) => {
                 stroke={"burlywood"}
                 {...props.node}
                 cornerRadius={10}
-                draggable
+                //draggable
                 onDragEnd={(e) => {
                     props.onChange({...props.node, x: e.target.x(), y: e.target.y()});
                 }}
@@ -65,15 +65,17 @@ export const Node = (props: NodeProps) => {
                 }}>
             </Rect>
             {props.isSelected && (
-                <Transformer
-                    ref={trRef}
-                    boundBoxFunc={(oldBox, newBox) => {
+                <Scaffold
+                    bounds={props.node}
+                    // ref={trRef}
+                    isFocused={props.isFocused}
+/*                    boundBoxFunc={(oldBox, newBox) => {
                         // limit resize
                         if (newBox.width < 5 || newBox.height < 5) {
                             return oldBox;
                         }
                         return newBox;
-                    }}
+                    }}*/
                 />
             )}
             <Text

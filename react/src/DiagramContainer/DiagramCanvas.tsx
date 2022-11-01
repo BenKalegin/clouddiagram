@@ -5,6 +5,7 @@ import {ClassDiagramState, ClassDiagramViewState, NodeState, PortPosition} from 
 import {DiagramElement} from "../Common/Model";
 import Konva from "konva";
 import {Link} from "../ClassDiagram/Link";
+import {getFirstVisibleElementFromSelector} from "@fluentui/react";
 
 function getDefaultDiagramState(): ClassDiagramState {
     let port1 = {position: PortPosition.Right};
@@ -50,8 +51,10 @@ function getDefaultDiagramViewState(): ClassDiagramViewState {
     return {
         ...diagramState,
         elementsById: new Map<string, DiagramElement>(
-            diagramState.Nodes.map(n => [n.id, n])
-        )
+            diagramState.Nodes.map(n => [n.id, n])),
+        selectedElementIds: [],
+        focusedElementId: null,
+        overlayEditor: null
     };
 }
 
@@ -67,17 +70,38 @@ export function DiagramCanvas() {
     // TODO const [diagram, dispatch] = useReducer(cloudDiagramReducer, defaultDiagramState);
     const [diagram, setDiagram] = useState(defaultDiagramState);
 
-    const [selectedId, setSelectedId] = React.useState<string | null>(null);
-
-    const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
-        // deselect when clicked on empty area
-        const clickedOnEmpty = e.target === e.target.getStage();
-        if (clickedOnEmpty) {
-            setSelectedId(null);
+    const setSelectedIds = (selectedElementIds: string[]) => setDiagram({
+        ...diagram,
+        selectedElementIds: selectedElementIds,
+        focusedElementId: selectedElementIds.length > 0 ? selectedElementIds[selectedElementIds.length-1] : null
+    });
+    const clearSelection = () => {
+        setSelectedIds([])
+    };
+    const selectId = (id: string, append: boolean) => {
+        if (!append) {
+            setSelectedIds([id])
+        }
+        else {
+            if (!diagram.selectedElementIds.includes(id)) {
+                setSelectedIds([...diagram.selectedElementIds, id])
+            }else
+                setSelectedIds(diagram.selectedElementIds.filter(e => e !== id))
         }
     };
 
-    console.log("selected: " + selectedId);
+    const isSelected = (node: NodeState) => diagram.selectedElementIds.includes(node.id);
+    const isFocused = (node: NodeState) => diagram.focusedElementId === node.id;
+
+
+    const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
+        // deselect when clicked on empty area
+        const clickedOnEmpty = e.target === e.target.getStage()
+        if (clickedOnEmpty) {
+            clearSelection()
+        }
+    }
+
     return (
         <Stage
             width={window.innerWidth}
@@ -89,13 +113,12 @@ export function DiagramCanvas() {
                     return (
                         <Node
                             key={i}
-                            isSelected={node.id === selectedId}
-                            onSelect={() => {
-                                console.log("selecting: " + node.id);
-                                setSelectedId(node.id);
+                            isSelected={isSelected(node)}
+                            isFocused={isFocused(node)}
+                            onSelect={({evt}) => {
+                                selectId(node.id, evt.shiftKey || evt.ctrlKey);
                             }}
                             onChange={(nodeState: NodeState) => {
-                                console.log("changed: " + nodeState.id);
                                 const nodes = diagram.Nodes.slice();
                                 nodes[i] = {...nodeState};
                                 setDiagram({...diagram, Nodes: nodes})

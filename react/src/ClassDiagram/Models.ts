@@ -37,7 +37,17 @@ export interface ClassDiagramState {
     Links: LinkState[];
 }
 
+
+export interface OverlayEditor {
+
+}
+
 export interface ClassDiagramViewState extends ClassDiagramState {
+    // draggingElement: DiagramElement | null;
+    // resizingElement: DiagramElement | null;
+    focusedElementId: string | null;
+    selectedElementIds: string[];
+    overlayEditor: OverlayEditor | null;
     elementsById: Map<string, DiagramElement>
 }
 
