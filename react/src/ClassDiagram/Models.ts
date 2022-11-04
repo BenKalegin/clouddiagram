@@ -16,6 +16,13 @@ export interface Bounds extends Coordinate {
     height: number;
 }
 
+export const inflate = (bounds: Bounds, dx: number, dy: number): Bounds => ({
+    x: bounds.x - dx,
+    y: bounds.y - dy,
+    width: bounds.width + dx * 2,
+    height: bounds.height + dy * 2
+});
+
 export interface NodeState extends DiagramElement, Bounds {
     ports: PortState[];
 }

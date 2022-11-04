@@ -38,6 +38,7 @@ export const Node = (props: NodeProps) => {
                 stroke={"burlywood"}
                 {...props.node}
                 cornerRadius={10}
+                cursor={"crosshair"}
                 //draggable
                 onDragEnd={(e) => {
                     props.onChange({...props.node, x: e.target.x(), y: e.target.y()});

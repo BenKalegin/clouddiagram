@@ -1,6 +1,6 @@
 import React from "react";
 import {Rect} from "react-konva";
-import {Bounds} from "./Models";
+import {Bounds, inflate} from "./Models";
 import {enumKeys} from "../Common/EnumUtils";
 
 export interface ScaffoldProps {
@@ -99,31 +99,41 @@ const ResizeHandle = (props: ResizeHandleProps) => {
             // so activating the anchor will not start drag&drop of any parent
             draggable={true}
             // hitStrokeWidth = {TOUCH_DEVICE ? 10 : 'auto'},
+            onMouseEnter={e => {
+                const container = e.target.getStage()?.container();
+                if (container)
+                    container.style.cursor = props.cursor;
+            }}
+            onMouseLeave={e => {
+                const container = e.target.getStage()?.container();
+                if (container)
+                    container.style.cursor = "default";
+            }}
         />
     );
 }
 
 const resizeHandleBounds = (direction: ResizeHandleDirection, bounds: Bounds): Bounds => {
-    const width = 10;
-    const height = 10;
+    const width = 8;
+    const height = 8;
 
     switch (direction) {
         case ResizeHandleDirection.North:
-            return {x: bounds.x + (bounds.width- width/2), y: bounds.y, width: width, height: height};
+            return {x: bounds.x + (bounds.width- width)/2, y: bounds.y, width: width, height: height};
         case ResizeHandleDirection.NorthEast:
             return {x: bounds.x + bounds.width - width/2, y: bounds.y, width: width, height: height};
         case ResizeHandleDirection.NorthWest:
             return {x: bounds.x, y: bounds.y, width: width, height: height};
         case ResizeHandleDirection.South:
-            return {x: bounds.x + (bounds.width- width/2), y: bounds.y + bounds.height - height/2, width: width, height: height};
+            return {x: bounds.x + (bounds.width- width)/2, y: bounds.y + bounds.height - height/2, width: width, height: height};
         case ResizeHandleDirection.SouthEast:
             return {x: bounds.x + bounds.width - width/2, y: bounds.y + bounds.height - height/2, width: width, height: height};
         case ResizeHandleDirection.SouthWest:
             return {x: bounds.x, y: bounds.y + bounds.height - height/2, width: width, height: height};
         case ResizeHandleDirection.East:
-            return {x: bounds.x + bounds.width - width/2, y: bounds.y + (bounds.height - height/2), width: width, height: height};
+            return {x: bounds.x + bounds.width - width/2, y: bounds.y + (bounds.height - height)/2, width: width, height: height};
         case ResizeHandleDirection.West:
-            return {x: bounds.x, y: bounds.y + (bounds.height - height/2), width: width, height: height};
+            return {x: bounds.x, y: bounds.y + (bounds.height - height)/2, width: width, height: height};
     }
 }
 
@@ -153,21 +163,22 @@ const resizeHandleCursor = (direction: ResizeHandleDirection): string => {
 }
 
 export const Scaffold = (props: ScaffoldProps) => {
+    const bounds = inflate(props.bounds, 6, 6);
     return (
         <React.Fragment>
             <Background
-                bounds={props.bounds}
+                bounds={bounds}
             />
             {enumKeys(ResizeHandleDirection).map((direction, index) =>
                 <ResizeHandle
                     key={index}
-                    bounds={resizeHandleBounds(ResizeHandleDirection[direction], props.bounds)}
+                    bounds={resizeHandleBounds(ResizeHandleDirection[direction], bounds)}
                     cursor={resizeHandleCursor(ResizeHandleDirection[direction])}
                     direction={ResizeHandleDirection[direction]}
                 />
             )}
             {props.isFocused && <FocusFrame
-                bounds={props.bounds}
+                bounds={bounds}
             />}
         </React.Fragment>
     )
@@ -214,39 +225,6 @@ export const Scaffold = (props: ScaffoldProps) => {
         //     this._cursorChange = false;
         // });
         // this.add(anchor);
-    // }
-    // private getCursor(anchorName: string, rad: number) {
-    //     var angle = ((Util.radToDeg(rad) % 360) + 360) % 360;
-    //
-    //     if (Util._inRange(angle, 315 + 22.5, 360) || Util._inRange(angle, 0, 22.5)) {
-    //         // TOP
-    //         return 'ns-resize';
-    //     } else if (Util._inRange(angle, 45 - 22.5, 45 + 22.5)) {
-    //         // TOP - RIGHT
-    //         return 'nesw-resize';
-    //     } else if (Util._inRange(angle, 90 - 22.5, 90 + 22.5)) {
-    //         // RIGHT
-    //         return 'ew-resize';
-    //     } else if (Util._inRange(angle, 135 - 22.5, 135 + 22.5)) {
-    //         // BOTTOM - RIGHT
-    //         return 'nwse-resize';
-    //     } else if (Util._inRange(angle, 180 - 22.5, 180 + 22.5)) {
-    //         // BOTTOM
-    //         return 'ns-resize';
-    //     } else if (Util._inRange(angle, 225 - 22.5, 225 + 22.5)) {
-    //         // BOTTOM - LEFT
-    //         return 'nesw-resize';
-    //     } else if (Util._inRange(angle, 270 - 22.5, 270 + 22.5)) {
-    //         // RIGHT
-    //         return 'ew-resize';
-    //     } else if (Util._inRange(angle, 315 - 22.5, 315 + 22.5)) {
-    //         // BOTTOM - RIGHT
-    //         return 'nwse-resize';
-    //     } else {
-    //         // how can we can there?
-    //         Util.error('Transformer has unknown angle for cursor detection: ' + angle);
-    //         return 'pointer';
-    //     }
     // }
     //
     // _handleMouseDown(e) {
