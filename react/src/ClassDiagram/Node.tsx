@@ -77,6 +77,17 @@ export const Node = (props: NodeProps) => {
                         }
                         return newBox;
                     }}*/
+                    onResize={deltaBounds => {
+                        props.onChange({
+                            ...props.node,
+                            x: props.node.x + deltaBounds.x,
+                            y: props.node.y + deltaBounds.y,
+                            // set minimal value
+                            width: Math.max(5, props.node.width + deltaBounds.width),
+                            height: Math.max(5, props.node.height + deltaBounds.height),
+                        })
+                    }
+                 }
                 />
             )}
             <Text

@@ -1,6 +1,6 @@
 import React from "react";
 import {Rect} from "react-konva";
-import {Bounds, inflate} from "./Models";
+import {Bounds, Coordinate, inflate} from "./Models";
 import {enumKeys} from "../Common/EnumUtils";
 
 export interface ScaffoldProps {
@@ -23,6 +23,7 @@ export interface ScaffoldProps {
     useSingleNodeRotation?: boolean;
     shouldOverdrawWholeArea?: boolean;
     isFocused?: boolean;
+    onResize: (suggestedBounds: Bounds) => void;
 }
 
 enum ResizeHandleDirection {
@@ -51,9 +52,12 @@ const FocusFrame = (props: FocusFrameProps) => {
             width={props.bounds.width}
             height={props.bounds.height}
             fill={"transparent"}
-            stroke={"blue"}
-            strokeWidth={1.4}
-            cornerRadius={10}>
+            dash={[3,5]}
+            stroke={"darkgray"}
+            strokeWidth={4}
+            draggable={false}
+            listening={false}
+            cornerRadius={0}>
         </Rect>
     );
 };
@@ -80,9 +84,36 @@ export interface ResizeHandleProps {
     cursor: string;
     bounds: Bounds;
     direction: ResizeHandleDirection;
+    onDrag: (bounds: Bounds) => void;
 }
 
+const calculateResizedBounds = (delta: Coordinate, direction: ResizeHandleDirection): Bounds => {
+    console.log("calculateResizedBounds", delta, direction);
+    switch (direction) {
+        case ResizeHandleDirection.North:
+            return {x: 0, y: delta.y, width: 0, height: -delta.y};
+        case ResizeHandleDirection.NorthEast:
+            return {x: 0, y: delta.y, width: delta.x, height: -delta.y};
+        case ResizeHandleDirection.NorthWest:
+            return {x: delta.x, y: delta.y, width: -delta.x, height: -delta.y};
+        case ResizeHandleDirection.South:
+            return {x: 0, y: 0, width: 0, height: delta.y};
+        case ResizeHandleDirection.SouthEast:
+            return {x: 0, y: 0, width: delta.x, height: delta.y};
+        case ResizeHandleDirection.SouthWest:
+            return {x: delta.x, y: 0, width: -delta.x, height: delta.y};
+        case ResizeHandleDirection.East:
+            return {x: 0, y: 0, width: delta.x, height: 0};
+        case ResizeHandleDirection.West:
+            return {x: delta.x, y: 0, width: -delta.x, height: 0};
+    }
+
+};
+
 const ResizeHandle = (props: ResizeHandleProps) => {
+
+    const [position, setPosition] = React.useState<Coordinate>({x: props.bounds.x, y: props.bounds.y});
+
     return (
         <Rect
             x={props.bounds.x}
@@ -109,13 +140,22 @@ const ResizeHandle = (props: ResizeHandleProps) => {
                 if (container)
                     container.style.cursor = "default";
             }}
+
+            onDragMove={e => {
+                const delta: Coordinate =  {
+                    x: e.target.x() - position.x,
+                    y: e.target.y() - position.y
+                }
+                setPosition({x: e.target.x(), y: e.target.y()});
+                props.onDrag(calculateResizedBounds(delta, props.direction));
+            }}
         />
     );
 }
 
 const resizeHandleBounds = (direction: ResizeHandleDirection, bounds: Bounds): Bounds => {
-    const width = 8;
-    const height = 8;
+    const width = 7;
+    const height = 7;
 
     switch (direction) {
         case ResizeHandleDirection.North:
@@ -163,7 +203,8 @@ const resizeHandleCursor = (direction: ResizeHandleDirection): string => {
 }
 
 export const Scaffold = (props: ScaffoldProps) => {
-    const bounds = inflate(props.bounds, 6, 6);
+    const bounds = inflate(props.bounds, 12, 12);
+
     return (
         <React.Fragment>
             <Background
@@ -175,6 +216,7 @@ export const Scaffold = (props: ScaffoldProps) => {
                     bounds={resizeHandleBounds(ResizeHandleDirection[direction], bounds)}
                     cursor={resizeHandleCursor(ResizeHandleDirection[direction])}
                     direction={ResizeHandleDirection[direction]}
+                    onDrag={newBounds =>  props.onResize(newBounds)}
                 />
             )}
             {props.isFocused && <FocusFrame
