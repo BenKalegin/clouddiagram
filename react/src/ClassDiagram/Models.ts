@@ -2,6 +2,7 @@ import {DiagramElement} from "../Common/Model";
 
 export interface PortState {
     position: PortPosition;
+    marker: boolean;
 }
 
 export interface Coordinate {

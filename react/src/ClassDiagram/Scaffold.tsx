@@ -64,9 +64,12 @@ const FocusFrame = (props: FocusFrameProps) => {
 
 export interface BackgroundProps {
     bounds: Bounds;
+    onDrag: (bounds: Bounds) => void;
 }
 
 const Background = (props: BackgroundProps) => {
+    const [position, setPosition] = React.useState<Coordinate>({x: props.bounds.x, y: props.bounds.y});
+
     return (
         <Rect
             x={props.bounds.x}
@@ -76,6 +79,18 @@ const Background = (props: BackgroundProps) => {
             fill={"transparent"}
             stroke={""}
             strokeWidth={0}
+            draggable={true}
+            onDragMove={e => {
+                const delta: Coordinate =  {
+                    x: e.target.x() - position.x,
+                    y: e.target.y() - position.y
+                }
+                setPosition({x: e.target.x(), y: e.target.y()});
+                props.onDrag({
+                    x: delta.x, y: delta.y, width: 0, height: 0
+                });
+            }}
+
         />
     );
 };
@@ -88,7 +103,6 @@ export interface ResizeHandleProps {
 }
 
 const calculateResizedBounds = (delta: Coordinate, direction: ResizeHandleDirection): Bounds => {
-    console.log("calculateResizedBounds", delta, direction);
     switch (direction) {
         case ResizeHandleDirection.North:
             return {x: 0, y: delta.y, width: 0, height: -delta.y};
@@ -209,6 +223,7 @@ export const Scaffold = (props: ScaffoldProps) => {
         <React.Fragment>
             <Background
                 bounds={bounds}
+                onDrag={newBounds => props.onResize(newBounds)}
             />
             {enumKeys(ResizeHandleDirection).map((direction, index) =>
                 <ResizeHandle

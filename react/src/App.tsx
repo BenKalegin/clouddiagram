@@ -51,7 +51,7 @@ const verticalStyle = mergeStyles({
 });
 
 export const App: React.FunctionComponent = () => {
-    const [selectedKey, setSelectedKey] = React.useState('rectangleRed');
+    const [, setSelectedKey] = React.useState('rectangleRed');
 
     const handleLinkClick = (item?: PivotItem) => {
         if (item) {

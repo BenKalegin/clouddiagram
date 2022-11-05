@@ -5,7 +5,6 @@ import {ClassDiagramState, ClassDiagramViewState, NodeState, PortPosition} from 
 import {DiagramElement} from "../Common/Model";
 import Konva from "konva";
 import {Link} from "../ClassDiagram/Link";
-import {getFirstVisibleElementFromSelector} from "@fluentui/react";
 
 function getDefaultDiagramState(): ClassDiagramState {
     let port1 = {position: PortPosition.Right};
