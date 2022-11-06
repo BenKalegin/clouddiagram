@@ -1,4 +1,5 @@
-import {Coordinate, LinkState} from "../../ClassDiagram/Models";
+import {Coordinate, LinkState, PortAlignment} from "../../ClassDiagram/Models";
+import {BezierSpline} from "./BezierSpline";
 
 export class PathGeneratorResult
 {
@@ -9,7 +10,7 @@ export class PathGeneratorResult
 
 export class PathGenerators
 {
-    private const _margin = 125;
+    private static _margin = 125;
 
     static SourceMarkerAdjustment = (route: Coordinate[], markerWidth: number) => {
         const angleInRadians = Math.atan2(route[1].y - route[0].y, route[1].x - route[0].x) + Math.PI;
@@ -32,101 +33,97 @@ export class PathGenerators
         return [source, ...route, target];
     }
 
-    static CurveThroughPoints = (route: Coordinate, link: LinkState) =>
-    {
-        let sourceAngle: number | null = null;
-        let targetAngle: number | null = null;
+    static CurveThroughPoints = (route: Coordinate[], link: LinkState) => {
+        let sourceAngle: number | undefined;
+        let targetAngle: number | undefined;
 
-    if (link.port1.marker  SourceMarker != null)
-    {
-        sourceAngle = SourceMarkerAdjustement(route, link.SourceMarker.Width);
-    }
+        // if (link.port1.marker)
+        sourceAngle = PathGenerators.SourceMarkerAdjustment(route, link.port1.longitude);
 
-    if (link.TargetMarker != null)
-    {
-        targetAngle = TargetMarkerAdjustement(route, link.TargetMarker.Width);
-    }
+        //if (link.port2.marker)
+        targetAngle = PathGenerators.TargetMarkerAdjustment(route, link.port2.longitude);
 
-    BezierSpline.GetCurveControlPoints(route, out var firstControlPoints, out var secondControlPoints);
-    var paths = new string[firstControlPoints.Length];
+        const {firstControlPoints, secondControlPoints} = BezierSpline.GetCurveControlPoints(route)
+        var paths = new Array<string>(firstControlPoints.length);
 
-    for (var i = 0; i < firstControlPoints.Length; i++)
-    {
-        var cp1 = firstControlPoints[i];
-        var cp2 = secondControlPoints[i];
-        paths[i] = FormattableString.Invariant($"M {route[i].x} {route[i].y} C {cp1.x} {cp1.y}, {cp2.x} {cp2.y}, {route[i + 1].x} {route[i + 1].y}");
-    }
-
-// Todo: adjust marker positions based on closest control points
-return new PathGeneratorResult(paths, sourceAngle, route[0], targetAngle, route[^1]);
-}
-
-    public static Smooth = (link: LinkState, route: Coordinate[], source: Coordinate, target: Coordinate) =>
-    {
-        route = PathGenerators.ConcatRouteAndSourceAndTarget(route, source, target);
-
-        if (route.length > 2)
-        return CurveThroughPoints(route, link);
-
-        route = GetRouteWithCurvePoints(link, route);
-        double? sourceAngle = null;
-        double? targetAngle = null;
-
-        if (link.SourceMarker != null)
-    {
-        sourceAngle = SourceMarkerAdjustement(route, link.SourceMarker.Width);
-    }
-
-        if (link.TargetMarker != null)
-        {
-            targetAngle = TargetMarkerAdjustement(route, link.TargetMarker.Width);
+        for (let i = 0; i < firstControlPoints.length; i++) {
+            const cp1 = firstControlPoints[i]
+            const cp2 = secondControlPoints[i]
+            paths[i] = `M ${route[i].x} ${route[i].y} C ${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${route[i+1].x} ${route[i+1].y}`
         }
-
-        var path = FormattableString.Invariant($"M {route[0].x} {route[0].y} C {route[1].x} {route[1].y}, {route[2].x} {route[2].y}, {route[3].x} {route[3].y}");
-        return new PathGeneratorResult(new[] { path }, sourceAngle, route[0], targetAngle, route[^1]);
+        // Todo: adjust marker positions based on closest control points
+        return new PathGeneratorResult(paths, sourceAngle, route[0], targetAngle, route[route.length-1])
     }
 
-
-    private static Point[] GetRouteWithCurvePoints(BaseLinkModel link, Point[] route)
-    {
-        if (link.IsPortless)
+    static GetCurvePoint = (pX: number, pY: number, cX: number, cY: number, alignment?: PortAlignment) : Coordinate => {
+        const margin = Math.min(PathGenerators._margin, Math.pow(Math.pow(pX - cX, 2) + Math.pow(pY - cY, 2), .5));
+        switch(alignment)
         {
-            if (Math.Abs(route[0].x - route[1].x) >= Math.Abs(route[0].y - route[1].y))
+            case PortAlignment.Top:
+                return {x: pX, y: Math.min(pY - margin, cY)}
+            case PortAlignment.Bottom:
+                return {x: pX, y: Math.max(pY + margin, cY)}
+            // case PortAlignment.TopRight:
+            //     return {x: Math.max(pX + margin, cX), y: Math.min(pY - margin, cY)}
+            // case PortAlignment.BottomRight:
+            //     return {x: Math.max(pX + margin, cX), y: Math.max(pY + margin, cY)}
+            case PortAlignment.Right:
+                return {x: Math.max(pX + margin, cX), y: pY}
+            case PortAlignment.Left:
+                return {x: Math.min(pX - margin, cX), y: pY}
+            // case PortAlignment.BottomLeft:
+            //     return {x: Math.min(pX - margin, cX), y: Math.max(pY + margin, cY)}
+            // case PortAlignment.TopLeft:
+            //     return {x: Math.min(pX - margin, cX), y: Math.min(pY - margin, cY)}
+        }
+        throw new Error("Invalid alignment: " + alignment);
+    }
+
+    static GetRouteWithCurvePoints = (link: LinkState, route: Coordinate[]) : Coordinate[] =>
+    {
+        if (!link.port1)
+        {
+            if (Math.abs(route[0].x - route[1].x) >= Math.abs(route[0].y - route[1].y))
             {
-                var cX = (route[0].x + route[1].x) / 2;
-                return new[] { route[0], new Point(cX, route[0].y), new Point(cX, route[1].y), route[1] };
+                const cX = (route[0].x + route[1].x) / 2;
+                return [route[0], {x: cX, y: route[0].y}, {x: cX, y: route[1].y}, route[1]]
             }
             else
             {
-                var cY = (route[0].y + route[1].y) / 2;
-                return new[] { route[0], new Point(route[0].x, cY), new Point(route[1].x, cY), route[1] };
+                const cY = (route[0].y + route[1].y) / 2;
+                return [route[0], {x: route[0].x, y: cY}, { x: route[1].x, y: cY}, route[1]]
             }
         }
         else
         {
-            var cX = (route[0].x + route[1].x) / 2;
-            var cY = (route[0].y + route[1].y) / 2;
-            var curvePointA = GetCurvePoint(route[0].x, route[0].y, cX, cY, link.SourcePort?.Alignment);
-            var curvePointB = GetCurvePoint(route[1].x, route[1].y, cX, cY, link.TargetPort?.Alignment);
-            return new[] { route[0], curvePointA, curvePointB, route[1] };
+            const cX = (route[0].x + route[1].x) / 2
+            const cY = (route[0].y + route[1].y) / 2
+            const curvePointA = PathGenerators.GetCurvePoint(route[0].x, route[0].y, cX, cY, link.port1?.alignment)
+            const curvePointB = PathGenerators.GetCurvePoint(route[1].x, route[1].y, cX, cY, link.port2?.alignment)
+            return [route[0], curvePointA, curvePointB, route[1]]
         }
     }
 
-    private static Point GetCurvePoint(double pX, double pY, double cX, double cY, PortAlignment? alignment)
+
+public static Smooth = (link: LinkState, route: Coordinate[], source: Coordinate, target: Coordinate) =>
     {
-        var margin = Math.Min(_margin, Math.Pow(Math.Pow(pX - cX, 2) + Math.Pow(pY - cY, 2), .5));
-        return alignment switch
-        {
-            PortAlignment.Top => new Point(pX, Math.Min(pY - margin, cY)),
-            PortAlignment.Bottom => new Point(pX, Math.Max(pY + margin, cY)),
-            PortAlignment.TopRight => new Point(Math.Max(pX + margin, cX), Math.Min(pY - margin, cY)),
-            PortAlignment.BottomRight => new Point(Math.Max(pX + margin, cX), Math.Max(pY + margin, cY)),
-            PortAlignment.Right => new Point(Math.Max(pX + margin, cX), pY),
-            PortAlignment.Left => new Point(Math.Min(pX - margin, cX), pY),
-            PortAlignment.BottomLeft => new Point(Math.Min(pX - margin, cX), Math.Max(pY + margin, cY)),
-            PortAlignment.TopLeft => new Point(Math.Min(pX - margin, cX), Math.Min(pY - margin, cY)),
-            _ => new Point(cX, cY),
-        };
+        route = PathGenerators.ConcatRouteAndSourceAndTarget(route, source, target);
+
+        if (route.length > 2)
+            return PathGenerators.CurveThroughPoints(route, link);
+
+        route = PathGenerators.GetRouteWithCurvePoints(link, route);
+        let sourceAngle : number | undefined;
+        let targetAngle : number | undefined;
+
+        //if (link.port1.marker)
+        sourceAngle = PathGenerators.SourceMarkerAdjustment(route, link.port1.longitude);
+
+        //if (link.port2.marker)
+        targetAngle = PathGenerators.TargetMarkerAdjustment(route, link.port2.longitude);
+
+        const path = `M ${route[0].x} ${route[0].y} L ${route[1].x} ${route[1].y} L ${route[2].x} ${route[2].y} L ${route[3].x} ${route[3].y}`
+        return new PathGeneratorResult([path], sourceAngle, route[0], targetAngle, route[route.length-1]);
     }
 }
 

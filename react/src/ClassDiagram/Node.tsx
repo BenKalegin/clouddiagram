@@ -1,4 +1,4 @@
-import {NodeState} from "./Models";
+import {Bounds, NodeState, PortAlignment, PortState} from "./Models";
 import React, {RefObject} from "react";
 import {Rect, Text} from "react-konva";
 import Konva from "konva";
@@ -28,6 +28,54 @@ export const Node = (props: NodeProps) => {
     //         trRef.current.getLayer().batchDraw();
     //     }
     // }, [props.isSelected]);
+
+    const portBounds = (port: PortState): Bounds => {
+
+        const node: Bounds = props.node;
+        switch (port.alignment) {
+            case PortAlignment.Top:
+                return {
+                    x: node.x + node.width * port.edgePosRatio / 100 - port.latitude / 2,
+                    y: node.y - port.longitude * (100 - port.depthRatio) / 100,
+                    width: port.latitude,
+                    height: port.longitude
+                }
+            case PortAlignment.Bottom:
+                return {
+                    x: node.x + node.width * port.edgePosRatio / 100 - port.latitude / 2,
+                    y: node.y + node.height - port.longitude * port.depthRatio / 100,
+                    width: port.latitude,
+                    height: port.longitude
+                }
+            case PortAlignment.Left:
+                return {
+                    x: node.x - port.longitude * (100 - port.depthRatio) / 100,
+                    y: node.y + node.height * port.edgePosRatio / 100 - port.latitude / 2,
+                    width: port.latitude,
+                    height: port.longitude
+                }
+            case PortAlignment.Right:
+                return {
+                    x: node.x + node.width - port.longitude * port.depthRatio / 100,
+                    y: node.y + node.height * port.edgePosRatio / 100 - port.latitude / 2,
+                    width: port.latitude,
+                    height: port.longitude
+                };
+            default:
+                throw new Error("Unknown port alignment:" + port.alignment);
+        }
+    }
+
+    function updateStateAfterResize(deltaBounds: Bounds) {
+        const node = {...props.node}
+
+        node.x = props.node.x + deltaBounds.x
+        node.y = props.node.y + deltaBounds.y
+        // set minimal value
+        node.width = Math.max(5, props.node.width + deltaBounds.width)
+        node.height = Math.max(5, props.node.height + deltaBounds.height)
+        return node;
+    }
 
     return (
         <React.Fragment>
@@ -78,14 +126,7 @@ export const Node = (props: NodeProps) => {
                         return newBox;
                     }}*/
                     onResize={deltaBounds => {
-                        props.onChange({
-                            ...props.node,
-                            x: props.node.x + deltaBounds.x,
-                            y: props.node.y + deltaBounds.y,
-                            // set minimal value
-                            width: Math.max(5, props.node.width + deltaBounds.width),
-                            height: Math.max(5, props.node.height + deltaBounds.height),
-                        })
+                        props.onChange(updateStateAfterResize(deltaBounds))
                     }
                  }
                 />
@@ -107,7 +148,7 @@ export const Node = (props: NodeProps) => {
                 <Port
                     key={index}
                     port={port}
-                    node={props.node}
+                    bounds={portBounds(port)}
                 />
             )}
 

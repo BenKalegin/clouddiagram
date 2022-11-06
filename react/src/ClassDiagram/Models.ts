@@ -1,8 +1,6 @@
 import {DiagramElement} from "../Common/Model";
 
-export interface PortState {
-    position: PortPosition;
-    marker: boolean;
+export interface Marker {
 }
 
 export interface Coordinate {
@@ -24,15 +22,43 @@ export const inflate = (bounds: Bounds, dx: number, dy: number): Bounds => ({
     height: bounds.height + dy * 2
 });
 
-export interface NodeState extends DiagramElement, Bounds {
-    ports: PortState[];
-}
-
-export enum PortPosition {
+export enum PortAlignment {
     Left,
     Right,
     Top,
-    Bottom
+    Bottom,
+}
+
+export interface PortState extends DiagramElement {
+    alignment: PortAlignment;
+    /**
+     * Percentage of edge wide where the port center is located, counting from left or top
+     * For example, 50 for the top oriented is the center of the top edge
+     */
+    edgePosRatio: number
+
+    /**
+     * Percentage of the port going deep inside the node.
+     * - 0 means the port is on the edge of the node pointing outward
+     * - 50 means the half of port crosses the edge
+     * - 100 means the port is sunk into the node
+     */
+    depthRatio: number
+
+    /**
+     * Width of the marker along the edge it belong to
+     */
+    latitude: number;
+
+    /**
+     * Height of the marker in perpendicular direction to the edge it belong to
+     */
+    longitude: number;
+}
+
+
+export interface NodeState extends DiagramElement, Bounds {
+    ports: PortState[];
 }
 
 export interface LinkState {
@@ -47,6 +73,11 @@ export interface ClassDiagramState {
 
 
 export interface OverlayEditor {
+
+}
+
+
+export interface LinkViewState extends LinkState {
 
 }
 

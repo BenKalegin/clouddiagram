@@ -138,8 +138,8 @@ export class BezierSpline {
                 y: (2 * firstControlPoints[0].y - knots[0].y)
             }]
             return {
-                firstControlPoints: firstControlPoints,
-                secondControlPoints: secondControlPoints
+                firstControlPoints,
+                secondControlPoints
             };
         }
 
@@ -175,6 +175,7 @@ export class BezierSpline {
             else
                 secondControlPoints[i] = {x: (knots[n].x + x[n - 1]) / 2, y: (knots[n].y + y[n - 1]) / 2}
         }
+        return { firstControlPoints, secondControlPoints };
     };
 
     /// <summary>

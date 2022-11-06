@@ -1,20 +1,52 @@
 import {Node} from "../ClassDiagram/Node";
 import React, {useState} from "react";
 import {Layer, Stage} from 'react-konva';
-import {ClassDiagramState, ClassDiagramViewState, NodeState, PortPosition} from "../ClassDiagram/Models";
+import {
+    ClassDiagramState,
+    ClassDiagramViewState,
+    LinkState,
+    NodeState,
+    PortAlignment,
+    PortState
+} from "../ClassDiagram/Models";
 import {DiagramElement} from "../Common/Model";
 import Konva from "konva";
 import {Link} from "../ClassDiagram/Link";
 
 function getDefaultDiagramState(): ClassDiagramState {
-    let port1 = {position: PortPosition.Right};
+    const port11: PortState = {
+        id: "port1",
+        edgePosRatio: 50,
+        alignment: PortAlignment.Right,
+        depthRatio: 50,
+        latitude: 8,
+        longitude: 8
+    }
+
+    const port12: PortState = {
+        id: "port1",
+        edgePosRatio: 50,
+        alignment: PortAlignment.Top,
+        depthRatio: 50,
+        latitude: 8,
+        longitude: 8
+    }
+
+    const port13: PortState = {
+        id: "port1",
+        edgePosRatio: 50,
+        alignment: PortAlignment.Bottom,
+        depthRatio: 50,
+        latitude: 8,
+        longitude: 8
+    }
+
     const node1: NodeState = {
         id: "node1",
         ports: [
-            {position: PortPosition.Left},
-            port1,
-            {position: PortPosition.Top},
-            {position: PortPosition.Bottom}
+            port11,
+            port12,
+            port13
         ],
         y: 50,
         x: 50,
@@ -22,15 +54,19 @@ function getDefaultDiagramState(): ClassDiagramState {
         height: 80
     };
 
-    let port2 = {position: PortPosition.Left};
+    const port2: PortState = {
+        id: "port1",
+        edgePosRatio: 50,
+        alignment: PortAlignment.Left,
+        depthRatio: 50,
+        latitude: 8,
+        longitude: 8
+    }
 
     const node2: NodeState = {
         id: "node2",
         ports: [
             port2,
-            {position: PortPosition.Right},
-            {position: PortPosition.Top},
-            {position: PortPosition.Bottom}
         ],
         y: 300,
         x: 300,
@@ -40,7 +76,7 @@ function getDefaultDiagramState(): ClassDiagramState {
 
     return {
         Nodes: [node1, node2],
-        Links: [{port1: port1, port2: port2}]
+        Links: [{port1: port11, port2: port2}]
     };
 }
 
@@ -101,6 +137,14 @@ export function DiagramCanvas() {
         }
     }
 
+    function onNodeChange(i: number) {
+        return (nodeState: NodeState) => {
+            const nodes = diagram.Nodes.slice();
+            nodes[i] = {...nodeState};
+            setDiagram({...diagram, Nodes: nodes})
+        };
+    }
+
     return (
         <Stage
             width={window.innerWidth}
@@ -117,11 +161,7 @@ export function DiagramCanvas() {
                             onSelect={({evt}) => {
                                 selectId(node.id, evt.shiftKey || evt.ctrlKey);
                             }}
-                            onChange={(nodeState: NodeState) => {
-                                const nodes = diagram.Nodes.slice();
-                                nodes[i] = {...nodeState};
-                                setDiagram({...diagram, Nodes: nodes})
-                            }}
+                            onChange={onNodeChange(i)}
                             node={node}
                         />
                     );
