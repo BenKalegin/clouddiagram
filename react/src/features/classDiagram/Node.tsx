@@ -1,24 +1,21 @@
 import {Bounds} from "./Models";
-import React, {RefObject} from "react";
+import React from "react";
 import {Rect, Text} from "react-konva";
-import Konva from "konva";
 import {Port} from "./Port";
 import {Scaffold} from "./Scaffold";
-import {nodeResize, NodeState, PortAlignment, PortState} from "./classDiagramSlice";
-import {useAppDispatch, useAppSelector} from "../../app/hooks";
+import {nodeResize, nodeSelect, NodeState, PortAlignment, PortState} from "./classDiagramSlice";
+import {useAppDispatch} from "../../app/hooks";
 
 export interface NodeProps {
      isSelected: boolean;
      isFocused: boolean;
-     onSelect: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
-     // onChange: (newState: NodeState) => void;
      node: NodeState;
 
 }
 
 export const Node = (props: NodeProps) => {
 
-    // const count = useAppSelector(state => state.diagram);
+    // const diagram = useAppSelector(state => state.diagram);
     const dispatch = useAppDispatch();
     //const shapeRef: RefObject<Konva.Rect> = React.useRef(null);
     // const trRef: RefObject<Scaffold> = React.useRef(null);
@@ -73,7 +70,9 @@ export const Node = (props: NodeProps) => {
     return (
         <React.Fragment>
             <Rect
-                // onClick={props.onSelect}
+                onClick={({evt: {ctrlKey, shiftKey}}) =>
+                    dispatch(nodeSelect({node: props.node, shiftKey, ctrlKey}))
+                }
                 //ref={shapeRef}
                 fill={"cornsilk"}
                 stroke={"burlywood"}
@@ -83,7 +82,7 @@ export const Node = (props: NodeProps) => {
                 //draggable
                 onDragEnd={(e) => {
                     const deltaBounds = {x: e.target.x(), y: e.target.y(), width: 0, height: 0};
-                    // dispatch(nodeResize({ node: props.node, deltaBounds} ))
+                    dispatch(nodeResize({ node: props.node, deltaBounds} ))
                 }}
             />
             {props.isSelected && (
@@ -91,7 +90,7 @@ export const Node = (props: NodeProps) => {
                     bounds={props.node.placement}
                     isFocused={props.isFocused}
                     onResize={deltaBounds => {
-                        // dispatch(nodeResize({ node: props.node, deltaBounds} ))
+                        dispatch(nodeResize({ node: props.node, deltaBounds} ))
                     }
                  }
                 />

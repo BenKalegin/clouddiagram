@@ -155,24 +155,51 @@ interface NodeResizeAction {
   deltaBounds: Bounds
 }
 
+interface NodeSelectAction {
+  node: NodeState
+  shiftKey: boolean
+  ctrlKey: boolean
+}
+
+
 export const classDiagramSlice = createSlice({
   name: 'classDiagram',
-  // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
+    nodeDeselect: (state) => {
+      state.selectedElementIds = [];
+      state.focusedElementId = null
+    },
+
+    nodeSelect: (state, action: PayloadAction<NodeSelectAction>) => {
+      const append = action.payload.shiftKey || action.payload.ctrlKey
+      let selectedIds: string[] = state.selectedElementIds;
+      const nodeId = action.payload.node.id;
+      if (!append) {
+        selectedIds = [nodeId]
+      } else {
+        if (!state.selectedElementIds.includes(nodeId)) {
+          selectedIds.push(nodeId)
+        } else
+          selectedIds = selectedIds.filter(e => e !== nodeId)
+      }
+
+      state.selectedElementIds = selectedIds;
+      state.focusedElementId = selectedIds.length > 0 ? selectedIds[selectedIds.length-1] : null
+    },
+
     nodeResize: (state, action: PayloadAction<NodeResizeAction>) => {
       const node = action.payload.node;
-      state.Nodes[state.Nodes.indexOf(node)].placement = updateStateAfterResize(node, action.payload.deltaBounds);
+      const index = state.Nodes.findIndex(e => e.id === node.id);
+      if (index < 0)
+        throw new Error("Node not found by id: " + node.id);
+
+      state.Nodes[index].placement = updateStateAfterResize(node, action.payload.deltaBounds);
     },
-    changeSelection: (state, action: PayloadAction<string[]>) => {
-      const selectedElementIds = action.payload;
-      state.selectedElementIds = selectedElementIds;
-      state.focusedElementId = selectedElementIds.length > 0 ? selectedElementIds[selectedElementIds.length-1] : null
-    }
   },
 })
 
-export const { nodeResize, changeSelection } = classDiagramSlice.actions
+export const { nodeResize, nodeSelect, nodeDeselect } = classDiagramSlice.actions
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
