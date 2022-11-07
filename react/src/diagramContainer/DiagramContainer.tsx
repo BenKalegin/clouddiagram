@@ -1,5 +1,5 @@
 import styles from './DiagramContainer.module.scss';
-import {DiagramCanvas} from "./DiagramCanvas";
+import {DiagramCanvas} from "../features/classDiagram/DiagramCanvas";
 
 export const DiagramContainer = () =>
     <div className={styles.container}>

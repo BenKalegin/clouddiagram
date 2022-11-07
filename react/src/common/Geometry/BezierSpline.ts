@@ -111,7 +111,7 @@
 ///
 /// From this set of equations, P1[1..n] are easy but tedious to solve.
 /// </remarks>
-import {Coordinate} from "../../ClassDiagram/Models"; // TODO move coordinate to common
+import {Coordinate} from "../../features/classDiagram/Models"; // TODO move coordinate to common
 
 export class BezierSpline {
     /// <summary>

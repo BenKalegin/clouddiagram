@@ -15,17 +15,19 @@ import {FontIcon} from '@fluentui/react/lib/Icon';
 import './App.css';
 import {MainPivot} from "./MainPivot";
 import {MainNav} from "./MainNav";
-import {DiagramContainer} from "./DiagramContainer/DiagramContainer";
+import {DiagramContainer} from "../diagramContainer/DiagramContainer";
+import {Provider} from "react-redux";
+import {store} from "./store";
 
-const boldStyle: Partial<ITextStyles> = { root: { fontWeight: FontWeights.semibold } };
-const stackTokens: IStackTokens = { childrenGap: 15 };
+const boldStyle: Partial<ITextStyles> = {root: {fontWeight: FontWeights.semibold}};
+const stackTokens: IStackTokens = {childrenGap: 15};
 const stackStyles: Partial<IStackStyles> = {
-  root: {
-    width: '960px',
-    margin: '0 auto',
-    textAlign: 'center',
-    color: '#605e5c',
-  },
+    root: {
+        width: '960px',
+        margin: '0 auto',
+        textAlign: 'center',
+        color: '#605e5c',
+    },
 };
 
 registerIcons({
@@ -47,34 +49,25 @@ const iconClass = mergeStyles({
     width: 50,
     margin: '0 5px',
 });
-const verticalStyle = mergeStyles({
-});
+const verticalStyle = mergeStyles({});
 
-export const App: React.FunctionComponent = () => {
-    const [, setSelectedKey] = React.useState('rectangleRed');
-
-    const handleLinkClick = (item?: PivotItem) => {
-        if (item) {
-            setSelectedKey(item.props.itemKey!);
-        }
-    };
-
+export const App = () => {
     return (
-    <Stack verticalFill styles={stackStyles} tokens={stackTokens}>
-        <Stack horizontal tokens={stackTokens}>
-            <FontIcon aria-label="Cloud diagram" iconName="logo-svg" className={iconClass}/>
-            <Text variant="xLarge" styles={boldStyle} >
-                Cloud Diagram
-            </Text>
-            <Stack.Item className={verticalStyle}>
-                <Separator vertical/>
-            </Stack.Item>
-            <MainPivot onLinkClick={handleLinkClick}/>
+        <Stack verticalFill styles={stackStyles} tokens={stackTokens}>
+            <Stack horizontal tokens={stackTokens}>
+                <FontIcon aria-label="Cloud diagram" iconName="logo-svg" className={iconClass}/>
+                <Text variant="xLarge" styles={boldStyle}>
+                    Cloud Diagram
+                </Text>
+                <Stack.Item className={verticalStyle}>
+                    <Separator vertical/>
+                </Stack.Item>
+                <MainPivot onLinkClick={item => {}}/>
+            </Stack>
+            <Stack horizontal tokens={stackTokens}>
+                <MainNav/>
+                <DiagramContainer/>
+            </Stack>
         </Stack>
-        <Stack horizontal tokens={stackTokens}>
-            <MainNav/>
-            <DiagramContainer />
-        </Stack>
-    </Stack>
-  );
+    );
 };

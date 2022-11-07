@@ -1,22 +1,26 @@
-import {Bounds, NodeState, PortAlignment, PortState} from "./Models";
+import {Bounds} from "./Models";
 import React, {RefObject} from "react";
 import {Rect, Text} from "react-konva";
 import Konva from "konva";
 import {Port} from "./Port";
 import {Scaffold} from "./Scaffold";
+import {nodeResize, NodeState, PortAlignment, PortState} from "./classDiagramSlice";
+import {useAppDispatch, useAppSelector} from "../../app/hooks";
 
 export interface NodeProps {
-    isSelected: boolean;
-    isFocused: boolean;
-    onSelect: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
-    onChange: (newState: NodeState) => void;
-    node: NodeState;
+     isSelected: boolean;
+     isFocused: boolean;
+     onSelect: (evt: Konva.KonvaEventObject<MouseEvent>) => void;
+     // onChange: (newState: NodeState) => void;
+     node: NodeState;
 
 }
 
 export const Node = (props: NodeProps) => {
 
-    const shapeRef: RefObject<Konva.Rect> = React.useRef(null);
+    // const count = useAppSelector(state => state.diagram);
+    const dispatch = useAppDispatch();
+    //const shapeRef: RefObject<Konva.Rect> = React.useRef(null);
     // const trRef: RefObject<Scaffold> = React.useRef(null);
 
     // React.useEffect(() => {
@@ -31,7 +35,7 @@ export const Node = (props: NodeProps) => {
 
     const portBounds = (port: PortState): Bounds => {
 
-        const node: Bounds = props.node;
+        const node: Bounds = props.node.placement;
         switch (port.alignment) {
             case PortAlignment.Top:
                 return {
@@ -66,77 +70,35 @@ export const Node = (props: NodeProps) => {
         }
     }
 
-    function updateStateAfterResize(deltaBounds: Bounds) {
-        const node = {...props.node}
-
-        node.x = props.node.x + deltaBounds.x
-        node.y = props.node.y + deltaBounds.y
-        // set minimal value
-        node.width = Math.max(5, props.node.width + deltaBounds.width)
-        node.height = Math.max(5, props.node.height + deltaBounds.height)
-        return node;
-    }
-
     return (
         <React.Fragment>
             <Rect
-                onClick={props.onSelect}
-                ref={shapeRef}
+                // onClick={props.onSelect}
+                //ref={shapeRef}
                 fill={"cornsilk"}
                 stroke={"burlywood"}
-                {...props.node}
+                {...props.node.placement}
                 cornerRadius={10}
                 cursor={"crosshair"}
                 //draggable
                 onDragEnd={(e) => {
-                    props.onChange({...props.node, x: e.target.x(), y: e.target.y()});
+                    const deltaBounds = {x: e.target.x(), y: e.target.y(), width: 0, height: 0};
+                    // dispatch(nodeResize({ node: props.node, deltaBounds} ))
                 }}
-                onTransformEnd={() => {
-                    // transformer is changing scale of the node
-                    // and NOT its width or height
-                    // but in the store we have only width and height
-                    // to match the data better we will reset scale on transform end
-                    const n = shapeRef.current!;
-                    const scaleX = n.scaleX();
-                    const scaleY = n.scaleY();
-
-                    // we will reset it back
-                    n.scaleX(1);
-                    n.scaleY(1);
-                    props.onChange({
-                        ...props.node,
-                        x: n.x(),
-                        y: n.y(),
-                        // set minimal value
-                        width: Math.max(5, n.width() * scaleX),
-                        height: Math.max(n.height() * scaleY),
-                    });
-                }}>
-            </Rect>
+            />
             {props.isSelected && (
                 <Scaffold
-                    bounds={props.node}
-                    // ref={trRef}
+                    bounds={props.node.placement}
                     isFocused={props.isFocused}
-/*                    boundBoxFunc={(oldBox, newBox) => {
-                        // limit resize
-                        if (newBox.width < 5 || newBox.height < 5) {
-                            return oldBox;
-                        }
-                        return newBox;
-                    }}*/
                     onResize={deltaBounds => {
-                        props.onChange(updateStateAfterResize(deltaBounds))
+                        // dispatch(nodeResize({ node: props.node, deltaBounds} ))
                     }
                  }
                 />
             )}
             <Text
-                x={props.node.x}
-                y={props.node.y}
+                {...props.node.placement}
                 fontSize={14}
-                width={props.node.width}
-                height={props.node.height}
                 align={"center"}
                 verticalAlign={"middle"}
                 text={"Hello"}
@@ -152,5 +114,6 @@ export const Node = (props: NodeProps) => {
                 />
             )}
 
-        </React.Fragment>)
-};
+        </React.Fragment>
+    );
+}

@@ -1,7 +1,7 @@
 import React from "react";
-import {LinkState} from "./Models";
 import {Path} from "react-konva";
-import {PathGenerators} from "../Common/Geometry/PathGenerator";
+import {PathGenerators} from "../../common/Geometry/PathGenerator";
+import {LinkState} from "./classDiagramSlice";
 
 export const Link = function (link: LinkState)
 {

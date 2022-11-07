@@ -1,28 +1,31 @@
-/* eslint-disable no-restricted-globals */
-import { AzureClient, AzureContainerServices } from '@fluidframework/azure-client';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { App } from './App';
-import {initializeIcons, mergeStyles, ThemeProvider} from '@fluentui/react';
+import {initializeIcons, ThemeProvider} from '@fluentui/react';
 import reportWebVitals from './reportWebVitals';
 import {themeNameToTheme} from "./view/Themes";
+import {Provider} from "react-redux";
+import {store} from "./app/store";
+import {App} from "./app/App";
+import {createRoot} from "react-dom/client";
 
 
 
-export async function start() {
-  initializeIcons();
+const container = document.getElementById('root')!;
+const root = createRoot(container);
 
-  ReactDOM.render(
-      <React.StrictMode>
-        <ThemeProvider theme={themeNameToTheme("default")}>
-          <App/>
-        </ThemeProvider>
-      </React.StrictMode>
-     , document.getElementById('root'));
-}
+initializeIcons();
+root.render(
+        <React.StrictMode>
+            <Provider store={store}>
+            <ThemeProvider theme={themeNameToTheme("default")}>
+                <App/>
+            </ThemeProvider>
+              </Provider>
+        </React.StrictMode>
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-start().catch((error) => console.error(error));
+//start().catch((error) => console.error(error));
 reportWebVitals();
+

@@ -1,5 +1,6 @@
-import {Coordinate, LinkState, PortAlignment} from "../../ClassDiagram/Models";
+import {Coordinate} from "../../features/classDiagram/Models";
 import {BezierSpline} from "./BezierSpline";
+import {LinkState, PortAlignment} from "../../features/classDiagram/classDiagramSlice";
 
 export class PathGeneratorResult
 {

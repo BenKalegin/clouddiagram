@@ -1,7 +1,7 @@
 import React from "react";
 import {Rect} from "react-konva";
 import {Bounds, Coordinate, inflate} from "./Models";
-import {enumKeys} from "../Common/EnumUtils";
+import {enumKeys} from "../../common/EnumUtils";
 
 export interface ScaffoldProps {
     bounds: Bounds;

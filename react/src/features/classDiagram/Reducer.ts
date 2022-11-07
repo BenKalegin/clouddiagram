@@ -1,4 +1,4 @@
-import {ClassDiagramViewState} from "./Models";
+import {ClassDiagramViewState} from "./classDiagramSlice";
 
 enum CloudDiagramActionKind {
     DRAG = "DRAG"
