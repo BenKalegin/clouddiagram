@@ -20,4 +20,16 @@ export const inflate = (bounds: Bounds, dx: number, dy: number): Bounds => ({
     height: bounds.height + dy * 2
 });
 
+export const shift = (bounds: Bounds, dx: number, dy: number): Bounds => ({
+    x: bounds.x + dx,
+    y: bounds.y + dy,
+    width: bounds.width,
+    height: bounds.height
+});
+
+export const center = (bounds: Bounds): Coordinate => ({
+    x: bounds.x + bounds.width / 2,
+    y: bounds.y + bounds.height / 2,
+});
+
 
