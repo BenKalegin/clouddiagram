@@ -1,6 +1,6 @@
-import {Coordinate} from "../../features/classDiagram/Models";
+import {center, Coordinate} from "../../features/classDiagram/Models";
 import {BezierSpline} from "./BezierSpline";
-import {LinkState, PortAlignment} from "../../features/classDiagram/classDiagramSlice";
+import {LinkState, PortAlignment, PortState} from "../../features/classDiagram/classDiagramSlice";
 
 export class PathGeneratorResult {
     constructor(public path: string[], public sourceMarkerAngle?: number, public sourceMarkerPosition?: Coordinate,
@@ -27,19 +27,19 @@ export class PathGenerators {
         return angleInRadians * 180 / Math.PI;
     }
 
-    static ConcatRouteAndSourceAndTarget(route: Coordinate[], source: Coordinate, target: Coordinate): Coordinate[] {
-        return [source, ...route, target];
+    static ConcatRouteAndSourceAndTarget(route: Coordinate[], sourcePort: PortState, targetPort: PortState): Coordinate[] {
+        return [center(sourcePort.placement), ...route, center(targetPort.placement)];
     }
 
-    static CurveThroughPoints = (route: Coordinate[], link: LinkState) => {
+    static CurveThroughPoints = (route: Coordinate[]) => {
         let sourceAngle: number | undefined;
         let targetAngle: number | undefined;
 
         // if (link.port1.marker)
-        sourceAngle = PathGenerators.SourceMarkerAdjustment(route, link.port1.longitude);
+        sourceAngle = PathGenerators.SourceMarkerAdjustment(route, 0);
 
         //if (link.port2.marker)
-        targetAngle = PathGenerators.TargetMarkerAdjustment(route, link.port2.longitude);
+        targetAngle = PathGenerators.TargetMarkerAdjustment(route, 0);
 
         const {firstControlPoints, secondControlPoints} = BezierSpline.GetCurveControlPoints(route)
         var paths = new Array<string>(firstControlPoints.length);
@@ -76,7 +76,7 @@ export class PathGenerators {
         throw new Error("Invalid alignment: " + alignment);
     }
 
-    static GetRouteWithCurvePoints = (link: LinkState, route: Coordinate[]): Coordinate[] => {
+    static GetRouteWithCurvePoints = (link: LinkState, route: Coordinate[], source: PortState, target: PortState): Coordinate[] => {
         if (!link.port1) {
             if (Math.abs(route[0].x - route[1].x) >= Math.abs(route[0].y - route[1].y)) {
                 const cX = (route[0].x + route[1].x) / 2;
@@ -88,29 +88,29 @@ export class PathGenerators {
         } else {
             const cX = (route[0].x + route[1].x) / 2
             const cY = (route[0].y + route[1].y) / 2
-            const curvePointA = PathGenerators.GetCurvePoint(route[0].x, route[0].y, cX, cY, link.port1?.alignment)
-            const curvePointB = PathGenerators.GetCurvePoint(route[1].x, route[1].y, cX, cY, link.port2?.alignment)
+            const curvePointA = PathGenerators.GetCurvePoint(route[0].x, route[0].y, cX, cY, source.alignment)
+            const curvePointB = PathGenerators.GetCurvePoint(route[1].x, route[1].y, cX, cY, target.alignment)
             return [route[0], curvePointA, curvePointB, route[1]]
         }
     }
 
 
-    public static Smooth = (link: LinkState, route: Coordinate[], source: Coordinate, target: Coordinate) => {
+    public static Smooth = (link: LinkState, route: Coordinate[], source: PortState, target: PortState) => {
         route = PathGenerators.ConcatRouteAndSourceAndTarget(route, source, target);
 
         if (route.length > 2)
-            return PathGenerators.CurveThroughPoints(route, link);
+            return PathGenerators.CurveThroughPoints(route);
 
-        route = PathGenerators.GetRouteWithCurvePoints(link, route);
+        route = PathGenerators.GetRouteWithCurvePoints(link, route, source, target);
         let sourceAngle: number | undefined;
         let targetAngle: number | undefined;
 
         //if (link.port1.marker)
-        const markerWidth1 = link.port1.longitude * 0;
+        const markerWidth1 = /*link.port1.longitude*/ 0;
         sourceAngle = PathGenerators.SourceMarkerAdjustment(route, markerWidth1);
 
         //if (link.port2.marker)
-        const markerWidth2 = link.port2.longitude * 0;
+        const markerWidth2 = /*link.port2.longitude*/ 0;
         targetAngle = PathGenerators.TargetMarkerAdjustment(route, markerWidth2);
 
         const path = `M ${route[0].x} ${route[0].y} L ${route[1].x} ${route[1].y} L ${route[2].x} ${route[2].y} L ${route[3].x} ${route[3].y}`
@@ -118,17 +118,17 @@ export class PathGenerators {
     }
 
     /*************************************************************************/
-    public static Straight = (link: LinkState, route: Coordinate[], source: Coordinate, target: Coordinate) => {
+    public static Straight = (link: LinkState, route: Coordinate[], source: PortState, target: PortState) => {
         route = PathGenerators.ConcatRouteAndSourceAndTarget(route, source, target);
-        route = PathGenerators.GetRouteWithCurvePoints(link, route);
+        route = PathGenerators.GetRouteWithCurvePoints(link, route, source, target);
         let sourceAngle: number | undefined;
         let targetAngle: number | undefined;
 
         //if (link.port1.marker)
-        sourceAngle = PathGenerators.SourceMarkerAdjustment(route, link.port1.longitude / 2);
+        sourceAngle = PathGenerators.SourceMarkerAdjustment(route, source.longitude / 2);
 
         //if (link.port2.marker)
-        targetAngle = PathGenerators.TargetMarkerAdjustment(route, link.port2.longitude / 2);
+        targetAngle = PathGenerators.TargetMarkerAdjustment(route, source.longitude / 2);
 
         const paths = new Array<string>(route.length - 1);
         for (let i = 0; i < route.length - 1; i++)

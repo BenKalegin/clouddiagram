@@ -1,7 +1,6 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit'
-import type {RootState} from '../../app/store'
-import {DiagramElement} from "../../common/Model";
-import {Bounds, center, shift} from "./Models";
+import {createSlice, current, PayloadAction} from '@reduxjs/toolkit'
+import {DiagramElement, Id} from "../../common/Model";
+import {Bounds} from "./Models";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 
 export enum PortAlignment {
@@ -42,27 +41,28 @@ export interface PortState extends DiagramElement {
 
 export interface NodeState extends DiagramElement {
   placement: Bounds;
-  ports: PortState[];
+  ports: Id[];
 }
 
 export interface LinkPlacement {
   svgPath: string[];
 }
 
-export interface LinkState {
+export interface LinkState extends DiagramElement {
   placement: LinkPlacement;
-  port1: PortState;
-  port2: PortState;
+  port1: Id;
+  port2: Id;
 }
 
 export interface ClassDiagramState {
-  Nodes: NodeState[];
-  Links: LinkState[];
+  nodes: { [id: Id]: NodeState };
+  links: { [id: Id]: LinkState };
+  ports: { [id: Id]: PortState };
 }
 
 export interface ClassDiagramViewState extends ClassDiagramState {
-  focusedElementId: string | null;
-  selectedElementIds: string[];
+  focusedElement: Id | null;
+  selectedElements: Id[];
 }
 
 
@@ -102,18 +102,11 @@ const portBounds = (nodePlacement: Bounds, port: PortState): Bounds => {
   }
 }
 
-function updatePortPlacementsForNode(node: NodeState) {
-  node.ports.forEach(port => port.placement = portBounds(node.placement, port))
-}
-
-
-const linkPlacement = (link: LinkState, portPlacement1: Bounds, portPlacement2: Bounds): LinkPlacement => {
-    const p1 = center(portPlacement1);
-    const p2 = center(portPlacement2);
+const linkPlacement = (link: LinkState, sourcePort: PortState, targetPort: PortState): LinkPlacement => {
 
     return {
       // svgPath: PathGenerators.Smooth(link, [p1, p2], p1, p2).path
-      svgPath: PathGenerators.Straight(link, [], p1, p2).path
+      svgPath: PathGenerators.Straight(link, [], sourcePort, targetPort).path
     };
 }
 
@@ -151,9 +144,9 @@ const getDefaultDiagramState = (): ClassDiagramState => {
   const node1: NodeState = {
     id: "node1",
     ports: [
-      port11,
-      // port12,
-      // port13
+      port11.id,
+      port12.id,
+      port13.id
     ],
     placement: {
       y: 50,
@@ -176,7 +169,7 @@ const getDefaultDiagramState = (): ClassDiagramState => {
   const node2: NodeState = {
     id: "node2",
     ports: [
-      port2,
+      port2.id,
     ],
     placement: {
       y: 300,
@@ -186,22 +179,41 @@ const getDefaultDiagramState = (): ClassDiagramState => {
     }
   };
 
+  const nodes: { [id: Id]: NodeState } = {
+    [node1.id]: node1,
+    [node2.id]: node2
+  }
 
-  const nodes = [node1, node2];
+  const ports: { [id: Id]: PortState } = {
+    [port11.id]: port11,
+    [port12.id]: port12,
+    [port13.id]: port13,
+    [port2.id]: port2
+  }
+
+  for(let node of Object.values(nodes)) {
+    node.ports.map(portId => ports[portId].placement = portBounds(node.placement, ports[portId]!));
+  }
+
   const link1: LinkState = {
-    port1: port11, port2: port2,
-    placement: {svgPath: []}
+    port1: port11.id,
+    port2: port2.id,
+    placement: {svgPath: []},
+    id: "link1"
   };
 
-  nodes.forEach(node => updatePortPlacementsForNode(node))
+  const links: { [id: Id]: LinkState } = {
+    [link1.id]: link1
+  }
 
-
-  const links = [link1];
-  links.forEach(link => link.placement = linkPlacement(link, link.port1.placement, link.port2.placement));
+  for(let link of Object.values(links)) {
+      link.placement = linkPlacement(link, ports[link.port1], ports[link.port2]);
+  }
 
   return {
-    Nodes: nodes,
-    Links: links
+    nodes,
+    links,
+    ports
   };
 };
 
@@ -209,8 +221,8 @@ const getDefaultDiagramViewState = (): ClassDiagramViewState => {
   const diagramState = getDefaultDiagramState();
   return {
     ...diagramState,
-    selectedElementIds: [],
-    focusedElementId: null,
+    selectedElements: [],
+    focusedElement: null,
   };
 };
 
@@ -228,7 +240,7 @@ const nodePlacementAfterResize = ({placement}: NodeState, deltaBounds: Bounds) :
 const initialState: ClassDiagramViewState = getDefaultDiagramViewState();
 
 interface NodeResizeAction {
-  node: NodeState
+  node: Id
   deltaBounds: Bounds
 }
 
@@ -244,38 +256,35 @@ export const classDiagramSlice = createSlice({
   initialState,
   reducers: {
     nodeDeselect: (state) => {
-      state.selectedElementIds = [];
-      state.focusedElementId = null
+      state.selectedElements = [];
+      state.focusedElement = null
     },
 
     nodeSelect: (state, action: PayloadAction<NodeSelectAction>) => {
       const append = action.payload.shiftKey || action.payload.ctrlKey
-      let selectedIds: string[] = state.selectedElementIds;
+      let selectedIds = state.selectedElements;
       const nodeId = action.payload.node.id;
       if (!append) {
         selectedIds = [nodeId]
       } else {
-        if (!state.selectedElementIds.includes(nodeId)) {
+        if (!state.selectedElements.includes(nodeId)) {
           selectedIds.push(nodeId)
         } else
           selectedIds = selectedIds.filter(e => e !== nodeId)
       }
 
-      state.selectedElementIds = selectedIds;
-      state.focusedElementId = selectedIds.length > 0 ? selectedIds[selectedIds.length-1] : null
+      state.selectedElements = selectedIds;
+      state.focusedElement = selectedIds.length > 0 ? selectedIds[selectedIds.length-1] : null
     },
 
     nodeResize: (state, action: PayloadAction<NodeResizeAction>) => {
-      const node = action.payload.node;
-      const index = state.Nodes.findIndex(e => e.id === node.id);
-      if (index < 0)
-        throw new Error("Node not found by id: " + node.id);
+      const node = state.nodes[action.payload.node];
 
       const nodePlacement = nodePlacementAfterResize(node, action.payload.deltaBounds);
-      state.Nodes[index].placement = nodePlacement;
+      node.placement = nodePlacement;
 
-      const portAffected = state.Nodes[index].ports;
-      const portPlacements: { [key: string]: Bounds } = {};
+      const portAffected = node.ports.map(port => state.ports[port]);
+      const portPlacements: {[id: Id] : Bounds} = {};
 
       portAffected.forEach(port => {
         const bounds = portBounds(nodePlacement, port);
@@ -283,9 +292,16 @@ export const classDiagramSlice = createSlice({
         port.placement = bounds;
       });
 
-      state.Links
-          .filter(link => portPlacements[link.port1.id] || portPlacements[link.port2.id])
-          .forEach(link => link.placement = linkPlacement(link, portPlacements[link.port1.id] || link.port1.placement, portPlacements[link.port2.id] || link.port2.placement));
+      const links: { [id: Id]: LinkState } = current(state.links);
+      for (let link of Object.values(links)) {
+        const bounds1 = portPlacements[link.port1];
+        const bounds2 = portPlacements[link.port2];
+        if (bounds1 || bounds2) {
+          state.links[link.id].placement = linkPlacement(link,
+              state.ports[link.port1],
+              state.ports[link.port2]);
+        }
+      }
     },
   },
 })
@@ -295,7 +311,7 @@ export const { nodeResize, nodeSelect, nodeDeselect } = classDiagramSlice.action
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const selectNodes = (state: RootState) => state.diagram.Nodes;
+//export const selectNodes = (state: RootState) => state.diagram.Nodes;
 
 export default classDiagramSlice.reducer
 

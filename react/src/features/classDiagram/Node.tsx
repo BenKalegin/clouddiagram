@@ -3,7 +3,7 @@ import {Rect, Text} from "react-konva";
 import {Port} from "./Port";
 import {Scaffold} from "./Scaffold";
 import {nodeResize, nodeSelect, NodeState} from "./classDiagramSlice";
-import {useAppDispatch} from "../../app/hooks";
+import {useAppDispatch, useAppSelector} from "../../app/hooks";
 
 export interface NodeProps {
      isSelected: boolean;
@@ -14,7 +14,7 @@ export interface NodeProps {
 
 export const Node = (props: NodeProps) => {
 
-    // const diagram = useAppSelector(state => state.diagram);
+    const diagram = useAppSelector(state => state.diagram);
     const dispatch = useAppDispatch();
 
     return (
@@ -31,7 +31,7 @@ export const Node = (props: NodeProps) => {
                 //draggable
                 onDragEnd={(e) => {
                     const deltaBounds = {x: e.target.x(), y: e.target.y(), width: 0, height: 0};
-                    dispatch(nodeResize({ node: props.node, deltaBounds} ))
+                    dispatch(nodeResize({ node: props.node.id, deltaBounds} ))
                 }}
             />
             {props.isSelected && (
@@ -39,7 +39,7 @@ export const Node = (props: NodeProps) => {
                     bounds={props.node.placement}
                     isFocused={props.isFocused}
                     onResize={deltaBounds => {
-                        dispatch(nodeResize({ node: props.node, deltaBounds} ))
+                        dispatch(nodeResize({ node: props.node.id, deltaBounds} ))
                     }
                  }
                 />
@@ -57,8 +57,7 @@ export const Node = (props: NodeProps) => {
             {props.node.ports.map((port, index) =>
                 <Port
                     key={index}
-                    port={port}
-                    bounds={port.placement}
+                    port={diagram.ports[port]}
                 />
             )}
 

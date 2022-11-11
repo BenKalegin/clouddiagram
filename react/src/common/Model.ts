@@ -1,3 +1,4 @@
+export type Id = string;
 export interface DiagramElement {
-    id: string;
+    id: Id;
 }

@@ -23,8 +23,8 @@ export function DiagramCanvas() {
         }
     }
 
-    const isSelected = (node: NodeState) => diagram.selectedElementIds.includes(node.id);
-    const isFocused = (node: NodeState) => diagram.focusedElementId === node.id;
+    const isSelected = (node: NodeState) => diagram.selectedElements.includes(node.id);
+    const isFocused = (node: NodeState) => diagram.focusedElement === node.id;
 
     return (
         <ReactReduxContext.Consumer>
@@ -36,7 +36,7 @@ export function DiagramCanvas() {
                 >
                     <Provider store={store}>
                         <Layer>
-                            {diagram.Nodes.map((node, i) => {
+                            {Object.values(diagram.nodes).map((node, i) => {
                                 return (
                                     <Node
                                         key={i}
@@ -46,8 +46,8 @@ export function DiagramCanvas() {
                                     />
                                 );
                             })}
-                            {diagram.Links.map((link, index) => {
-                                return <Link key={index} {...link} />
+                            {Object.values(diagram.links).map((link, index) => {
+                                return (<Link key={index} {...link} />)
                             })}
                         </Layer>
                     </Provider>
