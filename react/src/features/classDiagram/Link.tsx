@@ -4,7 +4,6 @@ import {LinkState} from "./classDiagramSlice";
 
 export const Link = function (link: LinkState)
 {
-    //const svgData = "M 154 107 C 269 107, 166 340, 281 340";
     return (
         <React.Fragment>
             {link.placement.svgPath.map((pathData, index) =>

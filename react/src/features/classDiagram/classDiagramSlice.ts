@@ -41,6 +41,7 @@ export interface PortState extends DiagramElement {
 
 export interface NodeState extends DiagramElement {
   placement: Bounds;
+  text: string;
   ports: Id[];
 }
 
@@ -148,6 +149,7 @@ const getDefaultDiagramState = (): ClassDiagramState => {
       port12.id,
       port13.id
     ],
+    text: "Alice",
     placement: {
       y: 50,
       x: 50,
@@ -171,6 +173,7 @@ const getDefaultDiagramState = (): ClassDiagramState => {
     ports: [
       port2.id,
     ],
+    text: "Bob",
     placement: {
       y: 300,
       x: 300,

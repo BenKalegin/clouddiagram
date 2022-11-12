@@ -49,7 +49,7 @@ export const Node = (props: NodeProps) => {
                 fontSize={14}
                 align={"center"}
                 verticalAlign={"middle"}
-                text={"Hello"}
+                text={props.node.text}
                 draggable={false}
                 listening={false}
                 preventDefault={true}
