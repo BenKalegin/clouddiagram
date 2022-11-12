@@ -10,69 +10,38 @@ const navLinkGroups: INavLinkGroup[] = [
         collapseAriaLabel: 'Collapse Basic components section',
         links: [
             {
-                key: 'ActivityItem',
-                name: 'ActivityItem',
-                url: '#/examples/activityitem',
+                key: 'node',
+                name: 'Node',
+                url: '#/node',
             },
             {
-                key: 'Breadcrumb',
-                name: 'Breadcrumb',
-                url: '#/examples/breadcrumb',
-            },
-            {
-                key: 'Button',
-                name: 'Button',
-                url: '#/examples/button',
-            },
+                key: 'Something else',
+                name: 'Something else',
+                url: '#/Something else',
+            }
         ],
     },
     {
-        name: 'Extended components',
-        expandAriaLabel: 'Expand Extended components section',
-        collapseAriaLabel: 'Collapse Extended components section',
+        name: 'Activity components',
+        expandAriaLabel: 'Expand Activity components section',
+        collapseAriaLabel: 'Collapse Activity components section',
         links: [
             {
-                key: 'ColorPicker',
-                name: 'ColorPicker',
-                url: '#/examples/colorpicker',
+                key: 'activity1',
+                name: 'Activity Component 1',
+                url: '#/activity1',
             },
             {
-                key: 'ExtendedPeoplePicker',
-                name: 'ExtendedPeoplePicker',
-                url: '#/examples/extendedpeoplepicker',
-            },
-            {
-                key: 'GroupedList',
-                name: 'GroupedList',
-                url: '#/examples/groupedlist',
-            },
+                key: 'activity2',
+                name: 'Activity Component 2',
+                url: '#/activity2',
+            }
         ],
-    },
-    {
-        name: 'Utilities',
-        expandAriaLabel: 'Expand Utilities section',
-        collapseAriaLabel: 'Collapse Utilities section',
-        links: [
-            {
-                key: 'FocusTrapZone',
-                name: 'FocusTrapZone',
-                url: '#/examples/focustrapzone',
-            },
-            {
-                key: 'FocusZone',
-                name: 'FocusZone',
-                url: '#/examples/focuszone',
-            },
-            {
-                key: 'MarqueeSelection',
-                name: 'MarqueeSelection',
-                url: '#/examples/marqueeselection',
-            },
-        ],
-    },
+    }
 ];
 
-export function MainNav() {
-    return <Nav styles={navStyles} ariaLabel="Nav example similar to one found in this demo page"
-                groups={navLinkGroups}/>;
-}
+export const MainNav = () =>
+    <Nav
+        styles={navStyles} ariaLabel="Components you can add to your diagram"
+        groups={navLinkGroups}
+    />;
