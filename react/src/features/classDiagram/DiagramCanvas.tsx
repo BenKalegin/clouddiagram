@@ -6,11 +6,11 @@ import {Link} from "./Link";
 import {
     dropFromPalette,
     nodeDeselect,
-    NodeState
 } from "./classDiagramSlice";
 import {ReactReduxContext, Provider} from 'react-redux';
 
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
+import {NodeState} from "./model";
 
 export function DiagramCanvas() {
     const diagram = useAppSelector(state => state.diagram);

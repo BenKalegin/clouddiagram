@@ -1,6 +1,6 @@
 import {Circle} from "react-konva";
 import React, {useState} from "react";
-import {PortState} from "./classDiagramSlice";
+import {PortState} from "./model";
 
 
 export interface PortProps {

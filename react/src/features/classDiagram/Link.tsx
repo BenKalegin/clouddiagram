@@ -1,6 +1,6 @@
 import React from "react";
 import {Path} from "react-konva";
-import {LinkState} from "./classDiagramSlice";
+import {LinkState} from "./model";
 
 export const Link = function (link: LinkState)
 {

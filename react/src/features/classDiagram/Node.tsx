@@ -2,8 +2,9 @@ import React from "react";
 import {Rect, Text} from "react-konva";
 import {Port} from "./Port";
 import {Scaffold} from "./Scaffold";
-import {nodeResize, nodeSelect, NodeState} from "./classDiagramSlice";
+import {nodeResize, nodeSelect} from "./classDiagramSlice";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
+import {NodeState} from "./model";
 
 export interface NodeProps {
      isSelected: boolean;
