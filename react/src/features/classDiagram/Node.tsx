@@ -15,7 +15,7 @@ export interface NodeProps {
 
 export const Node = (props: NodeProps) => {
 
-    const diagram = useAppSelector(state => state.diagram);
+    const diagram = useAppSelector(state => state.diagramEditor.diagram);
     const dispatch = useAppDispatch();
 
     return (

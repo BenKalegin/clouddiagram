@@ -13,7 +13,7 @@ import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
 
 export function DiagramCanvas() {
-    const diagram = useAppSelector(state => state.diagram);
+    const {diagram, selectedElements, focusedElement} = useAppSelector(state => state.diagramEditor);
     const dispatch = useAppDispatch();
 
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -24,8 +24,8 @@ export function DiagramCanvas() {
         }
     }
 
-    const isSelected = (node: NodeState) => diagram.selectedElements.includes(node.id);
-    const isFocused = (node: NodeState) => diagram.focusedElement === node.id;
+    const isSelected = (node: NodeState) => selectedElements.includes(node.id);
+    const isFocused = (node: NodeState) => focusedElement === node.id;
 
     const stageRef: RefObject<Konva.Stage> = React.useRef(null);
 

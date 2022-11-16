@@ -5,7 +5,6 @@ import {
     IStackTokens,
     ITextStyles,
     mergeStyles,
-    PivotItem,
     registerIcons,
     Separator,
     Stack,
@@ -13,11 +12,9 @@ import {
 } from '@fluentui/react';
 import {FontIcon} from '@fluentui/react/lib/Icon';
 import './App.css';
-import {MainPivot} from "./MainPivot";
-import {MainNav} from "./MainNav";
+import {ComponentLibrary} from "./ComponentLibrary";
 import {DiagramContainer} from "../diagramContainer/DiagramContainer";
-import {Provider} from "react-redux";
-import {store} from "./store";
+import {OpenDiagramSelector} from "../features/opendiagramSelector/OpenDiagramSelector";
 
 const boldStyle: Partial<ITextStyles> = {root: {fontWeight: FontWeights.semibold}};
 const stackTokens: IStackTokens = {childrenGap: 15};
@@ -62,10 +59,10 @@ export const App = () => {
                 <Stack.Item className={verticalStyle}>
                     <Separator vertical/>
                 </Stack.Item>
-                <MainPivot onLinkClick={item => {}}/>
+                <OpenDiagramSelector/>
             </Stack>
             <Stack horizontal tokens={stackTokens}>
-                <MainNav/>
+                <ComponentLibrary/>
                 <DiagramContainer/>
             </Stack>
         </Stack>

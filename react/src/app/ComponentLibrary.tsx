@@ -40,7 +40,7 @@ const navLinkGroups: INavLinkGroup[] = [
     }
 ];
 
-export const MainNav = () =>
+export const ComponentLibrary = () =>
     <Nav
         styles={navStyles} ariaLabel="Components you can add to your diagram"
         groups={navLinkGroups}

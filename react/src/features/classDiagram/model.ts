@@ -103,3 +103,13 @@ export const linkPlacement = (link: LinkState, sourcePort: PortState, targetPort
     };
 }
 
+export const nodePlacementAfterResize = ({placement}: NodeState, deltaBounds: Bounds): Bounds => {
+    return {
+        x: placement.x + deltaBounds.x,
+        y: placement.y + deltaBounds.y,
+        // set minimal value
+        width: Math.max(5, placement.width + deltaBounds.width),
+        height: Math.max(5, placement.height + deltaBounds.height)
+    }
+}
+

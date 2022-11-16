@@ -1,141 +1,22 @@
 import {createSlice, current, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {Id} from "../../common/Model";
 import {Bounds, Coordinate} from "../../common/Model";
-import {ClassDiagramState, linkPlacement, LinkState, NodeState, PortAlignment, portBounds, PortState} from "./model";
+import {ClassDiagramState, linkPlacement, LinkState, nodePlacementAfterResize, NodeState, portBounds} from "./model";
+import {getDefaultDiagramState} from "./demo";
 
-const getDefaultDiagramState = (): ClassDiagramState => {
-    const port11: PortState = {
-        id: "port11",
-        edgePosRatio: 50,
-        alignment: PortAlignment.Right,
-        depthRatio: 50,
-        latitude: 8,
-        longitude: 8,
-        placement: {} as Bounds,
-    }
-
-    const port12: PortState = {
-        id: "port12",
-        edgePosRatio: 50,
-        alignment: PortAlignment.Top,
-        depthRatio: 50,
-        latitude: 8,
-        longitude: 8,
-        placement: {} as Bounds,
-    }
-
-    const port13: PortState = {
-        id: "port13",
-        edgePosRatio: 50,
-        alignment: PortAlignment.Bottom,
-        depthRatio: 50,
-        latitude: 8,
-        longitude: 8,
-        placement: {} as Bounds,
-    }
-
-    const node1: NodeState = {
-        id: "node1",
-        ports: [
-            port11.id,
-            port12.id,
-            port13.id
-        ],
-        text: "Alice",
-        placement: {
-            y: 50,
-            x: 50,
-            width: 100,
-            height: 80
-        }
-    };
-
-    const port2: PortState = {
-        id: "port21",
-        edgePosRatio: 50,
-        alignment: PortAlignment.Left,
-        depthRatio: 50,
-        latitude: 8,
-        longitude: 8,
-        placement: {} as Bounds,
-    }
-
-    const node2: NodeState = {
-        id: "node2",
-        ports: [
-            port2.id,
-        ],
-        text: "Bob",
-        placement: {
-            y: 300,
-            x: 300,
-            width: 100,
-            height: 80
-        }
-    };
-
-    const nodes: { [id: Id]: NodeState } = {
-        [node1.id]: node1,
-        [node2.id]: node2
-    }
-
-    const ports: { [id: Id]: PortState } = {
-        [port11.id]: port11,
-        [port12.id]: port12,
-        [port13.id]: port13,
-        [port2.id]: port2
-    }
-
-    for (let node of Object.values(nodes)) {
-        node.ports.map(portId => ports[portId].placement = portBounds(node.placement, ports[portId]!));
-    }
-
-    const link1: LinkState = {
-        port1: port11.id,
-        port2: port2.id,
-        placement: {svgPath: []},
-        id: "link1"
-    };
-
-    const links: { [id: Id]: LinkState } = {
-        [link1.id]: link1
-    }
-
-    for (let link of Object.values(links)) {
-        link.placement = linkPlacement(link, ports[link.port1], ports[link.port2]);
-    }
-
-    return {
-        nodes,
-        links,
-        ports
-    };
-};
-
-export interface ClassDiagramViewState extends ClassDiagramState {
+export interface ClassDiagramViewState  {
+    diagram: ClassDiagramState;
     focusedElement: Id | null;
     selectedElements: Id[];
 }
 
 const getDefaultDiagramViewState = (): ClassDiagramViewState => {
-    const diagramState = getDefaultDiagramState();
     return {
-        ...diagramState,
+        diagram: getDefaultDiagramState(),
         selectedElements: [],
         focusedElement: null,
     };
 };
-
-const nodePlacementAfterResize = ({placement}: NodeState, deltaBounds: Bounds): Bounds => {
-    return {
-        x: placement.x + deltaBounds.x,
-        y: placement.y + deltaBounds.y,
-        // set minimal value
-        width: Math.max(5, placement.width + deltaBounds.width),
-        height: Math.max(5, placement.height + deltaBounds.height)
-    }
-}
-
 
 const initialState: ClassDiagramViewState = getDefaultDiagramViewState();
 
@@ -185,12 +66,12 @@ export const classDiagramSlice = createSlice({
         },
 
         nodeResize: (state, action: PayloadAction<NodeResizeAction>) => {
-            const node = state.nodes[action.payload.node];
+            const node = state.diagram.nodes[action.payload.node];
 
             const nodePlacement = nodePlacementAfterResize(node, action.payload.deltaBounds);
             node.placement = nodePlacement;
 
-            const portAffected = node.ports.map(port => state.ports[port]);
+            const portAffected = node.ports.map(port => state.diagram.ports[port]);
             const portPlacements: { [id: Id]: Bounds } = {};
 
             portAffected.forEach(port => {
@@ -199,23 +80,23 @@ export const classDiagramSlice = createSlice({
                 port.placement = bounds;
             });
 
-            const links: { [id: Id]: LinkState } = current(state.links);
+            const links: { [id: Id]: LinkState } = current(state.diagram.links);
             for (let link of Object.values(links)) {
                 const bounds1 = portPlacements[link.port1];
                 const bounds2 = portPlacements[link.port2];
                 if (bounds1 || bounds2) {
-                    state.links[link.id].placement = linkPlacement(link,
-                        state.ports[link.port1],
-                        state.ports[link.port2]);
+                    state.diagram.links[link.id].placement = linkPlacement(link,
+                        state.diagram.ports[link.port1],
+                        state.diagram.ports[link.port2]);
                 }
             }
         },
 
-        dropFromPalette: (state, action: PayloadAction<DropFromPaletteAction>) => {
+        dropFromPalette: ({diagram}, action: PayloadAction<DropFromPaletteAction>) => {
             const id = generateId();
             const defaultWidth = 100;
             const defaultHeight = 80;
-            state.nodes[id] = {
+            diagram.nodes[id] = {
                 id,
                 text: "New Node",
                 ports: [],
@@ -238,4 +119,3 @@ export const {nodeResize, nodeSelect, nodeDeselect, dropFromPalette} = classDiag
 //export const selectNodes = (state: RootState) => state.diagram.Nodes;
 
 export default classDiagramSlice.reducer
-
