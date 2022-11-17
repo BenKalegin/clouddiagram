@@ -11,6 +11,7 @@ export const OpenDiagramSelector = () => {
         <Pivot
         aria-label="Open diagrams"
         headersOnly={true}
+
         onLinkClick={(item) => {dispatch(openDiagramActivated(+item!.props.itemKey!))}}
         >
             {model.diagrams.map((diagram, index) =>

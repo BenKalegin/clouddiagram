@@ -14,7 +14,6 @@ import {FontIcon} from '@fluentui/react/lib/Icon';
 import './App.css';
 import {ComponentLibrary} from "./ComponentLibrary";
 import {DiagramContainer} from "../diagramContainer/DiagramContainer";
-import {OpenDiagramSelector} from "../features/opendiagramSelector/OpenDiagramSelector";
 
 const boldStyle: Partial<ITextStyles> = {root: {fontWeight: FontWeights.semibold}};
 const stackTokens: IStackTokens = {childrenGap: 15};
@@ -50,20 +49,22 @@ const verticalStyle = mergeStyles({});
 
 export const App = () => {
     return (
-        <Stack verticalFill styles={stackStyles} tokens={stackTokens}>
-            <Stack horizontal tokens={stackTokens}>
+        <Stack verticalFill styles={stackStyles}>
+            <Stack horizontal>
                 <FontIcon aria-label="Cloud diagram" iconName="logo-svg" className={iconClass}/>
                 <Text variant="xLarge" styles={boldStyle}>
                     Cloud Diagram
                 </Text>
-                <Stack.Item className={verticalStyle}>
-                    <Separator vertical/>
-                </Stack.Item>
-                <OpenDiagramSelector/>
             </Stack>
-            <Stack horizontal tokens={stackTokens}>
-                <ComponentLibrary/>
-                <DiagramContainer/>
+            <Stack horizontal={true}>
+                <Stack.Item className={verticalStyle}>
+                    <ComponentLibrary/>
+                </Stack.Item>
+                <Separator vertical/>
+                <Stack.Item>
+                    <DiagramContainer/>
+                </Stack.Item>
+
             </Stack>
         </Stack>
     );

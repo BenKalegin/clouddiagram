@@ -9,7 +9,7 @@ export const store = configureStore({
     },
 })
 
-// theoretical model should be
+// theoretical model should be like this:
 // Diagram:
 // - metadata
 // - content
