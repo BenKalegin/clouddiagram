@@ -1,11 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
-import classDiagramReducer from '../features/classDiagram/classDiagramSlice';
-import openDiagramsReducer from '../features/opendiagramSelector/openDiagramSlice';
+import {diagramEditorSlice} from '../features/classDiagram/diagramEditorSlice';
 
 export const store = configureStore({
     reducer: {
-        diagramEditor: classDiagramReducer,
-        openDiagrams: openDiagramsReducer
+        diagramEditor: diagramEditorSlice.reducer,
     },
 })
 
@@ -19,10 +17,5 @@ export const store = configureStore({
 //  - current diagram: DiagramEditor
 //  - current user
 
-
-
-
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch

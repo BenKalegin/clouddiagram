@@ -3,17 +3,14 @@ import React, {RefObject} from "react";
 import {Layer, Stage} from 'react-konva';
 import Konva from "konva";
 import {Link} from "./Link";
-import {
-    dropFromPalette,
-    nodeDeselect,
-} from "./classDiagramSlice";
+import { dropFromPalette, nodeDeselect, selectDiagramEditor} from "./diagramEditorSlice";
 import {ReactReduxContext, Provider} from 'react-redux';
 
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
 
-export function DiagramCanvas() {
-    const {diagram, selectedElements, focusedElement} = useAppSelector(state => state.diagramEditor);
+export function DiagramEditor() {
+    const {diagram, selectedElements, focusedElement} = useAppSelector(state => selectDiagramEditor(state));
     const dispatch = useAppDispatch();
 
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -51,7 +48,7 @@ export function DiagramCanvas() {
                         <Provider store={store}>
                             <Layer>
 
-                                {Object.values(diagram.nodes).map((node, i) => {
+                                {Object.values(diagram.content.nodes).map((node, i) => {
                                     return (
                                         <Node
                                             key={i}
@@ -61,7 +58,7 @@ export function DiagramCanvas() {
                                         />
                                     );
                                 })}
-                                {Object.values(diagram.links).map((link, index) => {
+                                {Object.values(diagram.content.links).map((link, index) => {
                                     return (<Link key={index} {...link} />)
                                 })}
                             </Layer>

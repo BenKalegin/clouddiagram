@@ -13,7 +13,7 @@ import {
 import {FontIcon} from '@fluentui/react/lib/Icon';
 import './App.css';
 import {ComponentLibrary} from "./ComponentLibrary";
-import {DiagramContainer} from "../diagramContainer/DiagramContainer";
+import {OpenDiagramSelector} from "../features/opendiagramSelector/OpenDiagramSelector";
 
 const boldStyle: Partial<ITextStyles> = {root: {fontWeight: FontWeights.semibold}};
 const stackTokens: IStackTokens = {childrenGap: 15};
@@ -62,7 +62,7 @@ export const App = () => {
                 </Stack.Item>
                 <Separator vertical/>
                 <Stack.Item>
-                    <DiagramContainer/>
+                    <OpenDiagramSelector/>
                 </Stack.Item>
 
             </Stack>

@@ -2,23 +2,17 @@ import {createSlice, current, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {Id} from "../../common/Model";
 import {Bounds, Coordinate} from "../../common/Model";
 import {ClassDiagramState, linkPlacement, LinkState, nodePlacementAfterResize, NodeState, portBounds} from "./model";
-import {getDefaultDiagramState} from "./demo";
+import {demoDiagramEditor} from "./demo";
+import {RootState} from "../../app/store";
 
-export interface ClassDiagramViewState  {
-    diagram: ClassDiagramState;
-    focusedElement: Id | null;
-    selectedElements: Id[];
+export interface DiagramEditor {
+    diagram: Diagram;
 }
 
-const getDefaultDiagramViewState = (): ClassDiagramViewState => {
-    return {
-        diagram: getDefaultDiagramState(),
-        selectedElements: [],
-        focusedElement: null,
-    };
-};
-
-const initialState: ClassDiagramViewState = getDefaultDiagramViewState();
+export interface ClassDiagramEditor extends DiagramEditor {
+    focusedElement?: Id;
+    selectedElements: Id[];
+}
 
 interface NodeResizeAction {
     node: Id
@@ -39,39 +33,75 @@ const generateId = () : Id => {
     return nanoid(6);
 }
 
-export const classDiagramSlice = createSlice({
-    name: 'classDiagram',
+export enum DiagramType {
+    Class,
+    Sequence,
+    Deployment
+}
+
+interface DiagramMetadata {
+    title: string;
+    // createdBy: string;
+    // createdOn: Date;
+    // diagramType: DiagramType;
+    // version: string;
+}
+
+export interface Diagram {
+    metadata: DiagramMetadata
+    content: ClassDiagramState
+}
+
+export interface DiagramEditors {
+    activeIndex: number;
+    editors: ClassDiagramEditor[];
+}
+
+const initialState: DiagramEditors = {
+    activeIndex: 0,
+    editors: [
+        demoDiagramEditor("Demo Diagram 1"),
+        demoDiagramEditor("Demo Diagram 2"),
+    ]
+}
+
+export const diagramEditorSlice = createSlice({
+    name: 'diagramEditor',
     initialState,
     reducers: {
         nodeDeselect: (state) => {
-            state.selectedElements = [];
-            state.focusedElement = null
+            const editor = state.editors[state.activeIndex];
+            editor.selectedElements = [];
+            editor.focusedElement = undefined;
         },
 
         nodeSelect: (state, action: PayloadAction<NodeSelectAction>) => {
+            const editor = state.editors[state.activeIndex];
             const append = action.payload.shiftKey || action.payload.ctrlKey
-            let selectedIds = state.selectedElements;
+            let selectedIds = editor.selectedElements;
             const nodeId = action.payload.node.id;
             if (!append) {
                 selectedIds = [nodeId]
             } else {
-                if (!state.selectedElements.includes(nodeId)) {
+                if (!editor.selectedElements.includes(nodeId)) {
                     selectedIds.push(nodeId)
                 } else
                     selectedIds = selectedIds.filter(e => e !== nodeId)
             }
 
-            state.selectedElements = selectedIds;
-            state.focusedElement = selectedIds.length > 0 ? selectedIds[selectedIds.length - 1] : null
+            editor.selectedElements = selectedIds;
+            editor.focusedElement = selectedIds.length > 0 ? selectedIds[selectedIds.length - 1] : undefined
         },
 
         nodeResize: (state, action: PayloadAction<NodeResizeAction>) => {
-            const node = state.diagram.nodes[action.payload.node];
+            const editor = state.editors[state.activeIndex];
+            const diagram = editor.diagram.content;
+            const node = diagram.nodes[action.payload.node];
 
             const nodePlacement = nodePlacementAfterResize(node, action.payload.deltaBounds);
             node.placement = nodePlacement;
 
-            const portAffected = node.ports.map(port => state.diagram.ports[port]);
+            const portAffected = node.ports.map(port => diagram.ports[port]);
             const portPlacements: { [id: Id]: Bounds } = {};
 
             portAffected.forEach(port => {
@@ -80,22 +110,23 @@ export const classDiagramSlice = createSlice({
                 port.placement = bounds;
             });
 
-            const links: { [id: Id]: LinkState } = current(state.diagram.links);
+            const links: { [id: Id]: LinkState } = current(diagram.links);
             for (let link of Object.values(links)) {
                 const bounds1 = portPlacements[link.port1];
                 const bounds2 = portPlacements[link.port2];
                 if (bounds1 || bounds2) {
-                    state.diagram.links[link.id].placement = linkPlacement(link,
-                        state.diagram.ports[link.port1],
-                        state.diagram.ports[link.port2]);
+                    diagram.links[link.id].placement = linkPlacement(link,
+                        diagram.ports[link.port1],
+                        diagram.ports[link.port2]);
                 }
             }
         },
 
-        dropFromPalette: ({diagram}, action: PayloadAction<DropFromPaletteAction>) => {
+        dropFromPalette: (state, action: PayloadAction<DropFromPaletteAction>) => {
             const id = generateId();
             const defaultWidth = 100;
             const defaultHeight = 80;
+            const diagram = state.editors[state.activeIndex].diagram.content;
             diagram.nodes[id] = {
                 id,
                 text: "New Node",
@@ -107,15 +138,18 @@ export const classDiagramSlice = createSlice({
                     height: defaultHeight
                 }
             }
+        },
+        openDiagramActivated: (state, action: PayloadAction<number>) => {
+            state.activeIndex = action.payload
         }
-    },
+    }
 })
 
-export const {nodeResize, nodeSelect, nodeDeselect, dropFromPalette} = classDiagramSlice.actions
+export const {nodeResize, nodeSelect, nodeDeselect, dropFromPalette, openDiagramActivated} = diagramEditorSlice.actions
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-//export const selectNodes = (state: RootState) => state.diagram.Nodes;
+export const selectDiagramEditor = (state: RootState) => state.diagramEditor.editors[state.diagramEditor.activeIndex];
 
-export default classDiagramSlice.reducer
+export default diagramEditorSlice.reducer

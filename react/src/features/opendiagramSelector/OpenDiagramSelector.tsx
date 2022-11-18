@@ -1,21 +1,36 @@
 import React from "react";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {openDiagramActivated} from "./openDiagramSlice";
-import {Pivot, PivotItem} from "@fluentui/react";
+import {Pivot, PivotItem, Stack} from "@fluentui/react";
+import styles from "../../diagramContainer/DiagramContainer.module.scss";
+import {DiagramEditor} from "../classDiagram/DiagramEditor";
+import {openDiagramActivated} from "../classDiagram/diagramEditorSlice";
 
 export const OpenDiagramSelector = () => {
     const dispatch = useAppDispatch();
-    const model = useAppSelector(state => state.openDiagrams);
+    const editors = useAppSelector(state => state.diagramEditor.editors);
 
     return (
-        <Pivot
-        aria-label="Open diagrams"
-        headersOnly={true}
+        <Stack horizontal={false} verticalFill={true}>
+            <Stack.Item align={"start"}>
+                <Pivot
+                    aria-label="Open diagrams"
+                    headersOnly={true}
+                    onLinkClick={(item) => {dispatch(openDiagramActivated(+item!.props.itemKey!))}}
+                >
+                    {editors.map((editor, index) =>
+                        <PivotItem headerText={editor.diagram.metadata.title} itemKey={"" + index} key={index}/>)
+                    }
+                </Pivot>
+            </Stack.Item>
+            <Stack.Item>
+                <div className={styles.container}>
+                    <DiagramEditor
+                    />
+                </div>;
+            </Stack.Item>
+        </Stack>
 
-        onLinkClick={(item) => {dispatch(openDiagramActivated(+item!.props.itemKey!))}}
-        >
-            {model.diagrams.map((diagram, index) =>
-                <PivotItem headerText={diagram.metadata.title} itemKey={"" + index} key={index}/>)
-            }
-    </Pivot>)
+    )
+
+
 }

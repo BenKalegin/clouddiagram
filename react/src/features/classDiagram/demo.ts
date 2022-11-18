@@ -1,7 +1,8 @@
 import {ClassDiagramState, linkPlacement, LinkState, NodeState, PortAlignment, portBounds, PortState} from "./model";
 import {Bounds, Id} from "../../common/Model";
+import {ClassDiagramEditor} from "./diagramEditorSlice";
 
-export const getDefaultDiagramState = (): ClassDiagramState => {
+export const getDemoDiagram = (): ClassDiagramState => {
     const port11: PortState = {
         id: "port11",
         edgePosRatio: 50,
@@ -108,5 +109,15 @@ export const getDefaultDiagramState = (): ClassDiagramState => {
         links,
         ports
     };
+};
+
+export const demoDiagramEditor = (title: string) : ClassDiagramEditor => {
+    return {
+        diagram: {
+            metadata: {title: title},
+            content: getDemoDiagram()
+        },
+        selectedElements: []
+    }
 };
 

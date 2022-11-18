@@ -1,4 +1,4 @@
-import {ClassDiagramViewState} from "./classDiagramSlice";
+import {ClassDiagramEditor} from "./diagramEditorSlice";
 
 enum CloudDiagramActionKind {
     DRAG = "DRAG"
@@ -9,7 +9,7 @@ interface CloudDiagramAction {
     payload: number;
 }
 
-export function cloudDiagramReducer(state: ClassDiagramViewState, action: CloudDiagramAction): ClassDiagramViewState {
+export function cloudDiagramReducer(state: ClassDiagramEditor, action: CloudDiagramAction): ClassDiagramEditor {
     return state;
 }
 
