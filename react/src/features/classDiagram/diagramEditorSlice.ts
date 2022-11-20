@@ -12,6 +12,7 @@ export interface DiagramEditor {
 export interface ClassDiagramEditor extends DiagramEditor {
     focusedElement?: Id;
     selectedElements: Id[];
+    isNodePropsDialogOpen?: boolean;
 }
 
 interface NodeResizeAction {
@@ -122,6 +123,14 @@ export const diagramEditorSlice = createSlice({
             }
         },
 
+        nodeShowProperties: (state, action: PayloadAction<string>) => {
+            state.editors[state.activeIndex].isNodePropsDialogOpen = true;
+        },
+
+        nodeCloseProperties: (state, action: PayloadAction<boolean>) => {
+            state.editors[state.activeIndex].isNodePropsDialogOpen = false;
+        },
+
         dropFromPalette: (state, action: PayloadAction<DropFromPaletteAction>) => {
             const id = generateId();
             const defaultWidth = 100;
@@ -145,7 +154,7 @@ export const diagramEditorSlice = createSlice({
     }
 })
 
-export const {nodeResize, nodeSelect, nodeDeselect, dropFromPalette, openDiagramActivated} = diagramEditorSlice.actions
+export const {nodeResize, nodeSelect, nodeDeselect, nodeShowProperties, nodeCloseProperties, dropFromPalette, openDiagramActivated} = diagramEditorSlice.actions
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

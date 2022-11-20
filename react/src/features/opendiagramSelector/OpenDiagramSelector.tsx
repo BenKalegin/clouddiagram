@@ -4,6 +4,7 @@ import {Pivot, PivotItem, Stack} from "@fluentui/react";
 import styles from "../../diagramContainer/DiagramContainer.module.scss";
 import {DiagramEditor} from "../classDiagram/DiagramEditor";
 import {openDiagramActivated} from "../classDiagram/diagramEditorSlice";
+import {NodePropertiesDialog} from "../classDiagram/dialogs/NodePropertiesDialog";
 
 export const OpenDiagramSelector = () => {
     const dispatch = useAppDispatch();
@@ -28,6 +29,7 @@ export const OpenDiagramSelector = () => {
                     />
                 </div>;
             </Stack.Item>
+            <NodePropertiesDialog/>
         </Stack>
 
     )

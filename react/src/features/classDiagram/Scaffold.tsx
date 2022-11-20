@@ -2,6 +2,9 @@ import React from "react";
 import {Rect} from "react-konva";
 import {Bounds, Coordinate, inflate} from "../../common/Model";
 import {enumKeys} from "../../common/EnumUtils";
+import {nodeShowProperties} from "./diagramEditorSlice";
+import {useDispatch} from "react-redux";
+import {useAppDispatch} from "../../app/hooks";
 
 export interface ScaffoldProps {
     bounds: Bounds;
@@ -69,6 +72,7 @@ export interface BackgroundProps {
 
 const Background = (props: BackgroundProps) => {
     const [position, setPosition] = React.useState<Coordinate>({x: props.bounds.x, y: props.bounds.y});
+    const dispatch = useAppDispatch()
 
     return (
         <Rect
@@ -90,7 +94,7 @@ const Background = (props: BackgroundProps) => {
                     x: delta.x, y: delta.y, width: 0, height: 0
                 });
             }}
-
+            onDblClick={() => dispatch(nodeShowProperties("1"))}
         />
     );
 };
@@ -218,6 +222,7 @@ const resizeHandleCursor = (direction: ResizeHandleDirection): string => {
 
 export const Scaffold = (props: ScaffoldProps) => {
     const bounds = inflate(props.bounds, 12, 12);
+    const dispatch = useDispatch();
 
     return (
         <React.Fragment>
