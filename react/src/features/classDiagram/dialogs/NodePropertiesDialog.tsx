@@ -2,13 +2,13 @@ import {
     ContextualMenu,
     DefaultButton,
     Dialog,
-    DialogFooter, DialogType,
-    hiddenContentStyle,
-    mergeStyles,
-    PrimaryButton
+    DialogFooter,
+    DialogType,
+    PrimaryButton,
+    TextField
 } from "@fluentui/react";
-import { useId, useBoolean } from '@fluentui/react-hooks';
-import {useMemo} from "react";
+import {useId} from '@fluentui/react-hooks';
+import {FormEvent, useCallback, useMemo, useState} from "react";
 import {nodeCloseProperties, selectDiagramEditor} from "../diagramEditorSlice";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
 
@@ -19,19 +19,12 @@ const dragOptions = {
     menu: ContextualMenu,
     keepInBounds: true,
 };
-const screenReaderOnly = mergeStyles(hiddenContentStyle);
-const dialogContentProps = {
-    type: DialogType.normal,
-    title: 'Missing Subject',
-    closeButtonAriaLabel: 'Close',
-    subText: 'Do you want to send this message without a subject?',
-};
-
 export const NodePropertiesDialog = () => {
-    const [isDraggable, { toggle: toggleIsDraggable }] = useBoolean(false);
+    const isDraggable = true;
     const labelId: string = useId('dialogLabel');
     const subTextId: string = useId('subTextLabel');
-    const diagram = useAppSelector(state => selectDiagramEditor(state));
+    const editor = useAppSelector(state => selectDiagramEditor(state));
+    const node = editor.diagram.content.nodes[editor.selectedElements[0]];
     const dispatch = useAppDispatch()
 
     const modalProps = useMemo(
@@ -45,17 +38,44 @@ export const NodePropertiesDialog = () => {
         [isDraggable, labelId, subTextId],
     );
 
-    function toggleHideDialog() { dispatch(nodeCloseProperties(true))};
+    const [name, setName] = useState<string | undefined>(undefined);
+
+    function toggleHideDialog(save: boolean) {
+        dispatch(nodeCloseProperties({save, node: node.id, text: name ?? ''}))
+        setName('')
+    }
+
+    const onNameChange = useCallback(
+        (event: FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+            if (!newValue || newValue.length <= 15) {
+                setName(newValue || '');
+            }
+        },
+        [],
+    );
+
+    const coercedName = name ?? node?.text;
     return (
         <Dialog
-            hidden={!diagram.isNodePropsDialogOpen}
-            onDismiss={toggleHideDialog}
-            dialogContentProps={dialogContentProps}
+            hidden={!editor.isNodePropsDialogOpen}
+            onDismiss={() => toggleHideDialog(false)}
+            dialogContentProps={{
+                type: DialogType.normal,
+                title: coercedName + ' properties',
+                closeButtonAriaLabel: 'Close',
+                subText: 'Specify the name for the node',
+            }}
             modalProps={modalProps}
         >
+            <TextField
+                label="Name for the node"
+                value={coercedName}
+                onChange={onNameChange}
+                // styles={textFieldStyles}
+            />
             <DialogFooter>
-                <PrimaryButton onClick={toggleHideDialog} text="Save"/>
-                <DefaultButton onClick={toggleHideDialog} text="Cancel"/>
+                <PrimaryButton onClick={() => toggleHideDialog(true)} text="Save"/>
+                <DefaultButton onClick={() => toggleHideDialog(false)} text="Cancel"/>
             </DialogFooter>
         </Dialog>
     )

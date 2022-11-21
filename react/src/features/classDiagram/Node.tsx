@@ -2,7 +2,7 @@ import React from "react";
 import {Rect, Text} from "react-konva";
 import {Port} from "./Port";
 import {Scaffold} from "./Scaffold";
-import {nodeResize, nodeSelect, nodeShowProperties, selectDiagramEditor} from "./diagramEditorSlice";
+import {nodeResize, nodeSelect, selectDiagramEditor} from "./diagramEditorSlice";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
 
@@ -24,7 +24,6 @@ export const Node = (props: NodeProps) => {
                 onClick={({evt: {ctrlKey, shiftKey}}) =>
                     dispatch(nodeSelect({node: props.node, shiftKey, ctrlKey}))
                 }
-                onDblClick={() => dispatch(nodeShowProperties(props.node.id))}
                 fill={"cornsilk"}
                 stroke={"burlywood"}
                 {...props.node.placement}

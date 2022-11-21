@@ -26,6 +26,12 @@ interface NodeSelectAction {
     ctrlKey: boolean
 }
 
+interface NodePropsChangedAction {
+    save: boolean
+    node: Id
+    text: string
+}
+
 interface DropFromPaletteAction {
     droppedAt: Coordinate;
 }
@@ -123,12 +129,15 @@ export const diagramEditorSlice = createSlice({
             }
         },
 
-        nodeShowProperties: (state, action: PayloadAction<string>) => {
+        nodeShowProperties: (state) => {
             state.editors[state.activeIndex].isNodePropsDialogOpen = true;
         },
 
-        nodeCloseProperties: (state, action: PayloadAction<boolean>) => {
+        nodeCloseProperties: (state, action: PayloadAction<NodePropsChangedAction>) => {
             state.editors[state.activeIndex].isNodePropsDialogOpen = false;
+            if (action.payload.save) {
+                state.editors[state.activeIndex].diagram.content.nodes[action.payload.node].text = action.payload.text;
+            }
         },
 
         dropFromPalette: (state, action: PayloadAction<DropFromPaletteAction>) => {

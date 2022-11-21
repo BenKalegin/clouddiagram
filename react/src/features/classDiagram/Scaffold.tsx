@@ -94,7 +94,7 @@ const Background = (props: BackgroundProps) => {
                     x: delta.x, y: delta.y, width: 0, height: 0
                 });
             }}
-            onDblClick={() => dispatch(nodeShowProperties("1"))}
+            onDblClick={() => dispatch(nodeShowProperties())}
         />
     );
 };
@@ -222,8 +222,7 @@ const resizeHandleCursor = (direction: ResizeHandleDirection): string => {
 
 export const Scaffold = (props: ScaffoldProps) => {
     const bounds = inflate(props.bounds, 12, 12);
-    const dispatch = useDispatch();
-
+    useDispatch();
     return (
         <React.Fragment>
             <Background
