@@ -9,7 +9,7 @@ import {ReactReduxContext, Provider} from 'react-redux';
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
 
-export function DiagramEditor() {
+export const CloudDiagramEditor = () => {
     const {diagram, selectedElements, focusedElement} = useAppSelector(state => selectDiagramEditor(state));
     const dispatch = useAppDispatch();
 
@@ -68,4 +68,4 @@ export function DiagramEditor() {
             </ReactReduxContext.Consumer>
         </div>
     );
-}
+};

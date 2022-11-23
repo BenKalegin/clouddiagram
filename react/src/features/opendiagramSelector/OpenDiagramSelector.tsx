@@ -2,13 +2,15 @@ import React from "react";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {Pivot, PivotItem, Stack} from "@fluentui/react";
 import styles from "../../diagramContainer/DiagramContainer.module.scss";
-import {DiagramEditor} from "../classDiagram/DiagramEditor";
-import {openDiagramActivated} from "../classDiagram/diagramEditorSlice";
+import {CloudDiagramEditor} from "../classDiagram/CloudDiagramEditor";
+import {DiagramEditorType, openDiagramActivated} from "../classDiagram/diagramEditorSlice";
 import {NodePropertiesDialog} from "../classDiagram/dialogs/NodePropertiesDialog";
+import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 
 export const OpenDiagramSelector = () => {
     const dispatch = useAppDispatch();
-    const editors = useAppSelector(state => state.diagramEditor.editors);
+    const editors = useAppSelector(state => state.diagramEditor);
+    const activeEditor = editors.editors[editors.activeIndex]
 
     return (
         <Stack horizontal={false} verticalFill={true}>
@@ -18,15 +20,15 @@ export const OpenDiagramSelector = () => {
                     headersOnly={true}
                     onLinkClick={(item) => {dispatch(openDiagramActivated(+item!.props.itemKey!))}}
                 >
-                    {editors.map((editor, index) =>
+                    {editors.editors.map((editor, index) =>
                         <PivotItem headerText={editor.diagram.metadata.title} itemKey={"" + index} key={index}/>)
                     }
                 </Pivot>
             </Stack.Item>
             <Stack.Item>
                 <div className={styles.container}>
-                    <DiagramEditor
-                    />
+                    {activeEditor.type === DiagramEditorType.Class && <CloudDiagramEditor/>}
+                    {activeEditor.type === DiagramEditorType.Sequence && <SequenceDiagramEditor/>}
                 </div>;
             </Stack.Item>
             <NodePropertiesDialog/>

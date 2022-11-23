@@ -1,6 +1,6 @@
-import {ClassDiagramState, linkPlacement, LinkState, NodeState, PortAlignment, portBounds, PortState} from "./model";
-import {Bounds, Id} from "../../common/Model";
-import {ClassDiagramEditor} from "./diagramEditorSlice";
+import {ClassDiagramState, linkPlacement, LinkState, NodeState, PortAlignment, portBounds, PortState} from "./classDiagram/model";
+import {Bounds, Id} from "../common/Model";
+import {ClassDiagramEditor, DiagramEditorType, SequenceDiagramEditor} from "./classDiagram/diagramEditorSlice";
 
 export const getDemoDiagram = (): ClassDiagramState => {
     const port11: PortState = {
@@ -111,13 +111,25 @@ export const getDemoDiagram = (): ClassDiagramState => {
     };
 };
 
-export const demoDiagramEditor = (title: string) : ClassDiagramEditor => {
+export const demoClassDiagramEditor = (title: string) : ClassDiagramEditor => {
     return {
         diagram: {
             metadata: {title: title},
             content: getDemoDiagram()
         },
-        selectedElements: []
+        selectedElements: [],
+        type: DiagramEditorType.Class
     }
-};
+}
+
+export const demoSequenceDiagramEditor = (title: string) : SequenceDiagramEditor => {
+    return {
+        diagram: {
+            metadata: {title: title},
+            content: getDemoDiagram()
+        },
+        selectedElements: [],
+        type: DiagramEditorType.Sequence
+    }
+}
 

@@ -2,10 +2,16 @@ import {createSlice, current, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {Id} from "../../common/Model";
 import {Bounds, Coordinate} from "../../common/Model";
 import {ClassDiagramState, linkPlacement, LinkState, nodePlacementAfterResize, NodeState, portBounds} from "./model";
-import {demoDiagramEditor} from "./demo";
+import {demoClassDiagramEditor, demoSequenceDiagramEditor} from "../demo";
 import {RootState} from "../../app/store";
 
+export enum DiagramEditorType {
+    Class,
+    Sequence
+}
+
 export interface DiagramEditor {
+    type: DiagramEditorType
     diagram: Diagram;
 }
 
@@ -13,6 +19,11 @@ export interface ClassDiagramEditor extends DiagramEditor {
     focusedElement?: Id;
     selectedElements: Id[];
     isNodePropsDialogOpen?: boolean;
+}
+
+export interface SequenceDiagramEditor extends DiagramEditor {
+    focusedElement?: Id;
+    selectedElements: Id[];
 }
 
 interface NodeResizeAction {
@@ -67,8 +78,9 @@ export interface DiagramEditors {
 const initialState: DiagramEditors = {
     activeIndex: 0,
     editors: [
-        demoDiagramEditor("Demo Diagram 1"),
-        demoDiagramEditor("Demo Diagram 2"),
+        demoClassDiagramEditor("Demo Class 1"),
+        demoClassDiagramEditor("Demo Class 2"),
+        demoSequenceDiagramEditor("Demo Sequence 1"),
     ]
 }
 
