@@ -1,8 +1,9 @@
 import {ClassDiagramState, linkPlacement, LinkState, NodeState, PortAlignment, portBounds, PortState} from "./classDiagram/model";
 import {Bounds, Id} from "../common/Model";
 import {ClassDiagramEditor, DiagramEditorType, SequenceDiagramEditor} from "./classDiagram/diagramEditorSlice";
+import {Lifeline, SequenceDiagramState} from "./sequenceDiagram/model";
 
-export const getDemoDiagram = (): ClassDiagramState => {
+export const getClassDemoDiagram = (): ClassDiagramState => {
     const port11: PortState = {
         id: "port11",
         edgePosRatio: 50,
@@ -111,12 +112,30 @@ export const getDemoDiagram = (): ClassDiagramState => {
     };
 };
 
+export const getSequenceDemoDiagram = (): SequenceDiagramState => {
+    const lifeLine1: Lifeline = {
+        id: 'line1',
+        title: 'Alice'
+    }
+
+    const lifeLine2: Lifeline = {
+        id: 'line1',
+        title: 'Bob'
+    }
+
+    const lifelines: { [id: Id]: Lifeline } = {
+        [lifeLine1.id]: lifeLine1,
+        [lifeLine2.id]: lifeLine2
+    }
+
+    return {
+        lifelines
+    }
+}
+
 export const demoClassDiagramEditor = (title: string) : ClassDiagramEditor => {
     return {
-        diagram: {
-            metadata: {title: title},
-            content: getDemoDiagram()
-        },
+        diagram: {...getClassDemoDiagram(), title: title},
         selectedElements: [],
         type: DiagramEditorType.Class
     }
@@ -124,10 +143,7 @@ export const demoClassDiagramEditor = (title: string) : ClassDiagramEditor => {
 
 export const demoSequenceDiagramEditor = (title: string) : SequenceDiagramEditor => {
     return {
-        diagram: {
-            metadata: {title: title},
-            content: getDemoDiagram()
-        },
+        diagram: {...getSequenceDemoDiagram(), title: title},
         selectedElements: [],
         type: DiagramEditorType.Sequence
     }

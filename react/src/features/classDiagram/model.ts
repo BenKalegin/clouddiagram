@@ -1,5 +1,6 @@
-import {Bounds, DiagramElement, Id} from "../../common/Model";
+import {Bounds, DiagramElement, DiagramState, Id} from "../../common/Model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
+import {DiagramType} from "./diagramEditorSlice";
 
 export enum PortAlignment {
     Left,
@@ -53,7 +54,7 @@ export interface LinkState extends DiagramElement {
     port2: Id;
 }
 
-export interface ClassDiagramState {
+export interface ClassDiagramState extends DiagramState {
     nodes: { [id: Id]: NodeState };
     links: { [id: Id]: LinkState };
     ports: { [id: Id]: PortState };

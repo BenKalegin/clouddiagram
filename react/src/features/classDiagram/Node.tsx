@@ -2,7 +2,7 @@ import React from "react";
 import {Rect, Text} from "react-konva";
 import {Port} from "./Port";
 import {Scaffold} from "./Scaffold";
-import {nodeResize, nodeSelect, selectDiagramEditor} from "./diagramEditorSlice";
+import {nodeResize, nodeSelect, selectClassDiagramEditor} from "./diagramEditorSlice";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
 
@@ -15,7 +15,7 @@ export interface NodeProps {
 
 export const Node = (props: NodeProps) => {
 
-    const diagram = useAppSelector(state => selectDiagramEditor(state).diagram.content);
+    const diagram = useAppSelector(state => selectClassDiagramEditor(state).diagram);
     const dispatch = useAppDispatch();
 
     return (

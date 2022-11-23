@@ -33,3 +33,7 @@ export const center = (bounds: Bounds): Coordinate => ({
     x: bounds.x + bounds.width / 2,
     y: bounds.y + bounds.height / 2,
 });
+
+export interface DiagramState {
+    title?: string
+}

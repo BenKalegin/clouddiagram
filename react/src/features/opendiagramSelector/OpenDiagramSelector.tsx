@@ -21,7 +21,7 @@ export const OpenDiagramSelector = () => {
                     onLinkClick={(item) => {dispatch(openDiagramActivated(+item!.props.itemKey!))}}
                 >
                     {editors.editors.map((editor, index) =>
-                        <PivotItem headerText={editor.diagram.metadata.title} itemKey={"" + index} key={index}/>)
+                        <PivotItem headerText={editor.diagram.title} itemKey={"" + index} key={index}/>)
                     }
                 </Pivot>
             </Stack.Item>
@@ -31,7 +31,7 @@ export const OpenDiagramSelector = () => {
                     {activeEditor.type === DiagramEditorType.Sequence && <SequenceDiagramEditor/>}
                 </div>;
             </Stack.Item>
-            <NodePropertiesDialog/>
+            {activeEditor.type === DiagramEditorType.Class && <NodePropertiesDialog/>}
         </Stack>
 
     )

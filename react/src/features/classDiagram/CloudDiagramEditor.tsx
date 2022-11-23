@@ -3,14 +3,14 @@ import React, {RefObject} from "react";
 import {Layer, Stage} from 'react-konva';
 import Konva from "konva";
 import {Link} from "./Link";
-import { dropFromPalette, nodeDeselect, selectDiagramEditor} from "./diagramEditorSlice";
+import {dropFromPalette, nodeDeselect, selectClassDiagramEditor} from "./diagramEditorSlice";
 import {ReactReduxContext, Provider} from 'react-redux';
 
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
 
 export const CloudDiagramEditor = () => {
-    const {diagram, selectedElements, focusedElement} = useAppSelector(state => selectDiagramEditor(state));
+    const {diagram, selectedElements, focusedElement} = useAppSelector(state => selectClassDiagramEditor(state));
     const dispatch = useAppDispatch();
 
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -48,7 +48,7 @@ export const CloudDiagramEditor = () => {
                         <Provider store={store}>
                             <Layer>
 
-                                {Object.values(diagram.content.nodes).map((node, i) => {
+                                {Object.values(diagram.nodes).map((node, i) => {
                                     return (
                                         <Node
                                             key={i}
@@ -58,7 +58,7 @@ export const CloudDiagramEditor = () => {
                                         />
                                     );
                                 })}
-                                {Object.values(diagram.content.links).map((link, index) => {
+                                {Object.values(diagram.links).map((link, index) => {
                                     return (<Link key={index} {...link} />)
                                 })}
                             </Layer>

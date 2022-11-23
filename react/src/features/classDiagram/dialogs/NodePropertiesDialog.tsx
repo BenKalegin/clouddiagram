@@ -9,7 +9,7 @@ import {
 } from "@fluentui/react";
 import {useId} from '@fluentui/react-hooks';
 import {FormEvent, useCallback, useMemo, useState} from "react";
-import {nodeCloseProperties, selectDiagramEditor} from "../diagramEditorSlice";
+import {nodeCloseProperties, selectClassDiagramEditor} from "../diagramEditorSlice";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
 
 const dialogStyles = { main: { maxWidth: 450 } };
@@ -23,8 +23,8 @@ export const NodePropertiesDialog = () => {
     const isDraggable = true;
     const labelId: string = useId('dialogLabel');
     const subTextId: string = useId('subTextLabel');
-    const editor = useAppSelector(state => selectDiagramEditor(state));
-    const node = editor.diagram.content.nodes[editor.selectedElements[0]];
+    const editor = useAppSelector(state => selectClassDiagramEditor(state));
+    const node = editor.diagram.nodes[editor.selectedElements[0]];
     const dispatch = useAppDispatch()
 
     const modalProps = useMemo(
