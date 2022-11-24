@@ -1,10 +1,16 @@
-import {DiagramElement, DiagramState, Id} from "../../common/Model";
+import {Bounds, DiagramElement, DiagramState, Id} from "../../common/Model";
 
-export interface Lifeline extends DiagramElement{
+interface LifelinePlacement {
+    headBounds: Bounds;
+    lifelineEnd: number;
+}
+
+export interface LifelineState extends DiagramElement{
+    placement: LifelinePlacement;
     title: string;
 }
 
 export interface SequenceDiagramState extends DiagramState{
-    lifelines:  { [id: Id]: Lifeline}
+    lifelines:  { [id: Id]: LifelineState}
 }
 

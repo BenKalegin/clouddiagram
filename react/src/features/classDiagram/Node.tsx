@@ -2,7 +2,13 @@ import React from "react";
 import {Rect, Text} from "react-konva";
 import {Port} from "./Port";
 import {Scaffold} from "./Scaffold";
-import {nodeResize, nodeSelect, selectClassDiagramEditor} from "./diagramEditorSlice";
+import {
+    ClassDiagramEditor,
+    nodeResize,
+    nodeSelect,
+    selectClassDiagramEditor,
+    selectDiagramEditor
+} from "./diagramEditorSlice";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
 
@@ -10,12 +16,12 @@ export interface NodeProps {
      isSelected: boolean;
      isFocused: boolean;
      node: NodeState;
-
 }
 
 export const Node = (props: NodeProps) => {
 
-    const diagram = useAppSelector(state => selectClassDiagramEditor(state).diagram);
+    const diagram = useAppSelector(state => (selectDiagramEditor(state) as ClassDiagramEditor).diagram);
+    //const diagram = useAppSelector(state => selectClassDiagramEditor(state).diagram);
     const dispatch = useAppDispatch();
 
     return (

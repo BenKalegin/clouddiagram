@@ -1,7 +1,7 @@
 import {ClassDiagramState, linkPlacement, LinkState, NodeState, PortAlignment, portBounds, PortState} from "./classDiagram/model";
 import {Bounds, Id} from "../common/Model";
 import {ClassDiagramEditor, DiagramEditorType, SequenceDiagramEditor} from "./classDiagram/diagramEditorSlice";
-import {Lifeline, SequenceDiagramState} from "./sequenceDiagram/model";
+import {LifelineState, SequenceDiagramState} from "./sequenceDiagram/model";
 
 export const getClassDemoDiagram = (): ClassDiagramState => {
     const port11: PortState = {
@@ -113,17 +113,36 @@ export const getClassDemoDiagram = (): ClassDiagramState => {
 };
 
 export const getSequenceDemoDiagram = (): SequenceDiagramState => {
-    const lifeLine1: Lifeline = {
+    const lifeLine1: LifelineState = {
         id: 'line1',
-        title: 'Alice'
+        title: 'Alice',
+        placement: {
+            headBounds: {
+                x: 100,
+                y: 100,
+                width: 200,
+                height: 80
+            },
+            lifelineEnd: 200
+        }
+
     }
 
-    const lifeLine2: Lifeline = {
-        id: 'line1',
-        title: 'Bob'
+    const lifeLine2: LifelineState = {
+        id: 'line2',
+        title: 'Bob',
+        placement: {
+            headBounds: {
+                x: 400,
+                y: 100,
+                width: 200,
+                height: 80
+            },
+            lifelineEnd: 200
+        }
     }
 
-    const lifelines: { [id: Id]: Lifeline } = {
+    const lifelines: { [id: Id]: LifelineState } = {
         [lifeLine1.id]: lifeLine1,
         [lifeLine2.id]: lifeLine2
     }
