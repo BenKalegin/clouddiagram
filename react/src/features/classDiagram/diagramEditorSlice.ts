@@ -1,10 +1,10 @@
-import {createSlice, current, nanoid, PayloadAction} from '@reduxjs/toolkit'
+import {createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {Id} from "../../common/Model";
 import {Bounds, Coordinate} from "../../common/Model";
-import {ClassDiagramState, linkPlacement, LinkState, nodePlacementAfterResize, NodeState, portBounds} from "./model";
+import {ClassDiagramState, resizeNode} from "./model";
 import {demoClassDiagramEditor, demoSequenceDiagramEditor} from "../demo";
 import {RootState} from "../../app/store";
-import {SequenceDiagramState} from "../sequenceDiagram/model";
+import {resizeLifeline, SequenceDiagramState} from "../sequenceDiagram/model";
 
 export enum DiagramEditorType {
     Class,
@@ -26,13 +26,13 @@ export interface SequenceDiagramEditor {
     selectedElements: Id[];
 }
 
-interface NodeResizeAction {
-    node: Id
+interface ElementResizeAction {
+    elementId: Id
     deltaBounds: Bounds
 }
 
-interface NodeSelectAction {
-    node: NodeState
+interface ElementSelectAction {
+    id: Id
     shiftKey: boolean
     ctrlKey: boolean
 }
@@ -51,23 +51,6 @@ const generateId = (): Id => {
     return nanoid(6);
 }
 
-export enum DiagramType {
-    Class,
-    Sequence,
-    Deployment
-}
-
-interface DiagramMetadata {
-    title: string;
-    // createdBy: string;
-    // createdOn: Date;
-    // diagramType: DiagramType;
-    // version: string;
-}
-
-export type Diagram = ClassDiagramState | SequenceDiagramState
-
-
 export type DiagramEditor = ClassDiagramEditor | SequenceDiagramEditor;
 
 export interface DiagramEditors {
@@ -84,6 +67,7 @@ const initialState: DiagramEditors = {
     ]
 }
 
+
 export const diagramEditorSlice = createSlice({
     name: 'diagramEditor',
     initialState,
@@ -94,53 +78,35 @@ export const diagramEditorSlice = createSlice({
             editor.focusedElement = undefined;
         },
 
-        nodeSelect: (state, action: PayloadAction<NodeSelectAction>) => {
+        nodeSelect: (state, action: PayloadAction<ElementSelectAction>) => {
             const editor = state.editors[state.activeIndex];
             const append = action.payload.shiftKey || action.payload.ctrlKey
             let selectedIds = editor.selectedElements;
-            const nodeId = action.payload.node.id;
+            const id = action.payload.id
             if (!append) {
-                selectedIds = [nodeId]
+                selectedIds = [id]
             } else {
-                if (!editor.selectedElements.includes(nodeId)) {
-                    selectedIds.push(nodeId)
+                if (!editor.selectedElements.includes(id)) {
+                    selectedIds.push(id)
                 } else
-                    selectedIds = selectedIds.filter(e => e !== nodeId)
+                    selectedIds = selectedIds.filter(e => e !== id)
             }
 
             editor.selectedElements = selectedIds;
             editor.focusedElement = selectedIds.length > 0 ? selectedIds[selectedIds.length - 1] : undefined
         },
 
-        nodeResize: (state, action: PayloadAction<NodeResizeAction>) => {
+        nodeResize: (state, action: PayloadAction<ElementResizeAction>) => {
             const editor = state.editors[state.activeIndex];
             switch (editor.type) {
                 case DiagramEditorType.Class:
-                    const diagram = editor.diagram;
-                    const node = diagram.nodes[action.payload.node];
-
-                    const nodePlacement = nodePlacementAfterResize(node, action.payload.deltaBounds);
-                    node.placement = nodePlacement;
-
-                    const portAffected = node.ports.map(port => diagram.ports[port]);
-                    const portPlacements: { [id: Id]: Bounds } = {};
-
-                    portAffected.forEach(port => {
-                        const bounds = portBounds(nodePlacement, port);
-                        portPlacements[port.id] = bounds;
-                        port.placement = bounds;
-                    });
-
-                    const links: { [id: Id]: LinkState } = current(diagram.links);
-                    for (let link of Object.values(links)) {
-                        const bounds1 = portPlacements[link.port1];
-                        const bounds2 = portPlacements[link.port2];
-                        if (bounds1 || bounds2) {
-                            diagram.links[link.id].placement = linkPlacement(link,
-                                diagram.ports[link.port1],
-                                diagram.ports[link.port2]);
-                        }
-                    }
+                    resizeNode(editor.diagram, action.payload.deltaBounds, action.payload.elementId)
+                    break
+                case DiagramEditorType.Sequence:
+                    resizeLifeline(editor.diagram, action.payload.deltaBounds, action.payload.elementId);
+                    break;
+                default:
+                    break;
             }
         },
 

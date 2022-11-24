@@ -119,11 +119,17 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         placement: {
             headBounds: {
                 x: 100,
-                y: 100,
-                width: 200,
+                y: 40,
+                width: 160,
                 height: 80
             },
-            lifelineEnd: 200
+            lifelineEnd: 200,
+            outlineBounds: {
+                x: 100,
+                y: 40,
+                width: 160,
+                height: 200
+            }
         }
 
     }
@@ -133,12 +139,18 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         title: 'Bob',
         placement: {
             headBounds: {
-                x: 400,
-                y: 100,
-                width: 200,
+                x: 320,
+                y: 40,
+                width: 160,
                 height: 80
             },
-            lifelineEnd: 200
+            lifelineEnd: 200,
+            outlineBounds: {
+                x: 320,
+                y: 40,
+                width: 160,
+                height: 200
+            }
         }
     }
 

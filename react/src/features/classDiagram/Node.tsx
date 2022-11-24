@@ -6,7 +6,6 @@ import {
     ClassDiagramEditor,
     nodeResize,
     nodeSelect,
-    selectClassDiagramEditor,
     selectDiagramEditor
 } from "./diagramEditorSlice";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
@@ -27,18 +26,18 @@ export const Node = (props: NodeProps) => {
     return (
         <React.Fragment>
             <Rect
-                onClick={({evt: {ctrlKey, shiftKey}}) =>
-                    dispatch(nodeSelect({node: props.node, shiftKey, ctrlKey}))
-                }
                 fill={"cornsilk"}
                 stroke={"burlywood"}
                 {...props.node.placement}
                 cornerRadius={10}
                 cursor={"crosshair"}
                 //draggable
+                onClick={({evt: {ctrlKey, shiftKey}}) =>
+                    dispatch(nodeSelect({id: props.node.id, shiftKey, ctrlKey}))
+                }
                 onDragEnd={(e) => {
                     const deltaBounds = {x: e.target.x(), y: e.target.y(), width: 0, height: 0};
-                    dispatch(nodeResize({ node: props.node.id, deltaBounds} ))
+                    dispatch(nodeResize({ elementId: props.node.id, deltaBounds} ))
                 }}
             />
             {props.isSelected && (
@@ -46,7 +45,7 @@ export const Node = (props: NodeProps) => {
                     bounds={props.node.placement}
                     isFocused={props.isFocused}
                     onResize={deltaBounds => {
-                        dispatch(nodeResize({ node: props.node.id, deltaBounds} ))
+                        dispatch(nodeResize({ elementId: props.node.id, deltaBounds} ))
                     }
                  }
                 />

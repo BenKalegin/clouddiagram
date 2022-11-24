@@ -1,6 +1,7 @@
 import {Bounds, DiagramElement, DiagramState, Id} from "../../common/Model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
-import {DiagramType} from "./diagramEditorSlice";
+import {WritableDraft} from "immer/dist/internal";
+import {current} from "@reduxjs/toolkit";
 
 export enum PortAlignment {
     Left,
@@ -114,3 +115,29 @@ export const nodePlacementAfterResize = ({placement}: NodeState, deltaBounds: Bo
     }
 }
 
+export function resizeNode(diagram: WritableDraft<ClassDiagramState>, deltaBounds: Bounds, elementId: Id) {
+    const node = diagram.nodes[elementId];
+
+    const nodePlacement = nodePlacementAfterResize(node, deltaBounds);
+    node.placement = nodePlacement;
+
+    const portAffected = node.ports.map(port => diagram.ports[port]);
+    const portPlacements: { [id: Id]: Bounds } = {};
+
+    portAffected.forEach(port => {
+        const bounds = portBounds(nodePlacement, port);
+        portPlacements[port.id] = bounds;
+        port.placement = bounds;
+    });
+
+    const links: { [id: Id]: LinkState } = current(diagram.links);
+    for (let link of Object.values(links)) {
+        const bounds1 = portPlacements[link.port1];
+        const bounds2 = portPlacements[link.port2];
+        if (bounds1 || bounds2) {
+            diagram.links[link.id].placement = linkPlacement(link,
+                diagram.ports[link.port1],
+                diagram.ports[link.port2]);
+        }
+    }
+}
