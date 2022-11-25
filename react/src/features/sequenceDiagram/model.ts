@@ -1,7 +1,7 @@
 import {Bounds, DiagramElement, DiagramState, Id} from "../../common/Model";
 import {WritableDraft} from "immer/dist/internal";
 
-interface LifelineActivation {
+export interface ActivationState extends DiagramElement{
     start: number;
     length: number;
 }
@@ -12,13 +12,38 @@ interface LifelinePlacement {
 }
 
 export interface LifelineState extends DiagramElement{
-    activations: LifelineActivation[]
+    activations: ActivationState[]
     placement: LifelinePlacement;
     title: string;
 }
 
+export enum MessageKind {
+    Call,
+    Return,
+    Self,
+    Recursive,
+    Create,
+    Destroy
+}
+
+export interface MessagePlacement {
+    x: number;
+    y: number;
+    points: number[];
+}
+
+export interface MessageState extends DiagramElement {
+    kind: MessageKind
+    sourceActivation: Id
+    targetActivation: Id
+    sourceActivationOffset: number
+    placement: MessagePlacement
+}
+
 export interface SequenceDiagramState extends DiagramState{
     lifelines:  { [id: Id]: LifelineState}
+    messages:  { [id: Id]: MessageState}
+    activations: { [id: Id]: ActivationState}
 }
 
 export const lifelinePlacementAfterResize = (placement: LifelinePlacement, deltaBounds: Bounds) => {
@@ -35,4 +60,10 @@ export const lifelinePlacementAfterResize = (placement: LifelinePlacement, delta
 export function resizeLifeline(diagram: WritableDraft<SequenceDiagramState>, deltaBounds: Bounds, elementId: Id) {
     const lifeline = diagram.lifelines[elementId]
     lifeline.placement.headBounds = lifelinePlacementAfterResize(lifeline.placement, deltaBounds)
+}
+
+export const messagePlacement = (message: MessageState, source: ActivationState, target: ActivationState): MessagePlacement => {
+    return {
+        x: source.
+    }
 }

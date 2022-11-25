@@ -10,6 +10,7 @@ import {Provider, ReactReduxContext} from "react-redux";
 import {Layer, Stage} from "react-konva";
 import {LifelineState} from "./model";
 import {Lifeline} from "./Lifeline";
+import {Message} from "./Message";
 
 export const SequenceDiagramEditor = () => {
     const {diagram, selectedElements, focusedElement} = useAppSelector(state => selectSequenceDiagramEditor(state));
@@ -47,7 +48,6 @@ export const SequenceDiagramEditor = () => {
                     >
                         <Provider store={store}>
                             <Layer>
-
                                 {Object.values(diagram.lifelines).map((lifeline, i) => {
                                     return (
                                         <Lifeline
@@ -57,6 +57,14 @@ export const SequenceDiagramEditor = () => {
                                             lifeline={lifeline}
                                         />
                                     );
+                                })}
+                                {Object.values(diagram.messages).map((message, i) => {
+                                    return (
+                                        <Message
+                                            key={i}
+                                            message={message}
+                                        />
+                                    )
                                 })}
                             </Layer>
                         </Provider>

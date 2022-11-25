@@ -1,7 +1,22 @@
-import {ClassDiagramState, linkPlacement, LinkState, NodeState, PortAlignment, portBounds, PortState} from "./classDiagram/model";
+import {
+    ClassDiagramState,
+    linkPlacement,
+    LinkState,
+    NodeState,
+    PortAlignment,
+    portBounds,
+    PortState
+} from "./classDiagram/model";
 import {Bounds, Id} from "../common/Model";
 import {ClassDiagramEditor, DiagramEditorType, SequenceDiagramEditor} from "./classDiagram/diagramEditorSlice";
-import {LifelineState, SequenceDiagramState} from "./sequenceDiagram/model";
+import {
+    ActivationState,
+    LifelineState,
+    MessageKind,
+    messagePlacement,
+    MessageState,
+    SequenceDiagramState
+} from "./sequenceDiagram/model";
 
 export const getClassDemoDiagram = (): ClassDiagramState => {
     const port11: PortState = {
@@ -113,6 +128,11 @@ export const getClassDemoDiagram = (): ClassDiagramState => {
 };
 
 export const getSequenceDemoDiagram = (): SequenceDiagramState => {
+    let activation1 = {
+        id: 'act1',
+        start: 50,
+        length: 100
+    };
     const lifeLine1: LifelineState = {
         id: 'line1',
         title: 'Alice',
@@ -125,13 +145,15 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
             },
             lifelineEnd: 200,
         },
-        activations: [{
-            start: 50,
-            length: 100
-        }],
+        activations: [activation1],
 
     }
 
+    let activation2 = {
+        id: 'act2',
+        start: 50,
+        length: 100
+    };
     const lifeLine2: LifelineState = {
         id: 'line2',
         title: 'Bob',
@@ -144,7 +166,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
             },
             lifelineEnd: 200,
         },
-        activations: []
+        activations: [activation2],
     }
 
     const lifelines: { [id: Id]: LifelineState } = {
@@ -152,12 +174,40 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         [lifeLine2.id]: lifeLine2
     }
 
+    const message1: MessageState =
+    {
+        kind: MessageKind.Call,
+        id: 'message1',
+        sourceActivation: 'act1',
+        targetActivation: 'act2',
+        sourceActivationOffset: 10,
+        placement: {
+            x: 0, y: 0, points: []
+        }
+    }
+
+
+    const messages: { [id: Id]: MessageState } = {
+        [message1.id]: message1
+    }
+
+    const activations: { [id: Id]:  ActivationState} = {
+        [activation1.id]: activation1,
+        [activation2.id]: activation2
+    }
+
+    for (let message of Object.values(messages)) {
+        message.placement = messagePlacement(message, activations[message.sourceActivation], activations[message.targetActivation]);
+    }
+
+
     return {
-        lifelines
+        lifelines,
+        messages
     }
 }
 
-export const demoClassDiagramEditor = (title: string) : ClassDiagramEditor => {
+export const demoClassDiagramEditor = (title: string): ClassDiagramEditor => {
     return {
         diagram: {...getClassDemoDiagram(), title: title},
         selectedElements: [],
@@ -165,7 +215,7 @@ export const demoClassDiagramEditor = (title: string) : ClassDiagramEditor => {
     }
 }
 
-export const demoSequenceDiagramEditor = (title: string) : SequenceDiagramEditor => {
+export const demoSequenceDiagramEditor = (title: string): SequenceDiagramEditor => {
     return {
         diagram: {...getSequenceDemoDiagram(), title: title},
         selectedElements: [],
