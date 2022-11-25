@@ -121,16 +121,14 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
                 x: 100,
                 y: 40,
                 width: 160,
-                height: 80
+                height: 60
             },
             lifelineEnd: 200,
-            outlineBounds: {
-                x: 100,
-                y: 40,
-                width: 160,
-                height: 200
-            }
-        }
+        },
+        activations: [{
+            start: 50,
+            length: 100
+        }],
 
     }
 
@@ -142,16 +140,11 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
                 x: 320,
                 y: 40,
                 width: 160,
-                height: 80
+                height: 60
             },
             lifelineEnd: 200,
-            outlineBounds: {
-                x: 320,
-                y: 40,
-                width: 160,
-                height: 200
-            }
-        }
+        },
+        activations: []
     }
 
     const lifelines: { [id: Id]: LifelineState } = {
