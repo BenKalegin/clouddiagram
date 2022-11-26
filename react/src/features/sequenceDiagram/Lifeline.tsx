@@ -4,6 +4,7 @@ import React from "react";
 import {Scaffold} from "../classDiagram/Scaffold";
 import {nodeResize, nodeSelect} from "../classDiagram/diagramEditorSlice";
 import {useAppDispatch} from "../../app/hooks";
+import {Activation} from "./Activation";
 
 export interface LifelineProps {
     isSelected: boolean;
@@ -11,7 +12,6 @@ export interface LifelineProps {
     lifeline: LifelineState;
 }
 
-const activationWidth = 10;
 
 export const Lifeline = (props: LifelineProps) => {
     const dispatch = useAppDispatch()
@@ -57,18 +57,12 @@ export const Lifeline = (props: LifelineProps) => {
                     headBounds.y + props.lifeline.placement.lifelineEnd
                 ]}
             />
-            {props.lifeline.activations.map((activation, index) =>
-                <Rect
-                    key={index}
-                    fill={"cornsilk"}
-                    stroke={"peru"}
-                    strokeWidth={1}
-                    x={headBounds.x + headBounds.width/2 - activationWidth/2}
-                    y={headBounds.y + headBounds.height + activation.start}
-                    width={activationWidth}
-                    height={activation.length}
-                >
-                </Rect>)
+            {props.lifeline.activations.map((activation) =>
+                <Activation
+                    key={activation}
+                    activationId={activation}
+                />
+            )
             }
             {props.isSelected && (
                 <Scaffold

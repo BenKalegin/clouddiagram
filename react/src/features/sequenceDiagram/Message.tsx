@@ -8,11 +8,11 @@ export interface MessageProps {
 export const Message = ({message: {placement}}: MessageProps) => {
     return (
         <Arrow
-            fill={"cornsilk"}
+            fill={"burlywood"}
             stroke={'burlywood'}
             strokeWidth={2}
-            pointerLength={5}
-            pointerWidth={5}
+            pointerLength={8}
+            pointerWidth={6}
             tension={undefined}
             closed={undefined}
             pointerAtBeginning={false}

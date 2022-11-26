@@ -7,9 +7,10 @@ import {
     portBounds,
     PortState
 } from "./classDiagram/model";
-import {Bounds, Id} from "../common/Model";
+import {Bounds, Id, zeroBounds} from "../common/Model";
 import {ClassDiagramEditor, DiagramEditorType, SequenceDiagramEditor} from "./classDiagram/diagramEditorSlice";
 import {
+    activationPlacement,
     ActivationState,
     LifelineState,
     MessageKind,
@@ -128,10 +129,11 @@ export const getClassDemoDiagram = (): ClassDiagramState => {
 };
 
 export const getSequenceDemoDiagram = (): SequenceDiagramState => {
-    let activation1 = {
+    const activation1 = {
         id: 'act1',
         start: 50,
-        length: 100
+        length: 100,
+        placement: zeroBounds
     };
     const lifeLine1: LifelineState = {
         id: 'line1',
@@ -145,14 +147,15 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
             },
             lifelineEnd: 200,
         },
-        activations: [activation1],
+        activations: [activation1.id],
 
     }
 
-    let activation2 = {
+    const activation2 = {
         id: 'act2',
         start: 50,
-        length: 100
+        length: 100,
+        placement: zeroBounds
     };
     const lifeLine2: LifelineState = {
         id: 'line2',
@@ -166,7 +169,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
             },
             lifelineEnd: 200,
         },
-        activations: [activation2],
+        activations: [activation2.id],
     }
 
     const lifelines: { [id: Id]: LifelineState } = {
@@ -196,14 +199,17 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         [activation2.id]: activation2
     }
 
-    for (let message of Object.values(messages)) {
-        message.placement = messagePlacement(message, activations[message.sourceActivation], activations[message.targetActivation]);
-    }
+    for (let lifeline of Object.values(lifelines))
+        for(let activation of lifeline.activations)
+            activations[activation].placement = activationPlacement(activations[activation], lifeline.placement);
 
+    for (let message of Object.values(messages))
+        message.placement = messagePlacement(message, activations[message.sourceActivation], activations[message.targetActivation]);
 
     return {
         lifelines,
-        messages
+        messages,
+        activations
     }
 }
 

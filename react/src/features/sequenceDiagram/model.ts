@@ -4,6 +4,7 @@ import {WritableDraft} from "immer/dist/internal";
 export interface ActivationState extends DiagramElement{
     start: number;
     length: number;
+    placement: Bounds;
 }
 
 interface LifelinePlacement {
@@ -12,18 +13,20 @@ interface LifelinePlacement {
 }
 
 export interface LifelineState extends DiagramElement{
-    activations: ActivationState[]
+    activations: Id[]
     placement: LifelinePlacement;
     title: string;
 }
 
 export enum MessageKind {
     Call,
+/*
     Return,
     Self,
     Recursive,
     Create,
     Destroy
+*/
 }
 
 export interface MessagePlacement {
@@ -62,8 +65,21 @@ export function resizeLifeline(diagram: WritableDraft<SequenceDiagramState>, del
     lifeline.placement.headBounds = lifelinePlacementAfterResize(lifeline.placement, deltaBounds)
 }
 
+const activationWidth = 10;
+
+export const activationPlacement = (activation: ActivationState, lifelinePlacement: LifelinePlacement): Bounds => {
+    return {
+        x: lifelinePlacement.headBounds.x + lifelinePlacement.headBounds.width / 2 - activationWidth / 2,
+        y: lifelinePlacement.headBounds.y + lifelinePlacement.headBounds.height + 2 /* shadow*/ + activation.start,
+        width: activationWidth,
+        height: activation.length
+    }
+}
+
 export const messagePlacement = (message: MessageState, source: ActivationState, target: ActivationState): MessagePlacement => {
     return {
-        x: source.
+        x: source.placement.x + source.placement.width,
+        y: source.placement.y,
+        points: [0, 0, target.placement.x - source.placement.x - source.placement.width, 0],
     }
 }

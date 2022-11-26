@@ -9,6 +9,7 @@ export interface Coordinate {
 }
 
 export const ZeroCoordinate : Coordinate = {x: 0, y: 0};
+export const zeroBounds : Bounds = {x: 0, y: 0, width: 0, height: 0};
 
 export interface Bounds extends Coordinate {
     width: number;
