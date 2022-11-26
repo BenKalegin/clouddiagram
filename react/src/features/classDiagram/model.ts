@@ -1,4 +1,4 @@
-import {Bounds, DiagramElement, DiagramState, Id} from "../../common/Model";
+import {Bounds, Coordinate, DiagramElement, DiagramState, Id} from "../../common/Model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {WritableDraft} from "immer/dist/internal";
 import {current} from "@reduxjs/toolkit";
@@ -141,3 +141,21 @@ export function resizeNode(diagram: WritableDraft<ClassDiagramState>, deltaBound
         }
     }
 }
+
+export function handleDropFromLibrary(diagram: WritableDraft<ClassDiagramState>, id: string, droppedAt: Coordinate, name: string) {
+    const defaultWidth = 100;
+    const defaultHeight = 80;
+
+    diagram.nodes[id] = {
+        id,
+        text: name,
+        ports: [],
+        placement: {
+            x: droppedAt.x - defaultWidth / 2,
+            y: droppedAt.y,
+            width: defaultWidth,
+            height: defaultHeight
+        }
+    }
+}
+

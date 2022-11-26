@@ -1,7 +1,7 @@
 import {createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {Id} from "../../common/Model";
 import {Bounds, Coordinate} from "../../common/Model";
-import {ClassDiagramState, resizeNode} from "./model";
+import {ClassDiagramState, handleDropFromLibrary, resizeNode} from "./model";
 import {demoClassDiagramEditor, demoSequenceDiagramEditor} from "../demo";
 import {RootState} from "../../app/store";
 import {resizeLifeline, SequenceDiagramState} from "../sequenceDiagram/model";
@@ -45,6 +45,7 @@ interface NodePropsChangedAction {
 
 interface DropFromPaletteAction {
     droppedAt: Coordinate;
+    name: string
 }
 
 const generateId = (): Id => {
@@ -132,23 +133,11 @@ export const diagramEditorSlice = createSlice({
 
         dropFromPalette: (state, action: PayloadAction<DropFromPaletteAction>) => {
             const id = generateId();
-            const defaultWidth = 100;
-            const defaultHeight = 80;
             const editor = state.editors[state.activeIndex];
             switch (editor.type) {
                 case DiagramEditorType.Class:
-                    const diagram = editor.diagram;
-                    diagram.nodes[id] = {
-                        id,
-                        text: "New Node",
-                        ports: [],
-                        placement: {
-                            x: action.payload.droppedAt.x - defaultWidth / 2,
-                            y: action.payload.droppedAt.y,
-                            width: defaultWidth,
-                            height: defaultHeight
-                        }
-                    }
+                    handleDropFromLibrary(editor.diagram, id, action.payload.droppedAt, action.payload.name);
+
             }
         },
         openDiagramActivated: (state, action: PayloadAction<number>) => {

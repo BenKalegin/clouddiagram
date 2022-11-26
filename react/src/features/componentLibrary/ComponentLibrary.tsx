@@ -5,7 +5,7 @@ const navStyles: Partial<INavStyles> = { root: { width: 300 } };
 
 const navLinkGroups: INavLinkGroup[] = [
     {
-        name: 'Basic components',
+        name: 'Class',
         expandAriaLabel: 'Expand Basic components section',
         collapseAriaLabel: 'Collapse Basic components section',
         links: [
@@ -22,19 +22,19 @@ const navLinkGroups: INavLinkGroup[] = [
         ],
     },
     {
-        name: 'Activity components',
+        name: 'Sequence',
         expandAriaLabel: 'Expand Activity components section',
         collapseAriaLabel: 'Collapse Activity components section',
         links: [
             {
-                key: 'activity1',
-                name: 'Activity Component 1',
-                url: '#/activity1',
+                key: 'actor',
+                name: 'Actor',
+                url: '#/actor',
             },
             {
-                key: 'activity2',
-                name: 'Activity Component 2',
-                url: '#/activity2',
+                key: 'class',
+                name: 'Class',
+                url: '#/class',
             }
         ],
     }

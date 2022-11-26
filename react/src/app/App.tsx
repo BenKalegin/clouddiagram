@@ -12,7 +12,7 @@ import {
 } from '@fluentui/react';
 import {FontIcon} from '@fluentui/react/lib/Icon';
 import './App.css';
-import {ComponentLibrary} from "./ComponentLibrary";
+import {ComponentLibrary} from "../features/componentLibrary/ComponentLibrary";
 import {OpenDiagramSelector} from "../features/opendiagramSelector/OpenDiagramSelector";
 
 const boldStyle: Partial<ITextStyles> = {root: {fontWeight: FontWeights.semibold}};

@@ -1,9 +1,9 @@
 import {Node} from "./Node";
-import React, {RefObject} from "react";
+import React from "react";
 import {Layer, Stage} from 'react-konva';
 import Konva from "konva";
 import {Link} from "./Link";
-import {dropFromPalette, nodeDeselect, selectClassDiagramEditor} from "./diagramEditorSlice";
+import {nodeDeselect, selectClassDiagramEditor} from "./diagramEditorSlice";
 import {ReactReduxContext, Provider} from 'react-redux';
 
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
@@ -23,49 +23,34 @@ export const CloudDiagramEditor = () => {
 
     const isSelected = (node: NodeState) => selectedElements.includes(node.id);
     const isFocused = (node: NodeState) => focusedElement === node.id;
-
-    const stageRef: RefObject<Konva.Stage> = React.useRef(null);
-
     return (
-        <div
-            // Stage wrapper that handles drag and drop
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-                e.preventDefault();
-                stageRef.current?.setPointersPositions(e);
-                const pos = stageRef.current?.getPointerPosition();
-                dispatch(dropFromPalette({droppedAt: {x: pos?.x || 100, y: pos?.y || 100}}))
-            }}
-        >
-            <ReactReduxContext.Consumer /* Stage does not propagate provider properly, we need to hack and provide it manually */>
-                {({store}) => (
-                    <Stage
-                        width={window.innerWidth}
-                        height={window.innerHeight}
-                        ref={stageRef}
-                        onMouseDown={e => checkDeselect(e)}
-                    >
-                        <Provider store={store}>
-                            <Layer>
+        <ReactReduxContext.Consumer /* Stage does not propagate provider properly, we need to hack and provide it manually */>
+            {({store}) => (
+                <Stage
+                    width={window.innerWidth}
+                    height={window.innerHeight}
+                    onMouseDown={e => checkDeselect(e)}
+                >
+                    <Provider store={store}>
+                        <Layer>
 
-                                {Object.values(diagram.nodes).map((node, i) => {
-                                    return (
-                                        <Node
-                                            key={i}
-                                            isSelected={isSelected(node)}
-                                            isFocused={isFocused(node)}
-                                            node={node}
-                                        />
-                                    );
-                                })}
-                                {Object.values(diagram.links).map((link, index) => {
-                                    return (<Link key={index} {...link} />)
-                                })}
-                            </Layer>
-                        </Provider>
-                    </Stage>
-                )}
-            </ReactReduxContext.Consumer>
-        </div>
+                            {Object.values(diagram.nodes).map((node, i) => {
+                                return (
+                                    <Node
+                                        key={i}
+                                        isSelected={isSelected(node)}
+                                        isFocused={isFocused(node)}
+                                        node={node}
+                                    />
+                                );
+                            })}
+                            {Object.values(diagram.links).map((link, index) => {
+                                return (<Link key={index} {...link} />)
+                            })}
+                        </Layer>
+                    </Provider>
+                </Stage>
+            )}
+        </ReactReduxContext.Consumer>
     );
 };

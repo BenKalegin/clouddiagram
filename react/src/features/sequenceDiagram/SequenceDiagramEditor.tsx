@@ -1,6 +1,5 @@
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {
-    dropFromPalette,
     nodeDeselect,
     selectSequenceDiagramEditor
 } from "../classDiagram/diagramEditorSlice";
@@ -28,49 +27,38 @@ export const SequenceDiagramEditor = () => {
     const stageRef: RefObject<Konva.Stage> = React.useRef(null);
 
     return (
-        <div
-            // Stage wrapper that handles drag and drop
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-                e.preventDefault();
-                stageRef.current?.setPointersPositions(e);
-                const pos = stageRef.current?.getPointerPosition();
-                dispatch(dropFromPalette({droppedAt: {x: pos?.x || 100, y: pos?.y || 100}}))
-            }}
-        >
-            <ReactReduxContext.Consumer /* Stage does not propagate provider properly, we need to hack and provide it manually */>
-                {({store}) => (
-                    <Stage
-                        width={window.innerWidth}
-                        height={window.innerHeight}
-                        ref={stageRef}
-                        onMouseDown={e => checkDeselect(e)}
-                    >
-                        <Provider store={store}>
-                            <Layer>
-                                {Object.values(diagram.lifelines).map((lifeline, i) => {
-                                    return (
-                                        <Lifeline
-                                            key={i}
-                                            isSelected={isSelected(lifeline)}
-                                            isFocused={isFocused(lifeline)}
-                                            lifeline={lifeline}
-                                        />
-                                    );
-                                })}
-                                {Object.values(diagram.messages).map((message, i) => {
-                                    return (
-                                        <Message
-                                            key={i}
-                                            message={message}
-                                        />
-                                    )
-                                })}
-                            </Layer>
-                        </Provider>
-                    </Stage>
-                )}
-            </ReactReduxContext.Consumer>
-        </div>
+        <ReactReduxContext.Consumer /* Stage does not propagate provider properly, we need to hack and provide it manually */>
+            {({store}) => (
+                <Stage
+                    width={window.innerWidth}
+                    height={window.innerHeight}
+                    ref={stageRef}
+                    onMouseDown={e => checkDeselect(e)}
+                >
+                    <Provider store={store}>
+                        <Layer>
+                            {Object.values(diagram.lifelines).map((lifeline, i) => {
+                                return (
+                                    <Lifeline
+                                        key={i}
+                                        isSelected={isSelected(lifeline)}
+                                        isFocused={isFocused(lifeline)}
+                                        lifeline={lifeline}
+                                    />
+                                );
+                            })}
+                            {Object.values(diagram.messages).map((message, i) => {
+                                return (
+                                    <Message
+                                        key={i}
+                                        message={message}
+                                    />
+                                )
+                            })}
+                        </Layer>
+                    </Provider>
+                </Stage>
+            )}
+        </ReactReduxContext.Consumer>
     );
 }
