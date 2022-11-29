@@ -19,10 +19,10 @@ const boldStyle: Partial<ITextStyles> = {root: {fontWeight: FontWeights.semibold
 const stackTokens: IStackTokens = {childrenGap: 15};
 const stackStyles: Partial<IStackStyles> = {
     root: {
-        width: '960px',
-        margin: '0 auto',
-        textAlign: 'center',
-        color: '#605e5c',
+        // width: '960px',
+        // margin: '0 auto',
+        // textAlign: 'left',
+        // color: '#605e5c',
     },
 };
 
