@@ -16,7 +16,7 @@ export function HtmlDrop(props: { children: ReactNode }) {
 
                 const offsetX = e.clientX - rect.x;
                 const offsetY = e.clientY - rect.y;
-                console.log(e)
+                console.log(e.nativeEvent.dataTransfer!.items)
                 dispatch(dropFromPalette({droppedAt: {x: offsetX, y: offsetY}, name: "todo"}))
             }}
         >
