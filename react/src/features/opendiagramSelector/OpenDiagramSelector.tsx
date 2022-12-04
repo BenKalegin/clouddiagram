@@ -5,7 +5,18 @@ import {DiagramEditorType, openDiagramActivated} from "../classDiagram/diagramEd
 import {NodePropertiesDialog} from "../classDiagram/dialogs/NodePropertiesDialog";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
-import {Stack, Tab, Tabs} from "@mui/material";
+import {Stack, styled, Tab, Tabs} from "@mui/material";
+
+
+interface StyledTabProps {
+    label: string;
+}
+
+const AntTab = styled((props: StyledTabProps) => <Tab disableRipple {...props} />)(
+    () => ({
+        textTransform: 'none',
+    }),
+);
 
 export const OpenDiagramSelector = () => {
     const dispatch = useAppDispatch();
@@ -24,7 +35,7 @@ export const OpenDiagramSelector = () => {
                 aria-label="Open diagrams"
             >
             {editors.editors.map((editor, index) =>
-                <Tab key={index}  label={editor.diagram.title} />
+                <AntTab key={index}  label={editor.diagram.title || "New diagram"} />
             )}
             </Tabs>
             <div>

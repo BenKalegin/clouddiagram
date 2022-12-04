@@ -4,7 +4,6 @@ import {
     List, ListItemButton, ListItemIcon, ListItemText,
     ListSubheader
 } from "@mui/material";
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import SendIcon from '@mui/icons-material/Send';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -31,7 +30,7 @@ interface IGalleryGroup {
 
 const groups: IGalleryGroup[] = [
     {
-        name: "class",
+        name: "Class",
         key: "class",
         items: items.filter(item => item.key.startsWith("class:"))
     },
@@ -69,7 +68,7 @@ export const ComponentLibrary = () => {
 
     return (
         <List
-            sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}
+            sx={{width: '100%', maxWidth: 360, minWidth: 180, bgcolor: 'background.paper'}}
             component="nav"
             aria-labelledby="nested-list-subheader"
             subheader={
@@ -80,12 +79,13 @@ export const ComponentLibrary = () => {
         >
             {groups.map(group => (
                     <React.Fragment key={group.key}>
-                        <ListItemButton onClick={() => handleClick(group.key)}>
-                            <ListItemIcon>
-                                <InboxIcon/>
+                        <ListItemButton disableRipple onClick={() => handleClick(group.key)}>
+                            <ListItemIcon
+                                sx={{minWidth: 36}}
+                            >
+                                {open[group.key] ? <ExpandLess/> : <ExpandMore/>}
                             </ListItemIcon>
                             <ListItemText primary={group.name}/>
-                            {open[group.key] ? <ExpandLess/> : <ExpandMore/>}
                         </ListItemButton>
                         <Collapse
                             in={open[group.key]}
