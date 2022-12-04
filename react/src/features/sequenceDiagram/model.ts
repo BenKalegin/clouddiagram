@@ -4,8 +4,9 @@ import {WritableDraft} from "immer/dist/internal";
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
 export const lifelineDefaultHeight = 60;
+const activationWidth = 10;
 
-export interface ActivationState extends DiagramElement{
+export interface ActivationState extends DiagramElement {
     start: number;
     length: number;
     placement: Bounds;
@@ -16,7 +17,7 @@ interface LifelinePlacement {
     lifelineEnd: number;
 }
 
-export interface LifelineState extends DiagramElement{
+export interface LifelineState extends DiagramElement {
     activations: Id[]
     placement: LifelinePlacement;
     title: string;
@@ -24,13 +25,13 @@ export interface LifelineState extends DiagramElement{
 
 export enum MessageKind {
     Call,
-/*
-    Return,
-    Self,
-    Recursive,
-    Create,
-    Destroy
-*/
+    /*
+        Return,
+        Self,
+        Recursive,
+        Create,
+        Destroy
+    */
 }
 
 export interface MessagePlacement {
@@ -47,10 +48,10 @@ export interface MessageState extends DiagramElement {
     placement: MessagePlacement
 }
 
-export interface SequenceDiagramState extends DiagramState{
-    lifelines:  { [id: Id]: LifelineState}
-    messages:  { [id: Id]: MessageState}
-    activations: { [id: Id]: ActivationState}
+export interface SequenceDiagramState extends DiagramState {
+    lifelines: { [id: Id]: LifelineState }
+    messages: { [id: Id]: MessageState }
+    activations: { [id: Id]: ActivationState }
 }
 
 export const lifelinePlacementAfterResize = (placement: LifelinePlacement, deltaBounds: Bounds) => {
@@ -63,13 +64,6 @@ export const lifelinePlacementAfterResize = (placement: LifelinePlacement, delta
     }
 }
 
-
-export function resizeLifeline(diagram: WritableDraft<SequenceDiagramState>, deltaBounds: Bounds, elementId: Id) {
-    const lifeline = diagram.lifelines[elementId]
-    lifeline.placement.headBounds = lifelinePlacementAfterResize(lifeline.placement, deltaBounds)
-}
-
-const activationWidth = 10;
 
 export const activationPlacement = (activation: ActivationState, lifelinePlacement: LifelinePlacement): Bounds => {
     return {
@@ -87,6 +81,22 @@ export const messagePlacement = (message: MessageState, source: ActivationState,
         points: [0, 0, target.placement.x - source.placement.x - source.placement.width, 0],
     }
 }
+
+
+export function resizeLifeline(diagram: WritableDraft<SequenceDiagramState>, deltaBounds: Bounds, elementId: Id) {
+    const lifeline = diagram.lifelines[elementId]
+    lifeline.placement.headBounds = lifelinePlacementAfterResize(lifeline.placement, deltaBounds)
+    lifeline.activations.forEach(activationId => {
+        const activation = diagram.activations[activationId]
+        activation.placement = activationPlacement(activation, lifeline.placement)
+    })
+    const messages = Object.values(diagram.messages).filter(
+        message => lifeline.activations.includes(message.sourceActivation) || lifeline.activations.includes(message.targetActivation))
+    messages.forEach(message => {
+        message.placement = messagePlacement(message, diagram.activations[message.sourceActivation], diagram.activations[message.targetActivation])
+    })
+}
+
 
 export function handleSequenceDropFromLibrary(diagram: WritableDraft<SequenceDiagramState>, id: string, droppedAt: Coordinate, name: string) {
 
