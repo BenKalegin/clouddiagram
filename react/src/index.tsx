@@ -4,6 +4,8 @@ import {Provider} from "react-redux";
 import {store} from "./app/store";
 import {App} from "./app/App";
 import {createRoot} from "react-dom/client";
+import '@fontsource/roboto/400.css';
+
 
 
 
