@@ -1,10 +1,10 @@
 import {createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {Id} from "../../common/Model";
 import {Bounds, Coordinate} from "../../common/Model";
-import {ClassDiagramState, handleDropFromLibrary, resizeNode} from "./model";
+import {ClassDiagramState, handleClassDropFromLibrary, resizeNode} from "./model";
 import {demoClassDiagramEditor, demoSequenceDiagramEditor} from "../demo";
 import {RootState} from "../../app/store";
-import {resizeLifeline, SequenceDiagramState} from "../sequenceDiagram/model";
+import {handleSequenceDropFromLibrary, resizeLifeline, SequenceDiagramState} from "../sequenceDiagram/model";
 
 export enum DiagramEditorType {
     Class,
@@ -136,7 +136,11 @@ export const diagramEditorSlice = createSlice({
             const editor = state.editors[state.activeIndex];
             switch (editor.type) {
                 case DiagramEditorType.Class:
-                    handleDropFromLibrary(editor.diagram, id, action.payload.droppedAt, action.payload.name);
+                    handleClassDropFromLibrary(editor.diagram, id, action.payload.droppedAt, action.payload.name);
+                    break;
+                case DiagramEditorType.Sequence:
+                    handleSequenceDropFromLibrary(editor.diagram, id, action.payload.droppedAt, action.payload.name);
+                    break;
 
             }
         },

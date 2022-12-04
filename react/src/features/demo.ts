@@ -11,7 +11,7 @@ import {Bounds, Id, zeroBounds} from "../common/Model";
 import {ClassDiagramEditor, DiagramEditorType, SequenceDiagramEditor} from "./classDiagram/diagramEditorSlice";
 import {
     activationPlacement,
-    ActivationState,
+    ActivationState, lifelineDefaultHeight, lifelineDefaultWidth, lifelineHeadY,
     LifelineState,
     MessageKind,
     messagePlacement,
@@ -141,9 +141,9 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         placement: {
             headBounds: {
                 x: 100,
-                y: 40,
-                width: 160,
-                height: 60
+                y: lifelineHeadY,
+                width: lifelineDefaultWidth,
+                height: lifelineDefaultHeight
             },
             lifelineEnd: 200,
         },
@@ -163,9 +163,9 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         placement: {
             headBounds: {
                 x: 320,
-                y: 40,
-                width: 160,
-                height: 60
+                y: lifelineHeadY,
+                width: lifelineDefaultWidth,
+                height: lifelineDefaultHeight
             },
             lifelineEnd: 200,
         },
