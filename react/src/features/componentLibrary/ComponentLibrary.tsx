@@ -2,15 +2,15 @@ import React from "react";
 import {
     Collapse,
     List, ListItemButton, ListItemIcon, ListItemText,
-    ListSubheader
+    ListSubheader, SvgIcon
 } from "@mui/material";
-import SendIcon from '@mui/icons-material/Send';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {GalleryItem} from "./models";
+import {ReactComponent as ClassIcon} from "../classDiagram/graphics/class.svg";
 
 const items: GalleryItem[] = [
-    {key: 'class:class', name: 'Class'},
+    {key: 'class:class', name: 'Class', icon: <ClassIcon/>},
     {key: 'class:interface', name: 'Interface'},
     {key: 'class:data-type', name: 'Data Type'},
     {key: 'class:enum', name: 'Enumeration'},
@@ -50,19 +50,26 @@ export const ComponentLibrary = () => {
     };
 
     function getItem(item: GalleryItem) {
-        return <ListItemButton key={item.key}
-                               onDragStart={(e) => {
-                                   e.dataTransfer.effectAllowed = "all";
-                                   e.dataTransfer.dropEffect = "copy";
-                                   e.dataTransfer.items.add(JSON.stringify(item), "application/json");
-                               }
-                               }
-                               draggable={true}
+        return <ListItemButton
+            key={item.key}
+            onDragStart={(e) => {
+                e.dataTransfer.effectAllowed = "all";
+                e.dataTransfer.dropEffect = "copy";
+                e.dataTransfer.items.add(JSON.stringify(item), "application/json");
+            }}
+            draggable={true}
         >
-            <ListItemIcon>
-                <SendIcon/>
+            <ListItemIcon sx={{minWidth: 36}}>
+                <SvgIcon component={ClassIcon} fontSize="small" />
             </ListItemIcon>
-            <ListItemText primary={item.name}/>
+            <ListItemText
+                primary={item.name}
+                primaryTypographyProps={{
+                    fontSize: 15,
+                    fontWeight: 'lighter',
+                    lineHeight: '14px',
+                    mb: '0px',
+                }}/>
         </ListItemButton>;
     }
 

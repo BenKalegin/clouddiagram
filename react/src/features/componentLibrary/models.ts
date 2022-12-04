@@ -1,6 +1,7 @@
 export interface GalleryItem {
     key: string;
     name: string;
+    icon?: JSX.Element
 
     thumbnail?: string;
     description?: string;
