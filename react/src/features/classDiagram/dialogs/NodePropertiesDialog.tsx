@@ -1,42 +1,12 @@
-import {
-    ContextualMenu,
-    DefaultButton,
-    Dialog,
-    DialogFooter,
-    DialogType,
-    PrimaryButton,
-    TextField
-} from "@fluentui/react";
-import {useId} from '@fluentui/react-hooks';
-import {FormEvent, useCallback, useMemo, useState} from "react";
+import {FormEvent, useCallback, useState} from "react";
 import {nodeCloseProperties, selectClassDiagramEditor} from "../diagramEditorSlice";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from "@mui/material";
 
-const dialogStyles = { main: { maxWidth: 450 } };
-const dragOptions = {
-    moveMenuItemText: 'Move',
-    closeMenuItemText: 'Close',
-    menu: ContextualMenu,
-    keepInBounds: true,
-};
 export const NodePropertiesDialog = () => {
-    const isDraggable = true;
-    const labelId: string = useId('dialogLabel');
-    const subTextId: string = useId('subTextLabel');
     const editor = useAppSelector(state => selectClassDiagramEditor(state));
     const node = editor.diagram.nodes[editor.selectedElements[0]];
     const dispatch = useAppDispatch()
-
-    const modalProps = useMemo(
-        () => ({
-            titleAriaId: labelId,
-            subtitleAriaId: subTextId,
-            isBlocking: false,
-            styles: dialogStyles,
-            dragOptions: isDraggable ? dragOptions : undefined,
-        }),
-        [isDraggable, labelId, subTextId],
-    );
 
     const [name, setName] = useState<string | undefined>(undefined);
 
@@ -57,26 +27,26 @@ export const NodePropertiesDialog = () => {
     const coercedName = name ?? node?.text;
     return (
         <Dialog
-            hidden={!editor.isNodePropsDialogOpen}
-            onDismiss={() => toggleHideDialog(false)}
-            dialogContentProps={{
-                type: DialogType.normal,
-                title: coercedName + ' properties',
-                closeButtonAriaLabel: 'Close',
-                subText: 'Specify the name for the node',
-            }}
-            modalProps={modalProps}
+            open={!!editor.isNodePropsDialogOpen}
+            onClose={() => toggleHideDialog(false)}
         >
-            <TextField
-                label="Name for the node"
-                value={coercedName}
-                onChange={onNameChange}
-                // styles={textFieldStyles}
-            />
-            <DialogFooter>
-                <PrimaryButton onClick={() => toggleHideDialog(true)} text="Save"/>
-                <DefaultButton onClick={() => toggleHideDialog(false)} text="Cancel"/>
-            </DialogFooter>
+            <DialogTitle>{coercedName + ' properties'}</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    Specify the name for the node
+                </DialogContentText>
+
+                <TextField
+                    label="Name for the node"
+                    value={coercedName}
+                    onChange={onNameChange}
+                    // styles={textFieldStyles}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => toggleHideDialog(true)}>Save</Button>
+                <Button onClick={() => toggleHideDialog(false)}>Cancel</Button>
+            </DialogActions>
         </Dialog>
     )
 }

@@ -1,48 +1,14 @@
-import {
-    DetailsRow,
-    GroupedList,
-    IDragDropEvents,
-    IDragDropHelper,
-    IGroup,
-    INavStyles,
-    SelectionMode
-} from "@fluentui/react";
 import React from "react";
-import {EventGroup} from "@fluentui/react/lib/Utilities";
-import {IDragDropOptions} from "@fluentui/react/lib/utilities/dragdrop/interfaces";
-
-const navStyles: Partial<INavStyles> = {root: {width: 300}};
-
-const navLinkGroups: IGroup[] = [
-    {
-        key: "class",
-        name: "Class",
-        startIndex: 0,
-        count: 7,
-        isDropEnabled: true,
-    },
-
-    {
-        key: "interaction",
-        name: 'Interaction',
-        startIndex: 2,
-        count: 9,
-        isDropEnabled: true,
-    },
-];
-
-export interface GalleryItem {
-    key: string;
-    name: string;
-
-    thumbnail?: string;
-    description?: string;
-    color?: string;
-    shape?: string;
-    location?: string;
-    width?: number;
-    height?: number;
-}
+import {
+    Collapse,
+    List, ListItemButton, ListItemIcon, ListItemText,
+    ListSubheader
+} from "@mui/material";
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import SendIcon from '@mui/icons-material/Send';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import {GalleryItem} from "./models";
 
 const items: GalleryItem[] = [
     {key: 'class:class', name: 'Class'},
@@ -56,71 +22,84 @@ const items: GalleryItem[] = [
     {key: 'interaction:lifeline', name: 'Lifeline'},
 ]
 
-const columns = [
+
+interface IGalleryGroup {
+    name: string,
+    key: string,
+    items: GalleryItem[]
+}
+
+const groups: IGalleryGroup[] = [
     {
-        key: "name",
-        name: "name",
-        fieldName: "name",
-        minWidth: 100,
-        maxWidth: 100,
-    }
+        name: "class",
+        key: "class",
+        items: items.filter(item => item.key.startsWith("class:"))
+    },
+    {
+        name: 'Interaction',
+        key: 'interaction',
+        items: items.filter(item => item.key.startsWith("interaction:"))
+    },
 ];
 
 
 export const ComponentLibrary = () => {
+    const [open, setOpen] = React.useState<{ [key: string]: boolean }>({});
 
-    const dragDropEvents = (): IDragDropEvents => {
-        return {
-            canDrop: (dropContext?, dragContext?) => {
-                return true;
-            },
-            canDrag: (item?: any) => {
-                return true;
-            },
-            onDragEnter: (item?: any, event?: DragEvent) => {
-                // return string is the css classes that will be added to the entering element.
-                return "dragEnterClass";
-            },
-            onDragLeave: (item?: any, event?: DragEvent) => {
-                return;
-            },
-            onDrop: (item?: any, event?: DragEvent) => {
-            },
-            onDragStart: (
-                item?: any,
-                itemIndex?: number,
-                selectedItems?: any[],
-                event?: MouseEvent
-            ) => {
-                console.log("drag start");
-            },
-            onDragEnd: (item?: any, event?: DragEvent) => {
-            }
-        };
+    const handleClick = (key: string) => {
+        setOpen(open => ({...open, [key]: !open[key]}));
     };
 
-    const onRenderCell = (nestingDepth?: number, item?: GalleryItem, itemIndex?: number, group?: IGroup): JSX.Element => {
-        return (
-            <DetailsRow
-                id={item!.key}
-                columns={columns}
-                groupNestingDepth={nestingDepth}
-                item={item}
-                itemIndex={itemIndex ?? -1}
-                compact={true}
-                group={group}
-                selectionMode={SelectionMode.none}
-                dragDropEvents={dragDropEvents()}
-            />
-        );
-    };
+    function getItem(item: GalleryItem) {
+        return <ListItemButton key={item.key}
+                               onDragStart={(e) => {
+                                   e.dataTransfer.effectAllowed = "all";
+                                   e.dataTransfer.dropEffect = "copy";
+                                   e.dataTransfer.items.add(JSON.stringify(item), "application/json");
+                               }
+                               }
+                               draggable={true}
+        >
+            <ListItemIcon>
+                <SendIcon/>
+            </ListItemIcon>
+            <ListItemText primary={item.name}/>
+        </ListItemButton>;
+    }
 
     return (
-        <GroupedList
-            styles={navStyles}
-            groups={navLinkGroups}
-            items={items}
-            selectionMode={SelectionMode.none}
-            onRenderCell={onRenderCell}
-        />)
+        <List
+            sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}
+            component="nav"
+            aria-labelledby="nested-list-subheader"
+            subheader={
+                <ListSubheader component="div" id="library-subheader">
+                    Component Library
+                </ListSubheader>
+            }
+        >
+            {groups.map(group => (
+                    <React.Fragment key={group.key}>
+                        <ListItemButton onClick={() => handleClick(group.key)}>
+                            <ListItemIcon>
+                                <InboxIcon/>
+                            </ListItemIcon>
+                            <ListItemText primary={group.name}/>
+                            {open[group.key] ? <ExpandLess/> : <ExpandMore/>}
+                        </ListItemButton>
+                        <Collapse
+                            in={open[group.key]}
+                            timeout="auto"
+                            unmountOnExit
+                        >
+                            <List component="div" disablePadding>
+                                {group.items.map(item => getItem(item))}
+                            </List>
+                        </Collapse>
+                    </React.Fragment>
+                )
+            )}
+        </List>
+    )
 }
+

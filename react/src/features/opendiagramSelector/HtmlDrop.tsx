@@ -1,6 +1,7 @@
 import React, {ReactNode} from "react";
 import {useAppDispatch} from "../../app/hooks";
 import {dropFromPalette} from "../classDiagram/diagramEditorSlice";
+import {GalleryItem} from "../componentLibrary/models";
 
 export function HtmlDrop(props: { children: ReactNode }) {
     const dispatch = useAppDispatch();
@@ -16,8 +17,8 @@ export function HtmlDrop(props: { children: ReactNode }) {
 
                 const offsetX = e.clientX - rect.x;
                 const offsetY = e.clientY - rect.y;
-                console.log(e.nativeEvent.dataTransfer!.items)
-                dispatch(dropFromPalette({droppedAt: {x: offsetX, y: offsetY}, name: "todo"}))
+                const galleryItem: GalleryItem = JSON.parse(e.dataTransfer.getData("application/json"));
+                dispatch(dropFromPalette({droppedAt: {x: offsetX, y: offsetY}, name: galleryItem.name}))
             }}
         >
             {children}
