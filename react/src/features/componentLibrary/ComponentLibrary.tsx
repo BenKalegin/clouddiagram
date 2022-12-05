@@ -1,24 +1,23 @@
 import React from "react";
-import {
-    Collapse,
-    List, ListItemButton, ListItemIcon, ListItemText,
-    ListSubheader, SvgIcon
-} from "@mui/material";
+import {Collapse, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, SvgIcon} from "@mui/material";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {GalleryItem} from "./models";
 import {ReactComponent as ClassIcon} from "../classDiagram/graphics/class.svg";
+import {ReactComponent as ActorIcon} from "../classDiagram/graphics/actor.svg";
+import {ReactComponent as LifelineIcon} from "../classDiagram/graphics/lifeline.svg";
+import {ReactComponent as InterfaceIcon} from "../classDiagram/graphics/interface.svg";
 
 const items: GalleryItem[] = [
-    {key: 'class:class', name: 'Class', icon: <ClassIcon/>},
-    {key: 'class:interface', name: 'Interface'},
+    {key: 'class:class', name: 'Class', icon: ClassIcon},
+    {key: 'class:interface', name: 'Interface', icon: InterfaceIcon},
     {key: 'class:data-type', name: 'Data Type'},
     {key: 'class:enum', name: 'Enumeration'},
     {key: 'class:primitive', name: 'Primitive'},
     {key: 'class:signal', name: 'Signal'},
     {key: 'class:association', name: 'Association'},
-    {key: 'interaction:actor', name: 'Actor'},
-    {key: 'interaction:lifeline', name: 'Lifeline'},
+    {key: 'interaction:actor', name: 'Actor', icon: ActorIcon},
+    {key: 'interaction:lifeline', name: 'Lifeline', icon: LifelineIcon},
 ]
 
 
@@ -60,7 +59,7 @@ export const ComponentLibrary = () => {
             draggable={true}
         >
             <ListItemIcon sx={{minWidth: 36}}>
-                <SvgIcon component={ClassIcon} fontSize="small" />
+                <SvgIcon component={item.icon} fontSize="small" />
             </ListItemIcon>
             <ListItemText
                 primary={item.name}
@@ -88,7 +87,7 @@ export const ComponentLibrary = () => {
                     <React.Fragment key={group.key}>
                         <ListItemButton disableRipple onClick={() => handleClick(group.key)}>
                             <ListItemIcon
-                                sx={{minWidth: 36}}
+                                sx={{minWidth: 26}}
                             >
                                 {open[group.key] ? <ExpandLess/> : <ExpandMore/>}
                             </ListItemIcon>

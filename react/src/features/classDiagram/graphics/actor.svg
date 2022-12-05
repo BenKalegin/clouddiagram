@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   version="1.1"
+   id="svg199"
+   viewBox="0 0 24 24"
+   xmlns="http://www.w3.org/2000/svg"
+   >
+  <defs
+     id="defs203" />
+  <ellipse
+     cx="11.801029"
+     cy="5.2034569"
+     style="fill:none;stroke:#000000;stroke-width:2"
+     id="circle187"
+     rx="2.8602061"
+     ry="2.6947336" />
+  <line
+     x1="11.801029"
+     y1="7.8981915"
+     x2="11.801029"
+     y2="14.635025"
+     style="stroke:#000000;stroke-width:2"
+     id="line189" />
+  <line
+     x1="6.0806179"
+     y1="10.592927"
+     x2="17.521442"
+     y2="10.592927"
+     style="stroke:#000000;stroke-width:2"
+     id="line191" />
+  <line
+     x1="11.801029"
+     y1="14.635025"
+     x2="7.5107217"
+     y2="21.371859"
+     style="stroke:#000000;stroke-width:2"
+     id="line193" />
+  <line
+     x1="11.801029"
+     y1="14.635025"
+     x2="16.091339"
+     y2="21.371859"
+     style="stroke:#000000;stroke-width:1"
+     id="line195" />
+</svg>
