@@ -9,6 +9,7 @@ import {Activation} from "./Activation";
 export interface LifelineProps {
     isSelected: boolean;
     isFocused: boolean;
+    isLinking: boolean;
     lifeline: LifelineState;
 }
 
@@ -71,6 +72,7 @@ export const Lifeline = (props: LifelineProps) => {
                         height: headBounds.y + props.lifeline.placement.lifelineEnd
                     }}
                     isFocused={props.isFocused}
+                    isLinking={props.isLinking}
                     onResize={deltaBounds => dispatch(nodeResize({elementId: props.lifeline.id, deltaBounds}))}
                 />
             )}

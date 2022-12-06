@@ -14,6 +14,7 @@ import {NodeState} from "./model";
 export interface NodeProps {
      isSelected: boolean;
      isFocused: boolean;
+     isLinking: boolean;
      node: NodeState;
 }
 
@@ -44,6 +45,7 @@ export const Node = (props: NodeProps) => {
                 <Scaffold
                     bounds={props.node.placement}
                     isFocused={props.isFocused}
+                    isLinking={props.isLinking}
                     onResize={deltaBounds => {
                         dispatch(nodeResize({ elementId: props.node.id, deltaBounds} ))
                     }

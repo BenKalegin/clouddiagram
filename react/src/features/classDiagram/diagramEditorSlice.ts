@@ -16,6 +16,7 @@ export interface ClassDiagramEditor {
     diagram: ClassDiagramState
     focusedElement?: Id;
     selectedElements: Id[];
+    linkingElement?: Id;
     isNodePropsDialogOpen?: boolean;
 }
 
@@ -24,6 +25,7 @@ export interface SequenceDiagramEditor {
     diagram: SequenceDiagramState
     focusedElement?: Id;
     selectedElements: Id[];
+    linkingElement?: Id;
 }
 
 interface ElementResizeAction {
