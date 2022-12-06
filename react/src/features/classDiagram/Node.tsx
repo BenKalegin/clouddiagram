@@ -43,6 +43,7 @@ export const Node = (props: NodeProps) => {
             />
             {props.isSelected && (
                 <Scaffold
+                    elementId={props.node.id}
                     bounds={props.node.placement}
                     isFocused={props.isFocused}
                     isLinking={props.isLinking}

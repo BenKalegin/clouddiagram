@@ -67,6 +67,7 @@ export const Lifeline = (props: LifelineProps) => {
             }
             {props.isSelected && (
                 <Scaffold
+                    elementId={props.lifeline.id}
                     bounds={{
                         ...headBounds,
                         height: headBounds.y + props.lifeline.placement.lifelineEnd

@@ -79,6 +79,7 @@ export const diagramEditorSlice = createSlice({
             const editor = state.editors[state.activeIndex];
             editor.selectedElements = [];
             editor.focusedElement = undefined;
+            editor.linkingElement = undefined;
         },
 
         nodeSelect: (state, action: PayloadAction<ElementSelectAction>) => {
@@ -148,6 +149,18 @@ export const diagramEditorSlice = createSlice({
         },
         openDiagramActivated: (state, action: PayloadAction<number>) => {
             state.activeIndex = action.payload
+        },
+
+        startLinking: (state, action: PayloadAction<Id>) => {
+            const editor = state.editors[state.activeIndex];
+            switch (editor.type) {
+                case DiagramEditorType.Class:
+                    editor.linkingElement = action.payload;
+                    break;
+                case DiagramEditorType.Sequence:
+                    editor.linkingElement = action.payload;
+                    break;
+            }
         }
     }
 })
@@ -159,7 +172,8 @@ export const {
     nodeShowProperties,
     nodeCloseProperties,
     dropFromPalette,
-    openDiagramActivated
+    openDiagramActivated,
+    startLinking
 } = diagramEditorSlice.actions
 
 // The function below is called a selector and allows us to select a value from

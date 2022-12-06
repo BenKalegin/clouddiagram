@@ -1,5 +1,5 @@
 import React from "react";
-import {Bounds, inflate} from "../../common/Model";
+import {Bounds, Id, inflate} from "../../common/Model";
 import {Background} from "./Background";
 import {ResizeHandles} from "./ResizeHandle";
 import {FocusFrame} from "./FocusFrame";
@@ -10,6 +10,7 @@ export interface ScaffoldProps {
     isFocused: boolean;
     onResize: (suggestedBounds: Bounds) => void;
     isLinking: boolean;
+    elementId: Id;
 
     resizeEnabled?: boolean;
     borderEnabled?: boolean;
@@ -41,7 +42,7 @@ export const Scaffold = (props: ScaffoldProps) => {
             <Background bounds={bounds} onDrag={newBounds => props.onResize(newBounds)}/>
             <ResizeHandles bounds={bounds} onResize={newBounds => props.onResize(newBounds)}/>
             {props.isFocused && <FocusFrame bounds={bounds} />}
-            {props.isFocused && <ContextButtons placement={buttonsPosition}/>}
+            {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.elementId}/>}
         </>
     )
 }
