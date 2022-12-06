@@ -1,7 +1,7 @@
 import {Group, Line, Rect, Text} from "react-konva";
 import {LifelineState} from "./model";
 import React from "react";
-import {Scaffold} from "../classDiagram/Scaffold";
+import {Scaffold} from "../scaffold/Scaffold";
 import {nodeResize, nodeSelect} from "../classDiagram/diagramEditorSlice";
 import {useAppDispatch} from "../../app/hooks";
 import {Activation} from "./Activation";

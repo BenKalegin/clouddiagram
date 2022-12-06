@@ -1,7 +1,7 @@
 import React from "react";
 import {Rect, Text} from "react-konva";
 import {Port} from "./Port";
-import {Scaffold} from "./Scaffold";
+import {Scaffold} from "../scaffold/Scaffold";
 import {
     ClassDiagramEditor,
     nodeResize,
