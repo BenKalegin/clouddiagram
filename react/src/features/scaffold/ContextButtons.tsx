@@ -1,5 +1,5 @@
 import {Bounds, Coordinate, Id} from "../../common/Model";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Group, Path, Rect} from "react-konva";
 import {useAppDispatch} from "../../app/hooks";
 import {startLinking} from "../classDiagram/diagramEditorSlice";
@@ -12,7 +12,6 @@ interface ContextButtonProps {
 
 export const ContextButton = (props: ContextButtonProps) => {
     const [isHover, setIsHover] = useState(false);
-
     const scaleX = 1;
     return (
         <Group {...props.placement}

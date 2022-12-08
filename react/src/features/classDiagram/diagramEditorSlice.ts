@@ -11,21 +11,22 @@ export enum DiagramEditorType {
     Sequence
 }
 
-export interface ClassDiagramEditor {
-    type: DiagramEditorType.Class
-    diagram: ClassDiagramState
+export interface BaseDiagramEditor {
     focusedElement?: Id;
     selectedElements: Id[];
-    linkingElement?: Id;
+    linkingSourceElement?: Id;
+    linkingMousePos: Coordinate
+}
+
+export interface ClassDiagramEditor extends BaseDiagramEditor {
+    type: DiagramEditorType.Class
+    diagram: ClassDiagramState
     isNodePropsDialogOpen?: boolean;
 }
 
-export interface SequenceDiagramEditor {
+export interface SequenceDiagramEditor extends BaseDiagramEditor{
     type: DiagramEditorType.Sequence
     diagram: SequenceDiagramState
-    focusedElement?: Id;
-    selectedElements: Id[];
-    linkingElement?: Id;
 }
 
 interface ElementResizeAction {
@@ -48,6 +49,13 @@ interface NodePropsChangedAction {
 interface DropFromPaletteAction {
     droppedAt: Coordinate;
     name: string
+}
+
+interface LinkingAction {
+    elementId: Id
+    mousePos: Coordinate
+    shiftKey: boolean
+    ctrlKey: boolean
 }
 
 const generateId = (): Id => {
@@ -79,7 +87,7 @@ export const diagramEditorSlice = createSlice({
             const editor = state.editors[state.activeIndex];
             editor.selectedElements = [];
             editor.focusedElement = undefined;
-            editor.linkingElement = undefined;
+            editor.linkingSourceElement = undefined;
         },
 
         nodeSelect: (state, action: PayloadAction<ElementSelectAction>) => {
@@ -155,10 +163,23 @@ export const diagramEditorSlice = createSlice({
             const editor = state.editors[state.activeIndex];
             switch (editor.type) {
                 case DiagramEditorType.Class:
-                    editor.linkingElement = action.payload;
+                    editor.linkingSourceElement = action.payload;
                     break;
                 case DiagramEditorType.Sequence:
-                    editor.linkingElement = action.payload;
+                    editor.linkingSourceElement = action.payload;
+                    break;
+            }
+        },
+
+        continueLinking: (state, action: PayloadAction<LinkingAction>) => {
+            const editor = state.editors[state.activeIndex];
+            switch (editor.type) {
+                case DiagramEditorType.Class:
+                    editor.linkingMousePos = action.payload.mousePos;
+                    editor.
+                    break;
+                case DiagramEditorType.Sequence:
+                    editor.linkingMousePos = action.payload.mousePos;
                     break;
             }
         }
@@ -173,7 +194,8 @@ export const {
     nodeCloseProperties,
     dropFromPalette,
     openDiagramActivated,
-    startLinking
+    startLinking,
+    continueLinking
 } = diagramEditorSlice.actions
 
 // The function below is called a selector and allows us to select a value from

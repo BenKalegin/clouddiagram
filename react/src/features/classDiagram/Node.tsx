@@ -51,7 +51,7 @@ export const Node = (props: NodeProps) => {
                         dispatch(nodeResize({ elementId: props.node.id, deltaBounds} ))
                     }
                  }
-                />
+                 linkSuggester={mousePos => {}/>
             )}
             <Text
                 {...props.node.placement}

@@ -2,6 +2,7 @@ import {Bounds, Coordinate, DiagramElement, DiagramState, Id} from "../../common
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {WritableDraft} from "immer/dist/internal";
 import {current} from "@reduxjs/toolkit";
+import {MessagePlacement} from "../sequenceDiagram/model";
 
 export enum PortAlignment {
     Left,
@@ -159,3 +160,11 @@ export function handleClassDropFromLibrary(diagram: WritableDraft<ClassDiagramSt
     }
 }
 
+export function suggestMessageWhileLinking(mousePos: Coordinate, lifelinePlacement: LifelinePlacement): MessagePlacement {
+    const x0 = lifelinePlacement.headBounds.x + lifelinePlacement.headBounds.width;
+    return {
+        x: x0,
+        y: mousePos.y,
+        points: [0, 0, mousePos.x - x0, 0]
+    }
+}

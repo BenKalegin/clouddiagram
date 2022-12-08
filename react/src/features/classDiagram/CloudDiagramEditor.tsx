@@ -10,7 +10,7 @@ import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
 
 export const CloudDiagramEditor = () => {
-    const {diagram, selectedElements, focusedElement, linkingElement} = useAppSelector(state => selectClassDiagramEditor(state));
+    const {diagram, selectedElements, focusedElement, linkingSourceElement} = useAppSelector(state => selectClassDiagramEditor(state));
     const dispatch = useAppDispatch();
 
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -23,7 +23,7 @@ export const CloudDiagramEditor = () => {
 
     const isSelected = (node: NodeState) => selectedElements.includes(node.id);
     const isFocused = (node: NodeState) => focusedElement === node.id;
-    const isLinking = (node: NodeState) => linkingElement === node.id;
+    const isLinking = (node: NodeState) => linkingSourceElement === node.id;
     return (
         <ReactReduxContext.Consumer /* Stage does not propagate provider properly, we need to hack and provide it manually */>
             {({store}) => (

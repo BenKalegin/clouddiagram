@@ -1,4 +1,4 @@
-import {Bounds, Coordinate, DiagramElement, DiagramState, Id} from "../../common/Model";
+import {Bounds, ConnectorPlacement, Coordinate, DiagramElement, DiagramState, Id} from "../../common/Model";
 import {WritableDraft} from "immer/dist/internal";
 
 export const lifelineHeadY = 30;
@@ -12,7 +12,7 @@ export interface ActivationState extends DiagramElement {
     placement: Bounds;
 }
 
-interface LifelinePlacement {
+interface LifelinePlacement{
     headBounds: Bounds;
     lifelineEnd: number;
 }
@@ -34,10 +34,7 @@ export enum MessageKind {
     */
 }
 
-export interface MessagePlacement {
-    x: number;
-    y: number;
-    points: number[];
+export interface MessagePlacement extends ConnectorPlacement {
 }
 
 export interface MessageState extends DiagramElement {
@@ -113,5 +110,24 @@ export function handleSequenceDropFromLibrary(diagram: WritableDraft<SequenceDia
             lifelineEnd: 100
         },
         activations: []
+    }
+}
+
+export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[] {
+    return [
+        headBounds.width/2,
+        headBounds.height + 2 /* shadow*/,
+        headBounds.width/2,
+        headBounds.y + lifelineEnd
+    ];
+
+}
+
+export function suggestMessageWhileLinking(mousePos: Coordinate, lifelinePlacement: LifelinePlacement): MessagePlacement {
+    const x0 = lifelinePlacement.headBounds.x + lifelinePlacement.headBounds.width;
+    return {
+        x: x0,
+        y: mousePos.y,
+        points: [0, 0, mousePos.x - x0, 0]
     }
 }

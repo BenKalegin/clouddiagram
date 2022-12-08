@@ -8,7 +8,7 @@ export interface Coordinate {
     x: number;
 }
 
-export const ZeroCoordinate : Coordinate = {x: 0, y: 0};
+export const zeroCoordinate : Coordinate = {x: 0, y: 0};
 export const zeroBounds : Bounds = {x: 0, y: 0, width: 0, height: 0};
 
 export interface Bounds extends Coordinate {
@@ -37,4 +37,10 @@ export const center = (bounds: Bounds): Coordinate => ({
 
 export interface DiagramState {
     title?: string
+}
+
+export interface ConnectorPlacement {
+    x: number;
+    y: number;
+    points: number[];
 }
