@@ -2,7 +2,6 @@ import {Bounds, Coordinate, DiagramElement, DiagramState, Id} from "../../common
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {WritableDraft} from "immer/dist/internal";
 import {current} from "@reduxjs/toolkit";
-import {MessagePlacement} from "../sequenceDiagram/model";
 
 export enum PortAlignment {
     Left,
@@ -98,11 +97,11 @@ export const portBounds = (nodePlacement: Bounds, port: PortState): Bounds => {
     }
 }
 
-export const linkPlacement = (link: LinkState, sourcePort: PortState, targetPort: PortState): LinkPlacement => {
+export const linkPlacement = (sourcePort: PortState, targetPort: PortState): LinkPlacement => {
 
     return {
         // svgPath: PathGenerators.Smooth(link, [p1, p2], p1, p2).path
-        svgPath: PathGenerators.Straight(link, [], sourcePort, targetPort).path
+        svgPath: PathGenerators.Straight([], sourcePort, targetPort).path
     };
 }
 
@@ -136,7 +135,7 @@ export function resizeNode(diagram: WritableDraft<ClassDiagramState>, deltaBound
         const bounds1 = portPlacements[link.port1];
         const bounds2 = portPlacements[link.port2];
         if (bounds1 || bounds2) {
-            diagram.links[link.id].placement = linkPlacement(link,
+            diagram.links[link.id].placement = linkPlacement(
                 diagram.ports[link.port1],
                 diagram.ports[link.port2]);
         }
@@ -157,14 +156,5 @@ export function handleClassDropFromLibrary(diagram: WritableDraft<ClassDiagramSt
             width: defaultWidth,
             height: defaultHeight
         }
-    }
-}
-
-export function suggestMessageWhileLinking(mousePos: Coordinate, lifelinePlacement: LifelinePlacement): MessagePlacement {
-    const x0 = lifelinePlacement.headBounds.x + lifelinePlacement.headBounds.width;
-    return {
-        x: x0,
-        y: mousePos.y,
-        points: [0, 0, mousePos.x - x0, 0]
     }
 }

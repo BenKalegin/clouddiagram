@@ -7,7 +7,7 @@ import {
     portBounds,
     PortState
 } from "./classDiagram/model";
-import {Bounds, Id, zeroBounds} from "../common/Model";
+import {Bounds, Id, zeroBounds, zeroCoordinate} from "../common/Model";
 import {ClassDiagramEditor, DiagramEditorType, SequenceDiagramEditor} from "./classDiagram/diagramEditorSlice";
 import {
     activationPlacement,
@@ -118,7 +118,7 @@ export const getClassDemoDiagram = (): ClassDiagramState => {
     }
 
     for (let link of Object.values(links)) {
-        link.placement = linkPlacement(link, ports[link.port1], ports[link.port2]);
+        link.placement = linkPlacement(ports[link.port1], ports[link.port2]);
     }
 
     return {
@@ -215,14 +215,17 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
 
 export const demoClassDiagramEditor = (title: string): ClassDiagramEditor => {
     return {
+        linkingMousePos: zeroCoordinate,
         diagram: {...getClassDemoDiagram(), title: title},
         selectedElements: [],
         type: DiagramEditorType.Class
+
     }
 }
 
 export const demoSequenceDiagramEditor = (title: string): SequenceDiagramEditor => {
     return {
+        linkingMousePos: zeroCoordinate,
         diagram: {...getSequenceDemoDiagram(), title: title},
         selectedElements: [],
         type: DiagramEditorType.Sequence

@@ -1,11 +1,10 @@
 import {Group, Line, Rect, Text} from "react-konva";
-import {lifelinePoints, LifelineState, suggestMessageWhileLinking} from "./model";
+import {lifelinePoints, LifelineState} from "./model";
 import React from "react";
 import {Scaffold} from "../scaffold/Scaffold";
 import {nodeResize, nodeSelect} from "../classDiagram/diagramEditorSlice";
 import {useAppDispatch} from "../../app/hooks";
 import {Activation} from "./Activation";
-import {Coordinate} from "../../common/Model";
 
 export interface LifelineProps {
     isSelected: boolean;
@@ -14,6 +13,10 @@ export interface LifelineProps {
     lifeline: LifelineState;
 }
 
+
+function DrawingMessage() {
+    return null;
+}
 
 export const Lifeline = (props: LifelineProps) => {
     const dispatch = useAppDispatch()
@@ -71,7 +74,7 @@ export const Lifeline = (props: LifelineProps) => {
                     isFocused={props.isFocused}
                     isLinking={props.isLinking}
                     onResize={deltaBounds => dispatch(nodeResize({elementId: props.lifeline.id, deltaBounds}))}
-                    onLinkingDraw={(mousePos: Coordinate) => suggestMessageWhileLinking(mousePos, props.lifeline)}
+                    linkingDrawing={() => <DrawingMessage/> }
                 />
             )}
 

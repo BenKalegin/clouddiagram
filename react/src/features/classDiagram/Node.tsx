@@ -3,13 +3,13 @@ import {Rect, Text} from "react-konva";
 import {Port} from "./Port";
 import {Scaffold} from "../scaffold/Scaffold";
 import {
-    ClassDiagramEditor,
     nodeResize,
     nodeSelect,
-    selectDiagramEditor
+    selectClassDiagramEditor,
 } from "./diagramEditorSlice";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
+import {DrawingLink} from "./DrawingLink";
 
 export interface NodeProps {
      isSelected: boolean;
@@ -20,8 +20,9 @@ export interface NodeProps {
 
 export const Node = (props: NodeProps) => {
 
-    const diagram = useAppSelector(state => (selectDiagramEditor(state) as ClassDiagramEditor).diagram);
-    //const diagram = useAppSelector(state => selectClassDiagramEditor(state).diagram);
+    // TODO optimize for more detailed selector
+    const diagram = useAppSelector(state => selectClassDiagramEditor(state).diagram);
+
     const dispatch = useAppDispatch();
 
     return (
@@ -49,9 +50,9 @@ export const Node = (props: NodeProps) => {
                     isLinking={props.isLinking}
                     onResize={deltaBounds => {
                         dispatch(nodeResize({ elementId: props.node.id, deltaBounds} ))
-                    }
-                 }
-                 linkSuggester={mousePos => {}/>
+                    }}
+                    linkingDrawing={() => <DrawingLink nodePlacement={props.node.placement}/>}
+                />
             )}
             <Text
                 {...props.node.placement}

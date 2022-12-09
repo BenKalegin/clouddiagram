@@ -1,11 +1,9 @@
-import React, {useEffect, useState} from "react";
-import {Bounds, ConnectorPlacement, Coordinate, Id, inflate, zeroCoordinate} from "../../common/Model";
+import React, {useEffect} from "react";
+import {Bounds, Id, inflate} from "../../common/Model";
 import {Background} from "./Background";
 import {ResizeHandles} from "./ResizeHandle";
 import {FocusFrame} from "./FocusFrame";
 import {ContextButtons} from "./ContextButtons";
-import {SuggestedMessage} from "./SuggestedMessage";
-import {useDispatch} from "react-redux";
 import {useAppDispatch} from "../../app/hooks";
 import {continueLinking} from "../classDiagram/diagramEditorSlice";
 
@@ -15,7 +13,7 @@ export interface ScaffoldProps {
     onResize: (suggestedBounds: Bounds) => void;
     isLinking: boolean;
     elementId: Id;
-    onLinkingDraw: () => Element
+    linkingDrawing: () => JSX.Element
 
     resizeEnabled?: boolean;
     borderEnabled?: boolean;
@@ -56,7 +54,7 @@ export const Scaffold = (props: ScaffoldProps) => {
                 handleMouseMove
             );
         };
-    }, []);
+    });
 
 
     const bounds = inflate(props.bounds, 12, 12);
@@ -71,7 +69,7 @@ export const Scaffold = (props: ScaffoldProps) => {
             <ResizeHandles bounds={bounds} onResize={newBounds => props.onResize(newBounds)}/>
             {props.isFocused && <FocusFrame bounds={bounds} />}
             {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.elementId}/>}
-            {props.isFocused && props.isLinking && props.onLinkingDraw(props.)/>}
+            {props.isFocused && props.isLinking && props.linkingDrawing()}
         </>
     )
 }

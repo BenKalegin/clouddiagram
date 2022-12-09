@@ -176,7 +176,6 @@ export const diagramEditorSlice = createSlice({
             switch (editor.type) {
                 case DiagramEditorType.Class:
                     editor.linkingMousePos = action.payload.mousePos;
-                    editor.
                     break;
                 case DiagramEditorType.Sequence:
                     editor.linkingMousePos = action.payload.mousePos;

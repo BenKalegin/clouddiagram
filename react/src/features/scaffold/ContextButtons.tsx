@@ -1,8 +1,10 @@
 import {Bounds, Coordinate, Id} from "../../common/Model";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Group, Path, Rect} from "react-konva";
 import {useAppDispatch} from "../../app/hooks";
 import {startLinking} from "../classDiagram/diagramEditorSlice";
+import Konva from "konva";
+import KonvaEventObject = Konva.KonvaEventObject;
 
 interface ContextButtonProps {
     svgPath: string
@@ -17,7 +19,7 @@ export const ContextButton = (props: ContextButtonProps) => {
         <Group {...props.placement}
                onMouseEnter={() => {setIsHover(true)}}
                onMouseLeave={() => {setIsHover(false)}}
-               onClick={() => {props.onClick()}}
+               onMouseDown={() => {props.onClick()}}
         >
             <Rect
               width={props.placement.width - 2}

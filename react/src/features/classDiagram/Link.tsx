@@ -2,10 +2,9 @@ import React from "react";
 import {Path} from "react-konva";
 import {LinkState} from "./model";
 
-export const Link = function (link: LinkState)
-{
+export const Link = function (link: LinkState) {
     return (
-        <React.Fragment>
+        <>
             {link.placement.svgPath.map((pathData, index) =>
                 <Path
                     key={index}
@@ -15,6 +14,6 @@ export const Link = function (link: LinkState)
                     stroke={"brown"}
                 />
             )}
-            </React.Fragment>
+        </>
     );
 }

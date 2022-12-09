@@ -122,12 +122,3 @@ export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[
     ];
 
 }
-
-export function suggestMessageWhileLinking(mousePos: Coordinate, lifelinePlacement: LifelinePlacement): MessagePlacement {
-    const x0 = lifelinePlacement.headBounds.x + lifelinePlacement.headBounds.width;
-    return {
-        x: x0,
-        y: mousePos.y,
-        points: [0, 0, mousePos.x - x0, 0]
-    }
-}
