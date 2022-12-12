@@ -15,7 +15,8 @@ export interface BaseDiagramEditor {
     focusedElement?: Id;
     selectedElements: Id[];
     linkingSourceElement?: Id;
-    linkingMousePos: Coordinate
+    linkingMouseStartPos?: Coordinate
+    linkingMousePos?: Coordinate
 }
 
 export interface ClassDiagramEditor extends BaseDiagramEditor {
@@ -51,7 +52,12 @@ interface DropFromPaletteAction {
     name: string
 }
 
-interface LinkingAction {
+interface StartLinkingAction {
+    elementId: Id
+    mousePos: Coordinate
+}
+
+interface DrawLinkingAction {
     elementId: Id
     mousePos: Coordinate
     shiftKey: boolean
@@ -159,19 +165,21 @@ export const diagramEditorSlice = createSlice({
             state.activeIndex = action.payload
         },
 
-        startLinking: (state, action: PayloadAction<Id>) => {
+        startLinking: (state, action: PayloadAction<StartLinkingAction>) => {
             const editor = state.editors[state.activeIndex];
             switch (editor.type) {
                 case DiagramEditorType.Class:
-                    editor.linkingSourceElement = action.payload;
+                    editor.linkingSourceElement = action.payload.elementId;
+                    editor.linkingMouseStartPos =action.payload.mousePos
                     break;
                 case DiagramEditorType.Sequence:
-                    editor.linkingSourceElement = action.payload;
+                    editor.linkingSourceElement = action.payload.elementId;
+                    editor.linkingMouseStartPos =action.payload.mousePos
                     break;
             }
         },
 
-        continueLinking: (state, action: PayloadAction<LinkingAction>) => {
+        continueLinking: (state, action: PayloadAction<DrawLinkingAction>) => {
             const editor = state.editors[state.activeIndex];
             switch (editor.type) {
                 case DiagramEditorType.Class:
