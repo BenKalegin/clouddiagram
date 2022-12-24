@@ -39,11 +39,13 @@ export const Scaffold = (props: ScaffoldProps) => {
 
     useEffect(() => {
         const handleMouseMove = (event: MouseEvent) => {
+            if (props.isFocused && props.isLinking) {
             dispatch(continueLinking({
                 mousePos: {x: event.clientX, y: event.clientY},
                 ctrlKey: event.ctrlKey,
                 shiftKey: event.shiftKey,
                 elementId: props.elementId}))
+            }
         };
 
         window.addEventListener('mousemove', handleMouseMove);

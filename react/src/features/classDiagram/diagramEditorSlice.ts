@@ -1,5 +1,5 @@
 import {createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
-import {Id} from "../../common/Model";
+import {DiagramState, Id} from "../../common/Model";
 import {Bounds, Coordinate} from "../../common/Model";
 import {ClassDiagramState, handleClassDropFromLibrary, resizeNode} from "./model";
 import {demoClassDiagramEditor, demoSequenceDiagramEditor} from "../demo";
@@ -17,6 +17,7 @@ export interface BaseDiagramEditor {
     linkingSourceElement?: Id;
     linkingMouseStartPos?: Coordinate
     linkingMousePos?: Coordinate
+    showLinkToNewDialog?: boolean
 }
 
 export interface ClassDiagramEditor extends BaseDiagramEditor {
@@ -62,6 +63,10 @@ interface DrawLinkingAction {
     mousePos: Coordinate
     shiftKey: boolean
     ctrlKey: boolean
+}
+
+interface EndLinkingAction {
+    mousePos: Coordinate
 }
 
 const generateId = (): Id => {
@@ -189,7 +194,41 @@ export const diagramEditorSlice = createSlice({
                     editor.linkingMousePos = action.payload.mousePos;
                     break;
             }
-        }
+        },
+
+        endLinking: (state, action: PayloadAction<EndLinkingAction>) => {
+            const editor = state.editors[state.activeIndex];
+            switch (editor.type) {
+                case DiagramEditorType.Class:
+                    editor.linkingMousePos = action.payload.mousePos;
+                    break;
+                case DiagramEditorType.Sequence:
+                    editor.linkingMousePos = action.payload.mousePos;
+                    break;
+            }
+        },
+
+        linkToNewDialog: (state, action: PayloadAction<string>) => {
+            const editor = state.editors[state.activeIndex]
+            editor.showLinkToNewDialog = true
+        },
+
+        linkToNewDialogClose: (state, action: PayloadAction<boolean>) => {
+            const editor = state.editors[state.activeIndex]
+            editor.showLinkToNewDialog = false
+        },
+
+        restoreDiagram: (state, action: PayloadAction<DiagramState>) => {
+            const editor = state.editors[state.activeIndex]
+            switch (editor.type) {
+                case DiagramEditorType.Class:
+                    editor.diagram = action.payload as ClassDiagramState
+                    break;
+                case DiagramEditorType.Sequence:
+                    editor.diagram = action.payload as SequenceDiagramState
+                    break;
+            }
+        },
     }
 })
 
@@ -202,7 +241,11 @@ export const {
     dropFromPalette,
     openDiagramActivated,
     startLinking,
-    continueLinking
+    continueLinking,
+    endLinking,
+    linkToNewDialog,
+    linkToNewDialogClose,
+    restoreDiagram
 } = diagramEditorSlice.actions
 
 // The function below is called a selector and allows us to select a value from

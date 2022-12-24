@@ -5,11 +5,12 @@ import {useAppDispatch} from "../../app/hooks";
 import {startLinking} from "../classDiagram/diagramEditorSlice";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
+import {setPointerCapture} from "konva/cmj/PointerEvents";
 
 interface ContextButtonProps {
     svgPath: string
     placement: Bounds
-    onClick?: () => void
+    draggable?: boolean
     onMouseDown?: (mousePos: Coordinate) => void
 }
 
@@ -20,12 +21,12 @@ export const ContextButton = (props: ContextButtonProps) => {
         <Group {...props.placement}
                onMouseEnter={() => {setIsHover(true)}}
                onMouseLeave={() => {setIsHover(false)}}
-               onClick={() => {if(props.onClick != null) props.onClick()}}
-               onMouseDown={(e: KonvaEventObject<MouseEvent>) => {
+               onMouseDown={(e: KonvaEventObject<DragEvent>) => {
+                   e.cancelBubble = true;
                    if(props.onMouseDown != null)
                        props.onMouseDown({x: e.evt.x, y: e.evt.y})
-                   return false;
-               }}
+               }
+               }
         >
             <Rect
               width={props.placement.width - 2}
@@ -57,8 +58,8 @@ export const ContextButtons = (props: ContextButtonsProps) => {
         <ContextButton
             svgPath={"m12 4-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"}
             placement={{x: x, y: y, width: 16, height: 16}}
-            onClick={undefined}
-            onMouseDown={(pos) => {dispatch(startLinking(
+            onMouseDown={(pos) => {
+                dispatch(startLinking(
                 {
                     elementId: props.elementId,
                     mousePos: pos

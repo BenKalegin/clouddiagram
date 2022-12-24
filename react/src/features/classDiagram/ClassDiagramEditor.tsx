@@ -9,7 +9,7 @@ import {ReactReduxContext, Provider} from 'react-redux';
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
 
-export const CloudDiagramEditor = () => {
+export const ClassDiagramEditor = () => {
     const {diagram, selectedElements, focusedElement, linkingSourceElement} = useAppSelector(state => selectClassDiagramEditor(state));
     const dispatch = useAppDispatch();
 

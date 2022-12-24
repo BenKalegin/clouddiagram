@@ -1,6 +1,6 @@
 import React from "react";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {CloudDiagramEditor} from "../classDiagram/CloudDiagramEditor";
+import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {DiagramEditorType, openDiagramActivated} from "../classDiagram/diagramEditorSlice";
 import {NodePropertiesDialog} from "../classDiagram/dialogs/NodePropertiesDialog";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
@@ -40,7 +40,7 @@ export const OpenDiagramSelector = () => {
             </Tabs>
             <div>
                 <HtmlDrop>
-                    {activeEditor.type === DiagramEditorType.Class && <CloudDiagramEditor/>}
+                    {activeEditor.type === DiagramEditorType.Class && <ClassDiagramEditor/>}
                     {activeEditor.type === DiagramEditorType.Sequence && <SequenceDiagramEditor/>}
                 </HtmlDrop>
             </div>
