@@ -5,7 +5,7 @@ import {ResizeHandles} from "./ResizeHandle";
 import {FocusFrame} from "./FocusFrame";
 import {ContextButtons} from "./ContextButtons";
 import {useAppDispatch} from "../../app/hooks";
-import {continueLinking} from "../classDiagram/diagramEditorSlice";
+import {continueLinking, endLinking} from "../classDiagram/diagramEditorSlice";
 
 export interface ScaffoldProps {
     bounds: Bounds;
@@ -48,12 +48,24 @@ export const Scaffold = (props: ScaffoldProps) => {
             }
         };
 
+        const handleMouseUp = (event: MouseEvent) => {
+            if (props.isFocused && props.isLinking) {
+            dispatch(endLinking({
+                mousePos: {x: event.clientX, y: event.clientY}}))
+            }
+        };
+
         window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
 
         return () => {
             window.removeEventListener(
                 'mousemove',
                 handleMouseMove
+            );
+            window.removeEventListener(
+                'mouseup',
+                handleMouseUp
             );
         };
     });

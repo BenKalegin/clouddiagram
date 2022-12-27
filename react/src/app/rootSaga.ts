@@ -1,9 +1,10 @@
 import {put, select, take, takeEvery} from "typed-redux-saga";
 import {
+    addNodeAndConnect,
     continueLinking,
     endLinking, linkToNewDialog, linkToNewDialogClose, restoreDiagram,
     selectDiagramEditor,
-    startLinking
+    startLinking, stopLinking
 } from "../features/classDiagram/diagramEditorSlice";
 
 export function* startLinkingSaga() {
@@ -12,21 +13,26 @@ export function* startLinkingSaga() {
     const startingDiagram = editor.diagram;
     while (waitingLinkingEnd) {
         const result = yield* take([continueLinking, endLinking]);
-        switch (result.type) {
-            case typeof(continueLinking):
+        switch (result.type as string) {
+            case continueLinking.type:
                 break;
-            case continueLinking:
+            case endLinking.type:
+                waitingLinkingEnd = false;
                 break;
-            case endLinking:
-                waitingLinkingEnd = true;
+            default:
                 break;
+
         }
     }
-    yield put(linkToNewDialog)
-    const success = yield* take(linkToNewDialogClose);
-    if (!success.payload) {
+    yield put(linkToNewDialog());
+    const dialogResult = yield* take(linkToNewDialogClose);
+    if (dialogResult.payload.success) {
+        yield put(addNodeAndConnect({name: dialogResult.payload.selectedName!}));
+    }
+    else{
         yield put(restoreDiagram(startingDiagram))
     }
+    yield put(stopLinking());
 }
 
 export function* rootSaga() {

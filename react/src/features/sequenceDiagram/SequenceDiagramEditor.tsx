@@ -12,11 +12,11 @@ import {Lifeline} from "./Lifeline";
 import {Message} from "./Message";
 
 export const SequenceDiagramEditor = () => {
-    const {diagram, selectedElements, focusedElement, linkingSourceElement} = useAppSelector(state => selectSequenceDiagramEditor(state));
+    const {diagram, selectedElements, focusedElement, linking} = useAppSelector(state => selectSequenceDiagramEditor(state));
     const dispatch = useAppDispatch();
     const isSelected = (lifeline: LifelineState) => selectedElements.includes(lifeline.id);
     const isFocused = (lifeline : LifelineState) => focusedElement === lifeline.id;
-    const isLinking = (lifeline : LifelineState) => linkingSourceElement === lifeline.id;
+    const isLinking = (lifeline : LifelineState) => linking?.drawing === true;
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on empty area
         const clickedOnEmpty = e.target === e.target.getStage()

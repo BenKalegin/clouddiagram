@@ -7,11 +7,8 @@ import {selectClassDiagramEditor} from "./diagramEditorSlice";
 
 export const DrawingLink = (props: { nodePlacement: Bounds }) => {
 
-    const mousePos = useAppSelector(state => selectClassDiagramEditor(state).linkingMousePos);
-    const mouseStartPos = useAppSelector(state => selectClassDiagramEditor(state).linkingMouseStartPos);
-    console.log('nodePlacement', props.nodePlacement.x + props.nodePlacement.width);
-    console.log('mousePos', mousePos!.x);
-    console.log('mouseStartPos', mouseStartPos!.x);
+    const mousePos = useAppSelector(state => selectClassDiagramEditor(state).linking?.mousePos);
+    const mouseStartPos = useAppSelector(state => selectClassDiagramEditor(state).linking?.mouseStartPos);
 
     const sourcePort: PortState = {
         id: "DrawingLinkSourcePort",
@@ -23,7 +20,6 @@ export const DrawingLink = (props: { nodePlacement: Bounds }) => {
         placement: zeroBounds
     }
     sourcePort.placement = portBounds(props.nodePlacement, sourcePort)
-    console.log('sourcePort', sourcePort.placement.x);
     const targetPort: PortState = {
         id: "DrawingLinkTarget",
         alignment: PortAlignment.Left,
@@ -36,7 +32,6 @@ export const DrawingLink = (props: { nodePlacement: Bounds }) => {
     targetPort.placement = {
         x: sourcePort.placement.x +  mousePos!.x - mouseStartPos!.x,
         y: sourcePort.placement.y +  mousePos!.y - mouseStartPos!.y, width: 0, height: 0}
-    console.log('targetPort', targetPort.placement.x);
 
     const placement = linkPlacement(sourcePort, targetPort);
     return (

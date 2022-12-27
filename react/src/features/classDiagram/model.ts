@@ -142,7 +142,7 @@ export function resizeNode(diagram: WritableDraft<ClassDiagramState>, deltaBound
     }
 }
 
-export function handleClassDropFromLibrary(diagram: WritableDraft<ClassDiagramState>, id: string, droppedAt: Coordinate, name: string) {
+export function addNewElementAt(diagram: WritableDraft<ClassDiagramState>, id: string, droppedAt: Coordinate, name: string) {
     const defaultWidth = 100;
     const defaultHeight = 80;
 

@@ -1,7 +1,6 @@
-import {createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
-import {DiagramState, Id} from "../../common/Model";
-import {Bounds, Coordinate} from "../../common/Model";
-import {ClassDiagramState, handleClassDropFromLibrary, resizeNode} from "./model";
+import {createSlice, current, nanoid, PayloadAction} from '@reduxjs/toolkit'
+import {Bounds, Coordinate, DiagramState, Id} from "../../common/Model";
+import {ClassDiagramState, addNewElementAt, resizeNode} from "./model";
 import {demoClassDiagramEditor, demoSequenceDiagramEditor} from "../demo";
 import {RootState} from "../../app/store";
 import {handleSequenceDropFromLibrary, resizeLifeline, SequenceDiagramState} from "../sequenceDiagram/model";
@@ -11,13 +10,18 @@ export enum DiagramEditorType {
     Sequence
 }
 
-export interface BaseDiagramEditor {
-    focusedElement?: Id;
-    selectedElements: Id[];
-    linkingSourceElement?: Id;
-    linkingMouseStartPos?: Coordinate
-    linkingMousePos?: Coordinate
+interface Linking {
+    sourceElement?: Id
+    drawing: boolean
+    mouseStartPos?: Coordinate
+    mousePos?: Coordinate
     showLinkToNewDialog?: boolean
+}
+
+export interface BaseDiagramEditor {
+    focusedElement?: Id
+    selectedElements: Id[]
+    linking?: Linking
 }
 
 export interface ClassDiagramEditor extends BaseDiagramEditor {
@@ -69,6 +73,17 @@ interface EndLinkingAction {
     mousePos: Coordinate
 }
 
+interface linkToNewDialogCompleted {
+    success: boolean
+    selectedKey?: string;
+    selectedName?: string;
+}
+
+interface AddNodeAndConnectAction {
+    name: string
+}
+
+
 const generateId = (): Id => {
     return nanoid(6);
 }
@@ -98,7 +113,7 @@ export const diagramEditorSlice = createSlice({
             const editor = state.editors[state.activeIndex];
             editor.selectedElements = [];
             editor.focusedElement = undefined;
-            editor.linkingSourceElement = undefined;
+            editor.linking = undefined;
         },
 
         nodeSelect: (state, action: PayloadAction<ElementSelectAction>) => {
@@ -158,7 +173,7 @@ export const diagramEditorSlice = createSlice({
             const editor = state.editors[state.activeIndex];
             switch (editor.type) {
                 case DiagramEditorType.Class:
-                    handleClassDropFromLibrary(editor.diagram, id, action.payload.droppedAt, action.payload.name);
+                    addNewElementAt(editor.diagram, id, action.payload.droppedAt, action.payload.name);
                     break;
                 case DiagramEditorType.Sequence:
                     handleSequenceDropFromLibrary(editor.diagram, id, action.payload.droppedAt, action.payload.name);
@@ -172,50 +187,47 @@ export const diagramEditorSlice = createSlice({
 
         startLinking: (state, action: PayloadAction<StartLinkingAction>) => {
             const editor = state.editors[state.activeIndex];
-            switch (editor.type) {
-                case DiagramEditorType.Class:
-                    editor.linkingSourceElement = action.payload.elementId;
-                    editor.linkingMouseStartPos =action.payload.mousePos
-                    break;
-                case DiagramEditorType.Sequence:
-                    editor.linkingSourceElement = action.payload.elementId;
-                    editor.linkingMouseStartPos =action.payload.mousePos
-                    break;
+            editor.linking = {
+                sourceElement: action.payload.elementId,
+                mouseStartPos: action.payload.mousePos,
+                mousePos: action.payload.mousePos,
+                drawing: true
             }
         },
 
         continueLinking: (state, action: PayloadAction<DrawLinkingAction>) => {
             const editor = state.editors[state.activeIndex];
-            switch (editor.type) {
-                case DiagramEditorType.Class:
-                    editor.linkingMousePos = action.payload.mousePos;
-                    break;
-                case DiagramEditorType.Sequence:
-                    editor.linkingMousePos = action.payload.mousePos;
-                    break;
-            }
+            editor.linking!.mousePos = action.payload.mousePos;
         },
 
         endLinking: (state, action: PayloadAction<EndLinkingAction>) => {
             const editor = state.editors[state.activeIndex];
+            editor.linking!.drawing = false;
+        },
+
+        linkToNewDialog: (state, action: PayloadAction<void>) => {
+            const editor = state.editors[state.activeIndex]
+            editor.linking!.showLinkToNewDialog = true
+        },
+
+        linkToNewDialogClose: (state, action: PayloadAction<linkToNewDialogCompleted>) => {
+        },
+
+        addNodeAndConnect: (state, action: PayloadAction<AddNodeAndConnectAction>) => {
+            const editor = state.editors[state.activeIndex]
+            const id = generateId()
             switch (editor.type) {
                 case DiagramEditorType.Class:
-                    editor.linkingMousePos = action.payload.mousePos;
+                    addNewElementAt(editor.diagram, id, current(editor).linking!.mousePos!, action.payload.name);
                     break;
                 case DiagramEditorType.Sequence:
-                    editor.linkingMousePos = action.payload.mousePos;
                     break;
             }
         },
 
-        linkToNewDialog: (state, action: PayloadAction<string>) => {
+        stopLinking: (state, action: PayloadAction<void>) => {
             const editor = state.editors[state.activeIndex]
-            editor.showLinkToNewDialog = true
-        },
-
-        linkToNewDialogClose: (state, action: PayloadAction<boolean>) => {
-            const editor = state.editors[state.activeIndex]
-            editor.showLinkToNewDialog = false
+            editor.linking = undefined
         },
 
         restoreDiagram: (state, action: PayloadAction<DiagramState>) => {
@@ -245,7 +257,9 @@ export const {
     endLinking,
     linkToNewDialog,
     linkToNewDialogClose,
-    restoreDiagram
+    restoreDiagram,
+    stopLinking,
+    addNodeAndConnect
 } = diagramEditorSlice.actions
 
 // The function below is called a selector and allows us to select a value from

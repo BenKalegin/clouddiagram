@@ -6,6 +6,7 @@ import {NodePropertiesDialog} from "../classDiagram/dialogs/NodePropertiesDialog
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
 import {Stack, styled, Tab, Tabs} from "@mui/material";
+import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
 
 
 interface StyledTabProps {
@@ -45,6 +46,7 @@ export const OpenDiagramSelector = () => {
                 </HtmlDrop>
             </div>
             {activeEditor.type === DiagramEditorType.Class && <NodePropertiesDialog/>}
+            {activeEditor.type === DiagramEditorType.Class && <LinkToNewDialog/>}
         </Stack>
     )
 }

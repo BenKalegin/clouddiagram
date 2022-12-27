@@ -7,7 +7,7 @@ import {
     portBounds,
     PortState
 } from "./classDiagram/model";
-import {Bounds, Id, zeroBounds, zeroCoordinate} from "../common/Model";
+import {Bounds, Id, zeroBounds} from "../common/Model";
 import {ClassDiagramEditor, DiagramEditorType, SequenceDiagramEditor} from "./classDiagram/diagramEditorSlice";
 import {
     activationPlacement,
@@ -215,7 +215,6 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
 
 export const demoClassDiagramEditor = (title: string): ClassDiagramEditor => {
     return {
-        linkingMousePos: zeroCoordinate,
         diagram: {...getClassDemoDiagram(), title: title},
         selectedElements: [],
         type: DiagramEditorType.Class
@@ -225,7 +224,6 @@ export const demoClassDiagramEditor = (title: string): ClassDiagramEditor => {
 
 export const demoSequenceDiagramEditor = (title: string): SequenceDiagramEditor => {
     return {
-        linkingMousePos: zeroCoordinate,
         diagram: {...getSequenceDemoDiagram(), title: title},
         selectedElements: [],
         type: DiagramEditorType.Sequence
