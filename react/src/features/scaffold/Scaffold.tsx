@@ -48,10 +48,9 @@ export const Scaffold = (props: ScaffoldProps) => {
             }
         };
 
-        const handleMouseUp = (event: MouseEvent) => {
+        const handleMouseUp = () => {
             if (props.isFocused && props.isLinking) {
-            dispatch(endLinking({
-                mousePos: {x: event.clientX, y: event.clientY}}))
+                dispatch(endLinking())
             }
         };
 

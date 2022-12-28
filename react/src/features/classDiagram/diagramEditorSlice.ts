@@ -1,6 +1,6 @@
 import {createSlice, current, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {Bounds, Coordinate, DiagramState, Id} from "../../common/Model";
-import {ClassDiagramState, addNewElementAt, resizeNode} from "./model";
+import {ClassDiagramState, addNewElementAt, resizeNode, autoConnect} from "./model";
 import {demoClassDiagramEditor, demoSequenceDiagramEditor} from "../demo";
 import {RootState} from "../../app/store";
 import {handleSequenceDropFromLibrary, resizeLifeline, SequenceDiagramState} from "../sequenceDiagram/model";
@@ -11,7 +11,7 @@ export enum DiagramEditorType {
 }
 
 interface Linking {
-    sourceElement?: Id
+    sourceElement: Id
     drawing: boolean
     mouseStartPos?: Coordinate
     mousePos?: Coordinate
@@ -69,10 +69,6 @@ interface DrawLinkingAction {
     ctrlKey: boolean
 }
 
-interface EndLinkingAction {
-    mousePos: Coordinate
-}
-
 interface linkToNewDialogCompleted {
     success: boolean
     selectedKey?: string;
@@ -84,7 +80,7 @@ interface AddNodeAndConnectAction {
 }
 
 
-const generateId = (): Id => {
+export const generateId = (): Id => {
     return nanoid(6);
 }
 
@@ -104,7 +100,7 @@ const initialState: DiagramEditors = {
     ]
 }
 
-
+// noinspection JSUnusedLocalSymbols
 export const diagramEditorSlice = createSlice({
     name: 'diagramEditor',
     initialState,
@@ -200,12 +196,12 @@ export const diagramEditorSlice = createSlice({
             editor.linking!.mousePos = action.payload.mousePos;
         },
 
-        endLinking: (state, action: PayloadAction<EndLinkingAction>) => {
+        endLinking: (state) => {
             const editor = state.editors[state.activeIndex];
             editor.linking!.drawing = false;
         },
 
-        linkToNewDialog: (state, action: PayloadAction<void>) => {
+        linkToNewDialog: (state) => {
             const editor = state.editors[state.activeIndex]
             editor.linking!.showLinkToNewDialog = true
         },
@@ -219,13 +215,15 @@ export const diagramEditorSlice = createSlice({
             switch (editor.type) {
                 case DiagramEditorType.Class:
                     addNewElementAt(editor.diagram, id, current(editor).linking!.mousePos!, action.payload.name);
+                    autoConnect(editor.diagram, id, current(editor).linking!.sourceElement);
+
                     break;
                 case DiagramEditorType.Sequence:
                     break;
             }
         },
 
-        stopLinking: (state, action: PayloadAction<void>) => {
+        stopLinking: (state) => {
             const editor = state.editors[state.activeIndex]
             editor.linking = undefined
         },

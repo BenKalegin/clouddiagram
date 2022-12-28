@@ -2,6 +2,7 @@ import {Bounds, Coordinate, DiagramElement, DiagramState, Id} from "../../common
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {WritableDraft} from "immer/dist/internal";
 import {current} from "@reduxjs/toolkit";
+import {generateId} from "./diagramEditorSlice";
 
 export enum PortAlignment {
     Left,
@@ -146,7 +147,7 @@ export function addNewElementAt(diagram: WritableDraft<ClassDiagramState>, id: s
     const defaultWidth = 100;
     const defaultHeight = 80;
 
-    diagram.nodes[id] = {
+    const result = {
         id,
         text: name,
         ports: [],
@@ -156,5 +157,41 @@ export function addNewElementAt(diagram: WritableDraft<ClassDiagramState>, id: s
             width: defaultWidth,
             height: defaultHeight
         }
+    };
+    diagram.nodes[id] = result
+    return result;
+}
+
+
+export function autoConnect(diagram: WritableDraft<ClassDiagramState>, sourceId: Id, targetId: Id) {
+    const source = diagram.nodes[sourceId];
+    const target = diagram.nodes[targetId];
+
+    function addNewPort(node: WritableDraft<NodeState>, alignment: PortAlignment) {
+        const result: PortState = {
+            id: generateId(),
+            edgePosRatio: 50,
+            alignment: alignment,
+            depthRatio: 50,
+            latitude: 8,
+            longitude: 8,
+            placement: {} as Bounds,
+        }
+        result.placement = nodePlacementAfterResize(node, portBounds(node.placement, result));
+        node.ports.push(result.id);
+        diagram.ports[result.id] = result;
+        return result
+    }
+
+    const sourcePort = addNewPort(source, PortAlignment.Right);
+
+    const targetPort = addNewPort(target, PortAlignment.Left);
+
+    const linkId = "link-" + sourceId + "-" + targetId;
+    diagram.links[linkId] = {
+        id: linkId,
+        port1: sourcePort.id,
+        port2: targetPort.id,
+        placement: linkPlacement(sourcePort, targetPort)
     }
 }
