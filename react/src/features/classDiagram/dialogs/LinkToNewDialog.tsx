@@ -1,19 +1,19 @@
-import {linkToNewDialogClose, selectClassDiagramEditor} from "../diagramEditorSlice";
+import {linkToNewDialogClose, selectDiagramEditor} from "../diagramEditorSlice";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
 import {
     Button,
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle,
     List, ListItemButton, ListItemIcon, ListItemText, SvgIcon,
 } from "@mui/material";
 import React from "react";
 import {galleryGroups, GalleryItem} from "../../componentLibrary/models";
 
+
 export const LinkToNewDialog = () => {
-    const linking = useAppSelector(state => selectClassDiagramEditor(state).linking);
+    const linking = useAppSelector(state => selectDiagramEditor(state).linking);
     const source = linking?.sourceElement;
     const dispatch = useAppDispatch()
     const items = galleryGroups.filter(group => group.key === "class").flatMap(group => group.items);
@@ -22,16 +22,19 @@ export const LinkToNewDialog = () => {
         dispatch(linkToNewDialogClose({selectedKey: item?.key, selectedName: item?.name, success: !!item}));
     }
 
+    const pos = {
+        x: Math.max(linking?.mousePos?.x || 0, 0),
+        y: Math.max(linking?.mousePos?.y || 0, 0),
+    }
+
     return (
         <Dialog
+            PaperProps={{ sx: { position: "fixed", top: pos.y, left: pos.x, m: 0 } }}
             open={linking?.showLinkToNewDialog === true}
             onClose={() => toggleHideDialog(undefined)}
         >
-            <DialogTitle>{'Linking ' + source + ' to:'}</DialogTitle>
+            <DialogTitle>{'Linking ' + source + ' to new...'}</DialogTitle>
             <DialogContent>
-                <DialogContentText>
-                    Specify the node to create link to.
-                </DialogContentText>
                 <List>
                     {items.map(item => (
                         <ListItemButton

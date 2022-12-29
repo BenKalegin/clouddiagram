@@ -14,6 +14,7 @@ interface Linking {
     sourceElement: Id
     drawing: boolean
     mouseStartPos?: Coordinate
+    relativeStartPos?: Coordinate
     mousePos?: Coordinate
     showLinkToNewDialog?: boolean
 }
@@ -60,6 +61,7 @@ interface DropFromPaletteAction {
 interface StartLinkingAction {
     elementId: Id
     mousePos: Coordinate
+    relativePos: Coordinate
 }
 
 interface DrawLinkingAction {
@@ -186,6 +188,7 @@ export const diagramEditorSlice = createSlice({
             editor.linking = {
                 sourceElement: action.payload.elementId,
                 mouseStartPos: action.payload.mousePos,
+                relativeStartPos: action.payload.relativePos,
                 mousePos: action.payload.mousePos,
                 drawing: true
             }
@@ -214,8 +217,13 @@ export const diagramEditorSlice = createSlice({
             const id = generateId()
             switch (editor.type) {
                 case DiagramEditorType.Class:
-                    addNewElementAt(editor.diagram, id, current(editor).linking!.mousePos!, action.payload.name);
-                    autoConnect(editor.diagram, id, current(editor).linking!.sourceElement);
+                    const linking = editor.linking!;
+                    const pos = {
+                        x: linking.mousePos!.x - linking.mouseStartPos!.x + linking.relativeStartPos!.x,
+                        y: linking.mousePos!.y - linking.mouseStartPos!.y + linking.relativeStartPos!.y
+                    }
+                    addNewElementAt(editor.diagram, id, pos , action.payload.name);
+                    autoConnect(editor.diagram, current(editor).linking!.sourceElement, id);
 
                     break;
                 case DiagramEditorType.Sequence:

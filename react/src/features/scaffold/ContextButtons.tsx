@@ -10,7 +10,7 @@ interface ContextButtonProps {
     svgPath: string
     placement: Bounds
     draggable?: boolean
-    onMouseDown?: (mousePos: Coordinate) => void
+    onMouseDown?: (mousePos: Coordinate, relativePos: Coordinate) => void
 }
 
 export const ContextButton = (props: ContextButtonProps) => {
@@ -25,12 +25,10 @@ export const ContextButton = (props: ContextButtonProps) => {
             onMouseLeave={() => {setIsHover(false)}}
             onMouseDown={(e: KonvaEventObject<MouseEvent>) => {
                e.cancelBubble = true;
-               console.log(e.evt)
 
                if(props.onMouseDown != null) {
                    const pos = groupRef.current?.getStage()!.getRelativePointerPosition()!
-                   console.log(pos)
-                   props.onMouseDown({x: e.evt.x - pos.x, y: e.evt.clientY - pos.y})
+                   props.onMouseDown({x: e.evt.x, y: e.evt.y}, pos)
                }
            }}
         >
@@ -64,13 +62,12 @@ export const ContextButtons = (props: ContextButtonsProps) => {
         <ContextButton
             svgPath={"m12 4-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"}
             placement={{x: x, y: y, width: 16, height: 16}}
-            onMouseDown={(pos) => {
-                console.log(pos)
-                console.log(props.placement)
+            onMouseDown={(mousePos, relativePos) => {
                 dispatch(startLinking(
                 {
                     elementId: props.elementId,
-                    mousePos: pos
+                    mousePos: mousePos,
+                    relativePos: relativePos
                 }
                 ))}}
         />

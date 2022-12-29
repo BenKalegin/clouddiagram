@@ -30,6 +30,11 @@ export const shift = (bounds: Bounds, dx: number, dy: number): Bounds => ({
     height: bounds.height
 });
 
+export const minus = (coordinate: Coordinate, delta: Coordinate): Coordinate => ({
+    x: coordinate.x - delta.x,
+    y: coordinate.y - delta.y
+});
+
 export const center = (bounds: Bounds): Coordinate => ({
     x: bounds.x + bounds.width / 2,
     y: bounds.y + bounds.height / 2,
