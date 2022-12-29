@@ -1,36 +1,39 @@
-import {Bounds, Coordinate} from "../../common/Model";
+import {Bounds, Coordinate, zeroCoordinate} from "../../common/Model";
 import React from "react";
 import {useAppDispatch} from "../../app/hooks";
 import {Rect} from "react-konva";
 import {nodeShowProperties} from "../classDiagram/diagramEditorSlice";
 
 export interface BackgroundProps {
-    bounds: Bounds;
+    backgroundBounds: Bounds;
+    nodeBounds: Bounds;
     onDrag: (bounds: Bounds) => void;
 }
 
 export const Background = (props: BackgroundProps) => {
-    const [position, setPosition] = React.useState<Coordinate>({x: props.bounds.x, y: props.bounds.y});
+    const [mouseStart, setMouseStart] = React.useState<Coordinate>(zeroCoordinate);
+    const [nodeStart] = React.useState<Bounds>(props.nodeBounds);
     const dispatch = useAppDispatch()
 
     return (
         <Rect
-            x={props.bounds.x}
-            y={props.bounds.y}
-            width={props.bounds.width}
-            height={props.bounds.height}
+            x={props.backgroundBounds.x}
+            y={props.backgroundBounds.y}
+            width={props.backgroundBounds.width}
+            height={props.backgroundBounds.height}
             fill={"transparent"}
             stroke={""}
             strokeWidth={0}
             draggable={true}
+            onDragStart={(e) => {
+                setMouseStart({x: e.target.x(), y: e.target.y()})
+            }}
             onDragMove={e => {
-                const delta: Coordinate = {
-                    x: e.target.x() - position.x,
-                    y: e.target.y() - position.y
-                }
-                setPosition({x: e.target.x(), y: e.target.y()});
                 props.onDrag({
-                    x: delta.x, y: delta.y, width: 0, height: 0
+                    x: e.target.x() - mouseStart.x + nodeStart.x,
+                    y: e.target.y() - mouseStart.y + nodeStart.y,
+                    width: nodeStart.width,
+                    height: nodeStart.height
                 });
             }}
             onDblClick={() => dispatch(nodeShowProperties())}

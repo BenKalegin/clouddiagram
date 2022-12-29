@@ -14,23 +14,6 @@ export interface ScaffoldProps {
     isLinking: boolean;
     elementId: Id;
     linkingDrawing: () => JSX.Element
-
-    resizeEnabled?: boolean;
-    borderEnabled?: boolean;
-    borderStroke?: string;
-    borderStrokeWidth?: number;
-    borderDash?: Array<number>;
-    anchorFill?: string;
-    anchorStroke?: string;
-    anchorStrokeWidth?: number;
-    anchorSize?: number;
-    anchorCornerRadius?: number;
-    keepRatio?: boolean;
-    centeredScaling?: boolean;
-    enabledAnchors?: Array<string>;
-    ignoreStroke?: boolean;
-    useSingleNodeRotation?: boolean;
-    shouldOverdrawWholeArea?: boolean;
 }
 
 export const Scaffold = (props: ScaffoldProps) => {
@@ -78,8 +61,8 @@ export const Scaffold = (props: ScaffoldProps) => {
 
     return (
         <>
-            <Background bounds={bounds} onDrag={newBounds => props.onResize(newBounds)}/>
-            <ResizeHandles bounds={bounds} onResize={newBounds => props.onResize(newBounds)}/>
+            <Background backgroundBounds={bounds} nodeBounds={props.bounds} onDrag={newBounds => props.onResize(newBounds)}/>
+            <ResizeHandles perimeterBounds={bounds} nodeBounds={props.bounds}  onResize={newBounds => props.onResize(newBounds)}/>
             {props.isFocused && <FocusFrame bounds={bounds} />}
             {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.elementId}/>}
             {props.isFocused && props.isLinking && props.linkingDrawing()}

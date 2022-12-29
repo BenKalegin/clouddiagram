@@ -106,20 +106,20 @@ export const linkPlacement = (sourcePort: PortState, targetPort: PortState): Lin
     };
 }
 
-export const nodePlacementAfterResize = ({placement}: NodeState, deltaBounds: Bounds): Bounds => {
+export const nodePlacementAfterResize = ({placement}: NodeState, newBounds: Bounds): Bounds => {
     return {
-        x: placement.x + deltaBounds.x,
-        y: placement.y + deltaBounds.y,
+        x: newBounds.x,
+        y: newBounds.y,
         // set minimal value
-        width: Math.max(5, placement.width + deltaBounds.width),
-        height: Math.max(5, placement.height + deltaBounds.height)
+        width: Math.max(5, newBounds.width),
+        height: Math.max(5, newBounds.height)
     }
 }
 
-export function resizeNode(diagram: WritableDraft<ClassDiagramState>, deltaBounds: Bounds, elementId: Id) {
+export function resizeNode(diagram: WritableDraft<ClassDiagramState>, newBounds: Bounds, elementId: Id) {
     const node = diagram.nodes[elementId];
 
-    const nodePlacement = nodePlacementAfterResize(node, deltaBounds);
+    const nodePlacement = nodePlacementAfterResize(node, newBounds);
     node.placement = nodePlacement;
 
     const portAffected = node.ports.map(port => diagram.ports[port]);

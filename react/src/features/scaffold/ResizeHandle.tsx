@@ -17,43 +17,43 @@ export enum ResizeHandleDirection {
 
 export interface ResizeHandleProps {
     cursor: string;
-    bounds: Bounds;
+    handlerBounds: Bounds;
     direction: ResizeHandleDirection;
+    nodeBounds: Bounds;
     onDrag: (bounds: Bounds) => void;
 }
 
-const calculateResizedBounds = (delta: Coordinate, direction: ResizeHandleDirection): Bounds => {
+const calculateResizedBounds = (delta: Coordinate, original: Bounds, direction: ResizeHandleDirection): Bounds => {
     switch (direction) {
         case ResizeHandleDirection.North:
-            return {x: 0, y: delta.y, width: 0, height: -delta.y};
+            return {x: original.x + delta.x, y: original.y + delta.y, width: original.width, height: original.height - delta.y};
         case ResizeHandleDirection.NorthEast:
-            return {x: 0, y: delta.y, width: delta.x, height: -delta.y};
+            return {x: original.x, y: original.y + delta.y, width: original.width + delta.x, height: original.height - delta.y};
         case ResizeHandleDirection.NorthWest:
-            return {x: delta.x, y: delta.y, width: -delta.x, height: -delta.y};
+            return {x: original.x + delta.x, y: original.y + delta.y, width: original.width - delta.x, height: original.height - delta.y};
         case ResizeHandleDirection.South:
-            return {x: 0, y: 0, width: 0, height: delta.y};
+            return {x: original.x, y: original.y, width: original.width, height: original.height + delta.y};
         case ResizeHandleDirection.SouthEast:
-            return {x: 0, y: 0, width: delta.x, height: delta.y};
+            return {x: original.x, y: original.y, width: original.width + delta.x, height: original.height + delta.y};
         case ResizeHandleDirection.SouthWest:
-            return {x: delta.x, y: 0, width: -delta.x, height: delta.y};
+            return {x: original.x + delta.x, y: original.y, width: original.width - delta.x, height: original.height + delta.y};
         case ResizeHandleDirection.East:
-            return {x: 0, y: 0, width: delta.x, height: 0};
+            return {x: original.x, y: original.y, width: original.width + delta.x, height: original.height};
         case ResizeHandleDirection.West:
-            return {x: delta.x, y: 0, width: -delta.x, height: 0};
+            return {x: original.x + delta.x, y: original.y, width: original.width-delta.x, height: original.height };
     }
 
 };
 
 export const ResizeHandle = (props: ResizeHandleProps) => {
-
-    const [position, setPosition] = React.useState<Coordinate>({x: props.bounds.x, y: props.bounds.y});
+    const [mouseStart, setMouseStart] = React.useState<Coordinate | undefined>(undefined);
 
     return (
         <Rect
-            x={props.bounds.x}
-            y={props.bounds.y}
-            width={props.bounds.width}
-            height={props.bounds.height}
+            x={props.handlerBounds.x}
+            y={props.handlerBounds.y}
+            width={props.handlerBounds.width}
+            height={props.handlerBounds.height}
             stroke={"gray"}
             fill={"white"}
             strokeWidth={1}
@@ -75,13 +75,18 @@ export const ResizeHandle = (props: ResizeHandleProps) => {
                     container.style.cursor = "default";
             }}
 
+            onDragStart={(e) => {
+                setMouseStart({x: e.target.x(), y: e.target.y()})
+            }}
+
             onDragMove={e => {
-                const delta: Coordinate = {
-                    x: e.target.x() - position.x,
-                    y: e.target.y() - position.y
+                if (mouseStart) {
+                    const newCoordinate: Coordinate = {
+                        x: e.target.x() - mouseStart.x,
+                        y: e.target.y() - mouseStart.y
+                    }
+                    props.onDrag(calculateResizedBounds(newCoordinate, props.nodeBounds, props.direction));
                 }
-                setPosition({x: e.target.x(), y: e.target.y()});
-                props.onDrag(calculateResizedBounds(delta, props.direction));
             }}
         />
     );
@@ -151,13 +156,16 @@ const resizeHandleCursor = (direction: ResizeHandleDirection): string => {
     }
 }
 
-export const ResizeHandles = (props: { bounds: Bounds, onResize: (bounds: Bounds) => void }) => {
+export const ResizeHandles = (props: { perimeterBounds: Bounds, nodeBounds: Bounds, onResize: (bounds: Bounds) => void }) => {
+
+    const [nodeStart] = React.useState<Bounds>(props.nodeBounds);
     return (
         <>
             {enumKeys(ResizeHandleDirection).map((direction, index) =>
                 <ResizeHandle
                     key={index}
-                    bounds={resizeHandleBounds(ResizeHandleDirection[direction], props.bounds)}
+                    handlerBounds={resizeHandleBounds(ResizeHandleDirection[direction], props.perimeterBounds)}
+                    nodeBounds={nodeStart}
                     cursor={resizeHandleCursor(ResizeHandleDirection[direction])}
                     direction={ResizeHandleDirection[direction]}
                     onDrag={newBounds => props.onResize(newBounds)}

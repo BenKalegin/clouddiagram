@@ -53,10 +53,10 @@ export interface SequenceDiagramState extends DiagramState {
 
 export const lifelinePlacementAfterResize = (placement: LifelinePlacement, deltaBounds: Bounds) => {
     return {
-        x: placement.headBounds.x + deltaBounds.x,
+        x: deltaBounds.x,
         y: placement.headBounds.y,
         // set minimal value
-        width: Math.max(10, placement.headBounds.width + deltaBounds.width),
+        width: Math.max(10, deltaBounds.width),
         height: placement.headBounds.height
     }
 }
