@@ -12,7 +12,7 @@ export interface ActivationState extends DiagramElement {
     placement: Bounds;
 }
 
-interface LifelinePlacement{
+export interface LifelinePlacement{
     headBounds: Bounds;
     lifelineEnd: number;
 }
@@ -71,10 +71,10 @@ export const activationPlacement = (activation: ActivationState, lifelinePlaceme
     }
 }
 
-export const messagePlacement = (message: MessageState, source: ActivationState, target: ActivationState): MessagePlacement => {
+export const messagePlacement = (source: ActivationState, target: ActivationState, messageOffset: number): MessagePlacement => {
     return {
         x: source.placement.x + source.placement.width,
-        y: source.placement.y,
+        y: source.placement.y + messageOffset,
         points: [0, 0, target.placement.x - source.placement.x - source.placement.width, 0],
     }
 }
@@ -90,7 +90,10 @@ export function resizeLifeline(diagram: WritableDraft<SequenceDiagramState>, del
     const messages = Object.values(diagram.messages).filter(
         message => lifeline.activations.includes(message.sourceActivation) || lifeline.activations.includes(message.targetActivation))
     messages.forEach(message => {
-        message.placement = messagePlacement(message, diagram.activations[message.sourceActivation], diagram.activations[message.targetActivation])
+        message.placement = messagePlacement(
+            diagram.activations[message.sourceActivation],
+            diagram.activations[message.targetActivation],
+            message.sourceActivationOffset)
     })
 }
 

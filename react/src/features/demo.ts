@@ -204,7 +204,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
             activations[activation].placement = activationPlacement(activations[activation], lifeline.placement);
 
     for (let message of Object.values(messages))
-        message.placement = messagePlacement(message, activations[message.sourceActivation], activations[message.targetActivation]);
+        message.placement = messagePlacement(activations[message.sourceActivation], activations[message.targetActivation], message.sourceActivationOffset);
 
     return {
         lifelines,

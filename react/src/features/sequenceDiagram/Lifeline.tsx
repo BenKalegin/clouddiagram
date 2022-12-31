@@ -5,6 +5,7 @@ import {Scaffold} from "../scaffold/Scaffold";
 import {nodeResize, nodeSelect} from "../classDiagram/diagramEditorSlice";
 import {useAppDispatch} from "../../app/hooks";
 import {Activation} from "./Activation";
+import {DrawingMessage} from "./DrawingMessage";
 
 export interface LifelineProps {
     isSelected: boolean;
@@ -13,10 +14,6 @@ export interface LifelineProps {
     lifeline: LifelineState;
 }
 
-
-function DrawingMessage() {
-    return null;
-}
 
 export const Lifeline = (props: LifelineProps) => {
     const dispatch = useAppDispatch()
@@ -74,7 +71,7 @@ export const Lifeline = (props: LifelineProps) => {
                     isFocused={props.isFocused}
                     isLinking={props.isLinking}
                     onResize={deltaBounds => dispatch(nodeResize({elementId: props.lifeline.id, deltaBounds}))}
-                    linkingDrawing={() => <DrawingMessage/> }
+                    linkingDrawing={() => <DrawingMessage lifelinePlacement={props.lifeline.placement} /> }
                 />
             )}
 
