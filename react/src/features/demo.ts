@@ -217,8 +217,8 @@ export const demoClassDiagramEditor = (title: string): ClassDiagramEditor => {
     return {
         diagram: {...getClassDemoDiagram(), title: title},
         selectedElements: [],
-        type: DiagramEditorType.Class
-
+        type: DiagramEditorType.Class,
+        snapGridSize: 5
     }
 }
 
@@ -226,7 +226,8 @@ export const demoSequenceDiagramEditor = (title: string): SequenceDiagramEditor 
     return {
         diagram: {...getSequenceDemoDiagram(), title: title},
         selectedElements: [],
-        type: DiagramEditorType.Sequence
+        type: DiagramEditorType.Sequence,
+        snapGridSize: 5
     }
 }
 

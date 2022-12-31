@@ -1,9 +1,10 @@
 import {createSlice, current, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {Bounds, Coordinate, DiagramState, Id} from "../../common/Model";
-import {ClassDiagramState, addNewElementAt, resizeNode, autoConnect} from "./model";
+import {addNewElementAt, autoConnect, ClassDiagramState, resizeNode} from "./model";
 import {demoClassDiagramEditor, demoSequenceDiagramEditor} from "../demo";
 import {RootState} from "../../app/store";
 import {handleSequenceDropFromLibrary, resizeLifeline, SequenceDiagramState} from "../sequenceDiagram/model";
+import {snapToGrid} from "../../common/Geometry/snap";
 
 export enum DiagramEditorType {
     Class,
@@ -23,6 +24,7 @@ export interface BaseDiagramEditor {
     focusedElement?: Id
     selectedElements: Id[]
     linking?: Linking
+    snapGridSize: number
 }
 
 export interface ClassDiagramEditor extends BaseDiagramEditor {
@@ -196,7 +198,7 @@ export const diagramEditorSlice = createSlice({
 
         continueLinking: (state, action: PayloadAction<DrawLinkingAction>) => {
             const editor = state.editors[state.activeIndex];
-            editor.linking!.mousePos = action.payload.mousePos;
+            editor.linking!.mousePos = snapToGrid(action.payload.mousePos, current(editor).snapGridSize);
         },
 
         endLinking: (state) => {
