@@ -36,13 +36,6 @@ function toDiagramPos(linking: Linking, screenPos: Coordinate) : Coordinate {
     }
 }
 
-function toScreenPos(linking: Linking, diagramPos: Coordinate) : Coordinate {
-    return {
-        x: diagramPos.x - linking.relativeStartPos!.x + linking.mouseStartPos!.x,
-        y: diagramPos.y - linking.relativeStartPos!.y + linking.mouseStartPos!.y
-    }
-}
-
 export interface BaseDiagramEditor {
     focusedElement?: Id
     selectedElements: Id[]
@@ -224,21 +217,24 @@ export const diagramEditorSlice = createSlice({
 
         continueLinking: (state, action: PayloadAction<DrawLinkingAction>) => {
             const editor = state.editors[state.activeIndex];
-            const diagramPos = toDiagramPos(editor.linking!, action.payload.mousePos);
+            const linking = editor.linking!;
+            const diagramPos = toDiagramPos(linking, action.payload.mousePos);
 
-            let snapped: Coordinate
+            let snapped: Coordinate | undefined = undefined
             switch (editor.type) {
                 case DiagramEditorType.Sequence:
-                    const targetActivation = findTargetActivation(editor.diagram.activations, editor.linking!.mousePos);
-                    editor.linking!.targetElement = targetActivation?.id;
+                    const targetActivation = findTargetActivation(current(editor).diagram.activations, diagramPos);
+                    linking.targetElement = targetActivation?.id;
                     if (targetActivation) {
                         snapped = snapToBounds(diagramPos, targetActivation.placement);
                     }
+                    break;
             }
 
-            snapped = snapToGrid(diagramPos, editor.snapGridSize);
-            editor.linking!.diagramPos = snapped
-            editor.linking!.mousePos = toScreenPos(editor.linking!, snapped);
+            if (!snapped)
+                snapped = snapToGrid(diagramPos, editor.snapGridSize);
+            linking.diagramPos = snapped
+            linking.mousePos = action.payload.mousePos;
 
 
         },

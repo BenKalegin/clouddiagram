@@ -128,6 +128,7 @@ export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[
 
 export function findTargetActivation(activations:  {[id: string]: ActivationState}, mousePos: Coordinate) : ActivationState | undefined {
     const tolerance = 3
+
     return Object.values(activations).find(a =>
         a.placement.x - tolerance <= mousePos.x &&
         a.placement.x + a.placement.width + tolerance >= mousePos.x &&
