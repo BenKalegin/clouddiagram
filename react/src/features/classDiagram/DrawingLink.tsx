@@ -28,10 +28,7 @@ export const DrawingLink = (props: { nodePlacement: Bounds }) => {
         longitude: 0,
         placement: zeroBounds
     }
-    targetPort.placement = {
-        x: linking.mousePos!.x - linking.mouseStartPos!.x + linking.relativeStartPos!.x,
-        y: linking.mousePos!.y - linking.mouseStartPos!.y + linking.relativeStartPos!.y
-        , width: 0, height: 0}
+    targetPort.placement = {...linking.diagramPos, width: 0, height: 0}
 
     const placement = linkPlacement(sourcePort, targetPort);
     return (

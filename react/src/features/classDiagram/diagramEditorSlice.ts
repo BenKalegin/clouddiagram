@@ -3,8 +3,13 @@ import {Bounds, Coordinate, DiagramState, Id} from "../../common/Model";
 import {addNewElementAt, autoConnect, ClassDiagramState, resizeNode} from "./model";
 import {demoClassDiagramEditor, demoSequenceDiagramEditor} from "../demo";
 import {RootState} from "../../app/store";
-import {handleSequenceDropFromLibrary, resizeLifeline, SequenceDiagramState} from "../sequenceDiagram/model";
-import {snapToGrid} from "../../common/Geometry/snap";
+import {
+    findTargetActivation,
+    handleSequenceDropFromLibrary,
+    resizeLifeline,
+    SequenceDiagramState
+} from "../sequenceDiagram/model";
+import {snapToBounds, snapToGrid} from "../../common/Geometry/snap";
 
 export enum DiagramEditorType {
     Class,
@@ -12,12 +17,30 @@ export enum DiagramEditorType {
 }
 
 interface Linking {
-    sourceElement: Id
+
+   sourceElement: Id
+    mouseStartPos: Coordinate
+    relativeStartPos: Coordinate
+    mousePos: Coordinate
+    diagramPos: Coordinate
+
     drawing: boolean
-    mouseStartPos?: Coordinate
-    relativeStartPos?: Coordinate
-    mousePos?: Coordinate
     showLinkToNewDialog?: boolean
+    targetElement?: Id
+}
+
+function toDiagramPos(linking: Linking, screenPos: Coordinate) : Coordinate {
+    return {
+        x: screenPos.x - linking.mouseStartPos.x + linking.relativeStartPos.x,
+        y: screenPos.y - linking.mouseStartPos.y + linking.relativeStartPos.y
+    }
+}
+
+function toScreenPos(linking: Linking, diagramPos: Coordinate) : Coordinate {
+    return {
+        x: diagramPos.x - linking.relativeStartPos!.x + linking.mouseStartPos!.x,
+        y: diagramPos.y - linking.relativeStartPos!.y + linking.mouseStartPos!.y
+    }
 }
 
 export interface BaseDiagramEditor {
@@ -192,13 +215,32 @@ export const diagramEditorSlice = createSlice({
                 mouseStartPos: action.payload.mousePos,
                 relativeStartPos: action.payload.relativePos,
                 mousePos: action.payload.mousePos,
-                drawing: true
+                diagramPos: action.payload.relativePos,
+                targetElement: undefined,
+                drawing: true,
+                showLinkToNewDialog: false
             }
         },
 
         continueLinking: (state, action: PayloadAction<DrawLinkingAction>) => {
             const editor = state.editors[state.activeIndex];
-            editor.linking!.mousePos = snapToGrid(action.payload.mousePos, current(editor).snapGridSize);
+            const diagramPos = toDiagramPos(editor.linking!, action.payload.mousePos);
+
+            let snapped: Coordinate
+            switch (editor.type) {
+                case DiagramEditorType.Sequence:
+                    const targetActivation = findTargetActivation(editor.diagram.activations, editor.linking!.mousePos);
+                    editor.linking!.targetElement = targetActivation?.id;
+                    if (targetActivation) {
+                        snapped = snapToBounds(diagramPos, targetActivation.placement);
+                    }
+            }
+
+            snapped = snapToGrid(diagramPos, editor.snapGridSize);
+            editor.linking!.diagramPos = snapped
+            editor.linking!.mousePos = toScreenPos(editor.linking!, snapped);
+
+
         },
 
         endLinking: (state) => {
@@ -219,13 +261,10 @@ export const diagramEditorSlice = createSlice({
             const id = generateId()
             switch (editor.type) {
                 case DiagramEditorType.Class:
-                    const linking = editor.linking!;
-                    const pos = {
-                        x: linking.mousePos!.x - linking.mouseStartPos!.x + linking.relativeStartPos!.x,
-                        y: linking.mousePos!.y - linking.mouseStartPos!.y + linking.relativeStartPos!.y
-                    }
+                    const linking = current(editor).linking!
+                    const pos = linking.diagramPos
                     addNewElementAt(editor.diagram, id, pos , action.payload.name);
-                    autoConnect(editor.diagram, current(editor).linking!.sourceElement, id);
+                    autoConnect(editor.diagram, linking.sourceElement, id);
 
                     break;
                 case DiagramEditorType.Sequence:

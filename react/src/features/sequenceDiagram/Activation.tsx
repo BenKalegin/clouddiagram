@@ -10,11 +10,17 @@ export interface ActivationProps {
 export const Activation = (props: ActivationProps) => {
 
     const activation = useAppSelector(state => selectSequenceDiagramEditor(state).diagram.activations[props.activationId]);
+    const linkingTarget= useAppSelector(state => selectSequenceDiagramEditor(state).linking?.targetElement);
     return (
         <Rect
             fill={"cornsilk"}
             stroke={"peru"}
             strokeWidth={1}
+            shadowEnabled={activation.id === linkingTarget}
+            shadowColor={'black'}
+            shadowBlur={3}
+            shadowOffset={{x: 2, y: 2}}
+            shadowOpacity={0.4}
             {...activation.placement}
         >
         </Rect>

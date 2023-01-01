@@ -15,7 +15,7 @@ export const DrawingMessage = (props: { lifelinePlacement: LifelinePlacement }) 
     const sourceLifeline = useAppSelector(state => selectSequenceDiagramEditor(state).diagram.lifelines[linking.sourceElement]);
     const activations = useAppSelector(state => selectSequenceDiagramEditor(state).diagram.activations);
 
-    const y = linking.mousePos!.y - linking.mouseStartPos!.y + linking.relativeStartPos!.y
+    const y = linking.diagramPos.y;
     const lifelineY = Math.max(y - props.lifelinePlacement.headBounds.height, 0)
 
     let sourceActivation = sourceLifeline.activations.map(id => activations[id])
@@ -34,7 +34,7 @@ export const DrawingMessage = (props: { lifelinePlacement: LifelinePlacement }) 
 
     const targetLifelinePlacement: LifelinePlacement = {
         headBounds: {
-            x: linking.mousePos!.x - linking.mouseStartPos!.x + linking.relativeStartPos!.x,
+            x: linking!.diagramPos.x - props.lifelinePlacement.headBounds.width / 2,
             y: props.lifelinePlacement.headBounds.y,
             width: props.lifelinePlacement.headBounds.width,
             height: props.lifelinePlacement.headBounds.height

@@ -46,9 +46,9 @@ export interface MessageState extends DiagramElement {
 }
 
 export interface SequenceDiagramState extends DiagramState {
-    lifelines: { [id: Id]: LifelineState }
-    messages: { [id: Id]: MessageState }
-    activations: { [id: Id]: ActivationState }
+    lifelines: { [id: string]: LifelineState }
+    messages: { [id: string]: MessageState }
+    activations: {[id: string]: ActivationState}
 }
 
 export const lifelinePlacementAfterResize = (placement: LifelinePlacement, deltaBounds: Bounds) => {
@@ -124,4 +124,14 @@ export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[
         headBounds.y + lifelineEnd
     ];
 
+}
+
+export function findTargetActivation(activations:  {[id: string]: ActivationState}, mousePos: Coordinate) : ActivationState | undefined {
+    const tolerance = 3
+    return Object.values(activations).find(a =>
+        a.placement.x - tolerance <= mousePos.x &&
+        a.placement.x + a.placement.width + tolerance >= mousePos.x &&
+        a.placement.y - tolerance <= mousePos.y &&
+        a.placement.y + a.placement.height + tolerance >= mousePos.y
+    )
 }
