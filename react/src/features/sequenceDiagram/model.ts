@@ -136,3 +136,15 @@ export function findTargetActivation(activations:  {[id: string]: ActivationStat
         a.placement.y + a.placement.height + tolerance >= mousePos.y
     )
 }
+
+export function autoConnectActivations(diagram: WritableDraft<SequenceDiagramState>, sourceId: Id, targetId: Id, sourceOffset: number) {
+    const messageId = "message_" + sourceId + "_" + targetId
+    diagram.messages[messageId] = {
+        id: messageId,
+        kind: MessageKind.Call,
+        sourceActivation: sourceId,
+        targetActivation: targetId,
+        sourceActivationOffset: sourceOffset
+    } as MessageState
+}
+

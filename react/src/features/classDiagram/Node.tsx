@@ -51,7 +51,7 @@ export const Node = (props: NodeProps) => {
                     onResize={deltaBounds => {
                         dispatch(nodeResize({ elementId: props.node.id, deltaBounds} ))
                     }}
-                    linkingDrawing={() => <DrawingLink nodePlacement={props.node.placement}/>}
+                    linkingDrawing={<DrawingLink nodePlacement={props.node.placement}/>}
                 />
             )}
             <Text

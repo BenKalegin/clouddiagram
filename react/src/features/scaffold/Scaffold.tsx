@@ -13,7 +13,7 @@ export interface ScaffoldProps {
     onResize: (suggestedBounds: Bounds) => void;
     isLinking: boolean;
     elementId: Id;
-    linkingDrawing: () => JSX.Element
+    linkingDrawing: JSX.Element
 }
 
 export const Scaffold = (props: ScaffoldProps) => {
@@ -65,7 +65,7 @@ export const Scaffold = (props: ScaffoldProps) => {
             <ResizeHandles perimeterBounds={bounds} nodeBounds={props.bounds}  onResize={newBounds => props.onResize(newBounds)}/>
             {props.isFocused && <FocusFrame bounds={bounds} />}
             {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.elementId}/>}
-            {props.isFocused && props.isLinking && props.linkingDrawing()}
+            {props.isFocused && props.isLinking && props.linkingDrawing}
         </>
     )
 }

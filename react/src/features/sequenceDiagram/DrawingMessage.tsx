@@ -11,7 +11,7 @@ import {
 
 export const DrawingMessage = (props: { lifelinePlacement: LifelinePlacement }) => {
 
-    const linking = useAppSelector(state => selectSequenceDiagramEditor(state).linking!);
+    const linking = useAppSelector(state => selectSequenceDiagramEditor(state).linking)!;
     const sourceLifeline = useAppSelector(state => selectSequenceDiagramEditor(state).diagram.lifelines[linking.sourceElement]);
     const activations = useAppSelector(state => selectSequenceDiagramEditor(state).diagram.activations);
 

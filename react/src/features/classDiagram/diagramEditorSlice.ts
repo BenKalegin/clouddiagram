@@ -1,9 +1,10 @@
 import {createSlice, current, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {Bounds, Coordinate, DiagramState, Id} from "../../common/Model";
-import {addNewElementAt, autoConnect, ClassDiagramState, resizeNode} from "./model";
+import {addNewElementAt, autoConnectNodes, ClassDiagramState, resizeNode} from "./model";
 import {demoClassDiagramEditor, demoSequenceDiagramEditor} from "../demo";
 import {RootState} from "../../app/store";
 import {
+    autoConnectActivations,
     findTargetActivation,
     handleSequenceDropFromLibrary,
     resizeLifeline,
@@ -98,7 +99,6 @@ interface linkToNewDialogCompleted {
 interface AddNodeAndConnectAction {
     name: string
 }
-
 
 export const generateId = (): Id => {
     return nanoid(6);
@@ -218,6 +218,9 @@ export const diagramEditorSlice = createSlice({
         continueLinking: (state, action: PayloadAction<DrawLinkingAction>) => {
             const editor = state.editors[state.activeIndex];
             const linking = editor.linking!;
+            // we have a chance to receive continueLinking after endLinking, ignore it
+            if (!linking)
+                return
             const diagramPos = toDiagramPos(linking, action.payload.mousePos);
 
             let snapped: Coordinate | undefined = undefined
@@ -260,7 +263,7 @@ export const diagramEditorSlice = createSlice({
                     const linking = current(editor).linking!
                     const pos = linking.diagramPos
                     addNewElementAt(editor.diagram, id, pos , action.payload.name);
-                    autoConnect(editor.diagram, linking.sourceElement, id);
+                    autoConnectNodes(editor.diagram, linking.sourceElement, id);
 
                     break;
                 case DiagramEditorType.Sequence:
@@ -268,9 +271,23 @@ export const diagramEditorSlice = createSlice({
             }
         },
 
+        connectExisting: (state, action: PayloadAction<void>) => {
+            const editor = state.editors[state.activeIndex]
+            const linking = current(editor).linking!
+            switch (editor.type) {
+                case DiagramEditorType.Class:
+                    autoConnectNodes(editor.diagram, linking.sourceElement, linking.targetElement!);
+                    break;
+                case DiagramEditorType.Sequence:
+                    autoConnectActivations(editor.diagram, linking.sourceElement, linking.targetElement!, 10);
+
+            }
+        },
+
         stopLinking: (state) => {
             const editor = state.editors[state.activeIndex]
             editor.linking = undefined
+            console.log("stop linking")
         },
 
         restoreDiagram: (state, action: PayloadAction<DiagramState>) => {
@@ -302,7 +319,8 @@ export const {
     linkToNewDialogClose,
     restoreDiagram,
     stopLinking,
-    addNodeAndConnect
+    addNodeAndConnect,
+    connectExisting
 } = diagramEditorSlice.actions
 
 // The function below is called a selector and allows us to select a value from

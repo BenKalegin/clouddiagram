@@ -71,7 +71,7 @@ export const Lifeline = (props: LifelineProps) => {
                     isFocused={props.isFocused}
                     isLinking={props.isLinking}
                     onResize={deltaBounds => dispatch(nodeResize({elementId: props.lifeline.id, deltaBounds}))}
-                    linkingDrawing={() => <DrawingMessage lifelinePlacement={props.lifeline.placement} /> }
+                    linkingDrawing={<DrawingMessage lifelinePlacement={props.lifeline.placement} /> }
                 />
             )}
 

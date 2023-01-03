@@ -163,7 +163,7 @@ export function addNewElementAt(diagram: WritableDraft<ClassDiagramState>, id: s
 }
 
 
-export function autoConnect(diagram: WritableDraft<ClassDiagramState>, sourceId: Id, targetId: Id) {
+export function autoConnectNodes(diagram: WritableDraft<ClassDiagramState>, sourceId: Id, targetId: Id) {
     const source = diagram.nodes[sourceId];
     const target = diagram.nodes[targetId];
 
