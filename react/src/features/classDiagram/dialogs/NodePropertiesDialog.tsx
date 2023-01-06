@@ -1,5 +1,5 @@
 import {FormEvent, useCallback, useState} from "react";
-import {nodeCloseProperties, selectClassDiagramEditor} from "../diagramEditorSlice";
+import {nodeCloseProperties, selectClassDiagramEditor} from "../classDiagramSlice";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from "@mui/material";
 

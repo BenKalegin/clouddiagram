@@ -3,7 +3,7 @@ import React from "react";
 import {Layer, Stage} from 'react-konva';
 import Konva from "konva";
 import {Link} from "./Link";
-import {nodeDeselect, selectClassDiagramEditor} from "./diagramEditorSlice";
+import {nodeDeselect, selectClassDiagramEditor} from "./classDiagramSlice";
 import {ReactReduxContext, Provider} from 'react-redux';
 
 import {useAppDispatch, useAppSelector} from "../../app/hooks";

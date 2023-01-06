@@ -1,4 +1,4 @@
-import {Bounds, Coordinate} from "../Model";
+import {Bounds, Coordinate} from "../model";
 
 export const snapToGrid = (pos: Coordinate, gridSize: number): Coordinate => {
     return {

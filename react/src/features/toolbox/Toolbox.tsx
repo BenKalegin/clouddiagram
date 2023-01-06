@@ -4,7 +4,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {GalleryItem, galleryGroups} from "./models";
 
-export const ComponentLibrary = () => {
+export const Toolbox = () => {
     const [open, setOpen] = React.useState<{ [key: string]: boolean }>({});
 
     const handleClick = (key: string) => {

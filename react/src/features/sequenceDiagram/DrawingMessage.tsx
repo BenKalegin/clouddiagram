@@ -1,6 +1,5 @@
-import {zeroBounds} from "../../common/Model";
+import {zeroBounds} from "../../common/model";
 import {useAppSelector} from "../../app/hooks";
-import {selectSequenceDiagramEditor} from "../classDiagram/diagramEditorSlice";
 import {Arrow} from "react-konva";
 import {
     activationPlacement,
@@ -8,6 +7,7 @@ import {
     LifelinePlacement,
     messagePlacement
 } from "./model";
+import {selectSequenceDiagramEditor} from "./sequenceDiagramSlice";
 
 export const DrawingMessage = (props: { lifelinePlacement: LifelinePlacement }) => {
 

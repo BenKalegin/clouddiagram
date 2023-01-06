@@ -7,8 +7,8 @@ import {
     portBounds,
     PortState
 } from "./classDiagram/model";
-import {Bounds, Id, zeroBounds} from "../common/Model";
-import {ClassDiagramEditor, DiagramEditorType, SequenceDiagramEditor} from "./classDiagram/diagramEditorSlice";
+import {Bounds, Id, zeroBounds} from "../common/model";
+import {ClassDiagramEditor} from "./classDiagram/classDiagramSlice";
 import {
     activationPlacement,
     ActivationState, lifelineDefaultHeight, lifelineDefaultWidth, lifelineHeadY,
@@ -18,6 +18,9 @@ import {
     MessageState,
     SequenceDiagramState
 } from "./sequenceDiagram/model";
+import {DiagramEditors} from "./diagramTabs/diagramTabsSlice";
+import {DiagramEditorType} from "./baseDiagram/baseDiagramModel";
+import {SequenceDiagramEditor} from "./sequenceDiagram/sequenceDiagramSlice";
 
 export const getClassDemoDiagram = (): ClassDiagramState => {
     const port11: PortState = {
@@ -230,4 +233,17 @@ export const demoSequenceDiagramEditor = (title: string): SequenceDiagramEditor 
         snapGridSize: 5
     }
 }
+
+export const demoDiagramEditors: DiagramEditors = {
+    activeIndex: 0,
+    editors: [
+        demoClassDiagramEditor("Demo Class 1"),
+        demoClassDiagramEditor("Demo Class 2"),
+        demoSequenceDiagramEditor("Demo Sequence 1"),
+    ]
+}
+
+
+
+
 

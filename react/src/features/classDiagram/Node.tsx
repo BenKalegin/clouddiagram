@@ -6,7 +6,7 @@ import {
     nodeResize,
     nodeSelect,
     selectClassDiagramEditor,
-} from "./diagramEditorSlice";
+} from "./classDiagramSlice";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {NodeState} from "./model";
 import {DrawingLink} from "./DrawingLink";

@@ -1,7 +1,7 @@
 import {Rect} from "react-konva";
-import {Id} from "../../common/Model";
+import {Id} from "../../common/model";
 import {useAppSelector} from "../../app/hooks";
-import {selectSequenceDiagramEditor} from "../classDiagram/diagramEditorSlice";
+import {selectSequenceDiagramEditor} from "./sequenceDiagramSlice";
 
 export interface ActivationProps {
     activationId: Id

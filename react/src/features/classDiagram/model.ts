@@ -1,8 +1,8 @@
-import {Bounds, Coordinate, DiagramElement, DiagramState, Id} from "../../common/Model";
+import {Bounds, Coordinate, DiagramElement, DiagramState, Id} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {WritableDraft} from "immer/dist/internal";
 import {current} from "@reduxjs/toolkit";
-import {generateId} from "./diagramEditorSlice";
+import {generateId} from "./classDiagramSlice";
 
 export enum PortAlignment {
     Left,

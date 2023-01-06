@@ -1,9 +1,9 @@
 import {Path} from "react-konva";
 import React from "react";
 import {linkPlacement, PortAlignment, portBounds, PortState} from "./model";
-import {Bounds, zeroBounds} from "../../common/Model";
+import {Bounds, zeroBounds} from "../../common/model";
 import {useAppSelector} from "../../app/hooks";
-import {selectClassDiagramEditor} from "./diagramEditorSlice";
+import {selectClassDiagramEditor} from "./classDiagramSlice";
 
 export const DrawingLink = (props: { nodePlacement: Bounds }) => {
 

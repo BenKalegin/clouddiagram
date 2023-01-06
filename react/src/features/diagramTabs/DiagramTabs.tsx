@@ -1,27 +1,28 @@
 import React from "react";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
-import {DiagramEditorType, openDiagramActivated} from "../classDiagram/diagramEditorSlice";
 import {NodePropertiesDialog} from "../classDiagram/dialogs/NodePropertiesDialog";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
 import {Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
+import {openDiagramActivated} from "./diagramTabsSlice";
+import {DiagramEditorType} from "../baseDiagram/baseDiagramModel";
 
 
 interface StyledTabProps {
     label: string;
 }
 
-const AntTab = styled((props: StyledTabProps) => <Tab disableRipple {...props} />)(
+const PlainTab = styled((props: StyledTabProps) => <Tab disableRipple {...props} />)(
     () => ({
-        textTransform: 'none',
+        textTransform: 'none'
     }),
 );
 
-export const OpenDiagramSelector = () => {
+export const DiagramTabs = () => {
     const dispatch = useAppDispatch();
-    const editors = useAppSelector(state => state.diagramEditor);
+    const editors = useAppSelector(state => state.diagramTabs);
     const activeEditor = editors.editors[editors.activeIndex]
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -36,7 +37,7 @@ export const OpenDiagramSelector = () => {
                 aria-label="Open diagrams"
             >
             {editors.editors.map((editor, index) =>
-                <AntTab key={index}  label={editor.diagram.title || "New diagram"} />
+                <PlainTab key={index}  label={editor.diagram.title || "New diagram"} />
             )}
             </Tabs>
             <div>

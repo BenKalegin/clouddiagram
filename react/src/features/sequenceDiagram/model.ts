@@ -1,4 +1,4 @@
-import {Bounds, ConnectorPlacement, Coordinate, DiagramElement, DiagramState, Id} from "../../common/Model";
+import {Bounds, ConnectorPlacement, Coordinate, DiagramElement, DiagramState, Id} from "../../common/model";
 import {WritableDraft} from "immer/dist/internal";
 
 export const lifelineHeadY = 30;

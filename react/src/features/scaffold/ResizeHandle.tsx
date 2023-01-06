@@ -1,4 +1,4 @@
-import {Bounds, Coordinate} from "../../common/Model";
+import {Bounds, Coordinate} from "../../common/model";
 import React from "react";
 import {Rect} from "react-konva";
 import {enumKeys} from "../../common/EnumUtils";

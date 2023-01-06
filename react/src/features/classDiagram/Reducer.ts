@@ -1,4 +1,4 @@
-import {ClassDiagramEditor} from "./diagramEditorSlice";
+import {ClassDiagramEditor} from "./classDiagramSlice";
 
 enum CloudDiagramActionKind {
     DRAG = "DRAG"

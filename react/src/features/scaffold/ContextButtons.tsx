@@ -1,8 +1,8 @@
-import {Bounds, Coordinate, Id} from "../../common/Model";
+import {Bounds, Coordinate, Id} from "../../common/model";
 import React, {RefObject, useState} from "react";
 import {Group, Path, Rect} from "react-konva";
 import {useAppDispatch} from "../../app/hooks";
-import {startLinking} from "../classDiagram/diagramEditorSlice";
+import {startLinking} from "../classDiagram/classDiagramSlice";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
 

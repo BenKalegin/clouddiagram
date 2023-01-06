@@ -1,8 +1,8 @@
-import {Bounds, Coordinate, zeroCoordinate} from "../../common/Model";
+import {Bounds, Coordinate, zeroCoordinate} from "../../common/model";
 import React from "react";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {Rect} from "react-konva";
-import {nodeShowProperties, selectDiagramEditor} from "../classDiagram/diagramEditorSlice";
+import {nodeShowProperties, selectClassDiagramEditor} from "../classDiagram/classDiagramSlice";
 import {snapToGrid} from "../../common/Geometry/snap";
 
 export interface BackgroundProps {
@@ -15,7 +15,7 @@ export const Background = (props: BackgroundProps) => {
     const [mouseStart, setMouseStart] = React.useState<Coordinate>(zeroCoordinate);
     const [nodeStart] = React.useState<Bounds>(props.nodeBounds);
     const dispatch = useAppDispatch()
-    const snapGridSize = useAppSelector(state => selectDiagramEditor(state).snapGridSize)
+    const snapGridSize = useAppSelector(state => selectClassDiagramEditor(state).snapGridSize)
 
     return (
         <Rect

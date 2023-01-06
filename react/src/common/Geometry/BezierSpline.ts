@@ -112,7 +112,7 @@
 /// From this set of equations, P1[1..n] are easy but tedious to solve.
 /// </remarks>
 
-import {Coordinate} from "../Model";
+import {Coordinate} from "../model";
 
 export class BezierSpline {
     /// <summary>

@@ -1,11 +1,11 @@
 import React, {useEffect} from "react";
-import {Bounds, Id, inflate} from "../../common/Model";
+import {Bounds, Id, inflate} from "../../common/model";
 import {Background} from "./Background";
 import {ResizeHandles} from "./ResizeHandle";
 import {FocusFrame} from "./FocusFrame";
 import {ContextButtons} from "./ContextButtons";
 import {useAppDispatch} from "../../app/hooks";
-import {continueLinking, endLinking} from "../classDiagram/diagramEditorSlice";
+import {continueLinking, endLinking} from "../classDiagram/classDiagramSlice";
 
 export interface ScaffoldProps {
     bounds: Bounds;

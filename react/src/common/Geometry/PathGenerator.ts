@@ -1,5 +1,5 @@
 import {BezierSpline} from "./BezierSpline";
-import {Bounds, center, Coordinate} from "../Model";
+import {Bounds, center, Coordinate} from "../model";
 import {PortAlignment, PortState} from "../../features/classDiagram/model";
 
 export class PathGeneratorResult {

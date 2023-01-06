@@ -1,3 +1,6 @@
+import {ClassDiagramEditor} from "../features/classDiagram/classDiagramSlice";
+import {SequenceDiagramEditor} from "../features/sequenceDiagram/sequenceDiagramSlice";
+
 export type Id = string;
 export interface DiagramElement {
     id: Id;
@@ -49,3 +52,6 @@ export interface ConnectorPlacement {
     y: number;
     points: number[];
 }
+
+// TODO proper location
+export type DiagramEditor = ClassDiagramEditor | SequenceDiagramEditor;

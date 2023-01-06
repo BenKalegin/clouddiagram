@@ -2,7 +2,7 @@ import {Group, Line, Rect, Text} from "react-konva";
 import {lifelinePoints, LifelineState} from "./model";
 import React from "react";
 import {Scaffold} from "../scaffold/Scaffold";
-import {nodeResize, nodeSelect} from "../classDiagram/diagramEditorSlice";
+import {nodeResize, nodeSelect} from "../classDiagram/classDiagramSlice";
 import {useAppDispatch} from "../../app/hooks";
 import {Activation} from "./Activation";
 import {DrawingMessage} from "./DrawingMessage";

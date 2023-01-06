@@ -3,9 +3,9 @@ import {
     addNodeAndConnect, connectExisting,
     continueLinking,
     endLinking, linkToNewDialog, linkToNewDialogClose, restoreDiagram,
-    selectDiagramEditor,
     startLinking, stopLinking
-} from "../features/classDiagram/diagramEditorSlice";
+} from "../features/classDiagram/classDiagramSlice";
+import {selectDiagramEditor} from "../features/baseDiagram/baseSlice";
 
 export function* startLinkingSaga() {
     let waitingLinkingEnd = true;

@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import {ComponentLibrary} from "../features/componentLibrary/ComponentLibrary";
-import {OpenDiagramSelector} from "../features/opendiagramSelector/OpenDiagramSelector";
+import {Toolbox} from "../features/toolbox/Toolbox";
+import {DiagramTabs} from "../features/diagramTabs/DiagramTabs";
 import {Divider, Stack, Typography} from "@mui/material";
 import {FilterDrama}  from '@mui/icons-material';
 
@@ -13,9 +13,9 @@ export const App = () => {
                 <Typography>Cloud Diagram</Typography>
             </Stack>
             <Stack direction="row">
-                <ComponentLibrary/>
+                <Toolbox/>
                 <Divider/>
-                <OpenDiagramSelector/>
+                <DiagramTabs/>
 
             </Stack>
         </Stack>

@@ -1,4 +1,4 @@
-import {Bounds} from "../../common/Model";
+import {Bounds} from "../../common/model";
 import {Rect} from "react-konva";
 import React from "react";
 

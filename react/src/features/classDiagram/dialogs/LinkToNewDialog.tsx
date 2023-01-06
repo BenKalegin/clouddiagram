@@ -1,4 +1,4 @@
-import {linkToNewDialogClose, selectDiagramEditor} from "../diagramEditorSlice";
+import {linkToNewDialogClose, selectClassDiagramEditor} from "../classDiagramSlice";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
 import {
     Button,
@@ -9,11 +9,11 @@ import {
     List, ListItemButton, ListItemIcon, ListItemText, SvgIcon,
 } from "@mui/material";
 import React from "react";
-import {galleryGroups, GalleryItem} from "../../componentLibrary/models";
+import {galleryGroups, GalleryItem} from "../../toolbox/models";
 
 
 export const LinkToNewDialog = () => {
-    const linking = useAppSelector(state => selectDiagramEditor(state).linking);
+    const linking = useAppSelector(state => selectClassDiagramEditor(state).linking);
     const source = linking?.sourceElement;
     const dispatch = useAppDispatch()
     const items = galleryGroups.filter(group => group.key === "class").flatMap(group => group.items);

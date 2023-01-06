@@ -1,7 +1,7 @@
 import React, {ReactNode} from "react";
 import {useAppDispatch} from "../../app/hooks";
-import {dropFromPalette} from "../classDiagram/diagramEditorSlice";
-import {GalleryItem} from "../componentLibrary/models";
+import {dropFromPalette} from "../classDiagram/classDiagramSlice";
+import {GalleryItem} from "../toolbox/models";
 
 export function HtmlDrop(props: { children: ReactNode }) {
     const dispatch = useAppDispatch();

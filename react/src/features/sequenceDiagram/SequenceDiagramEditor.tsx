@@ -1,8 +1,7 @@
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {
-    nodeDeselect,
-    selectSequenceDiagramEditor
-} from "../classDiagram/diagramEditorSlice";
+    nodeDeselect
+} from "../classDiagram/classDiagramSlice";
 import React, {RefObject} from "react";
 import Konva from "konva";
 import {Provider, ReactReduxContext} from "react-redux";
@@ -10,13 +9,14 @@ import {Layer, Stage} from "react-konva";
 import {LifelineState} from "./model";
 import {Lifeline} from "./Lifeline";
 import {Message} from "./Message";
+import {selectSequenceDiagramEditor} from "./sequenceDiagramSlice";
 
 export const SequenceDiagramEditor = () => {
     const {diagram, selectedElements, focusedElement, linking} = useAppSelector(state => selectSequenceDiagramEditor(state));
     const dispatch = useAppDispatch();
     const isSelected = (lifeline: LifelineState) => selectedElements.includes(lifeline.id);
     const isFocused = (lifeline : LifelineState) => focusedElement === lifeline.id;
-    const isLinking = (lifeline : LifelineState) => linking?.drawing === true;
+    const isLinking = () => linking?.drawing === true;
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on empty area
         const clickedOnEmpty = e.target === e.target.getStage()
@@ -44,7 +44,7 @@ export const SequenceDiagramEditor = () => {
                                         key={i}
                                         isSelected={isSelected(lifeline)}
                                         isFocused={isFocused(lifeline)}
-                                        isLinking={isLinking(lifeline)}
+                                        isLinking={isLinking()}
                                         lifeline={lifeline}
                                     />
                                 );
