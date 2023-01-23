@@ -7,7 +7,7 @@ import {HtmlDrop} from "./HtmlDrop";
 import {Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
 import {openDiagramActivated} from "./diagramTabsSlice";
-import {DiagramEditorType} from "../baseDiagram/baseDiagramModel";
+import {DiagramEditorType} from "../diagramEditor/diagramEditorModel";
 
 
 interface StyledTabProps {

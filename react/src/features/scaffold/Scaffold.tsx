@@ -61,7 +61,7 @@ export const Scaffold = (props: ScaffoldProps) => {
 
     return (
         <>
-            <Background backgroundBounds={bounds} nodeBounds={props.bounds} onDrag={newBounds => props.onResize(newBounds)}/>
+            <Background backgroundBounds={bounds} nodeBounds={props.bounds}/>
             <ResizeHandles perimeterBounds={bounds} nodeBounds={props.bounds}  onResize={newBounds => props.onResize(newBounds)}/>
             {props.isFocused && <FocusFrame bounds={bounds} />}
             {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.elementId}/>}

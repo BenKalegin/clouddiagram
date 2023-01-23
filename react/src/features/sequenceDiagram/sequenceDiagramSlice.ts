@@ -12,11 +12,11 @@ import {
     DrawLinkingAction,
     DropFromPaletteAction,
     ElementResizeAction, toDiagramPos
-} from "../baseDiagram/baseSlice";
+} from "../diagramEditor/diagramEditorSlice";
 import {RootState} from "../../app/store";
-import {Coordinate, DiagramState} from "../../common/model";
+import {Coordinate, Diagram} from "../../common/model";
 import {snapToBounds, snapToGrid} from "../../common/Geometry/snap";
-import {BaseDiagramEditor, DiagramEditorType} from "../baseDiagram/baseDiagramModel";
+import {BaseDiagramEditor, DiagramEditorType} from "../diagramEditor/diagramEditorModel";
 
 export interface SequenceDiagramEditor extends BaseDiagramEditor{
     type: DiagramEditorType.Sequence
@@ -51,27 +51,27 @@ export const sequenceDiagramSlice = createSlice({
         },
 
         continueLinking: (editor, action: PayloadAction<DrawLinkingAction>) => {
-            // TODO unify with classDiagramSlice
-            const linking = editor.linking!;
-            // we have a chance to receive continueLinking after endLinking, ignore it
-            if (!linking)
-                return
-            const diagramPos = toDiagramPos(linking, action.payload.mousePos);
-
-            let snapped: Coordinate | undefined = undefined
-            const targetActivation = findTargetActivation(current(editor).diagram.activations, diagramPos);
-            linking.targetElement = targetActivation?.id;
-            if (targetActivation) {
-                snapped = snapToBounds(diagramPos, targetActivation.placement);
-            }
-            if (!snapped)
-                snapped = snapToGrid(diagramPos, editor.snapGridSize);
-            linking.diagramPos = snapped
-            linking.mousePos = action.payload.mousePos;
+            // // TODO unify with classDiagramSlice
+            // const linking = editor.linking!;
+            // // we have a chance to receive continueLinking after endLinking, ignore it
+            // if (!linking)
+            //     return
+            // const diagramPos = toDiagramPos(linking, action.payload.mousePos);
+            //
+            // let snapped: Coordinate | undefined = undefined
+            // const targetActivation = findTargetActivation(current(editor).diagram.activations, diagramPos);
+            // linking.targetElement = targetActivation?.id;
+            // if (targetActivation) {
+            //     snapped = snapToBounds(diagramPos, targetActivation.placement);
+            // }
+            // if (!snapped)
+            //     snapped = snapToGrid(diagramPos, editor.snapGridSize);
+            // linking.diagramPos = snapped
+            // linking.mousePos = action.payload.mousePos;
         },
 
 
-        restoreDiagram: (editor, action: PayloadAction<DiagramState>) => {
+        restoreDiagram: (editor, action: PayloadAction<Diagram>) => {
             editor.diagram = action.payload as SequenceDiagramState
         },
 

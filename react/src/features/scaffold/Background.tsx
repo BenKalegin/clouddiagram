@@ -1,19 +1,18 @@
-import {Bounds, Coordinate, zeroCoordinate} from "../../common/model";
+import {Bounds, Coordinate, Id, zeroCoordinate} from "../../common/model";
 import React from "react";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {Rect} from "react-konva";
 import {nodeShowProperties, selectClassDiagramEditor} from "../classDiagram/classDiagramSlice";
 import {snapToGrid} from "../../common/Geometry/snap";
+import {continueNodeResize, endNodeResize, startLinking, startNodeResize} from "../diagramEditor/diagramEditorSlice";
 
 export interface BackgroundProps {
     backgroundBounds: Bounds;
     nodeBounds: Bounds;
-    onDrag: (bounds: Bounds) => void;
+    element: Id
 }
 
 export const Background = (props: BackgroundProps) => {
-    const [mouseStart, setMouseStart] = React.useState<Coordinate>(zeroCoordinate);
-    const [nodeStart] = React.useState<Bounds>(props.nodeBounds);
     const dispatch = useAppDispatch()
     const snapGridSize = useAppSelector(state => selectClassDiagramEditor(state).snapGridSize)
 
@@ -28,18 +27,29 @@ export const Background = (props: BackgroundProps) => {
             strokeWidth={0}
             draggable={true}
             onDragStart={(e) => {
-                setMouseStart({x: e.target.x(), y: e.target.y()})
+                dispatch(startNodeResize({
+                    elementId: props.element,
+                    mousePos: {x: e.evt.x, y: e.evt.y},
+                    relativePos: {x: props.nodeBounds.x, y: props.nodeBounds.y }
+                }))
             }}
-            onDragMove={e => {
-                props.onDrag({
-                    ...snapToGrid({
-                        x: e.target.x() - mouseStart.x + nodeStart.x,
-                        y: e.target.y() - mouseStart.y + nodeStart.y,
-                    }, snapGridSize),
-                    width: nodeStart.width,
-                    height: nodeStart.height
-                });
+
+            onDragMove={(e) => {
+                dispatch(continueNodeResize({
+                    elementId: props.element,
+                    mousePos: {x: e.evt.x, y: e.evt.y},
+                    relativePos: {x: props.nodeBounds.x, y: props.nodeBounds.y }
+                }))
             }}
+
+            onDragEnd={(e) => {
+                dispatch(endNodeResize({
+                    elementId: props.element,
+                    mousePos: {x: e.evt.x, y: e.evt.y},
+                    relativePos: {x: props.nodeBounds.x, y: props.nodeBounds.y }
+                }))
+            }}
+
             onDblClick={() => dispatch(nodeShowProperties())}
         />
     );

@@ -4,18 +4,20 @@ import {Port} from "./Port";
 import {Scaffold} from "../scaffold/Scaffold";
 import {
     nodeResize,
-    nodeSelect,
     selectClassDiagramEditor,
 } from "./classDiagramSlice";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {NodeState} from "./model";
 import {DrawingLink} from "./DrawingLink";
+import {NodeState} from "../../package/packageModel";
+import {NodePlacement} from "./model";
+import {nodeSelect} from "../diagramEditor/diagramEditorSlice";
 
 export interface NodeProps {
      isSelected: boolean;
      isFocused: boolean;
      isLinking: boolean;
      node: NodeState;
+     nodePlacement: NodePlacement
 }
 
 export const Node = (props: NodeProps) => {
@@ -30,7 +32,7 @@ export const Node = (props: NodeProps) => {
             <Rect
                 fill={"cornsilk"}
                 stroke={"burlywood"}
-                {...props.node.placement}
+                {...props.nodePlacement}
                 cornerRadius={10}
                 cursor={"crosshair"}
                 //draggable
@@ -45,17 +47,17 @@ export const Node = (props: NodeProps) => {
             {props.isSelected && (
                 <Scaffold
                     elementId={props.node.id}
-                    bounds={props.node.placement}
+                    bounds={props.nodePlacement}
                     isFocused={props.isFocused}
                     isLinking={props.isLinking}
                     onResize={deltaBounds => {
                         dispatch(nodeResize({ elementId: props.node.id, deltaBounds} ))
                     }}
-                    linkingDrawing={<DrawingLink nodePlacement={props.node.placement}/>}
+                    linkingDrawing={<DrawingLink nodePlacement={props.nodePlacement}/>}
                 />
             )}
             <Text
-                {...props.node.placement}
+                {...props.nodePlacement}
                 fontSize={14}
                 align={"center"}
                 verticalAlign={"middle"}

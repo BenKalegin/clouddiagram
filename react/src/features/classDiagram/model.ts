@@ -1,65 +1,23 @@
-import {Bounds, Coordinate, DiagramElement, DiagramState, Id} from "../../common/model";
+import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {WritableDraft} from "immer/dist/internal";
 import {current} from "@reduxjs/toolkit";
 import {generateId} from "./classDiagramSlice";
-
-export enum PortAlignment {
-    Left,
-    Right,
-    Top,
-    Bottom,
-}
-
-export interface PortState extends DiagramElement {
-    alignment: PortAlignment;
-    /**
-     * Percentage of edge wide where the port center is located, counting from left or top
-     * For example, 50 for the top oriented is the center of the top edge
-     */
-    edgePosRatio: number
-
-    /**
-     * Percentage of the port going deep inside the node.
-     * - 0 means the port is on the edge of the node pointing outward
-     * - 50 means the half of port crosses the edge
-     * - 100 means the port is sunk into the node
-     */
-    depthRatio: number
-
-    /**
-     * Width of the marker along the edge it belong to
-     */
-    latitude: number;
-
-    /**
-     * Height of the marker in perpendicular direction to the edge it belong to
-     */
-    longitude: number;
-
-    placement: Bounds;
-}
-
-export interface NodeState extends DiagramElement {
-    placement: Bounds;
-    text: string;
-    ports: Id[];
-}
+import {Id, PortAlignment, PortState} from "../../package/packageModel";
+import {store} from "../../app/store";
+import {selectElementById} from "../../package/packageSlice";
 
 export interface LinkPlacement {
     svgPath: string[];
 }
 
-export interface LinkState extends DiagramElement {
-    placement: LinkPlacement;
-    port1: Id;
-    port2: Id;
-}
+export type NodePlacement = Bounds
+export type PortPlacement = Bounds
 
-export interface ClassDiagramState extends DiagramState {
-    nodes: { [id: Id]: NodeState };
-    links: { [id: Id]: LinkState };
-    ports: { [id: Id]: PortState };
+export interface ClassDiagramState extends Diagram {
+    nodes: { [id: Id]: NodePlacement };
+    links: { [id: Id]: LinkPlacement };
+    ports: { [id: Id]: PortPlacement };
 }
 
 export const portBounds = (nodePlacement: Bounds, port: PortState): Bounds => {
@@ -106,7 +64,7 @@ export const linkPlacement = (sourcePort: PortState, targetPort: PortState): Lin
     };
 }
 
-export const nodePlacementAfterResize = ({placement}: NodeState, newBounds: Bounds): Bounds => {
+export const nodePlacementAfterResize = (nodePlacement: Bounds, newBounds: Bounds): Bounds => {
     return {
         x: newBounds.x,
         y: newBounds.y,
@@ -117,11 +75,12 @@ export const nodePlacementAfterResize = ({placement}: NodeState, newBounds: Boun
 }
 
 export function resizeNode(diagram: WritableDraft<ClassDiagramState>, newBounds: Bounds, elementId: Id) {
-    const node = diagram.nodes[elementId];
+    const oldNode = current(diagram).nodes[elementId];
 
-    const nodePlacement = nodePlacementAfterResize(node, newBounds);
-    node.placement = nodePlacement;
+    const nodePlacement = nodePlacementAfterResize(oldNode, newBounds);
+    diagram.nodes[elementId] = nodePlacement;
 
+    const diagram = selectElementById(store.getState(), current(diagram).id);
     const portAffected = node.ports.map(port => diagram.ports[port]);
     const portPlacements: { [id: Id]: Bounds } = {};
 

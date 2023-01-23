@@ -1,10 +1,4 @@
-import {ClassDiagramEditor} from "../features/classDiagram/classDiagramSlice";
-import {SequenceDiagramEditor} from "../features/sequenceDiagram/sequenceDiagramSlice";
-
-export type Id = string;
-export interface DiagramElement {
-    id: Id;
-}
+import {DiagramElement} from "../package/packageModel";
 
 export interface Coordinate {
     y: number;
@@ -43,7 +37,7 @@ export const center = (bounds: Bounds): Coordinate => ({
     y: bounds.y + bounds.height / 2,
 });
 
-export interface DiagramState {
+export interface Diagram extends DiagramElement{
     title?: string
 }
 
@@ -52,6 +46,3 @@ export interface ConnectorPlacement {
     y: number;
     points: number[];
 }
-
-// TODO proper location
-export type DiagramEditor = ClassDiagramEditor | SequenceDiagramEditor;

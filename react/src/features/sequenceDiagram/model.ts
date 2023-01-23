@@ -1,5 +1,6 @@
-import {Bounds, ConnectorPlacement, Coordinate, DiagramElement, DiagramState, Id} from "../../common/model";
+import {Bounds, ConnectorPlacement, Coordinate, Diagram} from "../../common/model";
 import {WritableDraft} from "immer/dist/internal";
+import {DiagramElement, Id} from "../../package/packageModel";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
@@ -45,7 +46,7 @@ export interface MessageState extends DiagramElement {
     placement: MessagePlacement
 }
 
-export interface SequenceDiagramState extends DiagramState {
+export interface SequenceDiagramState extends Diagram {
     lifelines: { [id: string]: LifelineState }
     messages: { [id: string]: MessageState }
     activations: {[id: string]: ActivationState}
@@ -100,7 +101,7 @@ export function resizeLifeline(diagram: WritableDraft<SequenceDiagramState>, del
 
 export function handleSequenceDropFromLibrary(diagram: WritableDraft<SequenceDiagramState>, id: string, droppedAt: Coordinate, name: string) {
 
-    diagram.lifelines[id] = {
+    const newLifeline = {
         id,
         title: name,
         placement: {
@@ -113,7 +114,9 @@ export function handleSequenceDropFromLibrary(diagram: WritableDraft<SequenceDia
             lifelineEnd: 100
         },
         activations: []
-    }
+    };
+
+    diagram.lifelines[id] = newLifeline
 }
 
 export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[] {
