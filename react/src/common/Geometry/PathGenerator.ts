@@ -1,6 +1,7 @@
 import {BezierSpline} from "./BezierSpline";
 import {Bounds, center, Coordinate} from "../model";
-import {PortAlignment, PortState} from "../../features/classDiagram/model";
+import {PortAlignment, PortState} from "../../package/packageModel";
+import {PortPlacement} from "../../features/classDiagram/model";
 
 export class PathGeneratorResult {
     constructor(public path: string[], public sourceMarkerAngle?: number, public sourceMarkerPosition?: Coordinate,
@@ -27,8 +28,9 @@ export class PathGenerators {
         return angleInRadians * 180 / Math.PI;
     }
 
-    static ConcatRouteAndSourceAndTarget(route: Coordinate[], sourcePort: PortState, targetPortPlacement: Bounds): Coordinate[] {
-        return [center(sourcePort.placement), ...route, center(targetPortPlacement)];
+    static ConcatRouteAndSourceAndTarget(route: Coordinate[], sourcePlacement: Bounds,
+                                         targetPlacement: Bounds): Coordinate[] {
+        return [center(sourcePlacement), ...route, center(targetPlacement)];
     }
 
     static CurveThroughPoints = (route: Coordinate[]) => {
@@ -76,7 +78,8 @@ export class PathGenerators {
         throw new Error("Invalid alignment: " + alignment);
     }
 
-    static GetRouteWithCurvePoints = (route: Coordinate[], source: PortState, target: PortState): Coordinate[] => {
+    static GetRouteWithCurvePoints = (route: Coordinate[], source: PortState, sourcePlacement: PortPlacement,
+                                      target: PortState, targetPlacement: PortPlacement): Coordinate[] => {
         if (!source) {
             if (Math.abs(route[0].x - route[1].x) >= Math.abs(route[0].y - route[1].y)) {
                 const cX = (route[0].x + route[1].x) / 2;
@@ -88,20 +91,21 @@ export class PathGenerators {
         } else {
             const cX = (route[0].x + route[1].x) / 2
             const cY = (route[0].y + route[1].y) / 2
-            const curvePointA = PathGenerators.GetCurvePoint(route[0].x, route[0].y, cX, cY, source.alignment)
-            const curvePointB = PathGenerators.GetCurvePoint(route[1].x, route[1].y, cX, cY, target.alignment)
+            const curvePointA = PathGenerators.GetCurvePoint(route[0].x, route[0].y, cX, cY, sourcePlacement.alignment)
+            const curvePointB = PathGenerators.GetCurvePoint(route[1].x, route[1].y, cX, cY, targetPlacement.alignment)
             return [route[0], curvePointA, curvePointB, route[1]]
         }
     }
 
 
-    public static Smooth = (route: Coordinate[], source: PortState, target: PortState) => {
-        route = PathGenerators.ConcatRouteAndSourceAndTarget(route, source, target.placement);
+    public static Smooth = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+                            target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+        route = PathGenerators.ConcatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
 
         if (route.length > 2)
             return PathGenerators.CurveThroughPoints(route);
 
-        route = PathGenerators.GetRouteWithCurvePoints(route, source, target);
+        route = PathGenerators.GetRouteWithCurvePoints(route, source, sourcePlacement, target, targetPlacement);
         let sourceAngle: number | undefined;
         let targetAngle: number | undefined;
 
@@ -118,9 +122,10 @@ export class PathGenerators {
     }
 
     /*************************************************************************/
-    public static Straight = (route: Coordinate[], source: PortState, target: PortState) => {
-        route = PathGenerators.ConcatRouteAndSourceAndTarget(route, source, target.placement);
-        route = PathGenerators.GetRouteWithCurvePoints(route, source, target);
+    public static Straight = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+                              target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+        route = PathGenerators.ConcatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
+        route = PathGenerators.GetRouteWithCurvePoints(route, source, sourcePlacement, target, targetPlacement);
         let sourceAngle: number | undefined;
         let targetAngle: number | undefined;
 

@@ -3,56 +3,49 @@ import React from "react";
 import {Layer, Stage} from 'react-konva';
 import Konva from "konva";
 import {Link} from "./Link";
-import {nodeDeselect, selectClassDiagramEditor} from "./classDiagramSlice";
-import {ReactReduxContext, Provider} from 'react-redux';
+import {classDiagramSelector, DiagramId} from "./model";
+import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilValue} from "recoil";
 
-import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {NodeState} from "./model";
-
-export const ClassDiagramEditor = () => {
-    const {diagram, selectedElements, focusedElement, linking} = useAppSelector(state => selectClassDiagramEditor(state));
-    const dispatch = useAppDispatch();
-
+export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
+    const diagram = useRecoilValue(classDiagramSelector(diagramId))
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on empty area
         const clickedOnEmpty = e.target === e.target.getStage()
         if (clickedOnEmpty) {
-            dispatch(nodeDeselect())
+
         }
     }
+    const Bridge = useRecoilBridgeAcrossReactRoots_UNSTABLE();
 
-    const isSelected = (node: NodeState) => selectedElements.includes(node.id);
-    const isFocused = (node: NodeState) => focusedElement === node.id;
-    const isLinking = (node: NodeState) => linking?.drawing === true;
     return (
-        <ReactReduxContext.Consumer /* Stage does not propagate provider properly, we need to hack and provide it manually */>
-            {({store}) => (
-                <Stage
-                    width={window.innerWidth}
-                    height={window.innerHeight}
-                    onMouseDown={e => checkDeselect(e)}
-                >
-                    <Provider store={store}>
-                        <Layer>
-
-                            {Object.values(diagram.nodes).map((node, i) => {
-                                return (
-                                    <Node
-                                        key={i}
-                                        isSelected={isSelected(node)}
-                                        isFocused={isFocused(node)}
-                                        isLinking={isLinking(node)}
-                                        node={node}
-                                    />
-                                );
-                            })}
-                            {Object.values(diagram.links).map((link, index) => {
-                                return (<Link key={index} {...link} />)
-                            })}
-                        </Layer>
-                    </Provider>
-                </Stage>
-            )}
-        </ReactReduxContext.Consumer>
-    );
+        <Stage
+            width={window.innerWidth}
+            height={window.innerHeight}
+            onMouseDown={e => checkDeselect(e)}
+        >
+            <Bridge>
+                <Layer>
+                    {Object.keys(diagram.nodes).map((id, i) => {
+                        return (
+                            <Node
+                                key={i}
+                                diagramId={diagramId}
+                                nodeId={id}
+                            />
+                        );
+                    })}
+                    {Object.keys(diagram.links).map((linkId, index) => {
+                        return (
+                            <Link
+                                key={index}
+                                linkId={linkId}
+                                nodeId={"0"}
+                                diagramId={diagramId}
+                            />
+                        )
+                    })}
+                </Layer>
+            </Bridge>
+        </Stage>
+    )
 };

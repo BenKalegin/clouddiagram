@@ -1,53 +1,84 @@
 import React from "react";
-import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {NodePropertiesDialog} from "../classDiagram/dialogs/NodePropertiesDialog";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
 import {Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
-import {openDiagramActivated} from "./diagramTabsSlice";
-import {DiagramEditorType} from "../diagramEditor/diagramEditorModel";
+import {atom, useRecoilState, useRecoilValue} from "recoil";
+import {ElementType, Id} from "../../package/packageModel";
+import {diagramKindSelector, diagramTitleSelector} from "../diagramEditor/diagramEditorModel";
+import {DiagramId} from "../classDiagram/model";
+import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
 
 
 interface StyledTabProps {
-    label: string;
+    diagramId: DiagramId
 }
 
-const PlainTab = styled((props: StyledTabProps) => <Tab disableRipple {...props} />)(
+const objectWithoutKey = (object: any, key: string) => {
+    const {[key]: deletedKey, ...otherKeys} = object;
+    return otherKeys;
+}
+
+const PlainTab = styled((props: StyledTabProps) => {
+    const label = useRecoilValue(diagramTitleSelector(props.diagramId)) ?? "New";
+
+    return <Tab
+        label = {label}
+        {...objectWithoutKey(props, "diagramId")}
+        disableRipple = {true}
+    />;
+    })(
     () => ({
         textTransform: 'none'
     }),
 );
 
-export const DiagramTabs = () => {
-    const dispatch = useAppDispatch();
-    const editors = useAppSelector(state => state.diagramTabs);
-    const activeEditor = editors.editors[editors.activeIndex]
+const activeDiagramIdAtom = atom<Id | undefined>({
+    key: 'activeDiagramId',
+    default: demoActiveDiagramId
+})
 
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        dispatch(openDiagramActivated(newValue));
-    };
+const openDiagramIdsAtom = atom<DiagramId[]>({
+    key: 'openDiagrams',
+    default: demoOpenDiagramIds
+})
+
+export const DiagramTabs = () => {
+    const [activeDiagramId, setActiveDiagramId] = useRecoilState(activeDiagramIdAtom);
+    const openDiagramIds = useRecoilValue(openDiagramIdsAtom);
+
+    const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+        console.log("handleTabChange", newValue)
+        if (newValue)
+            setActiveDiagramId(openDiagramIds[newValue]);
+        else
+            setActiveDiagramId(undefined);
+    }
 
     return (
         <Stack direction="column" spacing="2">
             <Tabs
-                value={editors.activeIndex}
-                onChange={handleChange}
+                value={openDiagramIds.indexOf(activeDiagramId!)}
+                onChange={handleTabChange}
                 aria-label="Open diagrams"
             >
-            {editors.editors.map((editor, index) =>
-                <PlainTab key={index}  label={editor.diagram.title || "New diagram"} />
-            )}
+                {openDiagramIds.map((diagramId, index) =>
+                    <PlainTab key={index} diagramId={diagramId}/>
+                )}
             </Tabs>
             <div>
                 <HtmlDrop>
-                    {activeEditor.type === DiagramEditorType.Class && <ClassDiagramEditor/>}
-                    {activeEditor.type === DiagramEditorType.Sequence && <SequenceDiagramEditor/>}
+                    {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
+                    {diagramKind === ElementType.SequenceDiagram &&
+                        <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
                 </HtmlDrop>
             </div>
-            {activeEditor.type === DiagramEditorType.Class && <NodePropertiesDialog/>}
-            {activeEditor.type === DiagramEditorType.Class && <LinkToNewDialog/>}
+            {diagramKind === ElementType.ClassDiagram && <NodePropertiesDialog/>}
+            {diagramKind === ElementType.SequenceDiagram && <LinkToNewDialog/>}
         </Stack>
     )
 }

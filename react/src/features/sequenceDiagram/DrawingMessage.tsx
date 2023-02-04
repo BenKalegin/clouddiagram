@@ -1,31 +1,42 @@
 import {zeroBounds} from "../../common/model";
-import {useAppSelector} from "../../app/hooks";
 import {Arrow} from "react-konva";
 import {
-    activationPlacement,
     ActivationState,
-    LifelinePlacement,
-    messagePlacement
+    LifelineId,
+    LifelinePlacement, lifelinePlacementSelector,
+    lifelineSelector,
+    messagePlacement,
+    placeActivation
 } from "./model";
-import {selectSequenceDiagramEditor} from "./sequenceDiagramSlice";
+import {useRecoilValue} from "recoil";
+import {linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {DiagramId} from "../classDiagram/model";
+import {ElementType} from "../../package/packageModel";
+import {FC} from "react";
 
-export const DrawingMessage = (props: { lifelinePlacement: LifelinePlacement }) => {
+export interface DrawingMessageProps {
+    lifelineId: LifelineId
+    diagramId: DiagramId
+}
 
-    const linking = useAppSelector(state => selectSequenceDiagramEditor(state).linking)!;
-    const sourceLifeline = useAppSelector(state => selectSequenceDiagramEditor(state).diagram.lifelines[linking.sourceElement]);
-    const activations = useAppSelector(state => selectSequenceDiagramEditor(state).diagram.activations);
+export const DrawingMessage: FC<DrawingMessageProps> = ({lifelineId, diagramId}) => {
+
+    const linking = useRecoilValue(linkingAtom)
+    const lifelinePlacement = useRecoilValue(lifelinePlacementSelector({lifelineId, diagramId}))
+    const sourceLifeline = useRecoilValue(lifelineSelector({lifelineId: linking.sourceElement, diagramId}))
 
     const y = linking.diagramPos.y;
-    const lifelineY = Math.max(y - props.lifelinePlacement.headBounds.height, 0)
+    const lifelineY = Math.max(y - lifelinePlacement.headBounds.height, 0)
 
-    let sourceActivation = sourceLifeline.activations.map(id => activations[id])
+    let sourceActivation = sourceLifeline.activations
         .find(a => a.start <= lifelineY && a.start + a.length >= lifelineY);
     if (!sourceActivation) {
         sourceActivation = {start: lifelineY, length: 50, id: "dummy"} as ActivationState;
-        sourceActivation.placement = activationPlacement(sourceActivation, sourceLifeline.placement);
+        sourceActivation.placement = placeActivation(sourceActivation, sourceLifeline.placement);
     }
 
     const targetActivation: ActivationState = {
+        type: ElementType.SequenceActivation,
         id: "linking_target",
         start: y,
         length: 20,
@@ -34,15 +45,15 @@ export const DrawingMessage = (props: { lifelinePlacement: LifelinePlacement }) 
 
     const targetLifelinePlacement: LifelinePlacement = {
         headBounds: {
-            x: linking!.diagramPos.x - props.lifelinePlacement.headBounds.width / 2,
-            y: props.lifelinePlacement.headBounds.y,
-            width: props.lifelinePlacement.headBounds.width,
-            height: props.lifelinePlacement.headBounds.height
+            x: linking!.diagramPos.x - lifelinePlacement.headBounds.width / 2,
+            y: lifelinePlacement.headBounds.y,
+            width: lifelinePlacement.headBounds.width,
+            height: lifelinePlacement.headBounds.height
         },
-        lifelineEnd: props.lifelinePlacement.lifelineEnd
+        lifelineEnd: lifelinePlacement.lifelineEnd
     }
 
-    targetActivation.placement = activationPlacement(targetActivation, targetLifelinePlacement) ;
+    targetActivation.placement = placeActivation(targetActivation, targetLifelinePlacement) ;
     let messageActivationOffset = y - sourceActivation.placement.y;
     const placement = messagePlacement(sourceActivation, targetActivation, messageActivationOffset);
     return (

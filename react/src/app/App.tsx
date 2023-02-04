@@ -6,6 +6,9 @@ import {Divider, Stack, Typography} from "@mui/material";
 import {FilterDrama}  from '@mui/icons-material';
 
 export const App = () => {
+    // browser: browserSlice.reducer,
+    // toolbox: toolboxSlice.reducer,
+    // package: packageSlice.reducer
     return (
         <Stack direction="column">
             <Stack direction="row">
@@ -16,7 +19,6 @@ export const App = () => {
                 <Toolbox/>
                 <Divider/>
                 <DiagramTabs/>
-
             </Stack>
         </Stack>
     );

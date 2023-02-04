@@ -1,46 +1,48 @@
 import {Group, Line, Rect, Text} from "react-konva";
-import {lifelinePoints, LifelineState} from "./model";
-import React from "react";
+import {LifelineId, lifelinePlacement, lifelinePoints, LifelineState} from "./model";
+import React, {FC} from "react";
 import {Scaffold} from "../scaffold/Scaffold";
-import {useAppDispatch} from "../../app/hooks";
 import {Activation} from "./Activation";
 import {DrawingMessage} from "./DrawingMessage";
-import {nodeSelect} from "../diagramEditor/diagramEditorSlice";
+import {useRecoilState, useRecoilValue} from "recoil";
+import {elementsAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
+import {DiagramId} from "../classDiagram/model";
+import {Bounds} from "../../common/model";
 
 export interface LifelineProps {
-    isSelected: boolean;
-    isFocused: boolean;
-    isLinking: boolean;
-    lifeline: LifelineState;
+    lifelineId: LifelineId
+    diagramId: DiagramId
 }
 
+export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
+    const [selectedElements, setSelectedElements] = useRecoilState(selectedElementsAtom)
+    const isSelected = selectedElements.includes(lifelineId);
+    const isFocused = selectedElements.length > 0 && selectedElements.at(-1) === lifelineId;
+    const [placement, setPlacement] = useRecoilState(lifelinePlacement(lifelineId))
+    const lifeline = useRecoilValue(elementsAtom(lifelineId)) as LifelineState
+    function updatePlacement(newBounds: Bounds) {
+        setPlacement({...placement, headBounds: newBounds})
+    }
 
-export const Lifeline = (props: LifelineProps) => {
-    const dispatch = useAppDispatch()
-    const headBounds = props.lifeline.placement.headBounds;
     return (
         <Group>
             <Rect
                 fill={"cornsilk"}
                 stroke={"peru"}
                 strokeWidth={1}
-                {...headBounds}
-                x={headBounds.x}
+                {...placement.headBounds}
                 shadowColor={'black'}
                 shadowBlur={3}
                 shadowOffset={{x: 2, y: 2}}
                 shadowOpacity={0.4}
-                onClick={({evt: {ctrlKey, shiftKey}}) =>
-                    dispatch(nodeSelect({id: props.lifeline.id, shiftKey, ctrlKey}))
-                }
-            >
-            </Rect>
+                onClick={() => setSelectedElements([lifelineId])}
+            />
             <Text
-                {...headBounds}
+                {...placement.headBounds}
                 fontSize={14}
                 align={"center"}
                 verticalAlign={"middle"}
-                text={props.lifeline.title}
+                text={lifeline.title}
                 draggable={false}
                 listening={false}
                 preventDefault={true}
@@ -50,28 +52,30 @@ export const Lifeline = (props: LifelineProps) => {
                 strokeWidth={2}
                 dash={[5, 3]}
 
-                x={headBounds.x}
-                y={headBounds.y}
-                points={lifelinePoints(headBounds, props.lifeline.placement.lifelineEnd)}
+                x={placement.headBounds.x}
+                y={placement.headBounds.y}
+                points={lifelinePoints(placement.headBounds, placement.lifelineEnd)}
             />
-            {props.lifeline.activations.map((activation) =>
+            {lifeline.activations.map((activation, i) =>
                 <Activation
-                    key={activation}
-                    activationId={activation}
+                    key={i}
+                    activationId={activation.id}
+                    lifelineId={lifelineId}
+                    diagramId={diagramId}
                 />
             )
             }
-            {props.isSelected && (
+            {isSelected && (
                 <Scaffold
-                    elementId={props.lifeline.id}
+                    elementId={lifelineId}
                     bounds={{
-                        ...headBounds,
-                        height: headBounds.y + props.lifeline.placement.lifelineEnd
+                        ...placement.headBounds,
+                        height: placement.headBounds.y + placement.lifelineEnd
                     }}
-                    isFocused={props.isFocused}
-                    isLinking={props.isLinking}
-                    onResize={deltaBounds => dispatch(nodeResize({elementId: props.lifeline.id, deltaBounds}))}
-                    linkingDrawing={<DrawingMessage lifelinePlacement={props.lifeline.placement} /> }
+                    isFocused={isFocused}
+                    isLinking={false}
+                    onResize={e => updatePlacement(e)}
+                    linkingDrawing={<DrawingMessage lifelineId={lifelineId} diagramId={diagramId}  /> }
                 />
             )}
 

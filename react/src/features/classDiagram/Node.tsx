@@ -1,75 +1,85 @@
-import React from "react";
+import React, {FC} from "react";
 import {Rect, Text} from "react-konva";
 import {Port} from "./Port";
 import {Scaffold} from "../scaffold/Scaffold";
-import {
-    nodeResize,
-    selectClassDiagramEditor,
-} from "./classDiagramSlice";
-import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {DrawingLink} from "./DrawingLink";
+import {classDiagramSelector, DiagramId, NodeId, NodePlacement} from "./model";
+import {DefaultValue, selectorFamily, useRecoilState, useRecoilValue} from "recoil";
+import {elementsAtom, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
 import {NodeState} from "../../package/packageModel";
-import {NodePlacement} from "./model";
-import {nodeSelect} from "../diagramEditor/diagramEditorSlice";
+import {Bounds} from "../../common/model";
 
 export interface NodeProps {
-     isSelected: boolean;
-     isFocused: boolean;
-     isLinking: boolean;
-     node: NodeState;
-     nodePlacement: NodePlacement
+    nodeId: NodeId
+    diagramId: DiagramId
 }
 
-export const Node = (props: NodeProps) => {
+export const nodePlacement = selectorFamily<NodePlacement, {nodeId: NodeId, diagramId: DiagramId}>({
+    key: 'placements',
+    get: ({nodeId, diagramId}) => ({get}) => {
+        const diagram = get(classDiagramSelector(diagramId))
+        return diagram.nodes[nodeId]
+    },
+    set: ({nodeId, diagramId}) => ({set, get}, newValue) => {
+        const diagram = get(classDiagramSelector(diagramId))
+        if (!(newValue instanceof DefaultValue)) {
+            set(classDiagramSelector(diagramId), {...diagram, nodes: {...diagram.nodes, [nodeId]: newValue}})
+        }
+    }
+})
 
-    // TODO optimize for more detailed selector
-    const diagram = useAppSelector(state => selectClassDiagramEditor(state).diagram);
+export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
+    const node = useRecoilValue(elementsAtom(nodeId)) as NodeState
+    const [placement, setPlacement] = useRecoilState(nodePlacement({nodeId, diagramId}))
+    const [selectedElements, setSelectedElements] = useRecoilState(selectedElementsAtom)
+    const linking = useRecoilValue(linkingAtom)
 
-    const dispatch = useAppDispatch();
+    const isSelected = selectedElements.includes(nodeId);
+    const isFocused = selectedElements.length > 0 && selectedElements.at(-1) === nodeId;
+
+    function updatePlacement(newBounds: Bounds) {
+        setPlacement({...placement, bounds: newBounds})
+    }
 
     return (
         <React.Fragment>
             <Rect
                 fill={"cornsilk"}
                 stroke={"burlywood"}
-                {...props.nodePlacement}
+                {...placement.bounds}
                 cornerRadius={10}
                 cursor={"crosshair"}
                 //draggable
-                onClick={({evt: {ctrlKey, shiftKey}}) =>
-                    dispatch(nodeSelect({id: props.node.id, shiftKey, ctrlKey}))
+                onClick={() => setSelectedElements([nodeId])
                 }
-                onDragEnd={(e) => {
-                    const deltaBounds = {x: e.target.x(), y: e.target.y(), width: 0, height: 0};
-                    dispatch(nodeResize({ elementId: props.node.id, deltaBounds} ))
-                }}
+                //onDragEnd={(e) => updatePlacement(e)}
             />
-            {props.isSelected && (
+            {isSelected && (
                 <Scaffold
-                    elementId={props.node.id}
-                    bounds={props.nodePlacement}
-                    isFocused={props.isFocused}
-                    isLinking={props.isLinking}
-                    onResize={deltaBounds => {
-                        dispatch(nodeResize({ elementId: props.node.id, deltaBounds} ))
-                    }}
-                    linkingDrawing={<DrawingLink nodePlacement={props.nodePlacement}/>}
+                    elementId={nodeId}
+                    bounds={placement.bounds}
+                    isFocused={isFocused}
+                    isLinking={linking.drawing}
+                    onResize={e => updatePlacement(e)}
+                    linkingDrawing={<DrawingLink nodePlacement={placement.bounds}/>}
                 />
             )}
             <Text
-                {...props.nodePlacement}
+                {...placement.bounds}
                 fontSize={14}
                 align={"center"}
                 verticalAlign={"middle"}
-                text={props.node.text}
+                text={node.text}
                 draggable={false}
                 listening={false}
                 preventDefault={true}
             />
-            {props.node.ports.map((port, index) =>
+            {node.ports.map((port, index) =>
                 <Port
                     key={index}
-                    port={diagram.ports[port]}
+                    portId={port}
+                    nodeId={nodeId}
+                    diagramId={diagramId}
                 />
             )}
 

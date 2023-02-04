@@ -1,47 +1,50 @@
 import {Path} from "react-konva";
 import React from "react";
-import {linkPlacement, PortAlignment, portBounds, PortState} from "./model";
-import {Bounds, zeroBounds} from "../../common/model";
-import {useAppSelector} from "../../app/hooks";
-import {selectClassDiagramEditor} from "./classDiagramSlice";
+import {Bounds} from "../../common/model";
+import {ElementType, PortAlignment, PortState} from "../../package/packageModel";
+import {useRecoilValue} from "recoil";
+import {linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {renderLink} from "./model";
 
 export const DrawingLink = (props: { nodePlacement: Bounds }) => {
 
-    const linking = useAppSelector(state => selectClassDiagramEditor(state).linking!);
+    const linking = useRecoilValue(linkingAtom)
 
     const sourcePort: PortState = {
+        type: ElementType.ClassPort,
         id: "DrawingLinkSourcePort",
-        alignment: PortAlignment.Right,
         depthRatio: 50,
-        edgePosRatio: 50,
         latitude: 0,
-        longitude: 0,
-        placement: zeroBounds
+        longitude: 0
     }
-    sourcePort.placement = portBounds(props.nodePlacement, sourcePort)
-    const targetPort: PortState = {
-        id: "DrawingLinkTarget",
-        alignment: PortAlignment.Left,
-        depthRatio: 50,
-        edgePosRatio: 50,
-        latitude: 0,
-        longitude: 0,
-        placement: zeroBounds
-    }
-    targetPort.placement = {...linking.diagramPos, width: 0, height: 0}
+    // alignment: PortAlignment.Right,
+    // edgePosRatio: 50,
 
-    const placement = linkPlacement(sourcePort, targetPort);
+    //sourcePort.placement = portBounds(props.nodePlacement, sourcePort)
+    const targetPort: PortState = {
+        type: ElementType.ClassPort,
+        id: "DrawingLinkTarget",
+        depthRatio: 50,
+        latitude: 0,
+        longitude: 0,
+    }
+    // alignment: PortAlignment.Left,
+    // edgePosRatio: 50,
+
+    //targetPort.placement = {...linking.diagramPos, width: 0, height: 0}
+
+    // const placement = renderLink(sourcePort, targetPort);
     return (
         <>
-            {placement.svgPath.map((pathData, index) =>
-                <Path
-                    key={index}
-                    data={pathData}
-                    fill={undefined}
-                    strokeWidth={1.4}
-                    stroke={"brown"}
-                />
-            )}
+            {/*{placement.svgPath.map((pathData, index) =>*/}
+            {/*    <Path*/}
+            {/*        key={index}*/}
+            {/*        data={pathData}*/}
+            {/*        fill={undefined}*/}
+            {/*        strokeWidth={1.4}*/}
+            {/*        stroke={"brown"}*/}
+            {/*    />*/}
+            {/*)}*/}
         </>
     );
 

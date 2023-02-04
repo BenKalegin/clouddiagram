@@ -1,28 +1,32 @@
 import {Rect} from "react-konva";
-import {Id} from "../../common/model";
-import {useAppSelector} from "../../app/hooks";
-import {selectSequenceDiagramEditor} from "./sequenceDiagramSlice";
+import {useRecoilValue} from "recoil";
+import {ActivationId, activationPlacementSelector, LifelineId} from "./model";
+import {linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {DiagramId} from "../classDiagram/model";
 
 export interface ActivationProps {
-    activationId: Id
+    activationId: ActivationId
+    lifelineId: LifelineId
+    diagramId: DiagramId
 }
 
-export const Activation = (props: ActivationProps) => {
+export const Activation = ({activationId, lifelineId, diagramId}: ActivationProps) => {
 
-    const activation = useAppSelector(state => selectSequenceDiagramEditor(state).diagram.activations[props.activationId]);
-    const linkingTarget = useAppSelector(state => selectSequenceDiagramEditor(state).linking?.targetElement);
-    const linkingSource = useAppSelector(state => selectSequenceDiagramEditor(state).linking?.sourceElement);
+    const placement = useRecoilValue(activationPlacementSelector({activationId, lifelineId, diagramId}))
+    const linking = useRecoilValue(linkingAtom)
+    const linkingTarget = linking?.targetElement;
+    const linkingSource = linking?.sourceElement;
     return (
         <Rect
             fill={"cornsilk"}
             stroke={"peru"}
             strokeWidth={1}
-            shadowEnabled={activation.id === linkingTarget || activation.id === linkingSource}
+            shadowEnabled={activationId === linkingTarget || activationId === linkingSource}
             shadowColor={'black'}
             shadowBlur={3}
             shadowOffset={{x: 2, y: 2}}
             shadowOpacity={0.4}
-            {...activation.placement}
+            {...placement}
         >
         </Rect>
     )

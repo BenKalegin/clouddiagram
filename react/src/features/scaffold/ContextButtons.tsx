@@ -1,10 +1,9 @@
-import {Bounds, Coordinate, Id} from "../../common/model";
+import {Bounds, Coordinate} from "../../common/model";
 import React, {RefObject, useState} from "react";
 import {Group, Path, Rect} from "react-konva";
-import {useAppDispatch} from "../../app/hooks";
-import {startLinking} from "../classDiagram/classDiagramSlice";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
+import {Id} from "../../package/packageModel";
 
 interface ContextButtonProps {
     svgPath: string
@@ -56,20 +55,20 @@ interface ContextButtonsProps {
 }
 
 export const ContextButtons = (props: ContextButtonsProps) => {
-    const dispatch = useAppDispatch()
     const {y, x} = props.placement;
     return (
         <ContextButton
             svgPath={"m12 4-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"}
             placement={{x: x, y: y, width: 16, height: 16}}
             onMouseDown={(mousePos, relativePos) => {
-                dispatch(startLinking(
-                {
-                    elementId: props.elementId,
-                    mousePos: mousePos,
-                    relativePos: relativePos
+                // dispatch(startLinking(
+                // {
+                //     elementId: props.elementId,
+                //     mousePos: mousePos,
+                //     relativePos: relativePos
+                // }))
                 }
-                ))}}
+            }
         />
     )
 }

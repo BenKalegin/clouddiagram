@@ -1,6 +1,8 @@
-import {Coordinate} from "../../common/model";
-import {ElementType, Id} from "../../package/packageModel";
-import {WritableDraft} from "immer/dist/internal";
+import {Coordinate, Diagram} from "../../common/model";
+import {DiagramElement, ElementType, Id} from "../../package/packageModel";
+import {atom, atomFamily, selectorFamily} from "recoil";
+import {DiagramId} from "../classDiagram/model";
+import {elements} from "../demo";
 
 export interface Linking {
     sourceElement: Id
@@ -24,11 +26,6 @@ export interface Scrub {
 
 }
 
-enum DiagramEditorKind {
-    Class,
-    Sequence
-}
-
 export interface DiagramEditor {
     diagramId: Id
     diagramType: ElementType
@@ -45,4 +42,38 @@ export interface DiagramHandler {
 }
 
 
+export const elementsAtom = atomFamily<DiagramElement, Id>({
+    key: 'elements',
+    default: id => elements[id] as DiagramElement
+})
 
+export const diagramTitleSelector = selectorFamily<string | undefined, DiagramId | undefined>({
+    key: 'diagram',
+    get: (id) => ({get}) => {
+        if (!id)
+            return "New diagram";
+        const diagram = get(elementsAtom(id)) as Diagram;
+        return diagram ? diagram.title : "Unknown " + id
+    }
+})
+
+export const diagramKindSelector = selectorFamily<ElementType, DiagramId>({
+    key: 'diagram',
+    get: (id) => ({get}) => get(elementsAtom(id)).type
+})
+
+export const linkingAtom = atom<Linking>({
+    key: 'linking',
+    default: {
+    } as Linking,
+})
+
+export const selectedElementsAtom = atom<Id[]>({
+    key: 'selectedElements',
+    default: [],
+})
+
+export const snapGridSizeAtom = atom<number>({
+    key: 'snapGridSize',
+    default: 10,
+})

@@ -1,17 +1,18 @@
 import {FormEvent, useCallback, useState} from "react";
-import {nodeCloseProperties, selectClassDiagramEditor} from "../classDiagramSlice";
-import {useAppDispatch, useAppSelector} from "../../../app/hooks";
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from "@mui/material";
+import {useRecoilValue} from "recoil";
+import {elementsAtom, selectedElementsAtom} from "../../diagramEditor/diagramEditorModel";
+import {NodeState} from "../../../package/packageModel";
 
 export const NodePropertiesDialog = () => {
-    const editor = useAppSelector(state => selectClassDiagramEditor(state));
-    const node = editor.diagram.nodes[editor.selectedElements[0]];
-    const dispatch = useAppDispatch()
+
+    const selectedId = useRecoilValue(selectedElementsAtom)[0];
+    const node = useRecoilValue(elementsAtom(selectedId)) as NodeState
 
     const [name, setName] = useState<string | undefined>(undefined);
 
     function toggleHideDialog(save: boolean) {
-        dispatch(nodeCloseProperties({save, node: node.id, text: name ?? ''}))
+        //dispatch(nodeCloseProperties({save, node: node.id, text: name ?? ''}))
         setName('')
     }
 
@@ -27,7 +28,7 @@ export const NodePropertiesDialog = () => {
     const coercedName = name ?? node?.text;
     return (
         <Dialog
-            open={!!editor.isNodePropsDialogOpen}
+            open = {false} //  {!!editor.isNodePropsDialogOpen}
             onClose={() => toggleHideDialog(false)}
         >
             <DialogTitle>{coercedName + ' properties'}</DialogTitle>

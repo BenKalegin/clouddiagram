@@ -1,11 +1,13 @@
 import React from "react";
 import {Path} from "react-konva";
-import {LinkState} from "./model";
+import {DiagramId, LinkId, linkPlacementSelector, NodeId} from "./model";
+import {useRecoilValue} from "recoil";
 
-export const Link = function (link: LinkState) {
+export const Link = ({linkId, nodeId, diagramId}: {linkId: LinkId, nodeId: NodeId, diagramId: DiagramId}) => {
+    const placement = useRecoilValue(linkPlacementSelector({linkId, nodeId, diagramId}))
     return (
         <>
-            {link.placement.svgPath.map((pathData, index) =>
+            {placement.svgPath.map((pathData, index) =>
                 <Path
                     key={index}
                     data={pathData}

@@ -1,5 +1,3 @@
-import {linkToNewDialogClose, selectClassDiagramEditor} from "../classDiagramSlice";
-import {useAppDispatch, useAppSelector} from "../../../app/hooks";
 import {
     Button,
     Dialog,
@@ -10,16 +8,17 @@ import {
 } from "@mui/material";
 import React from "react";
 import {galleryGroups, GalleryItem} from "../../toolbox/models";
+import {useRecoilValue} from "recoil";
+import {linkingAtom} from "../../diagramEditor/diagramEditorModel";
 
 
 export const LinkToNewDialog = () => {
-    const linking = useAppSelector(state => selectClassDiagramEditor(state).linking);
+    const linking = useRecoilValue(linkingAtom)
     const source = linking?.sourceElement;
-    const dispatch = useAppDispatch()
     const items = galleryGroups.filter(group => group.key === "class").flatMap(group => group.items);
 
     function toggleHideDialog(item?: GalleryItem) {
-        dispatch(linkToNewDialogClose({selectedKey: item?.key, selectedName: item?.name, success: !!item}));
+        //dispatch(linkToNewDialogClose({selectedKey: item?.key, selectedName: item?.name, success: !!item}));
     }
 
     const pos = {

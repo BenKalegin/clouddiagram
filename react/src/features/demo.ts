@@ -1,58 +1,70 @@
 import {
     ClassDiagramState,
-    LinkPlacement,
-    linkPlacement,
     NodePlacement,
-    portBounds,
-    PortPlacement
+    LinkPlacement, PortPlacement
 } from "./classDiagram/model";
 import {zeroBounds} from "../common/model";
-import {ClassDiagramEditor} from "./classDiagram/classDiagramSlice";
 import {
-    activationPlacement,
     ActivationState,
     lifelineDefaultHeight,
     lifelineDefaultWidth,
-    lifelineHeadY, LifelinePlacement,
+    lifelineHeadY,
+    LifelinePlacement,
     LifelineState,
     MessageKind,
     messagePlacement,
     MessageState,
+    placeActivation,
     SequenceDiagramState
 } from "./sequenceDiagram/model";
-import {OpenDiagrams} from "./diagramTabs/diagramTabsSlice";
-import {SequenceDiagramEditor} from "./sequenceDiagram/sequenceDiagramSlice";
-import {ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../package/packageModel";
+import {DiagramElement, ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../package/packageModel";
 
-export const getClassDemoDiagram = (): ClassDiagramState => {
+
+export const elements: {[id: Id]: DiagramElement } = {
+}
+
+export const getClassDemoDiagram = (id: string, title: string): ClassDiagramState => {
     const port11: PortState = {
         type: ElementType.ClassPort,
         id: "port11",
-        edgePosRatio: 50,
-        alignment: PortAlignment.Right,
         depthRatio: 50,
         latitude: 8,
         longitude: 8
+    }
+    elements[port11.id] = port11;
+
+    const port11Placement: PortPlacement = {
+        edgePosRatio: 50,
+        alignment: PortAlignment.Right,
     }
 
     const port12: PortState = {
         type: ElementType.ClassPort,
         id: "port12",
-        edgePosRatio: 50,
-        alignment: PortAlignment.Top,
         depthRatio: 50,
         latitude: 8,
         longitude: 8
+    }
+    elements[port12.id] = port12;
+
+    const port12Placement: PortPlacement = {
+        edgePosRatio: 50,
+        alignment: PortAlignment.Top,
     }
 
     const port13: PortState = {
         type: ElementType.ClassPort,
         id: "port13",
-        edgePosRatio: 50,
-        alignment: PortAlignment.Bottom,
         depthRatio: 50,
         latitude: 8,
         longitude: 8,
+    }
+    elements[port13.id] = port13;
+
+
+    const port13Placement: PortPlacement = {
+        edgePosRatio: 50,
+        alignment: PortAlignment.Bottom,
     }
 
     const node1: NodeState = {
@@ -65,22 +77,36 @@ export const getClassDemoDiagram = (): ClassDiagramState => {
         ],
         text: "Alice",
     };
+    elements[node1.id] = node1;
 
     const node1Placement: NodePlacement = {
-        y: 50,
-        x: 50,
-        width: 100,
-        height: 80
+        bounds: {
+            y: 50,
+            x: 50,
+            width: 100,
+            height: 80
+        }
     }
 
     const port2: PortState = {
         type: ElementType.ClassPort,
         id: "port21",
-        edgePosRatio: 50,
-        alignment: PortAlignment.Left,
         depthRatio: 50,
         latitude: 8,
         longitude: 8,
+    }
+    elements[port2.id] = port2;
+
+    const port2Placement: PortPlacement = {
+        alignment: PortAlignment.Left,
+        edgePosRatio: 50,
+    }
+
+    const portPlacements:  {[id: Id]: PortPlacement} = {
+        [port11.id]: port11Placement,
+        [port12.id]: port12Placement,
+        [port13.id]: port13Placement,
+        [port2.id]: port2Placement
     }
 
     const node2: NodeState = {
@@ -91,35 +117,20 @@ export const getClassDemoDiagram = (): ClassDiagramState => {
         ],
         text: "Bob",
     };
+    elements[node2.id] = node2;
 
     const node2Placement: NodePlacement = {
-        y: 300,
-        x: 300,
-        width: 100,
-        height: 80
+        bounds: {
+            y: 300,
+            x: 300,
+            width: 100,
+            height: 80
+        }
     }
-
-    const nodes: NodeState[] = [
-        node1,
-        node2,
-    ]
 
     const nodePlacements: { [id: Id]: NodePlacement } = {
         [node1.id]: node1Placement,
         [node2.id]: node2Placement
-    }
-
-    const ports: { [id: Id]: PortState } = {
-        [port11.id]: port11,
-        [port12.id]: port12,
-        [port13.id]: port13,
-        [port2.id]: port2
-    }
-
-    const portPlacements: { [id: Id]: PortPlacement } = {}
-
-    for (let node of Object.values(nodes)) {
-        node.ports.map(portId => portPlacements[portId] = portBounds(nodePlacements[node.id], ports[portId]!));
     }
 
     const link1: LinkState = {
@@ -129,36 +140,29 @@ export const getClassDemoDiagram = (): ClassDiagramState => {
         port2: port2.id,
     };
 
+    elements[link1.id] = link1;
+
     const linkPlacements: { [id: Id]: LinkPlacement } = {}
 
 
-    const links: { [id: Id]: LinkState } = {
-        [link1.id]: link1
-    }
-
-    for (let link of Object.values(links)) {
-        linkPlacements[link.id] = linkPlacement(ports[link.port1], ports[link.port2]);
-    }
-
     return {
+        id: id,
+        title: title,
+        type: ElementType.ClassDiagram,
         nodes: nodePlacements,
-        links: linkPlacements,
-        ports: portPlacements
+        ports: portPlacements,
+        links: linkPlacements
     };
 };
 
 export const getSequenceDemoDiagram = (): SequenceDiagramState => {
-    const activation1 = {
+    const activation1: ActivationState = {
+        type: ElementType.SequenceActivation,
         id: 'act1',
         start: 50,
         length: 100,
         placement: zeroBounds
     };
-    const lifeLine1: LifelineState = {
-        id: 'line1',
-        title: 'Alice',
-        activations: [activation1.id],
-    }
 
     const lifeline1Placement: LifelinePlacement = {
         headBounds: {
@@ -170,35 +174,49 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         lifelineEnd: 200,
     }
 
-    const activation2 = {
+
+    const lifeline1: LifelineState = {
+        placement: lifeline1Placement,
+        type: ElementType.SequenceLifeLine,
+        id: 'line1',
+        title: 'Alice',
+        activations: [activation1]
+    }
+
+    const activation2: ActivationState = {
+        type: ElementType.SequenceActivation,
         id: 'act2',
         start: 50,
         length: 100,
         placement: zeroBounds
     };
-    const lifeLine2: LifelineState = {
-        id: 'line2',
-        title: 'Bob',
-        activations: [activation2.id],
-    }
 
     const lifeline2Placement: LifelinePlacement = {
         headBounds: {
             x: 320,
-                y: lifelineHeadY,
-                width: lifelineDefaultWidth,
-                height: lifelineDefaultHeight
+            y: lifelineHeadY,
+            width: lifelineDefaultWidth,
+            height: lifelineDefaultHeight
         },
         lifelineEnd: 200,
     }
 
-    const lifelinePlacements: { [id: Id]: LifelinePlacement } = {
-        [lifeLine1.id]: lifeline1Placement,
-        [lifeLine2.id]: lifeline2Placement
+    const lifeline2: LifelineState = {
+        type: ElementType.SequenceLifeLine,
+        id: 'line2',
+        title: 'Bob',
+        activations: [activation2],
+        placement: lifeline2Placement
+    }
+
+    const lifelines: { [id: Id]: LifelineState } = {
+        [lifeline1.id]: lifeline1,
+        [lifeline2.id]: lifeline2
     }
 
     const message1: MessageState =
     {
+        type: ElementType.SequenceMessage,
         kind: MessageKind.Call,
         id: 'message1',
         sourceActivation: 'act1',
@@ -221,7 +239,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
 
     for (let lifeline of Object.values(lifelines))
         for(let activation of lifeline.activations)
-            activations[activation].placement = activationPlacement(activations[activation], lifeline.placement);
+            activation.placement = placeActivation(activation, lifeline.placement);
 
     for (let message of Object.values(messages))
         message.placement = messagePlacement(activations[message.sourceActivation], activations[message.targetActivation], message.sourceActivationOffset);
@@ -229,36 +247,22 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
     return {
         lifelines,
         messages,
-        activations
-    }
+        type: ElementType.SequenceDiagram,
+        id: 'sequence-d-1',
+        title: 'Demo Sequence Diagram'
+    } as SequenceDiagramState
 }
 
-export const demoClassDiagramEditor = (title: string): ClassDiagramEditor => {
-    return {
-        diagram: {...getClassDemoDiagram(), title: title},
-        selectedElements: [],
-        type: DiagramEditorType.Class,
-        snapGridSize: 5
-    }
-}
+const demoDiagram1 = getClassDemoDiagram( "class-d-1", "Demo Class Diagram 1")
+const demoDiagram2 = getClassDemoDiagram( "class-d-2", "Demo Class Diagram 2")
+const demoDiagram3 = getSequenceDemoDiagram()
 
-export const demoSequenceDiagramEditor = (title: string): SequenceDiagramEditor => {
-    return {
-        diagram: {...getSequenceDemoDiagram(), title: title},
-        selectedElements: [],
-        type: DiagramEditorType.Sequence,
-        snapGridSize: 5
-    }
-}
+elements[demoDiagram1.id] = demoDiagram1;
+elements[demoDiagram2.id] = demoDiagram2;
+elements[demoDiagram3.id] = demoDiagram3;
 
-export const demoDiagramEditors: OpenDiagrams = {
-    activeIndex: 0,
-    editors: [
-        demoClassDiagramEditor("Demo Class 1"),
-        demoClassDiagramEditor("Demo Class 2"),
-        demoSequenceDiagramEditor("Demo Sequence 1"),
-    ]
-}
+export const demoActiveDiagramId = demoDiagram1.id;
+export const demoOpenDiagramIds = [demoDiagram1.id, demoDiagram2.id, demoDiagram3.id];
 
 
 

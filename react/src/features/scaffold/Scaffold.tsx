@@ -1,11 +1,12 @@
-import React, {useEffect} from "react";
-import {Bounds, Id, inflate} from "../../common/model";
+import React, {RefObject, useEffect} from "react";
+import {Bounds, Coordinate, inflate} from "../../common/model";
 import {Background} from "./Background";
 import {ResizeHandles} from "./ResizeHandle";
 import {FocusFrame} from "./FocusFrame";
 import {ContextButtons} from "./ContextButtons";
-import {useAppDispatch} from "../../app/hooks";
-import {continueLinking, endLinking} from "../classDiagram/classDiagramSlice";
+import {Id} from "../../package/packageModel";
+import Konva from "konva";
+import {Group} from "react-konva";
 
 export interface ScaffoldProps {
     bounds: Bounds;
@@ -18,23 +19,21 @@ export interface ScaffoldProps {
 
 export const Scaffold = (props: ScaffoldProps) => {
 
-    const dispatch = useAppDispatch()
-
     useEffect(() => {
         const handleMouseMove = (event: MouseEvent) => {
-            if (props.isFocused && props.isLinking) {
-            dispatch(continueLinking({
-                mousePos: {x: event.clientX, y: event.clientY},
-                ctrlKey: event.ctrlKey,
-                shiftKey: event.shiftKey,
-                elementId: props.elementId}))
-            }
+            // if (props.isFocused && props.isLinking) {
+            // dispatch(continueLinking({
+            //     mousePos: {x: event.clientX, y: event.clientY},
+            //     ctrlKey: event.ctrlKey,
+            //     shiftKey: event.shiftKey,
+            //     elementId: props.elementId}))
+            // }
         };
 
         const handleMouseUp = () => {
-            if (props.isFocused && props.isLinking) {
-                dispatch(endLinking())
-            }
+            // if (props.isFocused && props.isLinking) {
+            //     dispatch(endLinking())
+            // }
         };
 
         window.addEventListener('mousemove', handleMouseMove);
@@ -52,6 +51,15 @@ export const Scaffold = (props: ScaffoldProps) => {
         };
     });
 
+    const onMove = (newCoordinate: Coordinate) => {
+        const newBounds = {
+            x: newCoordinate.x,
+            y: newCoordinate.y,
+            width: props.bounds.width,
+            height: props.bounds.height
+        }
+        props.onResize(newBounds)
+    }
 
     const bounds = inflate(props.bounds, 12, 12);
     const buttonsPosition = {
@@ -61,7 +69,15 @@ export const Scaffold = (props: ScaffoldProps) => {
 
     return (
         <>
-            <Background backgroundBounds={bounds} nodeBounds={props.bounds}/>
+            <Background
+                backgroundBounds={bounds}
+                nodeBounds={props.bounds}
+                startNodeMove={newCoordinate => onMove(newCoordinate)}
+                continueNodeMove={newCoordinate => onMove(newCoordinate)}
+                endNodeMove={newCoordinate => onMove(newCoordinate)}
+                doubleClick={() => console.log("double click")}
+
+            />
             <ResizeHandles perimeterBounds={bounds} nodeBounds={props.bounds}  onResize={newBounds => props.onResize(newBounds)}/>
             {props.isFocused && <FocusFrame bounds={bounds} />}
             {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.elementId}/>}

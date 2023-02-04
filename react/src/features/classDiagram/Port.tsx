@@ -1,23 +1,23 @@
 import {Circle} from "react-konva";
 import React, {useState} from "react";
-import {PortState} from "./model";
-
+import {useRecoilValue} from "recoil";
+import {DiagramId, NodeId, PortId, portPlacementSelector, portRenderSelector, portSelector} from "./model";
 
 export interface PortProps {
-    port: PortState;
+    portId: PortId
+    nodeId: NodeId
+    diagramId: DiagramId
 }
+export const Port = ({diagramId, nodeId, portId}: PortProps) => {
+    const port = useRecoilValue(portSelector(portId))
+    const render = useRecoilValue(portRenderSelector({portId, nodeId, diagramId}))
+    const [isHover, setIsHover] = useState(false)
 
-
-export const Port = function (props: PortProps) {
-
-    const [isHover, setIsHover] = useState(false);
-
-    const bounds = props.port.placement;
     return (
         <Circle
-            x={bounds.x + bounds.width / 2}
-            y={bounds.y + bounds.height / 2}
-            radius={props.port.latitude / 2}
+            x={render.bounds.x + render.bounds.width / 2}
+            y={render.bounds.y + render.bounds.height / 2}
+            radius={port.latitude / 2}
             stroke={"burlywood"}
             fill={isHover ? "burlywood": "cornsilk"}
             onMouseEnter={() => {setIsHover(true)}}

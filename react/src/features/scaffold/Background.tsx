@@ -1,20 +1,24 @@
-import {Bounds, Coordinate, Id, zeroCoordinate} from "../../common/model";
+import {Bounds, Coordinate, zeroCoordinate} from "../../common/model";
 import React from "react";
-import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {Rect} from "react-konva";
-import {nodeShowProperties, selectClassDiagramEditor} from "../classDiagram/classDiagramSlice";
-import {snapToGrid} from "../../common/Geometry/snap";
-import {continueNodeResize, endNodeResize, startLinking, startNodeResize} from "../diagramEditor/diagramEditorSlice";
+import Konva from "konva";
+import KonvaEventObject = Konva.KonvaEventObject;
 
 export interface BackgroundProps {
     backgroundBounds: Bounds;
     nodeBounds: Bounds;
-    element: Id
+    startNodeMove: (pos: Coordinate) => void
+    continueNodeMove: (pos: Coordinate) => void
+    endNodeMove: (pos: Coordinate) => void
+    doubleClick: () => void
 }
 
 export const Background = (props: BackgroundProps) => {
-    const dispatch = useAppDispatch()
-    const snapGridSize = useAppSelector(state => selectClassDiagramEditor(state).snapGridSize)
+
+    function screenToCanvas(e: KonvaEventObject<DragEvent>) {
+        const stage = e.target.getStage()?.getPointerPosition() ?? zeroCoordinate;
+        return {x: e.evt.x - stage.x, y: e.evt.y - stage.y};
+    }
 
     return (
         <Rect
@@ -26,31 +30,10 @@ export const Background = (props: BackgroundProps) => {
             stroke={""}
             strokeWidth={0}
             draggable={true}
-            onDragStart={(e) => {
-                dispatch(startNodeResize({
-                    elementId: props.element,
-                    mousePos: {x: e.evt.x, y: e.evt.y},
-                    relativePos: {x: props.nodeBounds.x, y: props.nodeBounds.y }
-                }))
-            }}
-
-            onDragMove={(e) => {
-                dispatch(continueNodeResize({
-                    elementId: props.element,
-                    mousePos: {x: e.evt.x, y: e.evt.y},
-                    relativePos: {x: props.nodeBounds.x, y: props.nodeBounds.y }
-                }))
-            }}
-
-            onDragEnd={(e) => {
-                dispatch(endNodeResize({
-                    elementId: props.element,
-                    mousePos: {x: e.evt.x, y: e.evt.y},
-                    relativePos: {x: props.nodeBounds.x, y: props.nodeBounds.y }
-                }))
-            }}
-
-            onDblClick={() => dispatch(nodeShowProperties())}
+            onDragStart={(e) => props.startNodeMove(screenToCanvas(e))}
+            onDragMove={(e) => props.continueNodeMove(screenToCanvas(e))}
+            onDragEnd={(e) => props.endNodeMove(screenToCanvas(e))}
+            onDblClick={() => props.doubleClick()}
         />
     );
 };

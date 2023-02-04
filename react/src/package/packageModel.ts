@@ -27,13 +27,6 @@ export enum PortAlignment {
 }
 
 export interface PortState extends DiagramElement {
-    alignment: PortAlignment;
-    /**
-     * Percentage of edge wide where the port center is located, counting from left or top
-     * For example, 50 for the top oriented is the center of the top edge
-     */
-    edgePosRatio: number
-
     /**
      * Percentage of the port going deep inside the node.
      * - 0 means the port is on the edge of the node pointing outward
@@ -62,11 +55,5 @@ export interface LinkState extends DiagramElement {
     port1: Id;
     port2: Id;
 }
-
-// export interface ClassDiagramState  {
-//     nodes: { [id: Id]: NodeState };
-//     links: { [id: Id]: LinkState };
-//     ports: { [id: Id]: PortState };
-// }
 
 

@@ -1,4 +1,4 @@
-import {DiagramElement} from "../package/packageModel";
+import {DiagramElement, Id} from "../package/packageModel";
 
 export interface Coordinate {
     y: number;
@@ -46,3 +46,9 @@ export interface ConnectorPlacement {
     y: number;
     points: number[];
 }
+
+// export const generateId = (): Id => {
+//     return nanoid(6);
+// }
+
+

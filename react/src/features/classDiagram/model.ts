@@ -1,38 +1,68 @@
-import {Bounds, Coordinate, Diagram} from "../../common/model";
+import {Bounds, Diagram} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
-import {WritableDraft} from "immer/dist/internal";
-import {current} from "@reduxjs/toolkit";
-import {generateId} from "./classDiagramSlice";
-import {Id, PortAlignment, PortState} from "../../package/packageModel";
-import {store} from "../../app/store";
-import {selectElementById} from "../../package/packageSlice";
+import {Id, LinkState, PortAlignment, PortState} from "../../package/packageModel";
+import {selectorFamily} from "recoil";
+import {elementsAtom} from "../diagramEditor/diagramEditorModel";
 
+export type NodePlacement = {
+    bounds: Bounds
+}
+
+export interface PortPlacement {
+    alignment: PortAlignment;
+    /**
+     * Percentage of edge wide where the port center is located, counting from left or top
+     * For example, 50 for the top oriented is the center of the top edge
+     */
+    edgePosRatio: number
+}
+
+export enum CornerStyle {
+    Straight,
+}
 export interface LinkPlacement {
+    cornerStyle: CornerStyle;
+}
+
+export interface LinkRender {
     svgPath: string[];
 }
 
-export type NodePlacement = Bounds
-export type PortPlacement = Bounds
-
-export interface ClassDiagramState extends Diagram {
-    nodes: { [id: Id]: NodePlacement };
-    links: { [id: Id]: LinkPlacement };
-    ports: { [id: Id]: PortPlacement };
+export type PortRender = {
+    bounds: Bounds
 }
 
-export const portBounds = (nodePlacement: Bounds, port: PortState): Bounds => {
+export interface ClassDiagramState extends Diagram {
+    nodes: { [id: NodeId]: NodePlacement };
+    ports: { [id: PortId]: PortPlacement };
+    links: { [id: LinkId]: LinkPlacement };
+}
 
-    switch (port.alignment) {
+export type NodeId = Id;
+export type PortId = Id;
+export type LinkId = Id;
+export type DiagramId = Id;
+
+
+const portRender = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): PortRender => {
+    return {
+        bounds: portBounds(nodePlacement, port, portPlacement)
+    }
+}
+export const portBounds = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): Bounds => {
+
+    switch (portPlacement.alignment) {
         case PortAlignment.Top:
             return {
-                x: nodePlacement.x + nodePlacement.width * port.edgePosRatio / 100 - port.latitude / 2,
+                x: nodePlacement.x + nodePlacement.width * portPlacement.edgePosRatio / 100 - port.latitude / 2,
                 y: nodePlacement.y - port.longitude * (100 - port.depthRatio) / 100,
                 width: port.latitude,
                 height: port.longitude
             }
+
         case PortAlignment.Bottom:
             return {
-                x: nodePlacement.x + nodePlacement.width * port.edgePosRatio / 100 - port.latitude / 2,
+                x: nodePlacement.x + nodePlacement.width * portPlacement.edgePosRatio / 100 - port.latitude / 2,
                 y: nodePlacement.y + nodePlacement.height - port.longitude * port.depthRatio / 100,
                 width: port.latitude,
                 height: port.longitude
@@ -40,29 +70,89 @@ export const portBounds = (nodePlacement: Bounds, port: PortState): Bounds => {
         case PortAlignment.Left:
             return {
                 x: nodePlacement.x - port.longitude * (100 - port.depthRatio) / 100,
-                y: nodePlacement.y + nodePlacement.height * port.edgePosRatio / 100 - port.latitude / 2,
+                y: nodePlacement.y + nodePlacement.height * portPlacement.edgePosRatio / 100 - port.latitude / 2,
                 width: port.latitude,
                 height: port.longitude
             }
         case PortAlignment.Right:
             return {
                 x: nodePlacement.x + nodePlacement.width - port.longitude * port.depthRatio / 100,
-                y: nodePlacement.y + nodePlacement.height * port.edgePosRatio / 100 - port.latitude / 2,
+                y: nodePlacement.y + nodePlacement.height * portPlacement.edgePosRatio / 100 - port.latitude / 2,
                 width: port.latitude,
                 height: port.longitude
             };
         default:
-            throw new Error("Unknown port alignment:" + port.alignment);
+            throw new Error("Unknown port alignment:" + portPlacement.alignment);
     }
 }
 
-export const linkPlacement = (sourcePort: PortState, targetPort: PortState): LinkPlacement => {
+export const classDiagramSelector = selectorFamily<ClassDiagramState, DiagramId>({
+    key: 'classDiagram',
+    get: (id) => ({get}) => {
+        return get(elementsAtom(id)) as ClassDiagramState;
+    },
+    set: (id) => ({set}, newValue) => {
+        set(elementsAtom(id), newValue);
+    }
+})
+
+export const nodePlacementSelector = selectorFamily<NodePlacement, {nodeId: NodeId, diagramId: DiagramId}>({
+    key: 'nodePlacement',
+    get: ({nodeId, diagramId}) => ({get}) => {
+        const diagram = get(classDiagramSelector(diagramId));
+        return diagram.nodes[nodeId];
+    }
+})
+
+export const portSelector = selectorFamily<PortState, PortId>({
+    key: 'port',
+    get: (portId) => ({get}) => {
+        return get(elementsAtom(portId)) as PortState;
+    }
+})
+
+
+export const portPlacementSelector = selectorFamily<PortPlacement, {portId: Id, diagramId: Id}>({
+    key: 'portPlacement',
+    get: ({portId, diagramId}) => ({get}) => {
+        const diagram = get(classDiagramSelector(diagramId));
+        return diagram.ports[portId];
+    }
+})
+
+export const portRenderSelector = selectorFamily<PortRender, {portId: Id, nodeId: Id, diagramId: Id}>({
+    key: 'portRender',
+    get: ({portId, nodeId, diagramId}) => ({get}) => {
+        const nodePlacement = get(nodePlacementSelector({nodeId, diagramId}));
+        const port = get(portSelector(portId));
+        const portPlacement = get(portPlacementSelector({portId, diagramId}));
+        return portRender(nodePlacement.bounds, port, portPlacement);
+    }
+})
+
+
+export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+                           targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement): LinkRender => {
 
     return {
         // svgPath: PathGenerators.Smooth(link, [p1, p2], p1, p2).path
-        svgPath: PathGenerators.Straight([], sourcePort, targetPort).path
+        svgPath: PathGenerators.Straight([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
     };
 }
+
+export const linkPlacementSelector = selectorFamily<LinkRender, {linkId: LinkId, nodeId: NodeId, diagramId: DiagramId}>({
+    key: 'linkPlacement',
+    get: ({linkId, nodeId, diagramId}) => ({get}) => {
+        const link = get(elementsAtom(linkId)) as LinkState;
+        const sourcePort = get(portSelector(link.port1));
+        const targetPort = get(portSelector(link.port2));
+        const sourceRender = get(portRenderSelector({portId: link.port1, nodeId, diagramId}));
+        const targetRender = get(portRenderSelector({portId: link.port2, nodeId, diagramId}));
+        const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId}));
+        const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId}));
+        return renderLink(sourcePort, sourceRender.bounds, sourcePlacement,  targetPort, targetRender.bounds, targetPlacement);
+    }
+})
 
 export const nodePlacementAfterResize = (nodePlacement: Bounds, newBounds: Bounds): Bounds => {
     return {
@@ -74,83 +164,88 @@ export const nodePlacementAfterResize = (nodePlacement: Bounds, newBounds: Bound
     }
 }
 
-export function resizeNode(diagram: WritableDraft<ClassDiagramState>, newBounds: Bounds, elementId: Id) {
-    const oldNode = current(diagram).nodes[elementId];
+// export function resizeNode(diagramId: Id, newBounds: Bounds, elementId: Id) {
+//
+//     const node = useRecoilValue(selectedElementsAtom) as NodeState;
+//
+//
+//     const oldNode = current(diagram).nodes[elementId];
+//
+//     const nodePlacement = nodePlacementAfterResize(oldNode, newBounds);
+//     diagram.nodes[elementId] = nodePlacement;
+//
+//     const diagram = selectElementById(store.getState(), current(diagram).id);
+//     const portAffected = node.ports.map(port => diagram.ports[port]);
+//     const portPlacements: { [id: Id]: Bounds } = {};
+//
+//     portAffected.forEach(port => {
+//         const bounds = portBounds(nodePlacement, port);
+//         portPlacements[port.id] = bounds;
+//         port.placement = bounds;
+//     });
+//
+//     const links: { [id: Id]: LinkState } = current(diagram.links);
+//     for (let link of Object.values(links)) {
+//         const bounds1 = portPlacements[link.port1];
+//         const bounds2 = portPlacements[link.port2];
+//         if (bounds1 || bounds2) {
+//             diagram.links[link.id].placement = linkPlacement(
+//                 diagram.ports[link.port1],
+//                 diagram.ports[link.port2]);
+//         }
+//     }
+// }
 
-    const nodePlacement = nodePlacementAfterResize(oldNode, newBounds);
-    diagram.nodes[elementId] = nodePlacement;
-
-    const diagram = selectElementById(store.getState(), current(diagram).id);
-    const portAffected = node.ports.map(port => diagram.ports[port]);
-    const portPlacements: { [id: Id]: Bounds } = {};
-
-    portAffected.forEach(port => {
-        const bounds = portBounds(nodePlacement, port);
-        portPlacements[port.id] = bounds;
-        port.placement = bounds;
-    });
-
-    const links: { [id: Id]: LinkState } = current(diagram.links);
-    for (let link of Object.values(links)) {
-        const bounds1 = portPlacements[link.port1];
-        const bounds2 = portPlacements[link.port2];
-        if (bounds1 || bounds2) {
-            diagram.links[link.id].placement = linkPlacement(
-                diagram.ports[link.port1],
-                diagram.ports[link.port2]);
-        }
-    }
-}
-
-export function addNewElementAt(diagram: WritableDraft<ClassDiagramState>, id: string, droppedAt: Coordinate, name: string) {
-    const defaultWidth = 100;
-    const defaultHeight = 80;
-
-    const result = {
-        id,
-        text: name,
-        ports: [],
-        placement: {
-            x: droppedAt.x - defaultWidth / 2,
-            y: droppedAt.y,
-            width: defaultWidth,
-            height: defaultHeight
-        }
-    };
-    diagram.nodes[id] = result
-    return result;
-}
-
-
-export function autoConnectNodes(diagram: WritableDraft<ClassDiagramState>, sourceId: Id, targetId: Id) {
-    const source = diagram.nodes[sourceId];
-    const target = diagram.nodes[targetId];
-
-    function addNewPort(node: WritableDraft<NodeState>, alignment: PortAlignment) {
-        const result: PortState = {
-            id: generateId(),
-            edgePosRatio: 50,
-            alignment: alignment,
-            depthRatio: 50,
-            latitude: 8,
-            longitude: 8,
-            placement: {} as Bounds,
-        }
-        result.placement = nodePlacementAfterResize(node, portBounds(node.placement, result));
-        node.ports.push(result.id);
-        diagram.ports[result.id] = result;
-        return result
-    }
-
-    const sourcePort = addNewPort(source, PortAlignment.Right);
-
-    const targetPort = addNewPort(target, PortAlignment.Left);
-
-    const linkId = "link-" + sourceId + "-" + targetId;
-    diagram.links[linkId] = {
-        id: linkId,
-        port1: sourcePort.id,
-        port2: targetPort.id,
-        placement: linkPlacement(sourcePort, targetPort)
-    }
-}
+// export function addNewElementAt(diagram: WritableDraft<ClassDiagramState>, id: string, droppedAt: Coordinate, name: string) {
+//
+//     const defaultWidth = 100;
+//     const defaultHeight = 80;
+//
+//     const result = {
+//         id,
+//         text: name,
+//         ports: [],
+//         placement: {
+//             x: droppedAt.x - defaultWidth / 2,
+//             y: droppedAt.y,
+//             width: defaultWidth,
+//             height: defaultHeight
+//         }
+//     };
+//     diagram.nodes[id] = result
+//     return result;
+// }
+//
+//
+// export function autoConnectNodes(diagram: WritableDraft<ClassDiagramState>, sourceId: Id, targetId: Id) {
+//     const source = diagram.nodes[sourceId];
+//     const target = diagram.nodes[targetId];
+//
+//     function addNewPort(node: WritableDraft<NodeState>, alignment: PortAlignment) {
+//         const result: PortState = {
+//             id: generateId(),
+//             edgePosRatio: 50,
+//             alignment: alignment,
+//             depthRatio: 50,
+//             latitude: 8,
+//             longitude: 8,
+//             placement: {} as Bounds,
+//         }
+//         result.placement = nodePlacementAfterResize(node, portBounds(node.placement, result));
+//         node.ports.push(result.id);
+//         diagram.ports[result.id] = result;
+//         return result
+//     }
+//
+//     const sourcePort = addNewPort(source, PortAlignment.Right);
+//
+//     const targetPort = addNewPort(target, PortAlignment.Left);
+//
+//     const linkId = "link-" + sourceId + "-" + targetId;
+//     diagram.links[linkId] = {
+//         id: linkId,
+//         port1: sourcePort.id,
+//         port2: targetPort.id,
+//         placement: linkPlacement(sourcePort, targetPort)
+//     }
+// }
