@@ -35,7 +35,7 @@ const PlainTab = styled((props: StyledTabProps) => {
     }),
 );
 
-const activeDiagramIdAtom = atom<Id | undefined>({
+const activeDiagramIdAtom = atom<Id>({
     key: 'activeDiagramId',
     default: demoActiveDiagramId
 })
@@ -52,11 +52,7 @@ export const DiagramTabs = () => {
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-        console.log("handleTabChange", newValue)
-        if (newValue)
-            setActiveDiagramId(openDiagramIds[newValue]);
-        else
-            setActiveDiagramId(undefined);
+        setActiveDiagramId(openDiagramIds[newValue]);
     }
 
     return (

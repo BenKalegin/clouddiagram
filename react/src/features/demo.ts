@@ -1,8 +1,4 @@
-import {
-    ClassDiagramState,
-    NodePlacement,
-    LinkPlacement, PortPlacement
-} from "./classDiagram/model";
+import {ClassDiagramState, CornerStyle, LinkPlacement, NodePlacement, PortPlacement} from "./classDiagram/model";
 import {zeroBounds} from "../common/model";
 import {
     ActivationState,
@@ -142,7 +138,13 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
 
     elements[link1.id] = link1;
 
-    const linkPlacements: { [id: Id]: LinkPlacement } = {}
+    const Link1Placement: LinkPlacement = {
+        //cornerStyle: CornerStyle.Straight
+    }
+
+    const linkPlacements: { [id: Id]: LinkPlacement } = {
+        // [link1.id]: Link1Placement
+    }
 
 
     return {
@@ -182,6 +184,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         title: 'Alice',
         activations: [activation1]
     }
+    elements[lifeline1.id] = lifeline1;
 
     const activation2: ActivationState = {
         type: ElementType.SequenceActivation,
@@ -208,6 +211,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         activations: [activation2],
         placement: lifeline2Placement
     }
+    elements[lifeline2.id] = lifeline2;
 
     const lifelines: { [id: Id]: LifelineState } = {
         [lifeline1.id]: lifeline1,

@@ -1,7 +1,7 @@
 import {Bounds, ConnectorPlacement, Coordinate, Diagram} from "../../common/model";
 import {WritableDraft} from "immer/dist/internal";
 import {DiagramElement, Id} from "../../package/packageModel";
-import {atomFamily, selectorFamily} from "recoil";
+import {atomFamily, DefaultValue, selectorFamily} from "recoil";
 import {elementsAtom} from "../diagramEditor/diagramEditorModel";
 import {
     DiagramId
@@ -163,6 +163,10 @@ export const sequenceDiagramSelector = selectorFamily<SequenceDiagramState, Diag
     key: 'sequenceDiagram',
     get: (id) => ({get}) => {
         return get(elementsAtom(id)) as SequenceDiagramState;
+    },
+
+    set: (id) => ({get, set}, newValue) => {
+        set(elementsAtom(id), newValue)
     }
 })
 
@@ -179,6 +183,12 @@ export const lifelinePlacementSelector = selectorFamily<LifelinePlacement, {life
     get: ({lifelineId, diagramId}) => ({get}) => {
         const lifeline = get(lifelineSelector({lifelineId, diagramId}));
         return lifeline.placement;
+    },
+    set: ({lifelineId, diagramId}) => ({get, set}, newValue) => {
+        const diagram = get(sequenceDiagramSelector(diagramId))
+        if (!(newValue instanceof DefaultValue)) {
+            set(sequenceDiagramSelector(diagramId), { ...diagram, lifelines: {...diagram.lifelines, [lifelineId] : {...diagram.lifelines[lifelineId], placement: newValue}}});
+        }
     }
 })
 
@@ -191,19 +201,4 @@ export const activationPlacementSelector = selectorFamily<Bounds, {activationId:
         return placeActivation(activation!, lifelineBounds)
     }
 })
-
-export const lifelinePlacement = atomFamily<LifelinePlacement, Id>({
-    key: 'placements',
-    default: {
-        headBounds: {
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0
-        },
-        lifelineEnd: 0
-    } as LifelinePlacement,
-})
-
-
 

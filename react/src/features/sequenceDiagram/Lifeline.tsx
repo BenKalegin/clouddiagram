@@ -1,5 +1,5 @@
 import {Group, Line, Rect, Text} from "react-konva";
-import {LifelineId, lifelinePlacement, lifelinePoints, LifelineState} from "./model";
+import {LifelineId, lifelinePlacementSelector, lifelinePoints, LifelineState} from "./model";
 import React, {FC} from "react";
 import {Scaffold} from "../scaffold/Scaffold";
 import {Activation} from "./Activation";
@@ -18,12 +18,11 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     const [selectedElements, setSelectedElements] = useRecoilState(selectedElementsAtom)
     const isSelected = selectedElements.includes(lifelineId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1) === lifelineId;
-    const [placement, setPlacement] = useRecoilState(lifelinePlacement(lifelineId))
+    const [placement, setPlacement] = useRecoilState(lifelinePlacementSelector({lifelineId, diagramId}))
     const lifeline = useRecoilValue(elementsAtom(lifelineId)) as LifelineState
     function updatePlacement(newBounds: Bounds) {
         setPlacement({...placement, headBounds: newBounds})
     }
-
     return (
         <Group>
             <Rect
