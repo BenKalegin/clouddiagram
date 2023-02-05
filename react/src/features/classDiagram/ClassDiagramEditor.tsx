@@ -39,7 +39,6 @@ export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
                             <Link
                                 key={index}
                                 linkId={linkId}
-                                nodeId={"0"}
                                 diagramId={diagramId}
                             />
                         )

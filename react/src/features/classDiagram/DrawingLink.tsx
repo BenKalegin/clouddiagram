@@ -10,6 +10,7 @@ export const DrawingLink = (props: { nodePlacement: Bounds }) => {
 
     const linking = useRecoilValue(linkingAtom)
 
+/*
     const sourcePort: PortState = {
         type: ElementType.ClassPort,
         id: "DrawingLinkSourcePort",
@@ -17,10 +18,12 @@ export const DrawingLink = (props: { nodePlacement: Bounds }) => {
         latitude: 0,
         longitude: 0
     }
+*/
     // alignment: PortAlignment.Right,
     // edgePosRatio: 50,
 
     //sourcePort.placement = portBounds(props.nodePlacement, sourcePort)
+/*
     const targetPort: PortState = {
         type: ElementType.ClassPort,
         id: "DrawingLinkTarget",
@@ -28,6 +31,7 @@ export const DrawingLink = (props: { nodePlacement: Bounds }) => {
         latitude: 0,
         longitude: 0,
     }
+*/
     // alignment: PortAlignment.Left,
     // edgePosRatio: 50,
 

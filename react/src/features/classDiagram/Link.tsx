@@ -1,10 +1,11 @@
 import React from "react";
 import {Path} from "react-konva";
-import {DiagramId, LinkId, linkRenderSelector, NodeId} from "./model";
+import {DiagramId, LinkId, linkRenderSelector} from "./model";
 import {useRecoilValue} from "recoil";
 
-export const Link = ({linkId, nodeId, diagramId}: {linkId: LinkId, nodeId: NodeId, diagramId: DiagramId}) => {
-    const render = useRecoilValue(linkRenderSelector({linkId, nodeId, diagramId}))
+export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}) => {
+
+    const render = useRecoilValue(linkRenderSelector({linkId, diagramId}))
     return (
         <>
             {render.svgPath.map((pathData, index) =>

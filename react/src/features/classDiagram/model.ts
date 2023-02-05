@@ -44,7 +44,7 @@ export type LinkId = Id;
 export type DiagramId = Id;
 
 
-const portRender = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): PortRender => {
+const renderPort = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): PortRender => {
     return {
         bounds: portBounds(nodePlacement, port, portPlacement)
     }
@@ -111,7 +111,6 @@ export const portSelector = selectorFamily<PortState, PortId>({
     }
 })
 
-
 export const portPlacementSelector = selectorFamily<PortPlacement, {portId: Id, diagramId: Id}>({
     key: 'portPlacement',
     get: ({portId, diagramId}) => ({get}) => {
@@ -126,8 +125,7 @@ export const portRenderSelector = selectorFamily<PortRender, {portId: Id, nodeId
         const nodePlacement = get(nodePlacementSelector({nodeId, diagramId}));
         const port = get(portSelector(portId));
         const portPlacement = get(portPlacementSelector({portId, diagramId}));
-        const render = portRender(nodePlacement.bounds, port, portPlacement);
-        return render;
+        return renderPort(nodePlacement.bounds, port, portPlacement);
     }
 })
 
@@ -141,18 +139,17 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
     };
 }
 
-export const linkRenderSelector = selectorFamily<LinkRender, {linkId: LinkId, nodeId: NodeId, diagramId: DiagramId}>({
+export const linkRenderSelector = selectorFamily<LinkRender, {linkId: LinkId, diagramId: DiagramId}>({
     key: 'linkPlacement',
-    get: ({linkId, nodeId, diagramId}) => ({get}) => {
+    get: ({linkId, diagramId}) => ({get}) => {
         const link = get(elementsAtom(linkId)) as LinkState;
-        const sourcePort = get(portSelector(link.port1));
-        const targetPort = get(portSelector(link.port2));
-        console.log("link",  link, "diagramId", diagramId)
-        const sourceRender = get(portRenderSelector({portId: link.port1, nodeId, diagramId}));
-        const targetRender = get(portRenderSelector({portId: link.port2, nodeId, diagramId}));
+        const port1 = get(portSelector(link.port1));
+        const port2 = get(portSelector(link.port2));
+        const sourceRender = get(portRenderSelector({portId: link.port1, nodeId: port1.nodeId, diagramId}));
+        const targetRender = get(portRenderSelector({portId: link.port2, nodeId: port2.nodeId, diagramId}));
         const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId}));
         const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId}));
-        return renderLink(sourcePort, sourceRender.bounds, sourcePlacement,  targetPort, targetRender.bounds, targetPlacement);
+        return renderLink(port1, sourceRender.bounds, sourcePlacement,  port2, targetRender.bounds, targetPlacement);
     }
 })
 

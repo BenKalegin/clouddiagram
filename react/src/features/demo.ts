@@ -20,12 +20,14 @@ export const elements: {[id: Id]: DiagramElement } = {
 }
 
 export const getClassDemoDiagram = (id: string, title: string): ClassDiagramState => {
+    const node1Id = "node1";
     const port11: PortState = {
         type: ElementType.ClassPort,
         id: "port11",
         depthRatio: 50,
         latitude: 8,
-        longitude: 8
+        longitude: 8,
+        nodeId: node1Id
     }
     elements[port11.id] = port11;
 
@@ -39,7 +41,8 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         id: "port12",
         depthRatio: 50,
         latitude: 8,
-        longitude: 8
+        longitude: 8,
+        nodeId: node1Id
     }
     elements[port12.id] = port12;
 
@@ -54,6 +57,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         depthRatio: 50,
         latitude: 8,
         longitude: 8,
+        nodeId: node1Id
     }
     elements[port13.id] = port13;
 
@@ -65,7 +69,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
 
     const node1: NodeState = {
         type: ElementType.ClassNode,
-        id: "node1",
+        id: node1Id,
         ports: [
             port11.id,
             port12.id,
@@ -84,12 +88,14 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         }
     }
 
+    const nodeId2 = "node2";
     const port2: PortState = {
         type: ElementType.ClassPort,
         id: "port21",
         depthRatio: 50,
         latitude: 8,
         longitude: 8,
+        nodeId: nodeId2
     }
     elements[port2.id] = port2;
 
@@ -107,7 +113,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
 
     const node2: NodeState = {
         type: ElementType.ClassNode,
-        id: "node2",
+        id: nodeId2,
         ports: [
             port2.id,
         ],
@@ -143,7 +149,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
     }
 
     const linkPlacements: { [id: Id]: LinkPlacement } = {
-        // [link1.id]: Link1Placement
+        [link1.id]: Link1Placement
     }
 
 

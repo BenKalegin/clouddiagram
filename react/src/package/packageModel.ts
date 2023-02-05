@@ -1,3 +1,5 @@
+import {NodeId} from "../features/classDiagram/model";
+
 export type Id = string;
 export enum ElementType {
     ClassNode,
@@ -44,6 +46,7 @@ export interface PortState extends DiagramElement {
      * Height of the marker in perpendicular direction to the edge it belong to
      */
     longitude: number;
+    nodeId: NodeId
 }
 
 export interface NodeState extends DiagramElement {
