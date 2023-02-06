@@ -2,6 +2,7 @@ import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {DiagramEditor, Linking} from "./diagramEditorModel";
 import {Id} from "../../package/packageModel";
 import {snapToGrid} from "../../common/Geometry/snap";
+import {DiagramId} from "../classDiagram/model";
 
 export interface ElementResizeAction {
     elementId: Id
@@ -9,6 +10,7 @@ export interface ElementResizeAction {
 }
 
 export interface DropFromPaletteAction {
+    diagramId: DiagramId;
     droppedAt: Coordinate;
     name: string
 }

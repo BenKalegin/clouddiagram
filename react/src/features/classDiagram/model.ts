@@ -1,8 +1,9 @@
-import {Bounds, Diagram} from "../../common/model";
+import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {Id, LinkState, PortAlignment, PortState} from "../../package/packageModel";
 import {selectorFamily} from "recoil";
 import {elementsAtom} from "../diagramEditor/diagramEditorModel";
+import {generateId} from "./classDiagramSlice";
 
 export type NodePlacement = {
     bounds: Bounds
@@ -21,7 +22,7 @@ export enum CornerStyle {
     Straight = "straight"
 }
 export interface LinkPlacement {
-    //cornerStyle: CornerStyle;
+    cornerStyle: CornerStyle;
 }
 
 export interface LinkRender {
@@ -195,27 +196,29 @@ export const nodePlacementAfterResize = (nodePlacement: Bounds, newBounds: Bound
 //     }
 // }
 
-// export function addNewElementAt(diagram: WritableDraft<ClassDiagramState>, id: string, droppedAt: Coordinate, name: string) {
-//
-//     const defaultWidth = 100;
-//     const defaultHeight = 80;
-//
-//     const result = {
-//         id,
-//         text: name,
-//         ports: [],
-//         placement: {
-//             x: droppedAt.x - defaultWidth / 2,
-//             y: droppedAt.y,
-//             width: defaultWidth,
-//             height: defaultHeight
-//         }
-//     };
-//     diagram.nodes[id] = result
-//     return result;
-// }
-//
-//
+export function addNewElementAt(diagramId: DiagramId, droppedAt: Coordinate, name: string) {
+
+    const defaultWidth = 100;
+    const defaultHeight = 80;
+    const id = generateId();
+
+    const result = {
+        id,
+        text: name,
+        ports: [],
+        placement: {
+            x: droppedAt.x - defaultWidth / 2,
+            y: droppedAt.y,
+            width: defaultWidth,
+            height: defaultHeight
+        }
+    };
+
+
+    diagram.nodes[id] = result
+    return result;
+}
+
 // export function autoConnectNodes(diagram: WritableDraft<ClassDiagramState>, sourceId: Id, targetId: Id) {
 //     const source = diagram.nodes[sourceId];
 //     const target = diagram.nodes[targetId];

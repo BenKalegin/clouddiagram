@@ -1,5 +1,8 @@
 import {Id} from "../../package/packageModel";
-
+import {useRecoilTransaction_UNSTABLE} from "recoil";
+import {DropFromPaletteAction} from "../diagramEditor/diagramEditorSlice";
+import {nanoid} from 'nanoid';
+import {addNewElementAt} from "./model";
 // export interface ClassDiagramEditor extends BaseDiagramEditor {
 //     type: DiagramEditorType.Class
 //     diagram: ClassDiagramState
@@ -12,9 +15,19 @@ interface NodePropsChangedAction {
     text: string
 }
 
-// export const generateId = (): Id => {
-//     return nanoid(6);
-// }
+
+type Action = NodePropsChangedAction | DropFromPaletteAction
+
+export const generateId = (): string => {
+    return nanoid(6);
+}
+
+export const handleDrop = useRecoilTransaction_UNSTABLE(({get, set}) => (action: DropFromPaletteAction) => {
+
+    addNewElementAt(action.diagramId, action.droppedAt, action.name);
+})
+
+
 //
 // const initialState: ClassDiagramEditor = {} as ClassDiagramEditor;
 // // noinspection JSUnusedLocalSymbols
@@ -37,12 +50,6 @@ interface NodePropsChangedAction {
 //                 editor.diagram.nodes[action.payload.node].text = action.payload.text;
 //             }
 //         },
-//
-//         dropFromPalette: (editor, action: PayloadAction<DropFromPaletteAction>) => {
-//             const id = generateId();
-//             addNewElementAt(editor.diagram, id, action.payload.droppedAt, action.payload.name);
-//         },
-//
 //
 //         continueLinking: (editor, action: PayloadAction<DrawLinkingAction>) => {
 //             // const linking = editor.linking!;
@@ -87,5 +94,4 @@ interface NodePropsChangedAction {
 // export const selectClassDiagramEditor = (state: RootState): ClassDiagramEditor => state.classDiagramEditor;
 //
 // export default classDiagramSlice.reducer
-
 
