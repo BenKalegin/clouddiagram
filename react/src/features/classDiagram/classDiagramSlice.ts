@@ -22,11 +22,14 @@ export const generateId = (): string => {
     return nanoid(6);
 }
 
-export const handleDrop = useRecoilTransaction_UNSTABLE(({get, set}) => (action: DropFromPaletteAction) => {
-
-    addNewElementAt(action.diagramId, action.droppedAt, action.name);
-})
-
+// eslint-disable-next-line react-hooks/rules-of-hooks
+// export const handleDrop = useRecoilTransaction_UNSTABLE(
+//     ({get, set}) => (action: DropFromPaletteAction) => {
+//             addNewElementAt(get, set, action.droppedAt, action.name);
+//     },
+//     []
+// )
+//
 
 //
 // const initialState: ClassDiagramEditor = {} as ClassDiagramEditor;

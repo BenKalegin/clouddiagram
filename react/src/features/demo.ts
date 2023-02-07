@@ -145,7 +145,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
     elements[link1.id] = link1;
 
     const Link1Placement: LinkPlacement = {
-        cornerStyle: CornerStyle.Straight
+        //cornerStyle: CornerStyle.Straight
     }
 
     const linkPlacements: { [id: Id]: LinkPlacement } = {

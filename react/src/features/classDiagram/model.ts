@@ -1,9 +1,11 @@
 import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
-import {Id, LinkState, PortAlignment, PortState} from "../../package/packageModel";
-import {selectorFamily} from "recoil";
+import {ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../../package/packageModel";
+import {RecoilState, RecoilValue, selectorFamily, useRecoilTransaction_UNSTABLE} from "recoil";
 import {elementsAtom} from "../diagramEditor/diagramEditorModel";
 import {generateId} from "./classDiagramSlice";
+import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {DropFromPaletteAction} from "../diagramEditor/diagramEditorSlice";
 
 export type NodePlacement = {
     bounds: Bounds
@@ -22,7 +24,7 @@ export enum CornerStyle {
     Straight = "straight"
 }
 export interface LinkPlacement {
-    cornerStyle: CornerStyle;
+    //cornerStyle: CornerStyle;
 }
 
 export interface LinkRender {
@@ -196,27 +198,31 @@ export const nodePlacementAfterResize = (nodePlacement: Bounds, newBounds: Bound
 //     }
 // }
 
-export function addNewElementAt(diagramId: DiagramId, droppedAt: Coordinate, name: string) {
+export function addNewElementAt(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, droppedAt: Coordinate, name: string) {
 
     const defaultWidth = 100;
     const defaultHeight = 80;
-    const id = generateId();
-
-    const result = {
-        id,
+    const diagramId = get(activeDiagramIdAtom);
+    const node: NodeState = {
+        type: ElementType.ClassNode,
+        id: generateId(),
         text: name,
-        ports: [],
-        placement: {
+        ports: []
+    };
+
+    const placement: NodePlacement = {
+        bounds: {
             x: droppedAt.x - defaultWidth / 2,
             y: droppedAt.y,
             width: defaultWidth,
             height: defaultHeight
         }
-    };
+    }
 
-
-    diagram.nodes[id] = result
-    return result;
+    set(elementsAtom(node.id), node)
+    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+    const updatedDiagram = {...diagram , nodes: {...diagram.nodes, [node.id]: placement}};
+    set(elementsAtom(diagramId), updatedDiagram)
 }
 
 // export function autoConnectNodes(diagram: WritableDraft<ClassDiagramState>, sourceId: Id, targetId: Id) {

@@ -35,7 +35,7 @@ const PlainTab = styled((props: StyledTabProps) => {
     }),
 );
 
-const activeDiagramIdAtom = atom<Id>({
+export const activeDiagramIdAtom = atom<Id>({
     key: 'activeDiagramId',
     default: demoActiveDiagramId
 })

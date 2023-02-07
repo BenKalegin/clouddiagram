@@ -10,7 +10,6 @@ export interface ElementResizeAction {
 }
 
 export interface DropFromPaletteAction {
-    diagramId: DiagramId;
     droppedAt: Coordinate;
     name: string
 }

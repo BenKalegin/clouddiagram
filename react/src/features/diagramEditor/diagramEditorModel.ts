@@ -44,7 +44,7 @@ export interface DiagramHandler {
 
 export const elementsAtom = atomFamily<DiagramElement, Id>({
     key: 'elements',
-    default: id => elements[id] as DiagramElement
+    default: id => elements[id]
 })
 
 export const diagramTitleSelector = selectorFamily<string | undefined, DiagramId | undefined>({
