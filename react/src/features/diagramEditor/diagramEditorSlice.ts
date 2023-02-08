@@ -1,18 +1,20 @@
-import {Bounds, Coordinate, Diagram} from "../../common/model";
-import {DiagramEditor, Linking} from "./diagramEditorModel";
-import {Id} from "../../package/packageModel";
-import {snapToGrid} from "../../common/Geometry/snap";
-import {DiagramId} from "../classDiagram/model";
+import {Bounds, Coordinate} from "../../common/model";
+import {diagramKindSelector, elementsAtom} from "./diagramEditorModel";
+import {ElementType, Id} from "../../package/packageModel";
+import {RecoilState, RecoilValue} from "recoil";
+import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {handleClassDiagramAction} from "../classDiagram/classDiagramSlice";
+import {Action, createAction} from "@reduxjs/toolkit";
 
 export interface ElementResizeAction {
     elementId: Id
     deltaBounds: Bounds
 }
 
-export interface DropFromPaletteAction {
+export const dropFromPaletteAction = createAction<{
     droppedAt: Coordinate;
     name: string
-}
+}>("dropFromPaletteAction");
 
 export interface ElementSelectAction {
     id: Id
@@ -47,6 +49,19 @@ export interface linkToNewDialogCompleted {
 
 export interface AddNodeAndConnectAction {
     name: string
+}
+
+//export type Action = ElementResizeAction | DropFromPaletteAction | ElementSelectAction | StartLinkingAction | MoveResizeAction | DrawLinkingAction | linkToNewDialogCompleted | AddNodeAndConnectAction
+
+
+export function handleAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
+    const activeDiagramId = get(activeDiagramIdAtom);
+    const diagramKind = get(elementsAtom(activeDiagramId)).type;
+    switch (diagramKind) {
+        case ElementType.ClassDiagram:
+            handleClassDiagramAction(action, get, set);
+    }
+
 }
 
 

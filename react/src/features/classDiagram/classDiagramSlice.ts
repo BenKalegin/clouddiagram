@@ -1,8 +1,9 @@
 import {Id} from "../../package/packageModel";
-import {useRecoilTransaction_UNSTABLE} from "recoil";
-import {DropFromPaletteAction} from "../diagramEditor/diagramEditorSlice";
+import {RecoilState, RecoilValue} from "recoil";
+import {dropFromPaletteAction} from "../diagramEditor/diagramEditorSlice";
 import {nanoid} from 'nanoid';
 import {addNewElementAt} from "./model";
+import {Action, createReducer} from "@reduxjs/toolkit";
 // export interface ClassDiagramEditor extends BaseDiagramEditor {
 //     type: DiagramEditorType.Class
 //     diagram: ClassDiagramState
@@ -16,11 +17,17 @@ interface NodePropsChangedAction {
 }
 
 
-type Action = NodePropsChangedAction | DropFromPaletteAction
-
 export const generateId = (): string => {
     return nanoid(6);
 }
+
+
+export function handleClassDiagramAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
+    if (dropFromPaletteAction.match(action)) {
+        addNewElementAt(get, set, action.payload.droppedAt, action.payload.name);
+    }
+}
+
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 // export const handleDrop = useRecoilTransaction_UNSTABLE(

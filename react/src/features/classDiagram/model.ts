@@ -5,7 +5,6 @@ import {RecoilState, RecoilValue, selectorFamily, useRecoilTransaction_UNSTABLE}
 import {elementsAtom} from "../diagramEditor/diagramEditorModel";
 import {generateId} from "./classDiagramSlice";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
-import {DropFromPaletteAction} from "../diagramEditor/diagramEditorSlice";
 
 export type NodePlacement = {
     bounds: Bounds

@@ -1,15 +1,15 @@
 import React, {ReactNode} from "react";
 import {GalleryItem} from "../toolbox/models";
 import {useRecoilTransaction_UNSTABLE} from "recoil";
-import {DropFromPaletteAction} from "../diagramEditor/diagramEditorSlice";
-import {addNewElementAt} from "../classDiagram/model";
+import {dropFromPaletteAction, handleAction} from "../diagramEditor/diagramEditorSlice";
+import {Action} from "@reduxjs/toolkit";
 
 export function HtmlDrop(props: { children: ReactNode }) {
     const {children} = props;
 
     const handleDrop = useRecoilTransaction_UNSTABLE(
-        ({get, set}) => (action: DropFromPaletteAction) => {
-            addNewElementAt(get, set, action.droppedAt, action.name);
+        ({get, set}) => (action: Action) => {
+            handleAction(action, get, set);
         },
         []
     )
@@ -26,7 +26,7 @@ export function HtmlDrop(props: { children: ReactNode }) {
                 const offsetX = e.clientX - rect.x;
                 const offsetY = e.clientY - rect.y;
                 const galleryItem: GalleryItem = JSON.parse(e.dataTransfer.getData("application/json"));
-                handleDrop({droppedAt: {x: offsetX, y: offsetY}, name: galleryItem.name});
+                handleDrop(dropFromPaletteAction({droppedAt: {x: offsetX, y: offsetY}, name: galleryItem.name}));
             }}
         >
             {children}
