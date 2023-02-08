@@ -5,6 +5,7 @@ import {RecoilState, RecoilValue} from "recoil";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {handleClassDiagramAction} from "../classDiagram/classDiagramSlice";
 import {Action, createAction} from "@reduxjs/toolkit";
+import {handleSequenceDiagramAction} from "../sequenceDiagram/sequenceDiagramSlice";
 
 export interface ElementResizeAction {
     elementId: Id
@@ -60,6 +61,11 @@ export function handleAction(action: Action, get: <T>(a: RecoilValue<T>) => T, s
     switch (diagramKind) {
         case ElementType.ClassDiagram:
             handleClassDiagramAction(action, get, set);
+            break;
+
+        case ElementType.SequenceDiagram:
+            handleSequenceDiagramAction(action, get, set);
+            break;
     }
 
 }

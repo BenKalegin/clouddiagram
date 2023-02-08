@@ -1,7 +1,6 @@
 import {Id} from "../../package/packageModel";
 import {RecoilState, RecoilValue} from "recoil";
 import {dropFromPaletteAction} from "../diagramEditor/diagramEditorSlice";
-import {nanoid} from 'nanoid';
 import {addNewElementAt} from "./model";
 import {Action, createReducer} from "@reduxjs/toolkit";
 // export interface ClassDiagramEditor extends BaseDiagramEditor {
@@ -16,10 +15,6 @@ interface NodePropsChangedAction {
     text: string
 }
 
-
-export const generateId = (): string => {
-    return nanoid(6);
-}
 
 
 export function handleClassDiagramAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {

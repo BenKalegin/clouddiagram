@@ -1,11 +1,9 @@
 import {Bounds, ConnectorPlacement, Coordinate, Diagram} from "../../common/model";
-import {WritableDraft} from "immer/dist/internal";
-import {DiagramElement, Id} from "../../package/packageModel";
-import {atomFamily, DefaultValue, selectorFamily} from "recoil";
-import {elementsAtom} from "../diagramEditor/diagramEditorModel";
-import {
-    DiagramId
-} from "../classDiagram/model";
+import {DiagramElement, ElementType, Id} from "../../package/packageModel";
+import {DefaultValue, RecoilState, RecoilValue, selectorFamily} from "recoil";
+import {elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
+import {ClassDiagramState, DiagramId} from "../classDiagram/model";
+import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
@@ -107,10 +105,12 @@ export const messagePlacement = (source: ActivationState, target: ActivationStat
 //     })
 // }
 
-export function handleSequenceDropFromLibrary(diagram: WritableDraft<SequenceDiagramState>, id: string, droppedAt: Coordinate, name: string) {
+export function handleSequenceDropFromLibrary(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, droppedAt: Coordinate, name: string) {
 
-    const newLifeline = {
-        id,
+    const diagramId = get(activeDiagramIdAtom);
+    const newLifeline: LifelineState = {
+        type: ElementType.SequenceLifeLine,
+        id: generateId(),
         title: name,
         placement: {
             headBounds: {
@@ -124,7 +124,11 @@ export function handleSequenceDropFromLibrary(diagram: WritableDraft<SequenceDia
         activations: []
     };
 
-    // diagram.lifelines[id] = newLifeline
+    set(elementsAtom(newLifeline.id), newLifeline)
+
+    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+    const updatedDiagram = {...diagram , lifelines: {...diagram.lifelines, [newLifeline.id]: newLifeline}}
+    set(elementsAtom(diagramId), updatedDiagram)
 }
 
 export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[] {

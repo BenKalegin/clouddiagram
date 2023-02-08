@@ -1,6 +1,17 @@
-import {Coordinate, Diagram} from "../../common/model";
-import {snapToBounds, snapToGrid} from "../../common/Geometry/snap";
-import {SequenceDiagramState} from "./model";
+import {Action} from "@reduxjs/toolkit";
+import {RecoilState, RecoilValue} from "recoil";
+import {dropFromPaletteAction} from "../diagramEditor/diagramEditorSlice";
+import {handleSequenceDropFromLibrary} from "./model";
+
+
+
+
+export function handleSequenceDiagramAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
+    if (dropFromPaletteAction.match(action)) {
+        handleSequenceDropFromLibrary(get, set, action.payload.droppedAt, action.payload.name);
+    }
+}
+
 
 // export interface SequenceDiagramEditor extends BaseDiagramEditor{
 //     type: DiagramEditorType.Sequence

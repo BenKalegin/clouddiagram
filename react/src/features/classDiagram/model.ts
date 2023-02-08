@@ -1,9 +1,8 @@
 import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../../package/packageModel";
-import {RecoilState, RecoilValue, selectorFamily, useRecoilTransaction_UNSTABLE} from "recoil";
-import {elementsAtom} from "../diagramEditor/diagramEditorModel";
-import {generateId} from "./classDiagramSlice";
+import {RecoilState, RecoilValue, selectorFamily} from "recoil";
+import {elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 
 export type NodePlacement = {

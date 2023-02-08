@@ -3,6 +3,7 @@ import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {atom, atomFamily, selectorFamily} from "recoil";
 import {DiagramId} from "../classDiagram/model";
 import {elements} from "../demo";
+import {nanoid} from 'nanoid';
 
 export interface Linking {
     sourceElement: Id
@@ -77,3 +78,9 @@ export const snapGridSizeAtom = atom<number>({
     key: 'snapGridSize',
     default: 10,
 })
+
+export const generateId = (): string => {
+    return nanoid(6);
+}
+
+
