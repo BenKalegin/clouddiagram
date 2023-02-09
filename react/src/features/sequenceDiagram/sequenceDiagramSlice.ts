@@ -1,17 +1,19 @@
 import {Action} from "@reduxjs/toolkit";
 import {RecoilState, RecoilValue} from "recoil";
-import {dropFromPaletteAction} from "../diagramEditor/diagramEditorSlice";
-import {handleSequenceDropFromLibrary} from "./model";
-
-
+import {dropFromPaletteAction, elementMoveAction} from "../diagramEditor/diagramEditorSlice";
+import {handleSequenceDropFromLibrary, handleSequenceMoveElement} from "./model";
 
 
 export function handleSequenceDiagramAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
     if (dropFromPaletteAction.match(action)) {
-        handleSequenceDropFromLibrary(get, set, action.payload.droppedAt, action.payload.name);
+        const {name, droppedAt} = action.payload;
+        handleSequenceDropFromLibrary(get, set, droppedAt, name);
+    }
+    else if (elementMoveAction.match(action)) {
+        const {currentPointerPos, phase, startNodePos, startPointerPos, elementId} = action.payload;
+        handleSequenceMoveElement(get, set, phase, elementId, currentPointerPos, startPointerPos, startNodePos);
     }
 }
-
 
 // export interface SequenceDiagramEditor extends BaseDiagramEditor{
 //     type: DiagramEditorType.Sequence
@@ -33,11 +35,6 @@ export function handleSequenceDiagramAction(action: Action, get: <T>(a: RecoilVa
 //     reducers: {
 //         nodeResize: (editor, action: PayloadAction<ElementResizeAction>) => {
 //             resizeLifeline(editor.diagram, action.payload.deltaBounds, action.payload.elementId);
-//         },
-//
-//         dropFromPalette: (editor, action: PayloadAction<DropFromPaletteAction>) => {
-//             const id = generateId();
-//             handleSequenceDropFromLibrary(editor.diagram, id, action.payload.droppedAt, action.payload.name);
 //         },
 //
 //         connectExisting: (editor) => {

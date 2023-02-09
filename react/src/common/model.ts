@@ -20,12 +20,14 @@ export const inflate = (bounds: Bounds, dx: number, dy: number): Bounds => ({
     height: bounds.height + dy * 2
 });
 
-export const shift = (bounds: Bounds, dx: number, dy: number): Bounds => ({
-    x: bounds.x + dx,
-    y: bounds.y + dy,
-    width: bounds.width,
-    height: bounds.height
-});
+export function shift(bounds: Bounds, dx: number, dy: number): Bounds {
+    return {
+        x: bounds.x + dx,
+        y: bounds.y + dy,
+        width: bounds.width,
+        height: bounds.height
+    };
+}
 
 export const minus = (coordinate: Coordinate, delta: Coordinate): Coordinate => ({
     x: coordinate.x - delta.x,

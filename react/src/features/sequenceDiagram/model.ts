@@ -2,8 +2,9 @@ import {Bounds, ConnectorPlacement, Coordinate, Diagram} from "../../common/mode
 import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {DefaultValue, RecoilState, RecoilValue, selectorFamily} from "recoil";
 import {elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
-import {ClassDiagramState, DiagramId} from "../classDiagram/model";
+import {DiagramId} from "../classDiagram/model";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {ElementMovePhase} from "../diagramEditor/diagramEditorSlice";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
@@ -60,14 +61,12 @@ export interface SequenceDiagramState extends Diagram {
     //activations: {[id: string]: ActivationPlacement }
 }
 
-export const placeLifeline = (placement: LifelinePlacement, deltaBounds: Bounds) => {
-    return {
-        x: deltaBounds.x,
-        y: placement.headBounds.y,
-        // set minimal value
-        width: Math.max(10, deltaBounds.width),
-        height: placement.headBounds.height
-    }
+export const moveLifeline = (placement: LifelinePlacement, newX: number) => {
+    return {...placement, headBounds: {...placement.headBounds, x: newX}}
+}
+
+export const resizeLifeline = (placement: LifelinePlacement, newWidth: number) => {
+    return {...placement, headBounds: {...placement.headBounds, width: Math.max(10, newWidth)}}
 }
 
 export const placeActivation = (activation: ActivationState, lifelinePlacement: LifelinePlacement): Bounds => {
@@ -87,23 +86,16 @@ export const messagePlacement = (source: ActivationState, target: ActivationStat
     }
 }
 
+export function handleSequenceMoveElement(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, phase: ElementMovePhase, elementId: Id, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
-// export function resizeLifeline(diagram: WritableDraft<SequenceDiagramState>, deltaBounds: Bounds, elementId: Id) {
-//     const lifeline = diagram.lifelines[elementId]
-//     lifeline.placement.headBounds = lifelinePlacementAfterResize(lifeline.placement, deltaBounds)
-//     lifeline.activations.forEach(activationId => {
-//         const activation = diagram.activations[activationId]
-//         activation.placement = activationPlacement(activation, lifeline.placement)
-//     })
-//     const messages = Object.values(diagram.messages).filter(
-//         message => lifeline.activations.includes(message.sourceActivation) || lifeline.activations.includes(message.targetActivation))
-//     messages.forEach(message => {
-//         message.placement = messagePlacement(
-//             diagram.activations[message.sourceActivation],
-//             diagram.activations[message.targetActivation],
-//             message.sourceActivationOffset)
-//     })
-// }
+    const newPlacement = moveLifeline(diagram.lifelines[elementId].placement, currentPointerPos.x - startPointerPos.x + startNodePos.x)
+    const newDiagram = {...diagram, lifelines: {...diagram.lifelines, [elementId]: {...diagram.lifelines[elementId], placement: newPlacement}}}
+    set(elementsAtom(diagramId), newDiagram)
+}
+
+
 
 export function handleSequenceDropFromLibrary(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, droppedAt: Coordinate, name: string) {
 

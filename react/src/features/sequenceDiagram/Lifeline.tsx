@@ -21,7 +21,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     const [placement, setPlacement] = useRecoilState(lifelinePlacementSelector({lifelineId, diagramId}))
     const lifeline = useRecoilValue(elementsAtom(lifelineId)) as LifelineState
     function updatePlacement(newBounds: Bounds) {
-        setPlacement({...placement, headBounds: newBounds})
+        setPlacement(
+            {...placement, headBounds: {...placement.headBounds, x: newBounds.x, width: newBounds.width}})
     }
     return (
         <Group>

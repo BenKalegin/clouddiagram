@@ -223,6 +223,23 @@ export function addNewElementAt(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: Re
     set(elementsAtom(diagramId), updatedDiagram)
 }
 
+export function moveElement(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, nodeId: Id, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+    const nodePlacement = diagram.nodes[nodeId];
+    const updatedNodePlacement = {
+        ...nodePlacement,
+        bounds: {
+            ...nodePlacement.bounds,
+            x: startNodePos.x + currentPointerPos.x - startPointerPos.x,
+            y: startNodePos.y + currentPointerPos.y - startPointerPos.y
+        }
+    }
+    const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [nodeId]: updatedNodePlacement}};
+    set(elementsAtom(diagramId), updatedDiagram)
+}
+
+
 // export function autoConnectNodes(diagram: WritableDraft<ClassDiagramState>, sourceId: Id, targetId: Id) {
 //     const source = diagram.nodes[sourceId];
 //     const target = diagram.nodes[targetId];

@@ -1,12 +1,10 @@
-import React, {RefObject, useEffect} from "react";
-import {Bounds, Coordinate, inflate} from "../../common/model";
+import React, {useEffect} from "react";
+import {Bounds, inflate} from "../../common/model";
 import {Background} from "./Background";
 import {ResizeHandles} from "./ResizeHandle";
 import {FocusFrame} from "./FocusFrame";
 import {ContextButtons} from "./ContextButtons";
 import {Id} from "../../package/packageModel";
-import Konva from "konva";
-import {Group} from "react-konva";
 
 export interface ScaffoldProps {
     bounds: Bounds;
@@ -51,16 +49,6 @@ export const Scaffold = (props: ScaffoldProps) => {
         };
     });
 
-    const onMove = (newCoordinate: Coordinate) => {
-        const newBounds = {
-            x: newCoordinate.x,
-            y: newCoordinate.y,
-            width: props.bounds.width,
-            height: props.bounds.height
-        }
-        props.onResize(newBounds)
-    }
-
     const bounds = inflate(props.bounds, 12, 12);
     const buttonsPosition = {
         x: bounds.x + bounds.width + 5,
@@ -70,11 +58,9 @@ export const Scaffold = (props: ScaffoldProps) => {
     return (
         <>
             <Background
+                originId={props.elementId}
                 backgroundBounds={bounds}
                 nodeBounds={props.bounds}
-                startNodeMove={newCoordinate => onMove(newCoordinate)}
-                continueNodeMove={newCoordinate => onMove(newCoordinate)}
-                endNodeMove={newCoordinate => onMove(newCoordinate)}
                 doubleClick={() => console.log("double click")}
 
             />

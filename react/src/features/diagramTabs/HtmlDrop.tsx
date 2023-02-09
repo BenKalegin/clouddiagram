@@ -7,7 +7,7 @@ import {Action} from "@reduxjs/toolkit";
 export function HtmlDrop(props: { children: ReactNode }) {
     const {children} = props;
 
-    const handleDrop = useRecoilTransaction_UNSTABLE(
+    const dispatch = useRecoilTransaction_UNSTABLE(
         ({get, set}) => (action: Action) => {
             handleAction(action, get, set);
         },
@@ -26,7 +26,7 @@ export function HtmlDrop(props: { children: ReactNode }) {
                 const offsetX = e.clientX - rect.x;
                 const offsetY = e.clientY - rect.y;
                 const galleryItem: GalleryItem = JSON.parse(e.dataTransfer.getData("application/json"));
-                handleDrop(dropFromPaletteAction({droppedAt: {x: offsetX, y: offsetY}, name: galleryItem.name}));
+                dispatch(dropFromPaletteAction({droppedAt: {x: offsetX, y: offsetY}, name: galleryItem.name}));
             }}
         >
             {children}

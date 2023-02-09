@@ -1,8 +1,8 @@
 import {Id} from "../../package/packageModel";
 import {RecoilState, RecoilValue} from "recoil";
-import {dropFromPaletteAction} from "../diagramEditor/diagramEditorSlice";
-import {addNewElementAt} from "./model";
-import {Action, createReducer} from "@reduxjs/toolkit";
+import {dropFromPaletteAction, elementMoveAction} from "../diagramEditor/diagramEditorSlice";
+import {addNewElementAt, moveElement} from "./model";
+import {Action} from "@reduxjs/toolkit";
 // export interface ClassDiagramEditor extends BaseDiagramEditor {
 //     type: DiagramEditorType.Class
 //     diagram: ClassDiagramState
@@ -16,10 +16,12 @@ interface NodePropsChangedAction {
 }
 
 
-
 export function handleClassDiagramAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
     if (dropFromPaletteAction.match(action)) {
         addNewElementAt(get, set, action.payload.droppedAt, action.payload.name);
+    }else if(elementMoveAction.match(action)){
+        const {elementId, currentPointerPos, startNodePos, startPointerPos} = action.payload;
+        moveElement(get, set, elementId, currentPointerPos, startPointerPos, startNodePos);
     }
 }
 
