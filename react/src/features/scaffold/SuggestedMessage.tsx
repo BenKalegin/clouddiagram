@@ -2,7 +2,6 @@ import {Arrow} from "react-konva";
 import {MessagePlacement} from "../sequenceDiagram/model";
 
 export function SuggestedMessage(props: { placement: MessagePlacement }) {
-    const {points, y, x} = props.placement;
     return (
         <Arrow
             fill={"burlywood"}
@@ -15,9 +14,9 @@ export function SuggestedMessage(props: { placement: MessagePlacement }) {
             pointerAtBeginning={false}
             pointerAtEnding={true}
 
-            x={x}
-            y={y}
-            points={points}
+            x={0}
+            y={0}
+            points={[]}
         />
     )
 }

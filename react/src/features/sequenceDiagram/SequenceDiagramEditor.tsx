@@ -5,7 +5,7 @@ import {sequenceDiagramSelector} from "./model";
 import {Lifeline} from "./Lifeline";
 import {Message} from "./Message";
 import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilValue} from "recoil";
-import {DiagramId} from "../classDiagram/model";
+import {DiagramId} from "../diagramEditor/diagramEditorModel";
 
 export const SequenceDiagramEditor = ({diagramId}: { diagramId: DiagramId }) => {
     const diagram = useRecoilValue(sequenceDiagramSelector(diagramId))
@@ -42,7 +42,8 @@ export const SequenceDiagramEditor = ({diagramId}: { diagramId: DiagramId }) => 
                         return (
                             <Message
                                 key={i}
-                                message={message}
+                                messageId={message.id}
+                                diagramId={diagramId}
                             />
                         )
                     })}

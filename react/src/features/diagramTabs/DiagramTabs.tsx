@@ -7,8 +7,7 @@ import {Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
 import {atom, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType, Id} from "../../package/packageModel";
-import {diagramKindSelector, diagramTitleSelector} from "../diagramEditor/diagramEditorModel";
-import {DiagramId} from "../classDiagram/model";
+import {DiagramId, diagramKindSelector, diagramTitleSelector} from "../diagramEditor/diagramEditorModel";
 import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
 
 

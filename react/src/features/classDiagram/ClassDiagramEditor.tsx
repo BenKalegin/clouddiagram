@@ -3,8 +3,9 @@ import React from "react";
 import {Layer, Stage} from 'react-konva';
 import Konva from "konva";
 import {Link} from "./Link";
-import {classDiagramSelector, DiagramId} from "./model";
+import {classDiagramSelector} from "./model";
 import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilValue} from "recoil";
+import {DiagramId} from "../diagramEditor/diagramEditorModel";
 
 export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
     const diagram = useRecoilValue(classDiagramSelector(diagramId))

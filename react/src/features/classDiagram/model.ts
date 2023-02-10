@@ -2,7 +2,7 @@ import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../../package/packageModel";
 import {RecoilState, RecoilValue, selectorFamily} from "recoil";
-import {elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 
 export type NodePlacement = {
@@ -42,7 +42,6 @@ export interface ClassDiagramState extends Diagram {
 export type NodeId = Id;
 export type PortId = Id;
 export type LinkId = Id;
-export type DiagramId = Id;
 
 
 const renderPort = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): PortRender => {

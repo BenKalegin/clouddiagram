@@ -43,14 +43,4 @@ export interface Diagram extends DiagramElement{
     title?: string
 }
 
-export interface ConnectorPlacement {
-    x: number;
-    y: number;
-    points: number[];
-}
-
-// export const generateId = (): Id => {
-//     return nanoid(6);
-// }
-
 

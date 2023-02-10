@@ -5,8 +5,7 @@ import {Scaffold} from "../scaffold/Scaffold";
 import {Activation} from "./Activation";
 import {DrawingMessage} from "./DrawingMessage";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {elementsAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
-import {DiagramId} from "../classDiagram/model";
+import {DiagramId, elementsAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
 import {Bounds} from "../../common/model";
 
 export interface LifelineProps {
@@ -59,8 +58,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             {lifeline.activations.map((activation, i) =>
                 <Activation
                     key={i}
-                    activationId={activation.id}
-                    lifelineId={lifelineId}
+                    activationId={activation}
                     diagramId={diagramId}
                 />
             )

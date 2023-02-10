@@ -1,18 +1,16 @@
 import {Rect} from "react-konva";
 import {useRecoilValue} from "recoil";
-import {ActivationId, activationPlacementSelector, LifelineId} from "./model";
-import {linkingAtom} from "../diagramEditor/diagramEditorModel";
-import {DiagramId} from "../classDiagram/model";
+import {ActivationId, activationRenderSelector} from "./model";
+import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 
 export interface ActivationProps {
     activationId: ActivationId
-    lifelineId: LifelineId
     diagramId: DiagramId
 }
 
-export const Activation = ({activationId, lifelineId, diagramId}: ActivationProps) => {
+export const Activation = ({activationId, diagramId}: ActivationProps) => {
 
-    const placement = useRecoilValue(activationPlacementSelector({activationId, lifelineId, diagramId}))
+    const render = useRecoilValue(activationRenderSelector({activationId, diagramId}))
     const linking = useRecoilValue(linkingAtom)
     const linkingTarget = linking?.targetElement;
     const linkingSource = linking?.sourceElement;
@@ -26,7 +24,7 @@ export const Activation = ({activationId, lifelineId, diagramId}: ActivationProp
             shadowBlur={3}
             shadowOffset={{x: 2, y: 2}}
             shadowOpacity={0.4}
-            {...placement}
+            {...render.bounds}
         >
         </Rect>
     )

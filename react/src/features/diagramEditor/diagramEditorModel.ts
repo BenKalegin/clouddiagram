@@ -1,7 +1,6 @@
 import {Coordinate, Diagram} from "../../common/model";
 import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {atom, atomFamily, selectorFamily} from "recoil";
-import {DiagramId} from "../classDiagram/model";
 import {elements} from "../demo";
 import {nanoid} from 'nanoid';
 
@@ -26,6 +25,8 @@ export interface MoveResize {
 export interface Scrub {
 
 }
+
+export type DiagramId = Id;
 
 export interface DiagramEditor {
     diagramId: Id
@@ -82,5 +83,13 @@ export const snapGridSizeAtom = atom<number>({
 export const generateId = (): string => {
     return nanoid(6);
 }
+
+export interface ConnectorRender {
+    x: number;
+    y: number;
+    points: number[];
+}
+
+
 
 

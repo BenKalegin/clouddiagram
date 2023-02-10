@@ -1,8 +1,7 @@
-import {Bounds, ConnectorPlacement, Coordinate, Diagram} from "../../common/model";
+import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {DefaultValue, RecoilState, RecoilValue, selectorFamily} from "recoil";
-import {elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
-import {DiagramId} from "../classDiagram/model";
+import {ConnectorRender, DiagramId, elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {ElementMovePhase} from "../diagramEditor/diagramEditorSlice";
 
@@ -16,10 +15,18 @@ export type ActivationId = Id;
 export type MessageId = Id;
 
 
+export interface ActivationPlacement {
+}
+
 export interface ActivationState extends DiagramElement {
     start: number;
     length: number;
-    placement: Bounds;
+    lifelineId: LifelineId;
+    placement: ActivationPlacement;
+}
+
+export interface ActivationRender {
+    bounds: Bounds;
 }
 
 export interface LifelinePlacement{
@@ -28,7 +35,7 @@ export interface LifelinePlacement{
 }
 
 export interface LifelineState extends DiagramElement {
-    activations: ActivationState[]
+    activations: ActivationId[]
     placement: LifelinePlacement;
     title: string;
 }
@@ -44,13 +51,17 @@ export enum MessageKind {
     */
 }
 
-export interface MessagePlacement extends ConnectorPlacement {
+export interface MessageRender extends ConnectorRender {
+}
+
+export interface MessagePlacement {
+    //cornerStyle: CornerStyle;
 }
 
 export interface MessageState extends DiagramElement {
     kind: MessageKind
-    sourceActivation: Id
-    targetActivation: Id
+    activation1: Id
+    activation2: Id
     sourceActivationOffset: number
     placement: MessagePlacement
 }
@@ -58,7 +69,7 @@ export interface MessageState extends DiagramElement {
 export interface SequenceDiagramState extends Diagram {
     lifelines: {[id: LifelineId]: LifelineState}
     messages: {[id: MessageId]: MessageState}
-    //activations: {[id: string]: ActivationPlacement }
+    activations: {[id: ActivationId]: ActivationState}
 }
 
 export const moveLifeline = (placement: LifelinePlacement, newX: number) => {
@@ -69,22 +80,26 @@ export const resizeLifeline = (placement: LifelinePlacement, newWidth: number) =
     return {...placement, headBounds: {...placement.headBounds, width: Math.max(10, newWidth)}}
 }
 
-export const placeActivation = (activation: ActivationState, lifelinePlacement: LifelinePlacement): Bounds => {
+export const renderActivation = (activation: ActivationState, lifelinePlacement: LifelinePlacement): ActivationRender => {
     return {
-        x: lifelinePlacement.headBounds.x + lifelinePlacement.headBounds.width / 2 - activationWidth / 2,
-        y: lifelinePlacement.headBounds.y + lifelinePlacement.headBounds.height + 2 /* shadow*/ + activation.start,
-        width: activationWidth,
-        height: activation.length
+        bounds:
+            {
+                x: lifelinePlacement.headBounds.x + lifelinePlacement.headBounds.width / 2 - activationWidth / 2,
+                y: lifelinePlacement.headBounds.y + lifelinePlacement.headBounds.height + 2 /* shadow*/ + activation.start,
+                width: activationWidth,
+                height: activation.length
+            }
     }
 }
 
-export const messagePlacement = (source: ActivationState, target: ActivationState, messageOffset: number): MessagePlacement => {
+export const renderMessage = (activation1: ActivationRender, activation2: ActivationRender, messageOffset: number): MessageRender => {
     return {
-        x: source.placement.x + source.placement.width,
-        y: source.placement.y + messageOffset,
-        points: [0, 0, target.placement.x - source.placement.x - source.placement.width, 0],
+        x: activation1.bounds.x + activation1.bounds.width,
+        y: activation1.bounds.y + messageOffset,
+        points: [0, 0, activation2.bounds.x - activation1.bounds.x - activation1.bounds.width, 0],
     }
 }
+
 
 export function handleSequenceMoveElement(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, phase: ElementMovePhase, elementId: Id, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
@@ -136,12 +151,13 @@ export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[
 export function findTargetActivation(activations:  {[id: string]: ActivationState}, mousePos: Coordinate) : ActivationState | undefined {
     const tolerance = 3
 
-    return Object.values(activations).find(a =>
-        a.placement.x - tolerance <= mousePos.x &&
-        a.placement.x + a.placement.width + tolerance >= mousePos.x &&
-        a.placement.y - tolerance <= mousePos.y &&
-        a.placement.y + a.placement.height + tolerance >= mousePos.y
-    )
+    return undefined;
+    // return Object.values(activations).find(a =>
+    //     a.placement.x - tolerance <= mousePos.x &&
+    //     a.placement.x + a.placement.width + tolerance >= mousePos.x &&
+    //     a.placement.y - tolerance <= mousePos.y &&
+    //     a.placement.y + a.placement.height + tolerance >= mousePos.y
+    // )
 }
 
 // export function autoConnectActivations(diagram: WritableDraft<SequenceDiagramState>, sourceId: Id, targetId: Id, sourceOffset: number) {
@@ -188,13 +204,37 @@ export const lifelinePlacementSelector = selectorFamily<LifelinePlacement, {life
     }
 })
 
-export const activationPlacementSelector = selectorFamily<Bounds, {activationId: Id, lifelineId: Id, diagramId: DiagramId}>({
+export const activationSelector = selectorFamily<ActivationState, {activationId: Id, diagramId: DiagramId}>({
     key: 'activationPlacement',
-    get: ({activationId, lifelineId, diagramId}) => ({get}) => {
-        const lifeline = get(lifelineSelector({lifelineId, diagramId}));
-        const lifelineBounds = get(lifelinePlacementSelector({lifelineId, diagramId}));
-        const activation = lifeline.activations.find(a => a.id === activationId);
-        return placeActivation(activation!, lifelineBounds)
+    get: ({activationId, diagramId}) => ({get}) => {
+        const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+        return diagram.activations[activationId];
     }
 })
 
+export const activationRenderSelector = selectorFamily<ActivationRender, {activationId: Id, diagramId: DiagramId}>({
+    key: 'activationPlacement',
+    get: ({activationId, diagramId}) => ({get}) => {
+        const activation = get(activationSelector({activationId, diagramId}));
+        const lifelineBounds = get(lifelinePlacementSelector({lifelineId: activation.lifelineId, diagramId}));
+        return renderActivation(activation!, lifelineBounds)
+    }
+})
+
+export const messageSelector = selectorFamily<MessageState, {messageId: MessageId, diagramId: DiagramId}>({
+    key: 'message',
+    get: ({messageId, diagramId}) => ({get}) => {
+        const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+        return diagram.messages[messageId];
+    }
+})
+
+export const messageRenderSelector = selectorFamily<MessageRender, {messageId: MessageId, diagramId: DiagramId}>({
+    key: 'linkPlacement',
+    get: ({messageId, diagramId}) => ({get}) => {
+        const message = get(messageSelector({messageId, diagramId}));
+        const activation1 = get(activationRenderSelector({activationId: message.activation1, diagramId: diagramId}));
+        const activation2 = get(activationRenderSelector({activationId: message.activation2, diagramId: diagramId}));
+        return renderMessage(activation1, activation2, message.sourceActivationOffset);
+    }
+})

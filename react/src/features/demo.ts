@@ -1,4 +1,4 @@
-import {ClassDiagramState, CornerStyle, LinkPlacement, NodePlacement, PortPlacement} from "./classDiagram/model";
+import {ClassDiagramState, LinkPlacement, NodePlacement, PortPlacement} from "./classDiagram/model";
 import {zeroBounds} from "../common/model";
 import {
     ActivationState,
@@ -8,9 +8,7 @@ import {
     LifelinePlacement,
     LifelineState,
     MessageKind,
-    messagePlacement,
     MessageState,
-    placeActivation,
     SequenceDiagramState
 } from "./sequenceDiagram/model";
 import {DiagramElement, ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../package/packageModel";
@@ -164,9 +162,11 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
 };
 
 export const getSequenceDemoDiagram = (): SequenceDiagramState => {
+    const lifeline1Id = 'line1';
     const activation1: ActivationState = {
         type: ElementType.SequenceActivation,
         id: 'act1',
+        lifelineId: lifeline1Id,
         start: 50,
         length: 100,
         placement: zeroBounds
@@ -186,15 +186,17 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
     const lifeline1: LifelineState = {
         placement: lifeline1Placement,
         type: ElementType.SequenceLifeLine,
-        id: 'line1',
+        id: lifeline1Id,
         title: 'Alice',
-        activations: [activation1]
+        activations: [activation1.id]
     }
     elements[lifeline1.id] = lifeline1;
 
+    const lifeline2Id = 'line2';
     const activation2: ActivationState = {
         type: ElementType.SequenceActivation,
         id: 'act2',
+        lifelineId: lifeline2Id,
         start: 50,
         length: 100,
         placement: zeroBounds
@@ -212,9 +214,9 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
 
     const lifeline2: LifelineState = {
         type: ElementType.SequenceLifeLine,
-        id: 'line2',
+        id: lifeline2Id,
         title: 'Bob',
-        activations: [activation2],
+        activations: [activation2.id],
         placement: lifeline2Placement
     }
     elements[lifeline2.id] = lifeline2;
@@ -229,8 +231,8 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         type: ElementType.SequenceMessage,
         kind: MessageKind.Call,
         id: 'message1',
-        sourceActivation: 'act1',
-        targetActivation: 'act2',
+        activation1: 'act1',
+        activation2: 'act2',
         sourceActivationOffset: 10,
         placement: {
             x: 0, y: 0, points: []
@@ -242,21 +244,14 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         [message1.id]: message1
     }
 
-    const activations: { [id: Id]:  ActivationState} = {
+    const activations: { [id: Id]: ActivationState } = {
         [activation1.id]: activation1,
         [activation2.id]: activation2
     }
-
-    for (let lifeline of Object.values(lifelines))
-        for(let activation of lifeline.activations)
-            activation.placement = placeActivation(activation, lifeline.placement);
-
-    for (let message of Object.values(messages))
-        message.placement = messagePlacement(activations[message.sourceActivation], activations[message.targetActivation], message.sourceActivationOffset);
-
     return {
         lifelines,
         messages,
+        activations,
         type: ElementType.SequenceDiagram,
         id: 'sequence-d-1',
         title: 'Demo Sequence Diagram'

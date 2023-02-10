@@ -1,11 +1,12 @@
 import {Arrow} from "react-konva";
-import {MessageState} from "./model";
+import {useRecoilValue} from "recoil";
+import {Id} from "../../package/packageModel";
+import {messageRenderSelector} from "./model";
+import {DiagramId} from "../diagramEditor/diagramEditorModel";
 
-export interface MessageProps {
-    message: MessageState
-}
+export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: DiagramId  }) => {
+    const render = useRecoilValue(messageRenderSelector({messageId, diagramId}))
 
-export const Message = ({message: {placement}}: MessageProps) => {
     return (
         <Arrow
             fill={"burlywood"}
@@ -18,9 +19,9 @@ export const Message = ({message: {placement}}: MessageProps) => {
             pointerAtBeginning={false}
             pointerAtEnding={true}
 
-            x={placement.x}
-            y={placement.y}
-            points={placement.points}
+            x={render.x}
+            y={render.y}
+            points={render.points}
         />
     )
 }
