@@ -2,9 +2,7 @@ import {Bounds, Coordinate, zeroCoordinate} from "../../common/model";
 import React from "react";
 import {Rect} from "react-konva";
 import Konva from "konva";
-import {useRecoilTransaction_UNSTABLE} from "recoil";
-import {Action} from "@reduxjs/toolkit";
-import {elementMoveAction, ElementMovePhase, handleAction} from "../diagramEditor/diagramEditorSlice";
+import {elementMoveAction, ElementMovePhase, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {Id} from "../../package/packageModel";
 import KonvaEventObject = Konva.KonvaEventObject;
 
@@ -17,15 +15,10 @@ export interface BackgroundProps {
 
 export const Background = (props: BackgroundProps) => {
 
-    const [startNodePos, setStartNodePos] = React.useState<Coordinate>(zeroCoordinate);
-    const [startPointerPos, setStartPointerPos] = React.useState<Coordinate>(zeroCoordinate);
+    const [startNodePos, setStartNodePos] = React.useState<Coordinate | undefined>();
+    const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
 
-    const dispatch = useRecoilTransaction_UNSTABLE(
-        ({get, set}) => (action: Action) => {
-            handleAction(action, get, set);
-        },
-        []
-    )
+    const dispatch = useDispatch()
 
     function screenToCanvas(e: KonvaEventObject<DragEvent>) {
         const stage = e.target.getStage()?.getPointerPosition() ?? zeroCoordinate;
@@ -43,6 +36,7 @@ export const Background = (props: BackgroundProps) => {
                 const pos = screenToCanvas(e);
                 setStartNodePos(props.nodeBounds);
                 setStartPointerPos(pos);
+
                 dispatch(elementMoveAction({
                     phase: ElementMovePhase.start,
                     elementId: props.originId,
@@ -51,15 +45,19 @@ export const Background = (props: BackgroundProps) => {
                     currentPointerPos: pos}))
             }}
             onDragMove={(e) => {
-                dispatch(elementMoveAction({
-                    phase: ElementMovePhase.move,
-                    elementId: props.originId,
-                    startNodePos: startNodePos,
-                    startPointerPos: startPointerPos,
-                    currentPointerPos: screenToCanvas(e)}));
+                // check required because DragMove event can be received before DragStart updated the state
+                if (startPointerPos && startNodePos)
+                    dispatch(elementMoveAction({
+                        phase: ElementMovePhase.move,
+                        elementId: props.originId,
+                        startNodePos: startNodePos,
+                        startPointerPos: startPointerPos,
+                        currentPointerPos: screenToCanvas(e)}));
             }}
             onDragEnd={(e) => {
-                dispatch(elementMoveAction({
+                // check required because DragMove event can be received before DragStart updated the state
+                if (startPointerPos && startNodePos)
+                    dispatch(elementMoveAction({
                     phase: ElementMovePhase.end,
                     elementId: props.originId,
                     startNodePos: startNodePos,

@@ -1,7 +1,7 @@
-import {Bounds, Coordinate} from "../../common/model";
+import {Coordinate} from "../../common/model";
 import {elementsAtom} from "./diagramEditorModel";
 import {ElementType, Id} from "../../package/packageModel";
-import {RecoilState, RecoilValue} from "recoil";
+import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {handleClassDiagramAction} from "../classDiagram/classDiagramSlice";
 import {Action, createAction} from "@reduxjs/toolkit";
@@ -62,8 +62,17 @@ export interface AddNodeAndConnectAction {
 
 //export type Action = ElementResizeAction | DropFromPaletteAction | ElementSelectAction | StartLinkingAction | MoveResizeAction | DrawLinkingAction | linkToNewDialogCompleted | AddNodeAndConnectAction
 
+export function useDispatch() {
+    return useRecoilTransaction_UNSTABLE(
+        ({get, set}) => (action: Action) => {
+            handleAction(action, get, set);
+        },
+        []
+    )
 
-export function handleAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
+}
+
+function handleAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
     const activeDiagramId = get(activeDiagramIdAtom);
     const diagramKind = get(elementsAtom(activeDiagramId)).type;
     switch (diagramKind) {

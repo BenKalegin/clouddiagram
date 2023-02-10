@@ -1,18 +1,11 @@
 import React, {ReactNode} from "react";
 import {GalleryItem} from "../toolbox/models";
-import {useRecoilTransaction_UNSTABLE} from "recoil";
-import {dropFromPaletteAction, handleAction} from "../diagramEditor/diagramEditorSlice";
-import {Action} from "@reduxjs/toolkit";
+import {dropFromPaletteAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 
 export function HtmlDrop(props: { children: ReactNode }) {
     const {children} = props;
 
-    const dispatch = useRecoilTransaction_UNSTABLE(
-        ({get, set}) => (action: Action) => {
-            handleAction(action, get, set);
-        },
-        []
-    )
+    const dispatch = useDispatch();
 
     return (
         <div
