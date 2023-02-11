@@ -1,4 +1,4 @@
-import {Coordinate} from "../../common/model";
+import {Bounds, Coordinate} from "../../common/model";
 import {elementsAtom} from "./diagramEditorModel";
 import {ElementType, Id} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
@@ -7,18 +7,24 @@ import {handleClassDiagramAction} from "../classDiagram/classDiagramSlice";
 import {Action, createAction} from "@reduxjs/toolkit";
 import {handleSequenceDiagramAction} from "../sequenceDiagram/sequenceDiagramSlice";
 
-export enum ElementMovePhase {
+export enum ElementMoveResizePhase {
     start  = "start",
     move   = "move",
     end    = "end",
 }
 export const elementMoveAction = createAction<{
     elementId: Id
-    phase: ElementMovePhase
+    phase: ElementMoveResizePhase
     currentPointerPos: Coordinate
     startPointerPos: Coordinate
     startNodePos: Coordinate
 }>("editor/elementMove")
+
+export const elementResizeAction = createAction<{
+    elementId: Id
+    phase: ElementMoveResizePhase
+    suggestedBounds: Bounds
+}>("editor/elementResize")
 
 export const dropFromPaletteAction = createAction<{
     droppedAt: Coordinate;

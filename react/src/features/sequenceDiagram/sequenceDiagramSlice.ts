@@ -1,7 +1,7 @@
 import {Action} from "@reduxjs/toolkit";
 import {RecoilState, RecoilValue} from "recoil";
-import {dropFromPaletteAction, elementMoveAction} from "../diagramEditor/diagramEditorSlice";
-import {handleSequenceDropFromLibrary, handleSequenceMoveElement} from "./model";
+import {dropFromPaletteAction, elementMoveAction, elementResizeAction} from "../diagramEditor/diagramEditorSlice";
+import {handleSequenceDropFromLibrary, handleSequenceMoveElement, handleSequenceResizeElement} from "./model";
 
 
 export function handleSequenceDiagramAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
@@ -13,29 +13,16 @@ export function handleSequenceDiagramAction(action: Action, get: <T>(a: RecoilVa
         const {currentPointerPos, phase, startNodePos, startPointerPos, elementId} = action.payload;
         handleSequenceMoveElement(get, set, phase, elementId, currentPointerPos, startPointerPos, startNodePos);
     }
+    else if (elementResizeAction.match(action)) {
+        const {phase, elementId, suggestedBounds} = action.payload;
+        handleSequenceResizeElement(get, set, phase, elementId, suggestedBounds);
+    }
 }
-
-// export interface SequenceDiagramEditor extends BaseDiagramEditor{
-//     type: DiagramEditorType.Sequence
-//     diagram: SequenceDiagramState
-// }
-
-
-// const initialState: SequenceDiagramEditor = {
-//     diagram: {} as SequenceDiagramState,
-//     selectedElements: [],
-//     snapGridSize: 0,
-//     type: DiagramEditorType.Sequence
-//
-// }
 
 // export const sequenceDiagramSlice = createSlice({
 //     name: 'sequenceDiagramEditor',
 //     initialState,
 //     reducers: {
-//         nodeResize: (editor, action: PayloadAction<ElementResizeAction>) => {
-//             resizeLifeline(editor.diagram, action.payload.deltaBounds, action.payload.elementId);
-//         },
 //
 //         connectExisting: (editor) => {
 //             const linking = current(editor).linking!

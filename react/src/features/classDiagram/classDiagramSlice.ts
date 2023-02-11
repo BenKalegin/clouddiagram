@@ -1,13 +1,8 @@
 import {Id} from "../../package/packageModel";
 import {RecoilState, RecoilValue} from "recoil";
-import {dropFromPaletteAction, elementMoveAction} from "../diagramEditor/diagramEditorSlice";
-import {addNewElementAt, moveElement} from "./model";
+import {dropFromPaletteAction, elementMoveAction, elementResizeAction} from "../diagramEditor/diagramEditorSlice";
+import {addNewElementAt, moveElement, resizeElement} from "./model";
 import {Action} from "@reduxjs/toolkit";
-// export interface ClassDiagramEditor extends BaseDiagramEditor {
-//     type: DiagramEditorType.Class
-//     diagram: ClassDiagramState
-//     isNodePropsDialogOpen?: boolean;
-// }
 
 interface NodePropsChangedAction {
     save: boolean
@@ -22,18 +17,12 @@ export function handleClassDiagramAction(action: Action, get: <T>(a: RecoilValue
     }else if(elementMoveAction.match(action)){
         const {elementId, currentPointerPos, startNodePos, startPointerPos} = action.payload;
         moveElement(get, set, elementId, currentPointerPos, startPointerPos, startNodePos);
+    }else if(elementResizeAction.match(action)){
+        const {elementId, suggestedBounds} = action.payload;
+        resizeElement(get, set, elementId, suggestedBounds);
     }
 }
 
-
-// eslint-disable-next-line react-hooks/rules-of-hooks
-// export const handleDrop = useRecoilTransaction_UNSTABLE(
-//     ({get, set}) => (action: DropFromPaletteAction) => {
-//             addNewElementAt(get, set, action.droppedAt, action.name);
-//     },
-//     []
-// )
-//
 
 //
 // const initialState: ClassDiagramEditor = {} as ClassDiagramEditor;
@@ -43,10 +32,6 @@ export function handleClassDiagramAction(action: Action, get: <T>(a: RecoilValue
 //     name: 'classDiagramEditor',
 //     initialState,
 //     reducers: {
-//         nodeResize: (editor, action: PayloadAction<ElementResizeAction>) => {
-//                 resizeNode(editor.diagram, action.payload.deltaBounds, action.payload.elementId)
-//         },
-//
 //         nodeShowProperties: (editor) => {
 //             editor.isNodePropsDialogOpen = true;
 //         },

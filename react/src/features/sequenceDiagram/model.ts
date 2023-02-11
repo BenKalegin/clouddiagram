@@ -3,7 +3,7 @@ import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {DefaultValue, RecoilState, RecoilValue, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
-import {ElementMovePhase} from "../diagramEditor/diagramEditorSlice";
+import {ElementMoveResizePhase} from "../diagramEditor/diagramEditorSlice";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
@@ -72,13 +72,6 @@ export interface SequenceDiagramState extends Diagram {
     activations: {[id: ActivationId]: ActivationState}
 }
 
-export const moveLifeline = (placement: LifelinePlacement, newX: number) => {
-    return {...placement, headBounds: {...placement.headBounds, x: newX}}
-}
-
-export const resizeLifeline = (placement: LifelinePlacement, newWidth: number) => {
-    return {...placement, headBounds: {...placement.headBounds, width: Math.max(10, newWidth)}}
-}
 
 export const renderActivation = (activation: ActivationState, lifelinePlacement: LifelinePlacement): ActivationRender => {
     return {
@@ -101,11 +94,25 @@ export const renderMessage = (activation1: ActivationRender, activation2: Activa
 }
 
 
-export function handleSequenceMoveElement(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, phase: ElementMovePhase, elementId: Id, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
+export function handleSequenceMoveElement(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, phase: ElementMoveResizePhase, elementId: Id, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
-    const newPlacement = moveLifeline(diagram.lifelines[elementId].placement, currentPointerPos.x - startPointerPos.x + startNodePos.x)
+    const newPlacement = {...(diagram.lifelines[elementId].placement),
+        headBounds: {
+            ...diagram.lifelines[elementId].placement.headBounds,
+            x: currentPointerPos.x - startPointerPos.x + startNodePos.x
+        }
+    }
+    const newDiagram = {...diagram, lifelines: {...diagram.lifelines, [elementId]: {...diagram.lifelines[elementId], placement: newPlacement}}}
+    set(elementsAtom(diagramId), newDiagram)
+}
+
+export function handleSequenceResizeElement(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, phase: ElementMoveResizePhase, elementId: Id, suggestedBounds: Bounds) {
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+    const placement = diagram.lifelines[elementId].placement
+    const newPlacement = {...placement, headBounds: {...placement.headBounds, width: Math.max(10, suggestedBounds.width)}}
     const newDiagram = {...diagram, lifelines: {...diagram.lifelines, [elementId]: {...diagram.lifelines[elementId], placement: newPlacement}}}
     set(elementsAtom(diagramId), newDiagram)
 }

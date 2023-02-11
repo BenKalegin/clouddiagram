@@ -9,7 +9,6 @@ import {Id} from "../../package/packageModel";
 export interface ScaffoldProps {
     bounds: Bounds;
     isFocused: boolean;
-    onResize: (suggestedBounds: Bounds) => void;
     isLinking: boolean;
     elementId: Id;
     linkingDrawing: JSX.Element
@@ -64,7 +63,11 @@ export const Scaffold = (props: ScaffoldProps) => {
                 doubleClick={() => console.log("double click")}
 
             />
-            <ResizeHandles perimeterBounds={bounds} nodeBounds={props.bounds}  onResize={newBounds => props.onResize(newBounds)}/>
+            <ResizeHandles
+                perimeterBounds={bounds}
+                nodeBounds={props.bounds}
+                elementId={props.elementId}
+            />
             {props.isFocused && <FocusFrame bounds={bounds} />}
             {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.elementId}/>}
             {props.isFocused && props.isLinking && props.linkingDrawing}

@@ -4,7 +4,6 @@ import {ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from ".
 import {RecoilState, RecoilValue, selectorFamily} from "recoil";
 import {DiagramId, elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
-
 export type NodePlacement = {
     bounds: Bounds
 }
@@ -163,38 +162,6 @@ export const nodePlacementAfterResize = (nodePlacement: Bounds, newBounds: Bound
     }
 }
 
-// export function resizeNode(diagramId: Id, newBounds: Bounds, elementId: Id) {
-//
-//     const node = useRecoilValue(selectedElementsAtom) as NodeState;
-//
-//
-//     const oldNode = current(diagram).nodes[elementId];
-//
-//     const nodePlacement = nodePlacementAfterResize(oldNode, newBounds);
-//     diagram.nodes[elementId] = nodePlacement;
-//
-//     const diagram = selectElementById(store.getState(), current(diagram).id);
-//     const portAffected = node.ports.map(port => diagram.ports[port]);
-//     const portPlacements: { [id: Id]: Bounds } = {};
-//
-//     portAffected.forEach(port => {
-//         const bounds = portBounds(nodePlacement, port);
-//         portPlacements[port.id] = bounds;
-//         port.placement = bounds;
-//     });
-//
-//     const links: { [id: Id]: LinkState } = current(diagram.links);
-//     for (let link of Object.values(links)) {
-//         const bounds1 = portPlacements[link.port1];
-//         const bounds2 = portPlacements[link.port2];
-//         if (bounds1 || bounds2) {
-//             diagram.links[link.id].placement = linkPlacement(
-//                 diagram.ports[link.port1],
-//                 diagram.ports[link.port2]);
-//         }
-//     }
-// }
-
 export function addNewElementAt(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, droppedAt: Coordinate, name: string) {
 
     const defaultWidth = 100;
@@ -232,6 +199,22 @@ export function moveElement(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: Recoil
             ...nodePlacement.bounds,
             x: startNodePos.x + currentPointerPos.x - startPointerPos.x,
             y: startNodePos.y + currentPointerPos.y - startPointerPos.y
+        }
+    }
+    const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [nodeId]: updatedNodePlacement}};
+    set(elementsAtom(diagramId), updatedDiagram)
+}
+
+export function resizeElement(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, nodeId: Id, suggestedBounds: Bounds) {
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+    const nodePlacement = diagram.nodes[nodeId];
+    suggestedBounds.width = Math.max(10, suggestedBounds.width);
+    suggestedBounds.height = Math.max(10, suggestedBounds.height);
+    const updatedNodePlacement = {
+        ...nodePlacement,
+        bounds: {
+            ...suggestedBounds,
         }
     }
     const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [nodeId]: updatedNodePlacement}};

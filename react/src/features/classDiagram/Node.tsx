@@ -7,7 +7,6 @@ import {classDiagramSelector, NodeId, NodePlacement} from "./model";
 import {DefaultValue, selectorFamily, useRecoilState, useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
 import {NodeState} from "../../package/packageModel";
-import {Bounds} from "../../common/model";
 
 export interface NodeProps {
     nodeId: NodeId
@@ -30,16 +29,12 @@ export const nodePlacement = selectorFamily<NodePlacement, {nodeId: NodeId, diag
 
 export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const node = useRecoilValue(elementsAtom(nodeId)) as NodeState
-    const [placement, setPlacement] = useRecoilState(nodePlacement({nodeId, diagramId}))
+    const placement = useRecoilValue(nodePlacement({nodeId, diagramId}))
     const [selectedElements, setSelectedElements] = useRecoilState(selectedElementsAtom)
     const linking = useRecoilValue(linkingAtom)
 
     const isSelected = selectedElements.includes(nodeId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1) === nodeId;
-
-    function updatePlacement(newBounds: Bounds) {
-        setPlacement({...placement, bounds: newBounds})
-    }
 
     return (
         <React.Fragment>
@@ -60,7 +55,6 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     bounds={placement.bounds}
                     isFocused={isFocused}
                     isLinking={linking.drawing}
-                    onResize={e => updatePlacement(e)}
                     linkingDrawing={<DrawingLink nodePlacement={placement.bounds}/>}
                 />
             )}

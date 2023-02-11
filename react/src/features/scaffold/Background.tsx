@@ -2,7 +2,7 @@ import {Bounds, Coordinate, zeroCoordinate} from "../../common/model";
 import React from "react";
 import {Rect} from "react-konva";
 import Konva from "konva";
-import {elementMoveAction, ElementMovePhase, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {elementMoveAction, ElementMoveResizePhase, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {Id} from "../../package/packageModel";
 import KonvaEventObject = Konva.KonvaEventObject;
 
@@ -38,7 +38,7 @@ export const Background = (props: BackgroundProps) => {
                 setStartPointerPos(pos);
 
                 dispatch(elementMoveAction({
-                    phase: ElementMovePhase.start,
+                    phase: ElementMoveResizePhase.start,
                     elementId: props.originId,
                     startNodePos: {x: props.nodeBounds.x, y: props.nodeBounds.y},
                     startPointerPos: pos,
@@ -48,17 +48,18 @@ export const Background = (props: BackgroundProps) => {
                 // check required because DragMove event can be received before DragStart updated the state
                 if (startPointerPos && startNodePos)
                     dispatch(elementMoveAction({
-                        phase: ElementMovePhase.move,
+                        phase: ElementMoveResizePhase.move,
                         elementId: props.originId,
                         startNodePos: startNodePos,
                         startPointerPos: startPointerPos,
                         currentPointerPos: screenToCanvas(e)}));
             }}
+
             onDragEnd={(e) => {
                 // check required because DragMove event can be received before DragStart updated the state
                 if (startPointerPos && startNodePos)
                     dispatch(elementMoveAction({
-                    phase: ElementMovePhase.end,
+                    phase: ElementMoveResizePhase.end,
                     elementId: props.originId,
                     startNodePos: startNodePos,
                     startPointerPos: startPointerPos,

@@ -1,7 +1,15 @@
-import {Bounds, Coordinate} from "../../common/model";
+import {Bounds, Coordinate, minus, zeroCoordinate} from "../../common/model";
 import React from "react";
 import {Rect} from "react-konva";
 import {enumKeys} from "../../common/EnumUtils";
+import {
+    ElementMoveResizePhase,
+    elementResizeAction,
+    useDispatch
+} from "../diagramEditor/diagramEditorSlice";
+import {Id} from "../../package/packageModel";
+import Konva from "konva";
+import KonvaEventObject = Konva.KonvaEventObject;
 
 export enum ResizeHandleDirection {
     North = 'n',
@@ -16,11 +24,11 @@ export enum ResizeHandleDirection {
 
 
 export interface ResizeHandleProps {
+    elementId: Id
     cursor: string;
     handlerBounds: Bounds;
     direction: ResizeHandleDirection;
     nodeBounds: Bounds;
-    onDrag: (bounds: Bounds) => void;
 }
 
 const calculateResizedBounds = (delta: Coordinate, original: Bounds, direction: ResizeHandleDirection): Bounds => {
@@ -46,7 +54,14 @@ const calculateResizedBounds = (delta: Coordinate, original: Bounds, direction: 
 };
 
 export const ResizeHandle = (props: ResizeHandleProps) => {
-    const [mouseStart, setMouseStart] = React.useState<Coordinate | undefined>(undefined);
+    const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
+
+    const dispatch = useDispatch();
+
+    function screenToCanvas(e: KonvaEventObject<DragEvent>) {
+        const stage = e.target.getStage()?.getPointerPosition() ?? zeroCoordinate;
+        return {x: stage.x, y: stage.y};
+    }
 
     return (
         <Rect
@@ -76,16 +91,36 @@ export const ResizeHandle = (props: ResizeHandleProps) => {
             }}
 
             onDragStart={(e) => {
-                setMouseStart({x: e.target.x(), y: e.target.y()})
+                const pos = screenToCanvas(e);
+                setStartPointerPos(pos);
+
+                dispatch(elementResizeAction({
+                    phase: ElementMoveResizePhase.start,
+                    elementId: props.elementId,
+                    suggestedBounds: props.nodeBounds,
+                }))
             }}
 
-            onDragMove={e => {
-                if (mouseStart) {
-                    const newCoordinate: Coordinate = {
-                        x: e.target.x() - mouseStart.x,
-                        y: e.target.y() - mouseStart.y
-                    }
-                    props.onDrag(calculateResizedBounds(newCoordinate, props.nodeBounds, props.direction));
+            onDragMove={(e) => {
+                // check required because DragMove event can be received before DragStart updated the state
+                if (startPointerPos) {
+                    const delta = minus(screenToCanvas(e), startPointerPos);
+                    dispatch(elementResizeAction({
+                        phase: ElementMoveResizePhase.move,
+                        elementId: props.elementId,
+                        suggestedBounds: calculateResizedBounds(delta, props.nodeBounds, props.direction)
+                    }));
+                }
+            }}
+            onDragEnd={(e) => {
+                // check required because DragMove event can be received before DragStart updated the state
+                if (startPointerPos) {
+                    const delta = minus(screenToCanvas(e), startPointerPos);
+                    dispatch(elementResizeAction({
+                        phase: ElementMoveResizePhase.end,
+                        elementId: props.elementId,
+                        suggestedBounds: calculateResizedBounds(delta, props.nodeBounds, props.direction)
+                    }));
                 }
             }}
         />
@@ -156,19 +191,19 @@ const resizeHandleCursor = (direction: ResizeHandleDirection): string => {
     }
 }
 
-export const ResizeHandles = (props: { perimeterBounds: Bounds, nodeBounds: Bounds, onResize: (bounds: Bounds) => void }) => {
+export const ResizeHandles = ({nodeBounds, perimeterBounds, elementId}: { perimeterBounds: Bounds, nodeBounds: Bounds, elementId: Id }) => {
 
-    const [nodeStart] = React.useState<Bounds>(props.nodeBounds);
+    const [nodeStart] = React.useState<Bounds>(nodeBounds);
     return (
         <>
             {enumKeys(ResizeHandleDirection).map((direction, index) =>
                 <ResizeHandle
                     key={index}
-                    handlerBounds={resizeHandleBounds(ResizeHandleDirection[direction], props.perimeterBounds)}
+                    elementId={elementId}
+                    handlerBounds={resizeHandleBounds(ResizeHandleDirection[direction], perimeterBounds)}
                     nodeBounds={nodeStart}
                     cursor={resizeHandleCursor(ResizeHandleDirection[direction])}
                     direction={ResizeHandleDirection[direction]}
-                    onDrag={newBounds => props.onResize(newBounds)}
                 />
             )}
         </>

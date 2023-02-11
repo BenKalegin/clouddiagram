@@ -6,7 +6,6 @@ import {Activation} from "./Activation";
 import {DrawingMessage} from "./DrawingMessage";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
-import {Bounds} from "../../common/model";
 
 export interface LifelineProps {
     lifelineId: LifelineId
@@ -17,12 +16,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     const [selectedElements, setSelectedElements] = useRecoilState(selectedElementsAtom)
     const isSelected = selectedElements.includes(lifelineId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1) === lifelineId;
-    const [placement, setPlacement] = useRecoilState(lifelinePlacementSelector({lifelineId, diagramId}))
+    const placement = useRecoilValue(lifelinePlacementSelector({lifelineId, diagramId}))
     const lifeline = useRecoilValue(elementsAtom(lifelineId)) as LifelineState
-    function updatePlacement(newBounds: Bounds) {
-        setPlacement(
-            {...placement, headBounds: {...placement.headBounds, x: newBounds.x, width: newBounds.width}})
-    }
     return (
         <Group>
             <Rect
@@ -72,7 +67,6 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                     }}
                     isFocused={isFocused}
                     isLinking={false}
-                    onResize={e => updatePlacement(e)}
                     linkingDrawing={<DrawingMessage lifelineId={lifelineId} diagramId={diagramId}  /> }
                 />
             )}
