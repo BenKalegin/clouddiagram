@@ -1,6 +1,6 @@
 import {Rect} from "react-konva";
 import {useRecoilValue} from "recoil";
-import {ActivationId, activationRenderSelector} from "./model";
+import {ActivationId, activationRenderSelector} from "./sequenceDiagramModel";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 
 export interface ActivationProps {

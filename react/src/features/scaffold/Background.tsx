@@ -2,7 +2,13 @@ import {Bounds, Coordinate, zeroCoordinate} from "../../common/model";
 import React from "react";
 import {Rect} from "react-konva";
 import Konva from "konva";
-import {elementMoveAction, ElementMoveResizePhase, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {
+    DialogOperation,
+    elementMoveAction,
+    ElementMoveResizePhase,
+    propertiesDialogAction,
+    useDispatch
+} from "../diagramEditor/diagramEditorSlice";
 import {Id} from "../../package/packageModel";
 import KonvaEventObject = Konva.KonvaEventObject;
 
@@ -10,7 +16,6 @@ export interface BackgroundProps {
     backgroundBounds: Bounds;
     nodeBounds: Bounds;
     originId: Id
-    doubleClick: () => void
 }
 
 export const Background = (props: BackgroundProps) => {
@@ -66,7 +71,11 @@ export const Background = (props: BackgroundProps) => {
                     currentPointerPos: screenToCanvas(e)}));
                 }
             }
-            onDblClick={() => props.doubleClick()}
+            onDblClick={() =>
+                dispatch(propertiesDialogAction({
+                    elementId: props.originId, dialogResult: DialogOperation.open
+                }))
+            }
         />
     );
 };

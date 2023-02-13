@@ -1,6 +1,5 @@
 import React from "react";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
-import {NodePropertiesDialog} from "../classDiagram/dialogs/NodePropertiesDialog";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
 import {Stack, styled, Tab, Tabs} from "@mui/material";
@@ -72,7 +71,6 @@ export const DiagramTabs = () => {
                         <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
                 </HtmlDrop>
             </div>
-            {diagramKind === ElementType.ClassDiagram && <NodePropertiesDialog/>}
             {diagramKind === ElementType.SequenceDiagram && <LinkToNewDialog/>}
         </Stack>
     )

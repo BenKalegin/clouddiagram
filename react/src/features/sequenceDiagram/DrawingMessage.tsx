@@ -7,7 +7,7 @@ import {
     lifelineSelector,
     renderMessage,
     renderActivation
-} from "./model";
+} from "./sequenceDiagramModel";
 import {useRecoilValue} from "recoil";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {ElementType} from "../../package/packageModel";

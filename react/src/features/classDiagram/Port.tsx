@@ -1,7 +1,7 @@
 import {Circle} from "react-konva";
 import React, {useState} from "react";
 import {useRecoilValue} from "recoil";
-import {NodeId, PortId, portRenderSelector, portSelector} from "./model";
+import {NodeId, PortId, portRenderSelector, portSelector} from "./classDiagramModel";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
 
 export interface PortProps {

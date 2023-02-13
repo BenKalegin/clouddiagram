@@ -3,9 +3,10 @@ import React from "react";
 import {Layer, Stage} from 'react-konva';
 import Konva from "konva";
 import {Link} from "./Link";
-import {classDiagramSelector} from "./model";
+import {ClassDiagramModalDialog, classDiagramSelector} from "./classDiagramModel";
 import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilValue} from "recoil";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
+import {NodePropertiesDialog} from "./dialogs/NodePropertiesDialog";
 
 export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
     const diagram = useRecoilValue(classDiagramSelector(diagramId))
@@ -16,9 +17,12 @@ export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
 
         }
     }
+
     const Bridge = useRecoilBridgeAcrossReactRoots_UNSTABLE();
 
     return (
+        <>
+        {diagram.modalDialog === ClassDiagramModalDialog.nodeProperties && <NodePropertiesDialog/>}
         <Stage
             width={window.innerWidth}
             height={window.innerHeight}
@@ -47,5 +51,6 @@ export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
                 </Layer>
             </Bridge>
         </Stage>
+        </>
     )
 };

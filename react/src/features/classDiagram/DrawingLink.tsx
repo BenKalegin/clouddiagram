@@ -4,7 +4,7 @@ import {Bounds} from "../../common/model";
 import {ElementType, PortAlignment, PortState} from "../../package/packageModel";
 import {useRecoilValue} from "recoil";
 import {linkingAtom} from "../diagramEditor/diagramEditorModel";
-import {renderLink} from "./model";
+import {renderLink} from "./classDiagramModel";
 
 export const DrawingLink = (props: { nodePlacement: Bounds }) => {
 

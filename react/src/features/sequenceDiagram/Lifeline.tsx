@@ -1,5 +1,5 @@
 import {Group, Line, Rect, Text} from "react-konva";
-import {LifelineId, lifelinePlacementSelector, lifelinePoints, LifelineState} from "./model";
+import {LifelineId, lifelinePlacementSelector, lifelinePoints, LifelineState} from "./sequenceDiagramModel";
 import React, {FC} from "react";
 import {Scaffold} from "../scaffold/Scaffold";
 import {Activation} from "./Activation";

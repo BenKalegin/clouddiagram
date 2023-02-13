@@ -60,8 +60,6 @@ export const Scaffold = (props: ScaffoldProps) => {
                 originId={props.elementId}
                 backgroundBounds={bounds}
                 nodeBounds={props.bounds}
-                doubleClick={() => console.log("double click")}
-
             />
             <ResizeHandles
                 perimeterBounds={bounds}

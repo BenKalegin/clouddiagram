@@ -1,7 +1,7 @@
 import React, {RefObject} from "react";
 import Konva from "konva";
 import {Layer, Stage} from "react-konva";
-import {sequenceDiagramSelector} from "./model";
+import {sequenceDiagramSelector} from "./sequenceDiagramModel";
 import {Lifeline} from "./Lifeline";
 import {Message} from "./Message";
 import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilValue} from "recoil";

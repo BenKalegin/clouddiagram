@@ -1,17 +1,13 @@
-import {Id} from "../../package/packageModel";
-import {RecoilState, RecoilValue} from "recoil";
-import {dropFromPaletteAction, elementMoveAction, elementResizeAction} from "../diagramEditor/diagramEditorSlice";
-import {addNewElementAt, moveElement, resizeElement} from "./model";
+import {
+    dropFromPaletteAction,
+    elementMoveAction,
+    elementResizeAction, Get, Set,
+    propertiesDialogAction
+} from "../diagramEditor/diagramEditorSlice";
+import {addNewElementAt, moveElement, nodePropertiesDialog, resizeElement} from "./classDiagramModel";
 import {Action} from "@reduxjs/toolkit";
 
-interface NodePropsChangedAction {
-    save: boolean
-    node: Id
-    text: string
-}
-
-
-export function handleClassDiagramAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
+export function handleClassDiagramAction(action: Action, get: Get, set: Set) {
     if (dropFromPaletteAction.match(action)) {
         addNewElementAt(get, set, action.payload.droppedAt, action.payload.name);
     }else if(elementMoveAction.match(action)){
@@ -20,6 +16,9 @@ export function handleClassDiagramAction(action: Action, get: <T>(a: RecoilValue
     }else if(elementResizeAction.match(action)){
         const {elementId, suggestedBounds} = action.payload;
         resizeElement(get, set, elementId, suggestedBounds);
+    }else if(propertiesDialogAction.match(action)){
+        const {elementId, dialogResult} = action.payload;
+        nodePropertiesDialog(get, set, elementId, dialogResult);
     }
 }
 
@@ -32,9 +31,6 @@ export function handleClassDiagramAction(action: Action, get: <T>(a: RecoilValue
 //     name: 'classDiagramEditor',
 //     initialState,
 //     reducers: {
-//         nodeShowProperties: (editor) => {
-//             editor.isNodePropsDialogOpen = true;
-//         },
 //
 //         nodeCloseProperties: (editor, action: PayloadAction<NodePropsChangedAction>) => {
 //             editor.isNodePropsDialogOpen = false;
@@ -74,7 +70,6 @@ export function handleClassDiagramAction(action: Action, get: <T>(a: RecoilValue
 //
 // export const {
 //     nodeResize,
-//     nodeShowProperties,
 //     nodeCloseProperties,
 //     dropFromPalette,
 //     continueLinking,

@@ -3,7 +3,7 @@ import {Rect, Text} from "react-konva";
 import {Port} from "./Port";
 import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "./DrawingLink";
-import {classDiagramSelector, NodeId, NodePlacement} from "./model";
+import {classDiagramSelector, NodeId, NodePlacement} from "./classDiagramModel";
 import {DefaultValue, selectorFamily, useRecoilState, useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
 import {NodeState} from "../../package/packageModel";

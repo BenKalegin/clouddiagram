@@ -1,4 +1,4 @@
-import {NodeId} from "../features/classDiagram/model";
+import {NodeId} from "../features/classDiagram/classDiagramModel";
 
 export type Id = string;
 export enum ElementType {

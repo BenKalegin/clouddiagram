@@ -1,4 +1,4 @@
-import {ClassDiagramState, LinkPlacement, NodePlacement, PortPlacement} from "./classDiagram/model";
+import {ClassDiagramState, LinkPlacement, NodePlacement, PortPlacement} from "./classDiagram/classDiagramModel";
 import {zeroBounds} from "../common/model";
 import {
     ActivationState,
@@ -10,7 +10,7 @@ import {
     MessageKind,
     MessageState,
     SequenceDiagramState
-} from "./sequenceDiagram/model";
+} from "./sequenceDiagram/sequenceDiagramModel";
 import {DiagramElement, ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../package/packageModel";
 
 
@@ -157,7 +157,8 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         type: ElementType.ClassDiagram,
         nodes: nodePlacements,
         ports: portPlacements,
-        links: linkPlacements
+        links: linkPlacements,
+        modalDialog: undefined,
     };
 };
 

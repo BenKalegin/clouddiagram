@@ -1,7 +1,7 @@
 import {Arrow} from "react-konva";
 import {useRecoilValue} from "recoil";
 import {Id} from "../../package/packageModel";
-import {messageRenderSelector} from "./model";
+import {messageRenderSelector} from "./sequenceDiagramModel";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
 
 export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: DiagramId  }) => {

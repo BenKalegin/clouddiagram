@@ -7,6 +7,9 @@ import {handleClassDiagramAction} from "../classDiagram/classDiagramSlice";
 import {Action, createAction} from "@reduxjs/toolkit";
 import {handleSequenceDiagramAction} from "../sequenceDiagram/sequenceDiagramSlice";
 
+export type Get = (<T>(a: RecoilValue<T>) => T)
+export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
+
 export enum ElementMoveResizePhase {
     start  = "start",
     move   = "move",
@@ -30,6 +33,17 @@ export const dropFromPaletteAction = createAction<{
     droppedAt: Coordinate;
     name: string
 }>("editor/dropFromPalette");
+
+export enum DialogOperation {
+    open = "open",
+    save = "save",
+    cancel = "cancel",
+}
+export const propertiesDialogAction = createAction<{
+    elementId: Id
+    dialogResult: DialogOperation
+}>("editor/showProperties");
+
 
 export interface ElementSelectAction {
     id: Id
@@ -66,8 +80,6 @@ export interface AddNodeAndConnectAction {
     name: string
 }
 
-//export type Action = ElementResizeAction | DropFromPaletteAction | ElementSelectAction | StartLinkingAction | MoveResizeAction | DrawLinkingAction | linkToNewDialogCompleted | AddNodeAndConnectAction
-
 export function useDispatch() {
     return useRecoilTransaction_UNSTABLE(
         ({get, set}) => (action: Action) => {
@@ -78,7 +90,7 @@ export function useDispatch() {
 
 }
 
-function handleAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
+function handleAction(action: Action, get: Get, set: Set) {
     const activeDiagramId = get(activeDiagramIdAtom);
     const diagramKind = get(elementsAtom(activeDiagramId)).type;
     switch (diagramKind) {

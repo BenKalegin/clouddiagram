@@ -1,10 +1,13 @@
 import {Action} from "@reduxjs/toolkit";
-import {RecoilState, RecoilValue} from "recoil";
-import {dropFromPaletteAction, elementMoveAction, elementResizeAction} from "../diagramEditor/diagramEditorSlice";
-import {handleSequenceDropFromLibrary, handleSequenceMoveElement, handleSequenceResizeElement} from "./model";
+import {
+    dropFromPaletteAction,
+    elementMoveAction,
+    elementResizeAction, Get, Set
+} from "../diagramEditor/diagramEditorSlice";
+import {handleSequenceDropFromLibrary, handleSequenceMoveElement, handleSequenceResizeElement} from "./sequenceDiagramModel";
 
 
-export function handleSequenceDiagramAction(action: Action, get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
+export function handleSequenceDiagramAction(action: Action, get: Get, set: Set) {
     if (dropFromPaletteAction.match(action)) {
         const {name, droppedAt} = action.payload;
         handleSequenceDropFromLibrary(get, set, droppedAt, name);

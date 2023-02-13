@@ -1,5 +1,5 @@
 import {Arrow} from "react-konva";
-import {MessagePlacement} from "../sequenceDiagram/model";
+import {MessagePlacement} from "../sequenceDiagram/sequenceDiagramModel";
 
 export function SuggestedMessage(props: { placement: MessagePlacement }) {
     return (

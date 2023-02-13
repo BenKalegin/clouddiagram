@@ -3,7 +3,7 @@ import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {DefaultValue, RecoilState, RecoilValue, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
-import {ElementMoveResizePhase} from "../diagramEditor/diagramEditorSlice";
+import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
@@ -94,7 +94,7 @@ export const renderMessage = (activation1: ActivationRender, activation2: Activa
 }
 
 
-export function handleSequenceMoveElement(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, phase: ElementMoveResizePhase, elementId: Id, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
+export function handleSequenceMoveElement(get: Get, set: Set, phase: ElementMoveResizePhase, elementId: Id, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
@@ -108,7 +108,7 @@ export function handleSequenceMoveElement(get: <T>(a: RecoilValue<T>) => T, set:
     set(elementsAtom(diagramId), newDiagram)
 }
 
-export function handleSequenceResizeElement(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, phase: ElementMoveResizePhase, elementId: Id, suggestedBounds: Bounds) {
+export function handleSequenceResizeElement(get: Get, set: Set, phase: ElementMoveResizePhase, elementId: Id, suggestedBounds: Bounds) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
     const placement = diagram.lifelines[elementId].placement
@@ -119,7 +119,7 @@ export function handleSequenceResizeElement(get: <T>(a: RecoilValue<T>) => T, se
 
 
 
-export function handleSequenceDropFromLibrary(get: <T>(a: RecoilValue<T>) => T, set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void, droppedAt: Coordinate, name: string) {
+export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coordinate, name: string) {
 
     const diagramId = get(activeDiagramIdAtom);
     const newLifeline: LifelineState = {

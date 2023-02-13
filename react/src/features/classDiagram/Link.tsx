@@ -1,6 +1,6 @@
 import React from "react";
 import {Path} from "react-konva";
-import {LinkId, linkRenderSelector} from "./model";
+import {LinkId, linkRenderSelector} from "./classDiagramModel";
 import {useRecoilValue} from "recoil";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
 
