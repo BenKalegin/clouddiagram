@@ -1,16 +1,14 @@
-import {Bounds, Coordinate, zeroCoordinate} from "../../common/model";
+import {Bounds, Coordinate} from "../../common/model";
 import React from "react";
 import {Rect} from "react-konva";
-import Konva from "konva";
 import {
     DialogOperation,
     elementMoveAction,
     ElementMoveResizePhase,
-    propertiesDialogAction,
+    propertiesDialogAction, screenToCanvas,
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
 import {Id} from "../../package/packageModel";
-import KonvaEventObject = Konva.KonvaEventObject;
 
 export interface BackgroundProps {
     backgroundBounds: Bounds;
@@ -24,11 +22,6 @@ export const Background = (props: BackgroundProps) => {
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
 
     const dispatch = useDispatch()
-
-    function screenToCanvas(e: KonvaEventObject<DragEvent>) {
-        const stage = e.target.getStage()?.getPointerPosition() ?? zeroCoordinate;
-        return {x: stage.x, y: stage.y};
-    }
 
     return (
         <Rect
@@ -50,7 +43,6 @@ export const Background = (props: BackgroundProps) => {
                     currentPointerPos: pos}))
             }}
             onDragMove={(e) => {
-                // check required because DragMove event can be received before DragStart updated the state
                 if (startPointerPos && startNodePos)
                     dispatch(elementMoveAction({
                         phase: ElementMoveResizePhase.move,

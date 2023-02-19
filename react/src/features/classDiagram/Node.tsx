@@ -7,6 +7,13 @@ import {classDiagramSelector, NodeId, NodePlacement} from "./classDiagramModel";
 import {DefaultValue, selectorFamily, useRecoilState, useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
 import {NodeState} from "../../package/packageModel";
+import {Coordinate} from "../../common/model";
+import {
+    elementMoveAction,
+    ElementMoveResizePhase,
+    screenToCanvas,
+    useDispatch
+} from "../diagramEditor/diagramEditorSlice";
 
 export interface NodeProps {
     nodeId: NodeId
@@ -32,6 +39,9 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const placement = useRecoilValue(nodePlacement({nodeId, diagramId}))
     const [selectedElements, setSelectedElements] = useRecoilState(selectedElementsAtom)
     const linking = useRecoilValue(linkingAtom)
+    const [startNodePos, setStartNodePos] = React.useState<Coordinate | undefined>();
+    const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
+    const dispatch = useDispatch()
 
     const isSelected = selectedElements.includes(nodeId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1) === nodeId;
@@ -45,9 +55,42 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                 cornerRadius={10}
                 cursor={"crosshair"}
                 //draggable
-                onClick={() => setSelectedElements([nodeId])
+                onClick={() => setSelectedElements([nodeId])}
+                draggable={true}
+                onDragStart={(e) => {
+                    const pos = screenToCanvas(e);
+                    setStartNodePos(placement.bounds);
+                    setStartPointerPos(pos);
+                    setSelectedElements([nodeId])
+
+                    dispatch(elementMoveAction({
+                        phase: ElementMoveResizePhase.start,
+                        elementId: nodeId,
+                        startNodePos: {x: placement.bounds.x, y: placement.bounds.y},
+                        startPointerPos: pos,
+                        currentPointerPos: pos}))
+                }}
+                onDragMove={(e) => {
+                    if (startPointerPos && startNodePos)
+                        dispatch(elementMoveAction({
+                            phase: ElementMoveResizePhase.move,
+                            elementId: nodeId,
+                            startNodePos: startNodePos,
+                            startPointerPos: startPointerPos,
+                            currentPointerPos: screenToCanvas(e)}));
+                }}
+
+                onDragEnd={(e) => {
+                    // check required because DragMove event can be received before DragStart updated the state
+                    if (startPointerPos && startNodePos)
+                        dispatch(elementMoveAction({
+                            phase: ElementMoveResizePhase.end,
+                            elementId: nodeId,
+                            startNodePos: startNodePos,
+                            startPointerPos: startPointerPos,
+                            currentPointerPos: screenToCanvas(e)}));
                 }
-                //onDragEnd={(e) => updatePlacement(e)}
+                }
             />
             {isSelected && (
                 <Scaffold

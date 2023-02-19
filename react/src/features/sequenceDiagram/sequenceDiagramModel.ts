@@ -1,6 +1,6 @@
 import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {DiagramElement, ElementType, Id} from "../../package/packageModel";
-import {DefaultValue, RecoilState, RecoilValue, selectorFamily} from "recoil";
+import {DefaultValue, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
@@ -101,7 +101,9 @@ export function handleSequenceMoveElement(get: Get, set: Set, phase: ElementMove
     const newPlacement = {...(diagram.lifelines[elementId].placement),
         headBounds: {
             ...diagram.lifelines[elementId].placement.headBounds,
-            x: currentPointerPos.x - startPointerPos.x + startNodePos.x
+            x: currentPointerPos.x - startPointerPos.x + startNodePos.x,
+            y: startNodePos.y
+
         }
     }
     const newDiagram = {...diagram, lifelines: {...diagram.lifelines, [elementId]: {...diagram.lifelines[elementId], placement: newPlacement}}}
@@ -112,7 +114,9 @@ export function handleSequenceResizeElement(get: Get, set: Set, phase: ElementMo
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
     const placement = diagram.lifelines[elementId].placement
-    const newPlacement = {...placement, headBounds: {...placement.headBounds, width: Math.max(10, suggestedBounds.width)}}
+    const width = Math.max(10, suggestedBounds.width);
+    const headBounds = {...placement.headBounds, width: width, x: suggestedBounds.x};
+    const newPlacement = {...placement, headBounds: headBounds}
     const newDiagram = {...diagram, lifelines: {...diagram.lifelines, [elementId]: {...diagram.lifelines[elementId], placement: newPlacement}}}
     set(elementsAtom(diagramId), newDiagram)
 }

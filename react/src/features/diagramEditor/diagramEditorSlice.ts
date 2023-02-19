@@ -1,4 +1,4 @@
-import {Bounds, Coordinate} from "../../common/model";
+import {Bounds, Coordinate, zeroCoordinate} from "../../common/model";
 import {elementsAtom} from "./diagramEditorModel";
 import {ElementType, Id} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
@@ -6,6 +6,8 @@ import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {handleClassDiagramAction} from "../classDiagram/classDiagramSlice";
 import {Action, createAction} from "@reduxjs/toolkit";
 import {handleSequenceDiagramAction} from "../sequenceDiagram/sequenceDiagramSlice";
+import Konva from "konva";
+import KonvaEventObject = Konva.KonvaEventObject;
 
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
@@ -104,6 +106,12 @@ function handleAction(action: Action, get: Get, set: Set) {
     }
 
 }
+
+export function screenToCanvas(e: KonvaEventObject<DragEvent>) {
+    const stage = e.target.getStage()?.getPointerPosition() ?? zeroCoordinate;
+    return {x: stage.x, y: stage.y};
+}
+
 
 
 // const nodeDeselect1 = (editor: WritableDraft<DiagramEditor>) => {

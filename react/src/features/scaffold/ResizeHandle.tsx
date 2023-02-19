@@ -10,6 +10,7 @@ import {
 import {Id} from "../../package/packageModel";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
+import Vector2d = Konva.Vector2d;
 
 export enum ResizeHandleDirection {
     North = 'n',
@@ -31,30 +32,11 @@ export interface ResizeHandleProps {
     nodeBounds: Bounds;
 }
 
-const calculateResizedBounds = (delta: Coordinate, original: Bounds, direction: ResizeHandleDirection): Bounds => {
-    switch (direction) {
-        case ResizeHandleDirection.North:
-            return {x: original.x + delta.x, y: original.y + delta.y, width: original.width, height: original.height - delta.y};
-        case ResizeHandleDirection.NorthEast:
-            return {x: original.x, y: original.y + delta.y, width: original.width + delta.x, height: original.height - delta.y};
-        case ResizeHandleDirection.NorthWest:
-            return {x: original.x + delta.x, y: original.y + delta.y, width: original.width - delta.x, height: original.height - delta.y};
-        case ResizeHandleDirection.South:
-            return {x: original.x, y: original.y, width: original.width, height: original.height + delta.y};
-        case ResizeHandleDirection.SouthEast:
-            return {x: original.x, y: original.y, width: original.width + delta.x, height: original.height + delta.y};
-        case ResizeHandleDirection.SouthWest:
-            return {x: original.x + delta.x, y: original.y, width: original.width - delta.x, height: original.height + delta.y};
-        case ResizeHandleDirection.East:
-            return {x: original.x, y: original.y, width: original.width + delta.x, height: original.height};
-        case ResizeHandleDirection.West:
-            return {x: original.x + delta.x, y: original.y, width: original.width-delta.x, height: original.height };
-    }
-
-};
-
 export const ResizeHandle = (props: ResizeHandleProps) => {
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
+    const [startHandlerPos, setStartHandlerPos] = React.useState<Coordinate | undefined>();
+    const [startBounds, setStartBounds] = React.useState<Bounds | undefined>();
+
 
     const dispatch = useDispatch();
 
@@ -63,68 +45,190 @@ export const ResizeHandle = (props: ResizeHandleProps) => {
         return {x: stage.x, y: stage.y};
     }
 
-    return (
-        <Rect
-            x={props.handlerBounds.x}
-            y={props.handlerBounds.y}
-            width={props.handlerBounds.width}
-            height={props.handlerBounds.height}
-            stroke={"gray"}
-            fill={"white"}
-            strokeWidth={1}
-            name={"rh" + props.direction}
-            dragDistance={0}
-            cursor={props.cursor}
-            // make it draggable,
-            // so activating the anchor will not start drag&drop of any parent
-            draggable={true}
-            // hitStrokeWidth = {TOUCH_DEVICE ? 10 : 'auto'},
-            onMouseEnter={e => {
-                const container = e.target.getStage()?.container();
-                if (container)
-                    container.style.cursor = props.cursor;
-            }}
-            onMouseLeave={e => {
-                const container = e.target.getStage()?.container();
-                if (container)
-                    container.style.cursor = "default";
-            }}
+    const minHeight = 10;
+    const minWidth = 20;
 
-            onDragStart={(e) => {
-                const pos = screenToCanvas(e);
-                setStartPointerPos(pos);
+    const calculateResizedBounds = (delta: Coordinate, original: Bounds, direction: ResizeHandleDirection): Bounds => {
+        switch (direction) {
+            case ResizeHandleDirection.North:
+                return {
+                    x: original.x,
+                    y: Math.min(original.y + delta.y, original.y + original.height - minHeight),
+                    width: original.width,
+                    height: original.height - delta.y
+                };
+            case ResizeHandleDirection.South:
+                return {
+                    x: original.x,
+                    y: original.y,
+                    width: original.width,
+                    height: Math.max(original.height + delta.y, minHeight)
+                };
+            case ResizeHandleDirection.West:
+                return {
+                    x: Math.min(original.x + delta.x, original.x + original.width - minWidth),
+                    y: original.y,
+                    width: original.width - delta.x,
+                    height: original.height
+                };
+            case ResizeHandleDirection.East:
+                return {
+                    x: original.x,
+                    y: original.y,
+                    width: Math.max(original.width + delta.x, minWidth),
+                    height: original.height
+                };
+            case ResizeHandleDirection.NorthEast:
+                return {
+                    x: original.x,
+                    y: Math.min(original.y + delta.y, original.y + original.height - minHeight),
+                    width: Math.max(original.width + delta.x, minWidth),
+                    height: original.height - delta.y
+                };
+            case ResizeHandleDirection.NorthWest:
+                return {
+                    x: Math.min(original.x + delta.x, original.x + original.width - minWidth),
+                    y: Math.min(original.y + delta.y, original.y + original.height - minHeight),
+                    width: original.width - delta.x,
+                    height: original.height - delta.y
+                };
+            case ResizeHandleDirection.SouthEast:
+                return {
+                    x: original.x,
+                    y: original.y,
+                    width: Math.max(original.width + delta.x, minWidth),
+                    height: Math.max(original.height + delta.y, minHeight)
+                };
+            case ResizeHandleDirection.SouthWest:
+                return {
+                    x: Math.min(original.x + delta.x, original.x + original.width - minWidth),
+                    y: original.y,
+                    width: original.width - delta.x,
+                    height: Math.max(original.height + delta.y, minHeight)
+                };
+        }
 
+    };
+
+
+    const bounds = props.handlerBounds;
+
+    function limitDrag(pos: Vector2d) {
+        if (!startBounds || !startPointerPos || !startHandlerPos)
+            return pos;
+
+        switch(props.direction) {
+            case ResizeHandleDirection.North:
+                return {
+                    x: startPointerPos.x,
+                    y: Math.min(pos.y, startHandlerPos.y + startBounds.height - minHeight)
+                }
+            case ResizeHandleDirection.South:
+                return {
+                    x: startPointerPos.x,
+                    y: Math.max(pos.y, startHandlerPos.y + minHeight)
+                }
+            case ResizeHandleDirection.East:
+                return {
+                    x: Math.max(pos.x, startPointerPos.x + startBounds.width - minWidth),
+                    y: startPointerPos.y
+                }
+            case ResizeHandleDirection.West:
+                return {
+                    x: Math.min(pos.x, startPointerPos.x + startBounds.width - minWidth),
+                    y: startPointerPos.y
+                }
+            case ResizeHandleDirection.NorthEast:
+                return {
+                    x: Math.max(pos.x, startPointerPos.x + startBounds.width - minWidth),
+                    y: Math.min(pos.y, startHandlerPos.y + startBounds.height - minHeight)
+                }
+            case ResizeHandleDirection.NorthWest:
+                return {
+                    x: Math.min(pos.x, startPointerPos.x + startBounds.width - minWidth),
+                    y: Math.min(pos.y, startHandlerPos.y + startBounds.height - minHeight)
+                }
+            case ResizeHandleDirection.SouthEast:
+                return {
+                    x: Math.max(pos.x, startPointerPos.x + startBounds.width - minWidth),
+                    y: Math.max(pos.y, startHandlerPos.y + minHeight)
+                }
+            case ResizeHandleDirection.SouthWest:
+                return {
+                    x: Math.max(pos.x, startPointerPos.x + startBounds.width - minWidth),
+                    y: Math.max(pos.y, startHandlerPos.y + minHeight)
+                }
+        }
+    }
+
+    return <Rect
+        {...bounds}
+        stroke={"gray"}
+        fill={"white"}
+        strokeWidth={1}
+        name={"rh" + props.direction}
+        dragDistance={0}
+        cursor={props.cursor}
+        // make it draggable,
+        // so activating the anchor will not start drag&drop of any parent
+        draggable={true}
+        // hitStrokeWidth = {TOUCH_DEVICE ? 10 : 'auto'},
+        // dragBoundFunc={(pos) => limitDrag(pos)}
+
+        onMouseEnter={e => {
+            const container = e.target.getStage()?.container();
+            if (container)
+                container.style.cursor = props.cursor;
+        }}
+        onMouseLeave={e => {
+            const container = e.target.getStage()?.container();
+            if (container)
+                container.style.cursor = "default";
+        }}
+
+        dragBoundFunc={(pos) => limitDrag(pos)}
+
+        onDragStart={(e) => {
+            const pos = screenToCanvas(e);
+            setStartPointerPos(pos);
+            setStartHandlerPos({x: bounds.x, y: bounds.y})
+            setStartBounds(props.nodeBounds);
+
+            dispatch(elementResizeAction({
+                phase: ElementMoveResizePhase.start,
+                elementId: props.elementId,
+                suggestedBounds: props.nodeBounds,
+            }))
+        }}
+
+        onDragMove={(e) => {
+            if (startPointerPos) {
+                const delta = minus(screenToCanvas(e), startPointerPos);
+                const suggestedBounds = calculateResizedBounds(delta, props.nodeBounds, props.direction);
                 dispatch(elementResizeAction({
-                    phase: ElementMoveResizePhase.start,
+                    phase: ElementMoveResizePhase.move,
                     elementId: props.elementId,
-                    suggestedBounds: props.nodeBounds,
-                }))
-            }}
-
-            onDragMove={(e) => {
-                // check required because DragMove event can be received before DragStart updated the state
-                if (startPointerPos) {
-                    const delta = minus(screenToCanvas(e), startPointerPos);
-                    dispatch(elementResizeAction({
-                        phase: ElementMoveResizePhase.move,
-                        elementId: props.elementId,
-                        suggestedBounds: calculateResizedBounds(delta, props.nodeBounds, props.direction)
-                    }));
-                }
-            }}
-            onDragEnd={(e) => {
-                // check required because DragMove event can be received before DragStart updated the state
-                if (startPointerPos) {
-                    const delta = minus(screenToCanvas(e), startPointerPos);
-                    dispatch(elementResizeAction({
-                        phase: ElementMoveResizePhase.end,
-                        elementId: props.elementId,
-                        suggestedBounds: calculateResizedBounds(delta, props.nodeBounds, props.direction)
-                    }));
-                }
-            }}
-        />
-    );
+                    suggestedBounds: suggestedBounds
+                }));
+            }
+        }}
+        onDragEnd={(e) => {
+            if (startPointerPos) {
+                const delta = minus(screenToCanvas(e), startPointerPos);
+                setStartPointerPos(undefined);
+                setStartHandlerPos(undefined);
+                setStartBounds(undefined);
+                dispatch(elementResizeAction({
+                    phase: ElementMoveResizePhase.end,
+                    elementId: props.elementId,
+                    suggestedBounds: calculateResizedBounds(delta, props.nodeBounds, props.direction)
+                }));
+            }
+            setStartPointerPos(undefined);
+            setStartHandlerPos(undefined);
+            setStartBounds(undefined);
+        }}
+    />;
 }
 
 const resizeHandleBounds = (direction: ResizeHandleDirection, bounds: Bounds): Bounds => {

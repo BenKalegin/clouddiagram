@@ -32,12 +32,6 @@ export function handleClassDiagramAction(action: Action, get: Get, set: Set) {
 //     initialState,
 //     reducers: {
 //
-//         nodeCloseProperties: (editor, action: PayloadAction<NodePropsChangedAction>) => {
-//             editor.isNodePropsDialogOpen = false;
-//             if (action.payload.save) {
-//                 editor.diagram.nodes[action.payload.node].text = action.payload.text;
-//             }
-//         },
 //
 //         continueLinking: (editor, action: PayloadAction<DrawLinkingAction>) => {
 //             // const linking = editor.linking!;
