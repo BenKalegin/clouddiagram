@@ -1,5 +1,5 @@
 import {Bounds, Coordinate, zeroCoordinate} from "../../common/model";
-import {elementsAtom} from "./diagramEditorModel";
+import {elementsAtom, Linking, linkingAtom, snapGridSizeAtom} from "./diagramEditorModel";
 import {ElementType, Id} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
@@ -46,17 +46,33 @@ export const propertiesDialogAction = createAction<{
     dialogResult: DialogOperation
 }>("editor/showProperties");
 
+export enum LinkingPhase {
+    start  = "start",
+    draw   = "draw",
+    end    = "end",
+}
+
+export const linkingAction = createAction<{
+    elementId: Id
+    mousePos: Coordinate
+    diagramPos: Coordinate | undefined
+    phase: LinkingPhase
+    ctrlKey: boolean
+    shiftKey: boolean
+}>('editor/startLinking');
+
+
+export const linkToNewDialogCompletedAction = createAction<{
+    success: boolean
+    selectedKey?: string;
+    selectedName?: string;
+}>('editor/linkToNewDialogCompleted');
+
 
 export interface ElementSelectAction {
     id: Id
     shiftKey: boolean
     ctrlKey: boolean
-}
-
-export interface StartLinkingAction {
-    elementId: Id
-    mousePos: Coordinate
-    relativePos: Coordinate
 }
 
 export interface MoveResizeAction {
@@ -70,12 +86,6 @@ export interface DrawLinkingAction {
     mousePos: Coordinate
     shiftKey: boolean
     ctrlKey: boolean
-}
-
-export interface linkToNewDialogCompleted {
-    success: boolean
-    selectedKey?: string;
-    selectedName?: string;
 }
 
 export interface AddNodeAndConnectAction {
@@ -94,6 +104,12 @@ export function useDispatch() {
 
 function handleAction(action: Action, get: Get, set: Set) {
     const activeDiagramId = get(activeDiagramIdAtom);
+
+    if (linkingAction.match(action)) {
+        const {mousePos, diagramPos, elementId, phase } = action.payload;
+        handleLinking(get, set, elementId, mousePos, diagramPos, phase);
+    }
+
     const diagramKind = get(elementsAtom(activeDiagramId)).type;
     switch (diagramKind) {
         case ElementType.ClassDiagram:
@@ -107,7 +123,7 @@ function handleAction(action: Action, get: Get, set: Set) {
 
 }
 
-export function screenToCanvas(e: KonvaEventObject<DragEvent>) {
+export function screenToCanvas(e: KonvaEventObject<DragEvent | MouseEvent>) {
     const stage = e.target.getStage()?.getPointerPosition() ?? zeroCoordinate;
     return {x: stage.x, y: stage.y};
 }
@@ -137,48 +153,55 @@ export function screenToCanvas(e: KonvaEventObject<DragEvent>) {
 //     editor.focusedElement = selectedIds.length > 0 ? selectedIds[selectedIds.length - 1] : undefined
 // };
 
-// const startLinking1 = (editor: WritableDraft<DiagramEditor>, action: PayloadAction<StartLinkingAction>) => {
-//     editor.linking = {
-//         sourceElement: action.payload.elementId,
-//         mouseStartPos: action.payload.mousePos,
-//         relativeStartPos: action.payload.relativePos,
-//         mousePos: action.payload.mousePos,
-//         diagramPos: action.payload.relativePos,
-//         targetElement: undefined,
-//         drawing: true,
-//         showLinkToNewDialog: false
-//     }
-// }
+const snapToGrid = (pos: Coordinate, gridSize: number) => {
+    const x = Math.round(pos.x / gridSize) * gridSize;
+    const y = Math.round(pos.y / gridSize) * gridSize;
+    return {x, y}
+}
 
-// const continueLinking1 = (editorDraft: WritableDraft<DiagramEditor>, action: PayloadAction<DrawLinkingAction>) => {
-//     const editor = current(editorDraft)
-//     const handler = getHandlerByType(editor.diagramType)
-//
-//     const linking = editor.linking!;
-//     // we have a chance to receive continueLinking after endLinking, ignore it
-//     if (!linking)
-//         return
-//     const diagramPos = toDiagramPos(linking, action.payload.mousePos);
-//
-//     const newPos = handler.snapToElements(diagramPos, editor)
-//
-//     if (!newPos) {
-//         newPos = snapToGrid(diagramPos, editor.snapGridSize)
-//     }
-//
-//     linking.mousePos = action.payload.mousePos;
-//
-//
-//
-//
-//     // TODO unify with classDiagramSlice
-//     // we have a chance to receive continueLinking after endLinking, ignore it
-//     let snapped: Coordinate | undefined = undefined
-//     if (!snapped)
-//         snapped = snapToGrid(diagramPos, editor.snapGridSize);
-//     linking.diagramPos = snapped
-//     linking.mousePos = action.payload.mousePos;
-// }
+export function toDiagramPos(linking: Linking, screenPos: Coordinate) : Coordinate {
+    return {
+        x: screenPos.x - linking.mouseStartPos.x + linking.diagramStartPos.x,
+        y: screenPos.y - linking.mouseStartPos.y + linking.diagramStartPos.y
+    }
+}
+
+function snapToElements(diagramPos: Coordinate): Coordinate | undefined {
+    return undefined;
+}
+
+const handleLinking = (get: Get, set: Set, elementId: Id, mousePos: Coordinate, diagramPos: Coordinate | undefined, phase: LinkingPhase) => {
+    if (phase === LinkingPhase.start) {
+        set(linkingAtom, {
+            sourceElement: elementId,
+            mouseStartPos: mousePos,
+            diagramStartPos: diagramPos!,
+            mousePos: mousePos,
+            diagramPos: diagramPos!,
+            targetElement: undefined,
+            drawing: true,
+            showLinkToNewDialog: false
+        })
+    }else if (phase === LinkingPhase.draw) {
+
+        const linking = get(linkingAtom);
+        // we have a chance to receive continueLinking after endLinking, ignore it
+        if (!linking)
+            return
+
+        const diagramPos = toDiagramPos(linking, mousePos)
+        let snapped = snapToElements(diagramPos)
+
+        if (!snapped) {
+            snapped = snapToGrid(diagramPos, get(snapGridSizeAtom))
+        }
+
+        set(linkingAtom, {...linking, mousePos: mousePos, diagramPos: snapped})
+    }else if (phase === LinkingPhase.end) {
+        const linking = get(linkingAtom);
+        set(linkingAtom, {...linking, drawing: false, showLinkToNewDialog: true})
+    }
+}
 
 // const startMoveResize1 = (editor: WritableDraft<DiagramEditor>, action: PayloadAction<MoveResizeAction>) => {
 //     editor.moveResize = {
@@ -188,20 +211,6 @@ export function screenToCanvas(e: KonvaEventObject<DragEvent>) {
 //     }
 // }
 
-// const continueNodeResize1 = (editor: WritableDraft<DiagramEditor>, action: PayloadAction<MoveResizeAction>) => {
-// }
-
-// const endNodeResize1 = (editor: WritableDraft<DiagramEditor>, action: PayloadAction<MoveResizeAction>) => {
-// }
-//
-// const endLinking1 = (editor: WritableDraft<DiagramEditor>) => {
-//     editor.linking!.drawing = false;
-// }
-//
-// const linkToNewDialog1 = (editor: WritableDraft<DiagramEditor>) => {
-//     editor.linking!.showLinkToNewDialog = true
-// }
-//
 // const linkToNewDialogClose1 = (editor: WritableDraft<DiagramEditor>, action: PayloadAction<linkToNewDialogCompleted>) => {
 // }
 //
@@ -215,36 +224,6 @@ export function screenToCanvas(e: KonvaEventObject<DragEvent>) {
 //     editor.scrub = undefined
 // }
 //
-// export function toDiagramPos(linking: Linking, screenPos: Coordinate) : Coordinate {
-//     return {
-//         x: screenPos.x - linking.mouseStartPos.x + linking.relativeStartPos.x,
-//         y: screenPos.y - linking.mouseStartPos.y + linking.relativeStartPos.y
-//     }
-// }
 //
-// const initialState: DiagramEditor = {
-//     diagramId: "",
-//     snapGridSize: 5,
-//     selectedElements: []
-// }
-
-// export const diagramEditorSlice = createSlice({
-//     name: 'diagramEditor',
-//     initialState,
-//     reducers: {
-//         nodeDeselect: nodeDeselect1,
-//         nodeSelect: nodeSelect1,
-//         startLinking: startLinking1,
-//         endLinking: endLinking1,
-//         linkToNewDialog: linkToNewDialog1,
-//         linkToNewDialogClose: linkToNewDialogClose1,
-//         stopLinking: stopLinking1,
-//         startNodeResize: startMoveResize1,
-//         continueNodeResize: continueNodeResize1,
-//         endNodeResize: endNodeResize1,
-//         restoreDiagram: scrubCaptureOperation1,
-//         continueLinking: continueLinking1
-//     }
-// })
 
 

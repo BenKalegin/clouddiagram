@@ -2,10 +2,17 @@ import {
     dropFromPaletteAction,
     elementMoveAction,
     elementResizeAction, Get, Set,
-    propertiesDialogAction
+    propertiesDialogAction, linkToNewDialogCompletedAction
 } from "../diagramEditor/diagramEditorSlice";
-import {addNewElementAt, moveElement, nodePropertiesDialog, resizeElement} from "./classDiagramModel";
+import {
+    addNewElementAt,
+    addNodeAndConnect,
+    moveElement,
+    nodePropertiesDialog,
+    resizeElement
+} from "./classDiagramModel";
 import {Action} from "@reduxjs/toolkit";
+import {linkingAtom} from "../diagramEditor/diagramEditorModel";
 
 export function handleClassDiagramAction(action: Action, get: Get, set: Set) {
     if (dropFromPaletteAction.match(action)) {
@@ -19,6 +26,9 @@ export function handleClassDiagramAction(action: Action, get: Get, set: Set) {
     }else if(propertiesDialogAction.match(action)){
         const {elementId, dialogResult} = action.payload;
         nodePropertiesDialog(get, set, elementId, dialogResult);
+    }else if (linkToNewDialogCompletedAction.match(action)) {
+        const {selectedName} = action.payload;
+        addNodeAndConnect(get, set, selectedName ?? "new node")
     }
 }
 
@@ -33,26 +43,9 @@ export function handleClassDiagramAction(action: Action, get: Get, set: Set) {
 //     reducers: {
 //
 //
-//         continueLinking: (editor, action: PayloadAction<DrawLinkingAction>) => {
-//             // const linking = editor.linking!;
-//             // // we have a chance to receive continueLinking after endLinking, ignore it
-//             // if (!linking)
-//             //     return
-//             // const diagramPos = toDiagramPos(linking, action.payload.mousePos);
-//             //
-//             // linking.diagramPos = snapToGrid(diagramPos, editor.snapGridSize)
-//             // linking.mousePos = action.payload.mousePos;
-//         },
 //
 //
-//         addNodeAndConnect: (editor, action: PayloadAction<AddNodeAndConnectAction>) => {
-//             const id = generateId()
-//             const linking = current(editor).linking!
-//             const pos = linking.diagramPos
-//             addNewElementAt(editor.diagram, id, pos , action.payload.name);
-//             autoConnectNodes(editor.diagram, linking.sourceElement, id);
-//         },
-//
+
 //
 //         connectExisting: (editor) => {
 //             const linking = current(editor).linking!
@@ -68,7 +61,6 @@ export function handleClassDiagramAction(action: Action, get: Get, set: Set) {
 //     dropFromPalette,
 //     continueLinking,
 //     restoreDiagram,
-//     addNodeAndConnect,
 //     connectExisting
 // } = classDiagramSlice.actions
 //

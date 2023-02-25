@@ -10,15 +10,17 @@ import React from "react";
 import {galleryGroups, GalleryItem} from "../../toolbox/models";
 import {useRecoilValue} from "recoil";
 import {linkingAtom} from "../../diagramEditor/diagramEditorModel";
+import {linkToNewDialogCompletedAction, useDispatch} from "../../diagramEditor/diagramEditorSlice";
 
 
 export const LinkToNewDialog = () => {
     const linking = useRecoilValue(linkingAtom)
     const source = linking?.sourceElement;
     const items = galleryGroups.filter(group => group.key === "class").flatMap(group => group.items);
+    const dispatch = useDispatch();
 
     function toggleHideDialog(item?: GalleryItem) {
-        //dispatch(linkToNewDialogClose({selectedKey: item?.key, selectedName: item?.name, success: !!item}));
+        dispatch(linkToNewDialogCompletedAction({selectedKey: item?.key, selectedName: item?.name, success: !!item}));
     }
 
     const pos = {

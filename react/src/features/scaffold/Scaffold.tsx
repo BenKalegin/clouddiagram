@@ -5,6 +5,7 @@ import {ResizeHandles} from "./ResizeHandle";
 import {FocusFrame} from "./FocusFrame";
 import {ContextButtons} from "./ContextButtons";
 import {Id} from "../../package/packageModel";
+import {linkingAction, LinkingPhase, useDispatch} from "../diagramEditor/diagramEditorSlice";
 
 export interface ScaffoldProps {
     bounds: Bounds;
@@ -15,22 +16,33 @@ export interface ScaffoldProps {
 }
 
 export const Scaffold = (props: ScaffoldProps) => {
+    const dispatch = useDispatch()
 
     useEffect(() => {
         const handleMouseMove = (event: MouseEvent) => {
-            // if (props.isFocused && props.isLinking) {
-            // dispatch(continueLinking({
-            //     mousePos: {x: event.clientX, y: event.clientY},
-            //     ctrlKey: event.ctrlKey,
-            //     shiftKey: event.shiftKey,
-            //     elementId: props.elementId}))
-            // }
+            if (props.isFocused && props.isLinking) {
+                dispatch(linkingAction({
+                    diagramPos: undefined,
+                    mousePos: {x: event.clientX, y: event.clientY},
+                    ctrlKey: event.ctrlKey,
+                    shiftKey: event.shiftKey,
+                    phase: LinkingPhase.draw,
+                    elementId: props.elementId
+                }))
+            }
         };
 
-        const handleMouseUp = () => {
-            // if (props.isFocused && props.isLinking) {
-            //     dispatch(endLinking())
-            // }
+        const handleMouseUp = (event: MouseEvent) => {
+            if (props.isFocused && props.isLinking) {
+                dispatch(linkingAction({
+                    diagramPos: undefined,
+                    mousePos: {x: event.clientX, y: event.clientY},
+                    ctrlKey: event.ctrlKey,
+                    shiftKey: event.shiftKey,
+                    phase: LinkingPhase.end,
+                    elementId: props.elementId
+                }))
+            }
         };
 
         window.addEventListener('mousemove', handleMouseMove);

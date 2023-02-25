@@ -15,7 +15,7 @@ const root = createRoot(container);
 root.render(
         <React.StrictMode>
             <RecoilRoot>
-                <RecoilDevTools forceSerialize={false} />
+                {/*<RecoilDevTools forceSerialize={false} />*/}
             <App/>
             </RecoilRoot>
         </React.StrictMode>

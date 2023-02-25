@@ -22,11 +22,6 @@ export function handleSequenceDiagramAction(action: Action, get: Get, set: Set) 
     }
 }
 
-// export const sequenceDiagramSlice = createSlice({
-//     name: 'sequenceDiagramEditor',
-//     initialState,
-//     reducers: {
-//
 //         connectExisting: (editor) => {
 //             const linking = current(editor).linking!
 //             autoConnectActivations(editor.diagram, linking.sourceElement, linking.targetElement!, 10);
@@ -50,15 +45,6 @@ export function handleSequenceDiagramAction(action: Action, get: Get, set: Set) 
 //             //     snapped = snapToGrid(diagramPos, editor.snapGridSize);
 //             // linking.diagramPos = snapped
 //             // linking.mousePos = action.payload.mousePos;
-//         },
-//
-//
-//         restoreDiagram: (editor, action: PayloadAction<Diagram>) => {
-//             editor.diagram = action.payload as SequenceDiagramState
-//         },
-//
-//         addNodeAndConnect: (editor, action: PayloadAction<AddNodeAndConnectAction>) => {
-//             const id = generateId()
 //         },
 //
 //     },

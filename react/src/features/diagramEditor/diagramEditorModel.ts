@@ -7,7 +7,7 @@ import {nanoid} from 'nanoid';
 export interface Linking {
     sourceElement: Id
     mouseStartPos: Coordinate
-    relativeStartPos: Coordinate
+    diagramStartPos: Coordinate
     mousePos: Coordinate
     diagramPos: Coordinate
 
@@ -66,8 +66,7 @@ export const diagramKindSelector = selectorFamily<ElementType, DiagramId>({
 
 export const linkingAtom = atom<Linking>({
     key: 'linking',
-    default: {
-    } as Linking,
+    default: {} as Linking
 })
 
 export const selectedElementsAtom = atom<Id[]>({

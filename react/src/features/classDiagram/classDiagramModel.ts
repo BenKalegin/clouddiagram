@@ -1,8 +1,8 @@
 import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../../package/packageModel";
-import {selectorFamily} from "recoil";
-import {DiagramId, elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
+import {selector, selectorFamily} from "recoil";
+import {DiagramId, elementsAtom, generateId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
 
@@ -156,7 +156,7 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
 }
 
 export const linkRenderSelector = selectorFamily<LinkRender, { linkId: LinkId, diagramId: DiagramId }>({
-    key: 'linkPlacement',
+    key: 'linkRender',
     get: ({linkId, diagramId}) => ({get}) => {
         const link = get(elementsAtom(linkId)) as LinkState;
         const port1 = get(portSelector(link.port1));
@@ -166,6 +166,50 @@ export const linkRenderSelector = selectorFamily<LinkRender, { linkId: LinkId, d
         const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId}));
         const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId}));
         return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement);
+    }
+})
+
+export const drawingLinkRenderSelector = selector<LinkRender>({
+    key: 'drawLinkRender',
+    get: ({get}) => {
+        const linking = get(linkingAtom)
+
+        const port1: PortState = {
+            nodeId: "",
+            type: ElementType.ClassPort,
+            id: "DrawingLinkSourcePort",
+            depthRatio: 50,
+            latitude: 0,
+            longitude: 0
+        }
+
+        const port1Placement: PortPlacement = {
+            alignment: PortAlignment.Right,
+            edgePosRatio: 50,
+        }
+
+
+        const node1Placement = get(nodePlacementSelector({nodeId: linking.sourceElement, diagramId: get(activeDiagramIdAtom)}));
+        const port1Render =  renderPort(node1Placement.bounds, port1, port1Placement);
+
+        const port2: PortState = {
+            nodeId: "",
+            type: ElementType.ClassPort,
+            id: "DrawingLinkTarget",
+            depthRatio: 50,
+            latitude: 0,
+            longitude: 0
+        }
+
+        const port2Placement: PortPlacement = {
+            alignment: PortAlignment.Left,
+            edgePosRatio: 50,
+        }
+
+        const port2Render =  renderPort({x: linking.diagramPos.x, y: linking.diagramPos.y, width: 0, height: 0},
+            port2, port2Placement);
+
+        return renderLink(port1, port1Render.bounds, port1Placement, port2, port2Render.bounds, port2Placement);
     }
 })
 
@@ -194,6 +238,7 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
     const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
     const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [node.id]: placement}};
     set(elementsAtom(diagramId), updatedDiagram)
+    return node
 }
 
 export function moveElement(get: Get, set: Set, nodeId: Id, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
@@ -250,37 +295,62 @@ export function nodePropertiesDialog(get: Get, set: Set, elementId: string, dial
     set(elementsAtom(diagramId), updatedDiagram);
 }
 
+export function addNodeAndConnect(get: Get, set: Set, name: string) {
+    const linking = get(linkingAtom);
+    const pos = linking.diagramPos
+    const node = addNewElementAt(get, set, pos, name);
+    autoConnectNodes(get, set, linking.sourceElement, node.id);
+    //set(linkingAtom, )
+
+}
 
 
-// export function autoConnectNodes(diagram: WritableDraft<ClassDiagramState>, sourceId: Id, targetId: Id) {
-//     const source = diagram.nodes[sourceId];
-//     const target = diagram.nodes[targetId];
-//
-//     function addNewPort(node: WritableDraft<NodeState>, alignment: PortAlignment) {
-//         const result: PortState = {
-//             id: generateId(),
-//             edgePosRatio: 50,
-//             alignment: alignment,
-//             depthRatio: 50,
-//             latitude: 8,
-//             longitude: 8,
-//             placement: {} as Bounds,
-//         }
-//         result.placement = nodePlacementAfterResize(node, portBounds(node.placement, result));
-//         node.ports.push(result.id);
-//         diagram.ports[result.id] = result;
-//         return result
-//     }
-//
-//     const sourcePort = addNewPort(source, PortAlignment.Right);
-//
-//     const targetPort = addNewPort(target, PortAlignment.Left);
-//
-//     const linkId = "link-" + sourceId + "-" + targetId;
-//     diagram.links[linkId] = {
-//         id: linkId,
-//         port1: sourcePort.id,
-//         port2: targetPort.id,
-//         placement: linkPlacement(sourcePort, targetPort)
-//     }
-// }
+function addNewPort(get: Get, set: Set, node: NodeState) {
+    const result: PortState = {
+        nodeId: node.id,
+        type: ElementType.ClassPort,
+        id: generateId(),
+        depthRatio: 50,
+        latitude: 8,
+        longitude: 8
+    }
+    set(elementsAtom(result.id), result);
+    set(elementsAtom(node.id), {...node, ports: [...node.ports, result.id]} as NodeState);
+    return result
+}
+
+export function autoConnectNodes(get: Get, set: Set, sourceId: Id, targetId: Id) {
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+
+    const sourceNode = get(elementsAtom(sourceId)) as NodeState;
+    const targetNode = get(elementsAtom(targetId)) as NodeState;
+
+
+    const port1 = addNewPort(get, set, sourceNode);
+    const port2 = addNewPort(get, set, targetNode);
+    const placement1: PortPlacement = {alignment: PortAlignment.Right, edgePosRatio: 50};
+    const placement2: PortPlacement = {alignment: PortAlignment.Left, edgePosRatio: 50};
+
+
+    const linkId = generateId()
+    const link: LinkState = {
+        id: linkId,
+        type: ElementType.ClassLink,
+        port1: port1.id,
+        port2: port2.id
+    }
+    set(elementsAtom(linkId), link);
+    const linkPlacement: LinkPlacement = {};
+
+    const updatedDiagram = {
+        ...diagram,
+        ports: {...diagram.ports,
+            [port1.id]: placement1,
+            [port2.id]: placement2
+        },
+        links: {...diagram.links, [linkId]: linkPlacement}
+    };
+
+    set(elementsAtom(diagramId), updatedDiagram);
+}

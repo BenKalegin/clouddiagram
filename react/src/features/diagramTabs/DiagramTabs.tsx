@@ -6,7 +6,7 @@ import {Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
 import {atom, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType, Id} from "../../package/packageModel";
-import {DiagramId, diagramKindSelector, diagramTitleSelector} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, diagramKindSelector, diagramTitleSelector, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
 
 
@@ -46,6 +46,7 @@ const openDiagramIdsAtom = atom<DiagramId[]>({
 export const DiagramTabs = () => {
     const [activeDiagramId, setActiveDiagramId] = useRecoilState(activeDiagramIdAtom);
     const openDiagramIds = useRecoilValue(openDiagramIdsAtom);
+    const linking = useRecoilValue(linkingAtom)
 
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
 
@@ -64,6 +65,7 @@ export const DiagramTabs = () => {
                     <PlainTab key={index} diagramId={diagramId}/>
                 )}
             </Tabs>
+
             <div>
                 <HtmlDrop>
                     {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
@@ -71,7 +73,8 @@ export const DiagramTabs = () => {
                         <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
                 </HtmlDrop>
             </div>
-            {diagramKind === ElementType.SequenceDiagram && <LinkToNewDialog/>}
+            {/*{linking.showLinkToNewDialog && <LinkToNewDialog/>}*/}
+
         </Stack>
     )
 }
