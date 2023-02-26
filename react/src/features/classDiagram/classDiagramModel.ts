@@ -2,7 +2,7 @@ import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../../package/packageModel";
 import {selector, selectorFamily} from "recoil";
-import {DiagramId, elementsAtom, generateId, linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, elementsAtom, generateId, Linking, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
 
@@ -296,12 +296,11 @@ export function nodePropertiesDialog(get: Get, set: Set, elementId: string, dial
 }
 
 export function addNodeAndConnect(get: Get, set: Set, name: string) {
-    const linking = get(linkingAtom);
+    const linking = get(linkingAtom) as Linking;
     const pos = linking.diagramPos
     const node = addNewElementAt(get, set, pos, name);
     autoConnectNodes(get, set, linking.sourceElement, node.id);
-    //set(linkingAtom, )
-
+    set(linkingAtom, {...linking, showLinkToNewDialog: false } )
 }
 
 

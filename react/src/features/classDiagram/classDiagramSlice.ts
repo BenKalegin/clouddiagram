@@ -12,7 +12,6 @@ import {
     resizeElement
 } from "./classDiagramModel";
 import {Action} from "@reduxjs/toolkit";
-import {linkingAtom} from "../diagramEditor/diagramEditorModel";
 
 export function handleClassDiagramAction(action: Action, get: Get, set: Set) {
     if (dropFromPaletteAction.match(action)) {
@@ -32,39 +31,7 @@ export function handleClassDiagramAction(action: Action, get: Get, set: Set) {
     }
 }
 
-
-//
-// const initialState: ClassDiagramEditor = {} as ClassDiagramEditor;
-// // noinspection JSUnusedLocalSymbols
-//
-// export const classDiagramSlice = createSlice({
-//     name: 'classDiagramEditor',
-//     initialState,
-//     reducers: {
-//
-//
-//
-//
-
-//
 //         connectExisting: (editor) => {
 //             const linking = current(editor).linking!
 //             autoConnectNodes(editor.diagram, linking.sourceElement, linking.targetElement!);
-//         },
-//
-//     }
-// })
-//
-// export const {
-//     nodeResize,
-//     nodeCloseProperties,
-//     dropFromPalette,
-//     continueLinking,
-//     restoreDiagram,
-//     connectExisting
-// } = classDiagramSlice.actions
-//
-// export const selectClassDiagramEditor = (state: RootState): ClassDiagramEditor => state.classDiagramEditor;
-//
-// export default classDiagramSlice.reducer
 
