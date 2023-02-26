@@ -183,7 +183,6 @@ const handleLinking = (get: Get, set: Set, elementId: Id, mousePos: Coordinate, 
             showLinkToNewDialog: false
         })
     }else if (phase === LinkingPhase.draw) {
-
         const linking = get(linkingAtom);
         // we have a chance to receive continueLinking after endLinking, ignore it
         if (!linking)
@@ -202,21 +201,5 @@ const handleLinking = (get: Get, set: Set, elementId: Id, mousePos: Coordinate, 
         set(linkingAtom, {...linking!, drawing: false, showLinkToNewDialog: true})
     }
 }
-
-// const startMoveResize1 = (editor: WritableDraft<DiagramEditor>, action: PayloadAction<MoveResizeAction>) => {
-//     editor.moveResize = {
-//         element: action.payload.elementId,
-//         mouseStartPos: action.payload.mousePos,
-//         relativeStartPos: action.payload.relativePos,
-//     }
-// }
-
-
-// const scrubCaptureOperation1 = (editor: WritableDraft<DiagramEditor>, action: PayloadAction<Diagram>) => {
-//     // todo restore state
-//     editor.scrub = undefined
-// }
-//
-//
 
 

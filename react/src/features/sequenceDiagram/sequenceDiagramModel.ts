@@ -1,7 +1,7 @@
-import {Bounds, Coordinate, Diagram} from "../../common/model";
+import {Bounds, Coordinate, Diagram, zeroBounds} from "../../common/model";
 import {DiagramElement, ElementType, Id} from "../../package/packageModel";
-import {DefaultValue, selectorFamily} from "recoil";
-import {ConnectorRender, DiagramId, elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
+import {DefaultValue, selector, selectorFamily} from "recoil";
+import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
 
@@ -122,7 +122,6 @@ export function handleSequenceResizeElement(get: Get, set: Set, phase: ElementMo
 }
 
 
-
 export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coordinate, name: string) {
 
     const diagramId = get(activeDiagramIdAtom);
@@ -181,6 +180,60 @@ export function findTargetActivation(activations:  {[id: string]: ActivationStat
 //         sourceActivationOffset: sourceOffset
 //     } as MessageState
 // }
+
+
+export const drawingMessageRenderSelector = selector<MessageRender>({
+    key: 'drawMessageRender',
+    get: ({get}) => {
+        const linking = get(linkingAtom)!
+        const diagramId = get(activeDiagramIdAtom)
+        const y = linking.diagramPos.y;
+        const lifeline1 = get(lifelineSelector({lifelineId: linking.sourceElement, diagramId}))
+        const lifeline1Placement = get(lifelinePlacementSelector({lifelineId: linking.sourceElement, diagramId}))
+        const lifelineY = Math.max(y - lifeline1Placement.headBounds.height, 0)
+
+        let sourceActivation = lifeline1.activations
+            .map(a => get(activationSelector({activationId: a, diagramId})))
+            .find(a => a.start <= lifelineY && a.start + a.length >= lifelineY);
+        if (!sourceActivation) {
+            sourceActivation = {start: lifelineY, length: 50, id: "dummy"} as ActivationState;
+            sourceActivation.placement = renderActivation(sourceActivation, lifeline1Placement);
+        }
+
+        const activation1: ActivationState = {
+            lifelineId: "",
+            placement: {},
+            type: ElementType.SequenceActivation,
+            start: lifelineY,
+            length: 50,
+            id: "dummy"
+        };
+        const activationRender1: ActivationRender = renderActivation(activation1, lifeline1Placement);
+
+        const activation2: ActivationState = {
+            lifelineId: "",
+            type: ElementType.SequenceActivation,
+            id: "linking_target",
+            start: y,
+            length: 20,
+            placement: zeroBounds
+        };
+        const lifelinePlacement2: LifelinePlacement = {
+            headBounds: {
+                x: linking!.diagramPos.x - lifeline1Placement.headBounds.width / 2,
+                y: lifeline1Placement.headBounds.y,
+                width: lifeline1Placement.headBounds.width,
+                height: lifeline1Placement.headBounds.height
+            },
+            lifelineEnd: lifeline1Placement.lifelineEnd
+        }
+        const activationRender2: ActivationRender = renderActivation(activation2, lifelinePlacement2);
+        let messageActivationOffset = y - activationRender1.bounds.y;
+
+        return renderMessage(activationRender1, activationRender2, messageActivationOffset);
+    }
+})
+
 
 export const sequenceDiagramSelector = selectorFamily<SequenceDiagramState, DiagramId>({
     key: 'sequenceDiagram',

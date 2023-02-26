@@ -97,7 +97,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     elementId={nodeId}
                     bounds={placement.bounds}
                     isFocused={isFocused}
-                    isLinking={!!linking?.drawing}
+                    isLinking={linking?.drawing === true}
                     linkingDrawing={<DrawingLink/>}
                 />
             )}

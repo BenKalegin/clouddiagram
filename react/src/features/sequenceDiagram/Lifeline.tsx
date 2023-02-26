@@ -5,7 +5,7 @@ import {Scaffold} from "../scaffold/Scaffold";
 import {Activation} from "./Activation";
 import {DrawingMessage} from "./DrawingMessage";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {DiagramId, elementsAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, elementsAtom, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
 import {
     elementMoveAction,
     ElementMoveResizePhase,
@@ -28,6 +28,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     const [startNodePos, setStartNodePos] = React.useState<Coordinate | undefined>();
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
     const dispatch = useDispatch()
+    const linking = useRecoilValue(linkingAtom)
+
     return <Group>
         <Rect
             fill={"cornsilk"}
@@ -116,8 +118,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                     height: placement.headBounds.y + placement.lifelineEnd
                 }}
                 isFocused={isFocused}
-                isLinking={false}
-                linkingDrawing={<DrawingMessage lifelineId={lifelineId} diagramId={diagramId}  /> }
+                isLinking={linking?.drawing === true}
+                linkingDrawing={<DrawingMessage/> }
             />}
 
     </Group>

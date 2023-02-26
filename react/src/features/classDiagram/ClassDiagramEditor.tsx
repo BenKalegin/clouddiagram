@@ -5,17 +5,20 @@ import Konva from "konva";
 import {Link} from "./Link";
 import {ClassDiagramModalDialog, classDiagramSelector} from "./classDiagramModel";
 import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
-import {DiagramId, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
 import {NodePropertiesDialog} from "./dialogs/NodePropertiesDialog";
 
 export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
     const diagram = useRecoilValue(classDiagramSelector(diagramId))
     const [, setSelectedElements] = useRecoilState(selectedElementsAtom)
+    const[, setLinking] = useRecoilState(linkingAtom)
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on empty area
         const clickedOnEmpty = e.target === e.target.getStage()
         if (clickedOnEmpty) {
+            // TODO: make transactional
             setSelectedElements([])
+            setLinking(undefined)
         }
     }
 
