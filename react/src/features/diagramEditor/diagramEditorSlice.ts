@@ -199,7 +199,7 @@ const handleLinking = (get: Get, set: Set, elementId: Id, mousePos: Coordinate, 
         set(linkingAtom, {...linking, mousePos: mousePos, diagramPos: snapped})
     }else if (phase === LinkingPhase.end) {
         const linking = get(linkingAtom);
-        set(linkingAtom, {...linking, drawing: false, showLinkToNewDialog: true})
+        set(linkingAtom, {...linking!, drawing: false, showLinkToNewDialog: true})
     }
 }
 
@@ -209,13 +209,6 @@ const handleLinking = (get: Get, set: Set, elementId: Id, mousePos: Coordinate, 
 //         mouseStartPos: action.payload.mousePos,
 //         relativeStartPos: action.payload.relativePos,
 //     }
-// }
-
-// const linkToNewDialogClose1 = (editor: WritableDraft<DiagramEditor>, action: PayloadAction<linkToNewDialogCompleted>) => {
-// }
-//
-// const stopLinking1 =  (editor: WritableDraft<DiagramEditor>) => {
-//     editor.linking = undefined
 // }
 
 

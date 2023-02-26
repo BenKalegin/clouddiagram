@@ -73,7 +73,7 @@ export const DiagramTabs = () => {
                         <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
                 </HtmlDrop>
             </div>
-            {linking.showLinkToNewDialog && <LinkToNewDialog/>}
+            {linking && linking.showLinkToNewDialog && <LinkToNewDialog/>}
 
         </Stack>
     )

@@ -20,7 +20,7 @@ export interface DrawingMessageProps {
 
 export const DrawingMessage: FC<DrawingMessageProps> = ({lifelineId, diagramId}) => {
 
-    const linking = useRecoilValue(linkingAtom)
+    const linking = useRecoilValue(linkingAtom)!
     const lifelinePlacement = useRecoilValue(lifelinePlacementSelector({lifelineId, diagramId}))
     const sourceLifeline = useRecoilValue(lifelineSelector({lifelineId: linking.sourceElement, diagramId}))
 

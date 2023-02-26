@@ -172,7 +172,7 @@ export const linkRenderSelector = selectorFamily<LinkRender, { linkId: LinkId, d
 export const drawingLinkRenderSelector = selector<LinkRender>({
     key: 'drawLinkRender',
     get: ({get}) => {
-        const linking = get(linkingAtom)
+        const linking = get(linkingAtom)!
 
         const port1: PortState = {
             nodeId: "",

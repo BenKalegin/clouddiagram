@@ -64,9 +64,9 @@ export const diagramKindSelector = selectorFamily<ElementType, DiagramId>({
     get: (id) => ({get}) => get(elementsAtom(id)).type
 })
 
-export const linkingAtom = atom<Linking>({
+export const linkingAtom = atom<Linking | undefined>({
     key: 'linking',
-    default: {} as Linking
+    default: undefined
 })
 
 export const selectedElementsAtom = atom<Id[]>({
