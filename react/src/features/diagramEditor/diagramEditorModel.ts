@@ -28,22 +28,6 @@ export interface Scrub {
 
 export type DiagramId = Id;
 
-export interface DiagramEditor {
-    diagramId: Id
-    diagramType: ElementType
-    focusedElement?: Id
-    selectedElements: Id[]
-    linking?: Linking
-    moveResize?: MoveResize
-    snapGridSize: number
-    scrub?: Scrub
-}
-
-export interface DiagramHandler {
-    snapToElements(diagramPos: Coordinate, editor: DiagramEditor): Coordinate | undefined
-}
-
-
 export const elementsAtom = atomFamily<DiagramElement, Id>({
     key: 'elements',
     default: id => elements[id]

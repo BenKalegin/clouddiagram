@@ -3,14 +3,24 @@ import {elementsAtom, Linking, linkingAtom, snapGridSizeAtom} from "./diagramEdi
 import {ElementType, Id} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
-import {handleClassDiagramAction} from "../classDiagram/classDiagramSlice";
+import {classDiagramEditor} from "../classDiagram/classDiagramSlice";
 import {Action, createAction} from "@reduxjs/toolkit";
-import {handleSequenceDiagramAction} from "../sequenceDiagram/sequenceDiagramSlice";
+import {sequenceDiagramEditor} from "../sequenceDiagram/sequenceDiagramSlice";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
 
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
+export interface DiagramEditor {
+    handleAction(action: Action, get: Get, set: Set) : void
+
+    snapToElements(get: Get, diagramPos: Coordinate): Coordinate | undefined
+}
+
+const diagramEditors: Record<any, DiagramEditor> = {
+    [ElementType.ClassDiagram]: classDiagramEditor,
+    [ElementType.SequenceDiagram]: sequenceDiagramEditor
+};
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -101,26 +111,15 @@ export function useDispatch() {
     )
 
 }
-
 function handleAction(action: Action, get: Get, set: Set) {
     const activeDiagramId = get(activeDiagramIdAtom);
+    const diagramKind = get(elementsAtom(activeDiagramId)).type;
 
     if (linkingAction.match(action)) {
         const {mousePos, diagramPos, elementId, phase } = action.payload;
-        handleLinking(get, set, elementId, mousePos, diagramPos, phase);
+        handleLinking(diagramKind, get, set, elementId, mousePos, diagramPos, phase);
     }
-
-    const diagramKind = get(elementsAtom(activeDiagramId)).type;
-    switch (diagramKind) {
-        case ElementType.ClassDiagram:
-            handleClassDiagramAction(action, get, set);
-            break;
-
-        case ElementType.SequenceDiagram:
-            handleSequenceDiagramAction(action, get, set);
-            break;
-    }
-
+    diagramEditors[diagramKind].handleAction(action, get, set);
 }
 
 export function screenToCanvas(e: KonvaEventObject<DragEvent | MouseEvent>) {
@@ -166,11 +165,11 @@ export function toDiagramPos(linking: Linking, screenPos: Coordinate) : Coordina
     }
 }
 
-function snapToElements(diagramPos: Coordinate): Coordinate | undefined {
-    return undefined;
+function snapToElements(get: Get, diagramKind: ElementType, diagramPos: Coordinate): Coordinate | undefined {
+    return diagramEditors[diagramKind].snapToElements(get, diagramPos)
 }
 
-const handleLinking = (get: Get, set: Set, elementId: Id, mousePos: Coordinate, diagramPos: Coordinate | undefined, phase: LinkingPhase) => {
+const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: Id, mousePos: Coordinate, diagramPos: Coordinate | undefined, phase: LinkingPhase) => {
     if (phase === LinkingPhase.start) {
         set(linkingAtom, {
             sourceElement: elementId,
@@ -189,11 +188,7 @@ const handleLinking = (get: Get, set: Set, elementId: Id, mousePos: Coordinate, 
             return
 
         const diagramPos = toDiagramPos(linking, mousePos)
-        let snapped = snapToElements(diagramPos)
-
-        if (!snapped) {
-            snapped = snapToGrid(diagramPos, get(snapGridSizeAtom))
-        }
+        let snapped = snapToElements(get, diagramKind, diagramPos) ?? snapToGrid(diagramPos, get(snapGridSizeAtom))
 
         set(linkingAtom, {...linking, mousePos: mousePos, diagramPos: snapped})
     }else if (phase === LinkingPhase.end) {

@@ -1,4 +1,4 @@
-import {Bounds, Coordinate, Diagram, zeroBounds} from "../../common/model";
+import {Bounds, Coordinate, Diagram, withinBounds, zeroBounds} from "../../common/model";
 import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom} from "../diagramEditor/diagramEditorModel";
@@ -158,16 +158,29 @@ export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[
 
 }
 
-export function findTargetActivation(activations:  {[id: string]: ActivationState}, mousePos: Coordinate) : ActivationState | undefined {
+export function findTargetActivation(get: Get, activations: { [p: string]: ActivationState }, mousePos: Coordinate, diagramId: string) :
+    [ActivationId?, Bounds?]  {
+
+    function activationRender(activationId: ActivationId) : ActivationRender {
+        const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+        const activation = diagram.activations[activationId];
+
+
+        const lifeline = diagram.lifelines[activation.lifelineId];
+        const lifelinePlacement = lifeline.placement;
+
+        return renderActivation(activation!, lifelinePlacement)
+    }
+
     const tolerance = 3
 
-    return undefined;
-    // return Object.values(activations).find(a =>
-    //     a.placement.x - tolerance <= mousePos.x &&
-    //     a.placement.x + a.placement.width + tolerance >= mousePos.x &&
-    //     a.placement.y - tolerance <= mousePos.y &&
-    //     a.placement.y + a.placement.height + tolerance >= mousePos.y
-    // )
+    for (const activationId of Object.keys(activations)) {
+        const bounds = activationRender(activationId).bounds;
+        if (withinBounds(bounds, mousePos, tolerance))
+            return [activationId, bounds];
+    }
+
+    return [undefined, undefined];
 }
 
 // export function autoConnectActivations(diagram: WritableDraft<SequenceDiagramState>, sourceId: Id, targetId: Id, sourceOffset: number) {

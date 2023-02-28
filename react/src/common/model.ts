@@ -20,6 +20,13 @@ export const inflate = (bounds: Bounds, dx: number, dy: number): Bounds => ({
     height: bounds.height + dy * 2
 });
 
+export const withinBounds = (bounds: Bounds, pos: Coordinate, tolerance: number): boolean =>
+    bounds.x - tolerance <= pos.x &&
+        bounds.x + bounds.width + tolerance >= pos.x &&
+        bounds.y - tolerance <= pos.y &&
+        bounds.y + bounds.height + tolerance >= pos.y
+
+
 export function shift(bounds: Bounds, dx: number, dy: number): Bounds {
     return {
         x: bounds.x + dx,

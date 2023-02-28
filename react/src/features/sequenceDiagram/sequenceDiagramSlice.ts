@@ -1,51 +1,59 @@
 import {Action} from "@reduxjs/toolkit";
 import {
+    DiagramEditor,
     dropFromPaletteAction,
     elementMoveAction,
     elementResizeAction, Get, Set
 } from "../diagramEditor/diagramEditorSlice";
-import {handleSequenceDropFromLibrary, handleSequenceMoveElement, handleSequenceResizeElement} from "./sequenceDiagramModel";
+import {
+    activationRenderSelector,
+    findTargetActivation,
+    handleSequenceDropFromLibrary,
+    handleSequenceMoveElement,
+    handleSequenceResizeElement, sequenceDiagramSelector, SequenceDiagramState
+} from "./sequenceDiagramModel";
+import {Coordinate} from "../../common/model";
+import {elementsAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {snapToBounds} from "../../common/Geometry/snap";
 
 
-export function handleSequenceDiagramAction(action: Action, get: Get, set: Set) {
-    if (dropFromPaletteAction.match(action)) {
-        const {name, droppedAt} = action.payload;
-        handleSequenceDropFromLibrary(get, set, droppedAt, name);
+class SequenceDiagramEditor implements DiagramEditor {
+    handleAction(action: Action, get: Get, set: Set): void {
+        if (dropFromPaletteAction.match(action)) {
+            const {name, droppedAt} = action.payload;
+            handleSequenceDropFromLibrary(get, set, droppedAt, name);
+        }
+        else if (elementMoveAction.match(action)) {
+            const {currentPointerPos, phase, startNodePos, startPointerPos, elementId} = action.payload;
+            handleSequenceMoveElement(get, set, phase, elementId, currentPointerPos, startPointerPos, startNodePos);
+        }
+        else if (elementResizeAction.match(action)) {
+            const {phase, elementId, suggestedBounds} = action.payload;
+            handleSequenceResizeElement(get, set, phase, elementId, suggestedBounds);
+        }
     }
-    else if (elementMoveAction.match(action)) {
-        const {currentPointerPos, phase, startNodePos, startPointerPos, elementId} = action.payload;
-        handleSequenceMoveElement(get, set, phase, elementId, currentPointerPos, startPointerPos, startNodePos);
-    }
-    else if (elementResizeAction.match(action)) {
-        const {phase, elementId, suggestedBounds} = action.payload;
-        handleSequenceResizeElement(get, set, phase, elementId, suggestedBounds);
+
+    snapToElements(get: Get, diagramPos: Coordinate): Coordinate | undefined {
+        const linking = get(linkingAtom)!;
+        const diagramId = get(activeDiagramIdAtom);
+        const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+        const [targetActivationId, targetBounds] = findTargetActivation(get, diagram.activations, diagramPos, diagramId);
+        linking.targetElement = targetActivationId;
+        if (targetActivationId && targetBounds) {
+            return snapToBounds(diagramPos, targetBounds);
+        }
+        return undefined;
     }
 }
+
+export const sequenceDiagramEditor = new SequenceDiagramEditor();
 
 //         connectExisting: (editor) => {
 //             const linking = current(editor).linking!
 //             autoConnectActivations(editor.diagram, linking.sourceElement, linking.targetElement!, 10);
 //         },
 //
-//         continueLinking: (editor, action: PayloadAction<DrawLinkingAction>) => {
-//             // // TODO unify with classDiagramSlice
-//             // const linking = editor.linking!;
-//             // // we have a chance to receive continueLinking after endLinking, ignore it
-//             // if (!linking)
-//             //     return
-//             // const diagramPos = toDiagramPos(linking, action.payload.mousePos);
-//             //
-//             // let snapped: Coordinate | undefined = undefined
-//             // const targetActivation = findTargetActivation(current(editor).diagram.activations, diagramPos);
-//             // linking.targetElement = targetActivation?.id;
-//             // if (targetActivation) {
-//             //     snapped = snapToBounds(diagramPos, targetActivation.placement);
-//             // }
-//             // if (!snapped)
-//             //     snapped = snapToGrid(diagramPos, editor.snapGridSize);
-//             // linking.diagramPos = snapped
-//             // linking.mousePos = action.payload.mousePos;
-//         },
 //
 //     },
 // })
