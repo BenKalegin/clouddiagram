@@ -6,13 +6,14 @@ import {
 } from "../diagramEditor/diagramEditorSlice";
 import {
     addNewElementAt,
-    addNodeAndConnect,
+    addNodeAndConnect, autoConnectNodes,
     moveElement,
     nodePropertiesDialog,
     resizeElement
 } from "./classDiagramModel";
 import {Action} from "@reduxjs/toolkit";
 import {Coordinate} from "../../common/model";
+import {Id} from "../../package/packageModel";
 
 class ClassDiagramEditor implements DiagramEditor {
     handleAction(action: Action, get: Get, set: Set): void {
@@ -37,11 +38,11 @@ class ClassDiagramEditor implements DiagramEditor {
         return undefined;
     }
 
+    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id): void {
+        autoConnectNodes(get, set, sourceId, targetId);
+    }
+
 }
 
 export const classDiagramEditor = new ClassDiagramEditor();
-
-//         connectExisting: (editor) => {
-//             const linking = current(editor).linking!
-//             autoConnectNodes(editor.diagram, linking.sourceElement, linking.targetElement!);
 

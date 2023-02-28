@@ -6,16 +6,17 @@ import {
     elementResizeAction, Get, Set
 } from "../diagramEditor/diagramEditorSlice";
 import {
-    activationRenderSelector,
+    autoConnectActivations,
     findTargetActivation,
     handleSequenceDropFromLibrary,
     handleSequenceMoveElement,
-    handleSequenceResizeElement, sequenceDiagramSelector, SequenceDiagramState
+    handleSequenceResizeElement, SequenceDiagramState
 } from "./sequenceDiagramModel";
 import {Coordinate} from "../../common/model";
 import {elementsAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {snapToBounds} from "../../common/Geometry/snap";
+import {Id} from "../../package/packageModel";
 
 
 class SequenceDiagramEditor implements DiagramEditor {
@@ -45,16 +46,11 @@ class SequenceDiagramEditor implements DiagramEditor {
         }
         return undefined;
     }
+
+    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id): void {
+        autoConnectActivations(get, set, sourceId, targetId);
+    }
 }
 
 export const sequenceDiagramEditor = new SequenceDiagramEditor();
-
-//         connectExisting: (editor) => {
-//             const linking = current(editor).linking!
-//             autoConnectActivations(editor.diagram, linking.sourceElement, linking.targetElement!, 10);
-//         },
-//
-//
-//     },
-// })
 

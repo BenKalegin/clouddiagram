@@ -15,7 +15,7 @@ const root = createRoot(container);
 root.render(
         <React.StrictMode>
             <RecoilRoot>
-                {/*<RecoilDevTools forceSerialize={false} />*/}
+                <RecoilDevTools forceSerialize={false} />
             <App/>
             </RecoilRoot>
         </React.StrictMode>
@@ -23,6 +23,6 @@ root.render(
 
 // If you want to start measuring performance in your app, pass a function
 // to log results or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-//start().catch((error) => console .error(error));
+//start().catch((error) => console .error1(error));
 reportWebVitals();
 

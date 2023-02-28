@@ -183,16 +183,25 @@ export function findTargetActivation(get: Get, activations: { [p: string]: Activ
     return [undefined, undefined];
 }
 
-// export function autoConnectActivations(diagram: WritableDraft<SequenceDiagramState>, sourceId: Id, targetId: Id, sourceOffset: number) {
-//     const messageId = "message_" + sourceId + "_" + targetId
-//     diagram.messages[messageId] = {
-//         id: messageId,
-//         kind: MessageKind.Call,
-//         sourceActivation: sourceId,
-//         targetActivation: targetId,
-//         sourceActivationOffset: sourceOffset
-//     } as MessageState
-// }
+export function autoConnectActivations(get: Get, set: Set, sourceId: Id, targetId: Id) {
+    const messageId = generateId()
+
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+
+    const message: MessageState = {
+        placement: {},
+        type: ElementType.SequenceMessage,
+        id: messageId,
+        kind: MessageKind.Call,
+        activation1: sourceId,
+        activation2: targetId,
+        sourceActivationOffset: 50
+    }
+
+    const updatedDiagram: SequenceDiagramState = {...diagram, messages: {...diagram.messages, [messageId]: message}};
+    set(elementsAtom(diagramId), updatedDiagram)
+}
 
 
 export const drawingMessageRenderSelector = selector<MessageRender>({
@@ -293,6 +302,7 @@ export const activationRenderSelector = selectorFamily<ActivationRender, {activa
     key: 'activationPlacement',
     get: ({activationId, diagramId}) => ({get}) => {
         const activation = get(activationSelector({activationId, diagramId}));
+        console.log("activationRenderSelector", activationId, diagramId, activation);
         const lifelineBounds = get(lifelinePlacementSelector({lifelineId: activation.lifelineId, diagramId}));
         return renderActivation(activation!, lifelineBounds)
     }
@@ -315,3 +325,7 @@ export const messageRenderSelector = selectorFamily<MessageRender, {messageId: M
         return renderMessage(activation1, activation2, message.sourceActivationOffset);
     }
 })
+
+
+
+
