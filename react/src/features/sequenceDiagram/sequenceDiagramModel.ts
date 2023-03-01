@@ -103,7 +103,7 @@ export const renderMessage = (activation1: ActivationRender, activation2: Activa
         return {
             x: activation1.bounds.x,
             y: activation1.bounds.y + messageOffset,
-            points: [0, 0, activation2.bounds.x - activation1.bounds.x - activation1.bounds.width, 0],
+            points: [0, 0, activation2.bounds.x - activation1.bounds.x + activation1.bounds.width, 0],
         }
     }
 
@@ -321,7 +321,6 @@ export const drawingMessageRenderSelector = selector<MessageRender>({
         const activationRender2: ActivationRender = renderActivation(activation2, lifelinePlacement2);
         let messageActivationOffset = y - activationRender1.bounds.y;
 
-        console.log(activation1.id, linking.targetElement)
         return renderMessage(activationRender1, activationRender2, messageActivationOffset, activation1.id === linking.targetElement);
     }
 })
