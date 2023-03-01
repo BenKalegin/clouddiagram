@@ -1,4 +1,4 @@
-import {DiagramElement, Id} from "../package/packageModel";
+import {DiagramElement} from "../package/packageModel";
 
 export interface Coordinate {
     y: number;
@@ -22,9 +22,13 @@ export const inflate = (bounds: Bounds, dx: number, dy: number): Bounds => ({
 
 export const withinBounds = (bounds: Bounds, pos: Coordinate, tolerance: number): boolean =>
     bounds.x - tolerance <= pos.x &&
-        bounds.x + bounds.width + tolerance >= pos.x &&
-        bounds.y - tolerance <= pos.y &&
-        bounds.y + bounds.height + tolerance >= pos.y
+    bounds.x + bounds.width + tolerance >= pos.x &&
+    bounds.y - tolerance <= pos.y &&
+    bounds.y + bounds.height + tolerance >= pos.y
+
+export const withinYBounds = (bounds: Bounds, y: number, tolerance: number): boolean =>
+    bounds.y - tolerance <= y &&
+    bounds.y + bounds.height + tolerance >= y
 
 
 export function shift(bounds: Bounds, dx: number, dy: number): Bounds {

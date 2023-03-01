@@ -14,7 +14,8 @@ export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 export interface DiagramEditor {
     handleAction(action: Action, get: Get, set: Set) : void
     snapToElements(get: Get, diagramPos: Coordinate): Coordinate | undefined
-    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id): void;
+
+    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void;
 }
 
 const diagramEditors: Record<any, DiagramEditor> = {
@@ -194,10 +195,11 @@ const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: 
     }else if (phase === LinkingPhase.end) {
         const linking = get(linkingAtom)!;
         if (linking.targetElement) {
+            const endPos = toDiagramPos(linking, mousePos)
             set(linkingAtom, {...linking!, drawing: false})
-            diagramEditors[diagramKind].connectNodes(get, set, linking.sourceElement, linking.targetElement!);
-        }
-        set(linkingAtom, {...linking!, drawing: false, showLinkToNewDialog: true})
+            diagramEditors[diagramKind].connectNodes(get, set, linking.sourceElement, linking.targetElement!, endPos!);
+        }else
+            set(linkingAtom, {...linking!, drawing: false, showLinkToNewDialog: true})
     }
 }
 

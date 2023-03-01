@@ -38,7 +38,7 @@ class ClassDiagramEditor implements DiagramEditor {
         return undefined;
     }
 
-    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id): void {
+    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void {
         autoConnectNodes(get, set, sourceId, targetId);
     }
 

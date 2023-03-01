@@ -1,4 +1,4 @@
-import {Bounds, Coordinate, Diagram, withinBounds, zeroBounds} from "../../common/model";
+import {Bounds, Coordinate, Diagram, withinBounds, withinYBounds, zeroBounds} from "../../common/model";
 import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom} from "../diagramEditor/diagramEditorModel";
@@ -158,11 +158,14 @@ export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[
 
 }
 
-export function findTargetActivation(get: Get, activations: { [p: string]: ActivationState }, mousePos: Coordinate, diagramId: string) :
+/**
+ * Search for activation at specified X,Y diagram position
+ */
+export function findActivationAtPos(get: Get, activations: { [p: string]: ActivationState }, pos: Coordinate, diagramId: string, tolerance: number) :
     [ActivationId?, Bounds?]  {
+    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
     function activationRender(activationId: ActivationId) : ActivationRender {
-        const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
         const activation = diagram.activations[activationId];
 
 
@@ -172,34 +175,81 @@ export function findTargetActivation(get: Get, activations: { [p: string]: Activ
         return renderActivation(activation!, lifelinePlacement)
     }
 
-    const tolerance = 3
-
     for (const activationId of Object.keys(activations)) {
         const bounds = activationRender(activationId).bounds;
-        if (withinBounds(bounds, mousePos, tolerance))
+        if (withinBounds(bounds, pos, tolerance))
             return [activationId, bounds];
     }
 
     return [undefined, undefined];
 }
 
-export function autoConnectActivations(get: Get, set: Set, sourceId: Id, targetId: Id) {
+/**
+ * Search for activation in lifeline at specified Y diagram position
+ */
+export function findLifelineActivationAt(get: Get, y: number, diagramId: string, lifeline: LifelineState, tolerance: number) :
+    [ActivationId?, Bounds?]  {
+    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+
+    function activationRender(activationId: ActivationId) : ActivationRender {
+        const activation = diagram.activations[activationId];
+        return renderActivation(activation!, lifeline.placement)
+    }
+
+    for (const activationId of lifeline.activations) {
+        const bounds = activationRender(activationId).bounds;
+        if (withinYBounds(bounds, y, tolerance))
+            return [activationId, bounds];
+    }
+
+    return [undefined, undefined];
+}
+
+
+
+const DefaultActivationLength = 40;
+
+export function autoConnectActivations(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate) {
     const messageId = generateId()
 
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+    const updatedDiagram: SequenceDiagramState = {
+        ...diagram,
+    }
+
+    const lifeline = diagram.lifelines[sourceId];
+    let [sourceActivationId, sourceActivationBounds] = findLifelineActivationAt(get, diagramPos.y, diagramId, lifeline, 1);
+
+    if (!sourceActivationId) {
+        // create activation for the source lifeline
+        sourceActivationId = generateId()
+        const sourceActivation: ActivationState = {
+            type: ElementType.SequenceActivation,
+            id: sourceActivationId,
+            length: DefaultActivationLength,
+            lifelineId: sourceId,
+            placement: {},
+            start: diagramPos.y - lifelineHeadY - 2 /* shadow */,
+        }
+        sourceActivationId = sourceActivation.id;
+        sourceActivationBounds = renderActivation(sourceActivation, lifeline.placement).bounds;
+        updatedDiagram.activations = {...diagram.activations, [sourceActivation.id]: sourceActivation}
+    }
+
 
     const message: MessageState = {
         placement: {},
         type: ElementType.SequenceMessage,
         id: messageId,
         kind: MessageKind.Call,
-        activation1: sourceId,
+        activation1: sourceActivationId,
         activation2: targetId,
-        sourceActivationOffset: 50
+        sourceActivationOffset: diagramPos.y - sourceActivationBounds!.y,
     }
 
-    const updatedDiagram: SequenceDiagramState = {...diagram, messages: {...diagram.messages, [messageId]: message}};
+    updatedDiagram.messages = {...diagram.messages, [messageId]: message}
+
     set(elementsAtom(diagramId), updatedDiagram)
 }
 
@@ -302,7 +352,6 @@ export const activationRenderSelector = selectorFamily<ActivationRender, {activa
     key: 'activationPlacement',
     get: ({activationId, diagramId}) => ({get}) => {
         const activation = get(activationSelector({activationId, diagramId}));
-        console.log("activationRenderSelector", activationId, diagramId, activation);
         const lifelineBounds = get(lifelinePlacementSelector({lifelineId: activation.lifelineId, diagramId}));
         return renderActivation(activation!, lifelineBounds)
     }

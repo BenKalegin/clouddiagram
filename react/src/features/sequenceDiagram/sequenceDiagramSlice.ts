@@ -7,7 +7,7 @@ import {
 } from "../diagramEditor/diagramEditorSlice";
 import {
     autoConnectActivations,
-    findTargetActivation,
+    findActivationAtPos,
     handleSequenceDropFromLibrary,
     handleSequenceMoveElement,
     handleSequenceResizeElement, SequenceDiagramState
@@ -39,7 +39,7 @@ class SequenceDiagramEditor implements DiagramEditor {
         const linking = get(linkingAtom)!;
         const diagramId = get(activeDiagramIdAtom);
         const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
-        const [targetActivationId, targetBounds] = findTargetActivation(get, diagram.activations, diagramPos, diagramId);
+        const [targetActivationId, targetBounds] = findActivationAtPos(get, diagram.activations, diagramPos, diagramId, 3);
         linking.targetElement = targetActivationId;
         if (targetActivationId && targetBounds) {
             return snapToBounds(diagramPos, targetBounds);
@@ -47,8 +47,8 @@ class SequenceDiagramEditor implements DiagramEditor {
         return undefined;
     }
 
-    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id): void {
-        autoConnectActivations(get, set, sourceId, targetId);
+    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void {
+        autoConnectActivations(get, set, sourceId, targetId, diagramPos);
     }
 }
 
