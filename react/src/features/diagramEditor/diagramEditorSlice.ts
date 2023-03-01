@@ -196,8 +196,8 @@ const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: 
         const linking = get(linkingAtom)!;
         if (linking.targetElement) {
             const endPos = toDiagramPos(linking, mousePos)
-            set(linkingAtom, {...linking!, drawing: false})
             diagramEditors[diagramKind].connectNodes(get, set, linking.sourceElement, linking.targetElement!, endPos!);
+            set(linkingAtom, undefined)
         }else
             set(linkingAtom, {...linking!, drawing: false, showLinkToNewDialog: true})
     }

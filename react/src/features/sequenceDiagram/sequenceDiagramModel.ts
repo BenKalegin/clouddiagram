@@ -85,7 +85,28 @@ export const renderActivation = (activation: ActivationState, lifelinePlacement:
     }
 }
 
-export const renderMessage = (activation1: ActivationRender, activation2: ActivationRender, messageOffset: number): MessageRender => {
+export const renderMessage = (activation1: ActivationRender, activation2: ActivationRender, messageOffset: number, selfMessage: boolean): MessageRender => {
+    if (selfMessage) {
+        return {
+            x: activation1.bounds.x + activation1.bounds.width,
+            y: activation1.bounds.y + messageOffset,
+            points: [
+                0, 0,
+                20, 0,
+                20, 20,
+                0, 20],
+        }
+    }
+
+    const rightToLeft = activation1.bounds.x + activation1.bounds.width > activation2.bounds.x;
+    if (rightToLeft) {
+        return {
+            x: activation1.bounds.x,
+            y: activation1.bounds.y + messageOffset,
+            points: [0, 0, activation2.bounds.x - activation1.bounds.x - activation1.bounds.width, 0],
+        }
+    }
+
     return {
         x: activation1.bounds.x + activation1.bounds.width,
         y: activation1.bounds.y + messageOffset,
@@ -264,22 +285,20 @@ export const drawingMessageRenderSelector = selector<MessageRender>({
         const lifeline1Placement = get(lifelinePlacementSelector({lifelineId: linking.sourceElement, diagramId}))
         const lifelineY = Math.max(y - lifeline1Placement.headBounds.height, 0)
 
-        let sourceActivation = lifeline1.activations
+        let activation1 = lifeline1.activations
             .map(a => get(activationSelector({activationId: a, diagramId})))
             .find(a => a.start <= lifelineY && a.start + a.length >= lifelineY);
-        if (!sourceActivation) {
-            sourceActivation = {start: lifelineY, length: 50, id: "dummy"} as ActivationState;
-            sourceActivation.placement = renderActivation(sourceActivation, lifeline1Placement);
+        if (!activation1) {
+            activation1 = {
+                lifelineId: "",
+                placement: {},
+                type: ElementType.SequenceActivation,
+                start: lifelineY,
+                length: 50,
+                id: "dummy"
+            };
         }
 
-        const activation1: ActivationState = {
-            lifelineId: "",
-            placement: {},
-            type: ElementType.SequenceActivation,
-            start: lifelineY,
-            length: 50,
-            id: "dummy"
-        };
         const activationRender1: ActivationRender = renderActivation(activation1, lifeline1Placement);
 
         const activation2: ActivationState = {
@@ -302,7 +321,8 @@ export const drawingMessageRenderSelector = selector<MessageRender>({
         const activationRender2: ActivationRender = renderActivation(activation2, lifelinePlacement2);
         let messageActivationOffset = y - activationRender1.bounds.y;
 
-        return renderMessage(activationRender1, activationRender2, messageActivationOffset);
+        console.log(activation1.id, linking.targetElement)
+        return renderMessage(activationRender1, activationRender2, messageActivationOffset, activation1.id === linking.targetElement);
     }
 })
 
@@ -371,7 +391,7 @@ export const messageRenderSelector = selectorFamily<MessageRender, {messageId: M
         const message = get(messageSelector({messageId, diagramId}));
         const activation1 = get(activationRenderSelector({activationId: message.activation1, diagramId: diagramId}));
         const activation2 = get(activationRenderSelector({activationId: message.activation2, diagramId: diagramId}));
-        return renderMessage(activation1, activation2, message.sourceActivationOffset);
+        return renderMessage(activation1, activation2, message.sourceActivationOffset, message.activation1 === message.activation2);
     }
 })
 
