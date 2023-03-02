@@ -7,6 +7,10 @@ import {useRecoilValue} from "recoil";
 export const DrawingMessage = () => {
     const render = useRecoilValue(drawingMessageRenderSelector)
 
+    if (!render) {
+        return null
+    }
+
     return (
         <Arrow
             fill={"burlywood"}

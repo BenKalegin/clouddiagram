@@ -249,11 +249,14 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, targetI
             length: DefaultActivationLength,
             lifelineId: sourceId,
             placement: {},
-            start: diagramPos.y - lifelineHeadY - 2 /* shadow */,
+            start: diagramPos.y - lifeline.placement.headBounds.y - lifeline.placement.headBounds.height - 2 /* shadow */,
+
         }
         sourceActivationId = sourceActivation.id;
         sourceActivationBounds = renderActivation(sourceActivation, lifeline.placement).bounds;
+        const updatedLifeline = { ...lifeline, activations: [...lifeline.activations, sourceActivationId]}
         updatedDiagram.activations = {...diagram.activations, [sourceActivation.id]: sourceActivation}
+        updatedDiagram.lifelines = {...diagram.lifelines, [sourceId]: updatedLifeline}
     }
 
 
@@ -313,10 +316,13 @@ export function createLifelineAndConnectTo(get: Get, set: Set, name: string) {
     autoConnectActivations(get, set, linking.sourceElement, targetActivation.id, diagramPos)
 }
 
-export const drawingMessageRenderSelector = selector<MessageRender>({
+export const drawingMessageRenderSelector = selector<MessageRender | undefined>({
     key: 'drawMessageRender',
     get: ({get}) => {
-        const linking = get(linkingAtom)!
+        const maybeLinking = get(linkingAtom)
+        if (!maybeLinking)
+            return undefined;
+        const linking = maybeLinking!
         const diagramId = get(activeDiagramIdAtom)
         const y = linking.diagramPos.y;
         const lifeline1 = get(lifelineSelector({lifelineId: linking.sourceElement, diagramId}))
@@ -431,7 +437,3 @@ export const messageRenderSelector = selectorFamily<MessageRender, {messageId: M
         return renderMessage(activation1, activation2, message.sourceActivationOffset, message.activation1 === message.activation2);
     }
 })
-
-
-
-
