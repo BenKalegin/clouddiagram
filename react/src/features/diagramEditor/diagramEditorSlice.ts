@@ -16,6 +16,8 @@ export interface DiagramEditor {
     snapToElements(get: Get, diagramPos: Coordinate): Coordinate | undefined
 
     connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void;
+
+    createAndConnectTo(get: Get, set: Set, name: string): void;
 }
 
 const diagramEditors: Record<any, DiagramEditor> = {
@@ -75,8 +77,8 @@ export const linkingAction = createAction<{
 
 export const linkToNewDialogCompletedAction = createAction<{
     success: boolean
-    selectedKey?: string;
-    selectedName?: string;
+    selectedKey?: string
+    selectedName?: string
 }>('editor/linkToNewDialogCompleted');
 
 
@@ -119,8 +121,13 @@ function handleAction(action: Action, get: Get, set: Set) {
     if (linkingAction.match(action)) {
         const {mousePos, diagramPos, elementId, phase } = action.payload;
         handleLinking(diagramKind, get, set, elementId, mousePos, diagramPos, phase);
-    }
-    diagramEditors[diagramKind].handleAction(action, get, set);
+    }else if (linkToNewDialogCompletedAction.match(action)) {
+        const {success, selectedName} = action.payload;
+        if (success)
+            diagramEditors[diagramKind].createAndConnectTo(get, set, selectedName ?? "new node")
+        scrubLinking(set);
+    }else
+        diagramEditors[diagramKind].handleAction(action, get, set);
 }
 
 export function screenToCanvas(e: KonvaEventObject<DragEvent | MouseEvent>) {
@@ -170,6 +177,10 @@ function snapToElements(get: Get, diagramKind: ElementType, diagramPos: Coordina
     return diagramEditors[diagramKind].snapToElements(get, diagramPos)
 }
 
+function scrubLinking(set: Set) {
+    set(linkingAtom, undefined)
+}
+
 const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: Id, mousePos: Coordinate, diagramPos: Coordinate | undefined, phase: LinkingPhase) => {
     if (phase === LinkingPhase.start) {
         set(linkingAtom, {
@@ -194,12 +205,12 @@ const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: 
         set(linkingAtom, {...linking, mousePos: mousePos, diagramPos: snapped})
     }else if (phase === LinkingPhase.end) {
         const linking = get(linkingAtom)!;
+        const endPos = toDiagramPos(linking, mousePos)!
         if (linking.targetElement) {
-            const endPos = toDiagramPos(linking, mousePos)
-            diagramEditors[diagramKind].connectNodes(get, set, linking.sourceElement, linking.targetElement!, endPos!);
-            set(linkingAtom, undefined)
+            diagramEditors[diagramKind].connectNodes(get, set, linking.sourceElement, linking.targetElement!, endPos);
+            scrubLinking(set);
         }else
-            set(linkingAtom, {...linking!, drawing: false, showLinkToNewDialog: true})
+            set(linkingAtom, {...linking!, drawing: false, showLinkToNewDialog: true, diagramPos: endPos})
     }
 }
 

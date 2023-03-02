@@ -191,7 +191,6 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         title: 'Alice',
         activations: [activation1.id]
     }
-    elements[lifeline1.id] = lifeline1;
 
     const lifeline2Id = 'line2';
     const activation2: ActivationState = {
@@ -220,7 +219,6 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         activations: [activation2.id],
         placement: lifeline2Placement
     }
-    elements[lifeline2.id] = lifeline2;
 
     const lifelines: { [id: Id]: LifelineState } = {
         [lifeline1.id]: lifeline1,

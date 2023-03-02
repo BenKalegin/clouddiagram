@@ -2,11 +2,11 @@ import {
     dropFromPaletteAction,
     elementMoveAction,
     elementResizeAction, Get, Set,
-    propertiesDialogAction, linkToNewDialogCompletedAction, DiagramEditor
+    propertiesDialogAction, DiagramEditor
 } from "../diagramEditor/diagramEditorSlice";
 import {
-    addNewElementAt,
-    addNodeAndConnect, autoConnectNodes,
+    addNewElementAt, addNodeAndConnect,
+    autoConnectNodes,
     moveElement,
     nodePropertiesDialog,
     resizeElement
@@ -25,12 +25,9 @@ class ClassDiagramEditor implements DiagramEditor {
         }else if(elementResizeAction.match(action)){
             const {elementId, suggestedBounds} = action.payload;
             resizeElement(get, set, elementId, suggestedBounds);
-        }else if(propertiesDialogAction.match(action)){
+        }else if(propertiesDialogAction.match(action)) {
             const {elementId, dialogResult} = action.payload;
             nodePropertiesDialog(get, set, elementId, dialogResult);
-        }else if (linkToNewDialogCompletedAction.match(action)) {
-            const {selectedName} = action.payload;
-            addNodeAndConnect(get, set, selectedName ?? "new node")
         }
     }
 
@@ -42,6 +39,9 @@ class ClassDiagramEditor implements DiagramEditor {
         autoConnectNodes(get, set, sourceId, targetId);
     }
 
+    createAndConnectTo(get: Get, set: Set, name: string): void {
+        addNodeAndConnect(get, set, name)
+    }
 }
 
 export const classDiagramEditor = new ClassDiagramEditor();

@@ -1,11 +1,15 @@
 import {Group, Line, Rect, Text} from "react-konva";
-import {LifelineId, lifelinePlacementSelector, lifelinePoints, LifelineState} from "./sequenceDiagramModel";
+import {
+    LifelineId,
+    lifelinePoints,
+    lifelineSelector
+} from "./sequenceDiagramModel";
 import React, {FC} from "react";
 import {Scaffold} from "../scaffold/Scaffold";
 import {Activation} from "./Activation";
 import {DrawingMessage} from "./DrawingMessage";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {DiagramId, elementsAtom, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
 import {
     elementMoveAction,
     ElementMoveResizePhase,
@@ -23,8 +27,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     const [selectedElements, setSelectedElements] = useRecoilState(selectedElementsAtom)
     const isSelected = selectedElements.includes(lifelineId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1) === lifelineId;
-    const placement = useRecoilValue(lifelinePlacementSelector({lifelineId, diagramId}))
-    const lifeline = useRecoilValue(elementsAtom(lifelineId)) as LifelineState
+    const lifeline = useRecoilValue(lifelineSelector({lifelineId, diagramId}))
+    const placement = lifeline.placement
     const [startNodePos, setStartNodePos] = React.useState<Coordinate | undefined>();
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
     const dispatch = useDispatch()

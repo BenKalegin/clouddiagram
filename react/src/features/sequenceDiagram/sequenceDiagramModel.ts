@@ -162,8 +162,6 @@ export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coo
         activations: []
     };
 
-    set(elementsAtom(newLifeline.id), newLifeline)
-
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
     const updatedDiagram = {...diagram , lifelines: {...diagram.lifelines, [newLifeline.id]: newLifeline}}
     set(elementsAtom(diagramId), updatedDiagram)
@@ -274,6 +272,46 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, targetI
     set(elementsAtom(diagramId), updatedDiagram)
 }
 
+export function createLifelineAndConnectTo(get: Get, set: Set, name: string) {
+    const linking = get(linkingAtom)!;
+    const diagramPos = linking.diagramPos!;
+    const targetLifeline: LifelineState = {
+        activations: [],
+        type: ElementType.SequenceLifeLine,
+        id: generateId(),
+        title: name,
+        placement: {
+            headBounds: {
+                x: diagramPos.x - lifelineDefaultWidth / 2,
+                y: lifelineHeadY,
+                width: lifelineDefaultWidth,
+                height: lifelineDefaultHeight
+            },
+            lifelineEnd: Math.max(lifelineDefaultHeight, diagramPos.y - lifelineHeadY - 2),
+        }
+    }
+
+    const targetActivation: ActivationState = {
+        type: ElementType.SequenceActivation,
+        id: generateId(),
+        length: DefaultActivationLength,
+        lifelineId: targetLifeline.id,
+        placement: {},
+        start: diagramPos.y - targetLifeline.placement.headBounds.y - targetLifeline.placement.headBounds.height - 2 /* shadow */,
+    }
+    targetLifeline.activations = [targetActivation.id]
+
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+    const updateDiagram = {
+        ...diagram,
+        lifelines: {...diagram.lifelines, [targetLifeline.id]: targetLifeline},
+        activations: {...diagram.activations, [targetActivation.id]: targetActivation}
+    }
+    set(elementsAtom(diagramId), updateDiagram)
+
+    autoConnectActivations(get, set, linking.sourceElement, targetActivation.id, diagramPos)
+}
 
 export const drawingMessageRenderSelector = selector<MessageRender>({
     key: 'drawMessageRender',
@@ -311,7 +349,7 @@ export const drawingMessageRenderSelector = selector<MessageRender>({
         };
         const lifelinePlacement2: LifelinePlacement = {
             headBounds: {
-                x: linking!.diagramPos.x - lifeline1Placement.headBounds.width / 2,
+                x: linking.diagramPos.x - lifeline1Placement.headBounds.width / 2,
                 y: lifeline1Placement.headBounds.y,
                 width: lifeline1Placement.headBounds.width,
                 height: lifeline1Placement.headBounds.height
@@ -360,7 +398,7 @@ export const lifelinePlacementSelector = selectorFamily<LifelinePlacement, {life
 })
 
 export const activationSelector = selectorFamily<ActivationState, {activationId: Id, diagramId: DiagramId}>({
-    key: 'activationPlacement',
+    key: 'activation',
     get: ({activationId, diagramId}) => ({get}) => {
         const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
         return diagram.activations[activationId];
@@ -368,7 +406,7 @@ export const activationSelector = selectorFamily<ActivationState, {activationId:
 })
 
 export const activationRenderSelector = selectorFamily<ActivationRender, {activationId: Id, diagramId: DiagramId}>({
-    key: 'activationPlacement',
+    key: 'activationRender',
     get: ({activationId, diagramId}) => ({get}) => {
         const activation = get(activationSelector({activationId, diagramId}));
         const lifelineBounds = get(lifelinePlacementSelector({lifelineId: activation.lifelineId, diagramId}));
@@ -385,7 +423,7 @@ export const messageSelector = selectorFamily<MessageState, {messageId: MessageI
 })
 
 export const messageRenderSelector = selectorFamily<MessageRender, {messageId: MessageId, diagramId: DiagramId}>({
-    key: 'linkPlacement',
+    key: 'messageRender',
     get: ({messageId, diagramId}) => ({get}) => {
         const message = get(messageSelector({messageId, diagramId}));
         const activation1 = get(activationRenderSelector({activationId: message.activation1, diagramId: diagramId}));

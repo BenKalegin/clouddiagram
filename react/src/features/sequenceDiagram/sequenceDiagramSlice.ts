@@ -6,7 +6,7 @@ import {
     elementResizeAction, Get, Set
 } from "../diagramEditor/diagramEditorSlice";
 import {
-    autoConnectActivations,
+    autoConnectActivations, createLifelineAndConnectTo,
     findActivationAtPos,
     handleSequenceDropFromLibrary,
     handleSequenceMoveElement,
@@ -50,6 +50,10 @@ class SequenceDiagramEditor implements DiagramEditor {
     connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void {
         autoConnectActivations(get, set, sourceId, targetId, diagramPos);
     }
+    createAndConnectTo(get: Get, set: Set, name: string): void {
+        createLifelineAndConnectTo(get, set, name);
+    }
+
 }
 
 export const sequenceDiagramEditor = new SequenceDiagramEditor();
