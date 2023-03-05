@@ -12,6 +12,8 @@ export interface ScaffoldProps {
     isFocused: boolean;
     isLinking: boolean;
     elementId: Id;
+    excludeDiagonalResize?: boolean;
+    excludeVerticalResize?: boolean;
     linkingDrawing: JSX.Element
 }
 
@@ -77,6 +79,8 @@ export const Scaffold = (props: ScaffoldProps) => {
                 perimeterBounds={bounds}
                 nodeBounds={props.bounds}
                 elementId={props.elementId}
+                excludeDiagonal={props.excludeDiagonalResize}
+                excludeVertical={props.excludeVerticalResize}
             />
             {props.isFocused && <FocusFrame bounds={bounds} />}
             {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.elementId}/>}

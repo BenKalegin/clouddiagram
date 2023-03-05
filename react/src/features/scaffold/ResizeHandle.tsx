@@ -23,6 +23,25 @@ export enum ResizeHandleDirection {
     West = 'w'
 }
 
+function isDiagonal (direction: ResizeHandleDirection): boolean {
+    switch (direction) {
+        case ResizeHandleDirection.NorthEast:
+        case ResizeHandleDirection.NorthWest:
+        case ResizeHandleDirection.SouthEast:
+        case ResizeHandleDirection.SouthWest:
+            return true;
+    }
+    return false;
+}
+
+function isVertical (direction: ResizeHandleDirection): boolean {
+    switch (direction) {
+        case ResizeHandleDirection.North:
+        case ResizeHandleDirection.South:
+            return true;
+    }
+    return false;
+}
 
 export interface ResizeHandleProps {
     elementId: Id
@@ -295,19 +314,32 @@ const resizeHandleCursor = (direction: ResizeHandleDirection): string => {
     }
 }
 
-export const ResizeHandles = ({nodeBounds, perimeterBounds, elementId}: { perimeterBounds: Bounds, nodeBounds: Bounds, elementId: Id }) => {
+export interface ResizeHandlesProps {
+    perimeterBounds: Bounds
+    nodeBounds: Bounds
+    elementId: Id
+    excludeDiagonal?: boolean
+    excludeVertical?: boolean
+}
+
+
+export const ResizeHandles = ({nodeBounds, perimeterBounds, elementId, excludeDiagonal, excludeVertical}: ResizeHandlesProps) => {
 
     const [nodeStart] = React.useState<Bounds>(nodeBounds);
     return (
         <>
-            {enumKeys(ResizeHandleDirection).map((direction, index) =>
+            {enumKeys(ResizeHandleDirection)
+                .map((key => ResizeHandleDirection[key]))
+                .filter(direction => (!excludeDiagonal) || !isDiagonal(direction))
+                .filter(direction => (!excludeVertical) || !isVertical(direction))
+                .map((direction, index) =>
                 <ResizeHandle
                     key={index}
                     elementId={elementId}
-                    handlerBounds={resizeHandleBounds(ResizeHandleDirection[direction], perimeterBounds)}
+                    handlerBounds={resizeHandleBounds(direction, perimeterBounds)}
                     nodeBounds={nodeStart}
-                    cursor={resizeHandleCursor(ResizeHandleDirection[direction])}
-                    direction={ResizeHandleDirection[direction]}
+                    cursor={resizeHandleCursor(direction)}
+                    direction={direction}
                 />
             )}
         </>

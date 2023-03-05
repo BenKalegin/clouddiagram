@@ -121,6 +121,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                     ...placement.headBounds,
                     height: placement.headBounds.y + placement.lifelineEnd
                 }}
+                excludeDiagonalResize={true}
+                excludeVerticalResize={true}
                 isFocused={isFocused}
                 isLinking={linking?.drawing === true}
                 linkingDrawing={<DrawingMessage/> }
