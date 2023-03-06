@@ -23,8 +23,8 @@ export const DrawingMessage = () => {
             pointerAtBeginning={false}
             pointerAtEnding={true}
 
-            x={render.x}
-            y={render.y}
+            x={render.bounds.x}
+            y={render.bounds.y}
             points={render.points}
         />
     )

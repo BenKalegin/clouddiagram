@@ -88,8 +88,12 @@ export const renderActivation = (activation: ActivationState, lifelinePlacement:
 export const renderMessage = (activation1: ActivationRender, activation2: ActivationRender, messageOffset: number, selfMessage: boolean): MessageRender => {
     if (selfMessage) {
         return {
-            x: activation1.bounds.x + activation1.bounds.width,
-            y: activation1.bounds.y + messageOffset,
+            bounds:{
+                x: activation1.bounds.x + activation1.bounds.width,
+                y:activation1.bounds.y + messageOffset,
+                width: 20,
+                height: 20,
+            },
             points: [
                 0, 0,
                 20, 0,
@@ -101,15 +105,23 @@ export const renderMessage = (activation1: ActivationRender, activation2: Activa
     const rightToLeft = activation1.bounds.x + activation1.bounds.width > activation2.bounds.x;
     if (rightToLeft) {
         return {
-            x: activation1.bounds.x,
-            y: activation1.bounds.y + messageOffset,
+            bounds: {
+                x: activation1.bounds.x,
+                y: activation1.bounds.y + messageOffset,
+                width: activation1.bounds.x - activation2.bounds.x + activation2.bounds.width,
+                height: 0,
+            },
             points: [0, 0, activation2.bounds.x - activation1.bounds.x + activation1.bounds.width, 0],
         }
     }
 
     return {
-        x: activation1.bounds.x + activation1.bounds.width,
-        y: activation1.bounds.y + messageOffset,
+        bounds: {
+            x: activation1.bounds.x + activation1.bounds.width,
+            y: activation1.bounds.y + messageOffset,
+            width: activation2.bounds.x - activation1.bounds.x - activation1.bounds.width,
+            height: 0,
+        },
         points: [0, 0, activation2.bounds.x - activation1.bounds.x - activation1.bounds.width, 0],
     }
 }

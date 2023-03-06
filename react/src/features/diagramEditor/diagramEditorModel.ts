@@ -1,4 +1,4 @@
-import {Coordinate, Diagram} from "../../common/model";
+import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {atom, atomFamily, selectorFamily} from "recoil";
 import {elements} from "../demo";
@@ -68,8 +68,7 @@ export const generateId = (): string => {
 }
 
 export interface ConnectorRender {
-    x: number;
-    y: number;
+    bounds: Bounds
     points: number[];
 }
 

@@ -14,7 +14,7 @@ export interface ScaffoldProps {
     elementId: Id;
     excludeDiagonalResize?: boolean;
     excludeVerticalResize?: boolean;
-    linkingDrawing: JSX.Element
+    linkingDrawing: JSX.Element | undefined
 }
 
 export const Scaffold = (props: ScaffoldProps) => {
