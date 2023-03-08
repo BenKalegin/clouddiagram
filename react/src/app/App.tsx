@@ -2,28 +2,10 @@ import React from 'react';
 import './App.css';
 import {Toolbox} from "../features/toolbox/Toolbox";
 import {DiagramTabs} from "../features/diagramTabs/DiagramTabs";
-import {
-    Box,
-    Button,
-    CssBaseline,
-    Divider,
-    Drawer,
-    IconButton,
-    Stack,
-    styled,
-    Typography,
-    useTheme
-} from "@mui/material";
-import List from "@mui/material/List";
-import MenuIcon from "@mui/icons-material/Menu";
+import {Box, CssBaseline, Divider, Drawer, IconButton, Stack, styled, Typography, useTheme} from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+import {PropertiesEditor} from "../features/propertiesEditor/PropertiesEditor";
 
 const drawerWidth = 240;
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
@@ -71,8 +53,8 @@ export const App = () => {
 
 
     return (
-        <Box sx={{ display: "flex" }}>
-            <CssBaseline />
+        <Box sx={{display: "flex"}}>
+            <CssBaseline/>
             {/* <Toolbar>
           <Typography variant="h6" noWrap sx={{ flexGrow: 1 }} component="div">
             Persistent drawer
@@ -81,7 +63,7 @@ export const App = () => {
             <Main open={open}>
                 <Stack direction="row">
                     <Typography>Cloud Diagram</Typography>
-                    <Button
+                    <IconButton
                         onClick={handleDrawerOpen}
                         sx={{
                             position: "absolute",
@@ -89,9 +71,14 @@ export const App = () => {
                             right: 5,
                             borderRadius: "50%"
                         }}
+
                     >
-                        {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                    </Button>
+                        {theme.direction === "rtl" ? (
+                            <ChevronLeftIcon/>
+                        ) : (
+                            <ChevronRightIcon/>
+                        )}
+                    </IconButton>
                 </Stack>
                 {/*<DrawerHeader />*/}
                 <Stack direction="column">
@@ -117,38 +104,13 @@ export const App = () => {
                 <DrawerHeader>
                     <IconButton onClick={handleDrawerClose}>
                         {theme.direction === "rtl" ? (
-                            <ChevronLeftIcon />
+                            <ChevronLeftIcon/>
                         ) : (
-                            <ChevronRightIcon />
+                            <ChevronRightIcon/>
                         )}
                     </IconButton>
                 </DrawerHeader>
-                <Divider />
-                <List>
-                    {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-                        <ListItem key={text} disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                                </ListItemIcon>
-                                <ListItemText primary={text} />
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
-                </List>
-                <Divider />
-                <List>
-                    {["All mail", "Trash", "Spam"].map((text, index) => (
-                        <ListItem key={text} disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                                </ListItemIcon>
-                                <ListItemText primary={text} />
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
-                </List>
+                <PropertiesEditor/>
             </Drawer>
         </Box>
     );
