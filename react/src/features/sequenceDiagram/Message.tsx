@@ -1,6 +1,6 @@
 import {Arrow, Group} from "react-konva";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {Id} from "../../package/packageModel";
+import {ElementType, Id} from "../../package/packageModel";
 import {messageRenderSelector} from "./sequenceDiagramModel";
 import {DiagramId, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
 import {Scaffold} from "../scaffold/Scaffold";
@@ -9,8 +9,8 @@ import React from "react";
 export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: DiagramId  }) => {
     const render = useRecoilValue(messageRenderSelector({messageId, diagramId}))
     const [selectedElements, setSelectedElements] = useRecoilState(selectedElementsAtom)
-    const isSelected = selectedElements.includes(messageId);
-    const isFocused = selectedElements.length > 0 && selectedElements.at(-1) === messageId;
+    const isSelected = selectedElements.map(e => e.id).includes(messageId);
+    const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === messageId;
 
     return (
         <Group>
@@ -25,7 +25,7 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
                 pointerAtBeginning={false}
                 pointerAtEnding={true}
                 hitStrokeWidth={10}
-                onClick={() => setSelectedElements([messageId])}
+                onClick={() => setSelectedElements([{id: messageId, type: ElementType.SequenceMessage}])}
 
 
                 x={render.bounds.x}

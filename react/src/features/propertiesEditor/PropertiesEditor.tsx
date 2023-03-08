@@ -8,23 +8,19 @@ import MailIcon from "@mui/icons-material/Mail";
 import ListItemText from "@mui/material/ListItemText";
 import React from "react";
 import {useRecoilValue} from "recoil";
-import {elementsAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
-import {ElementType, NodeState} from "../../package/packageModel";
+import {selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
+import {ElementType} from "../../package/packageModel";
 import {NodeProperties} from "../classDiagram/NodeProperties";
 import {LifelineProperties} from "../sequenceDiagram/LifelineProperties";
-import {LifelineState} from "../sequenceDiagram/sequenceDiagramModel";
 
 export const PropertiesEditor = () => {
-    const selectedElementId = useRecoilValue(selectedElementsAtom)[0];
-    const selectedElement = useRecoilValue(elementsAtom(selectedElementId));
-    const kind = selectedElement?.type;
-    console.log(selectedElement)
-
+    const selectedElement = useRecoilValue(selectedElementsAtom)[0]
+    const kind = selectedElement?.type
     return (
         <>
             <Divider/>
-            {kind === ElementType.ClassNode && <NodeProperties node={selectedElement! as NodeState}/>}
-            {kind === ElementType.SequenceLifeLine && <LifelineProperties lifeline={selectedElement! as LifelineState}/>}
+            {kind === ElementType.ClassNode && <NodeProperties nodeId={selectedElement.id}/>}
+            {kind === ElementType.SequenceLifeLine && <LifelineProperties lifelineId={selectedElement.id}/>}
             <Divider/>
             <List>
                 {["All mail", "Trash", "Spam"].map((text, index) => (

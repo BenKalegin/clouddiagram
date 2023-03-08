@@ -1,9 +1,12 @@
 import React from "react";
 import {Box, TextField} from "@mui/material";
-import {NodeState} from "../../package/packageModel";
-import {LifelineState} from "./sequenceDiagramModel";
+import {LifelineId, lifelineSelector} from "./sequenceDiagramModel";
+import {useRecoilValue} from "recoil";
+import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 
-export const LifelineProperties = ({lifeline} : {lifeline: LifelineState}) => {
+export const LifelineProperties = ({lifelineId} : {lifelineId: LifelineId}) => {
+    const diagramId = useRecoilValue(activeDiagramIdAtom)
+    const lifeline = useRecoilValue(lifelineSelector({lifelineId, diagramId}))
     return (
         <Box display="flex" flexDirection="column" p={2}>
             <TextField

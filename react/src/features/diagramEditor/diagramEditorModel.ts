@@ -53,7 +53,11 @@ export const linkingAtom = atom<Linking | undefined>({
     default: undefined
 })
 
-export const selectedElementsAtom = atom<Id[]>({
+export interface IdAndType {
+    id: Id
+    type: ElementType
+}
+export const selectedElementsAtom = atom<IdAndType[]>({
     key: 'selectedElements',
     default: [],
 })

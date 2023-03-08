@@ -7,13 +7,13 @@ import {nodeSelector} from "../classDiagramModel";
 export const NodePropertiesDialog = () => {
 
     const selectedId = useRecoilValue(selectedElementsAtom)[0];
-    const [node, setNode] = useRecoilState(nodeSelector(selectedId));
+    const [node, setNode] = useRecoilState(nodeSelector(selectedId.id));
     const dispatch = useDispatch()
 
     function close(save: boolean) {
 
         dispatch(propertiesDialogAction({
-            elementId: selectedId, dialogResult: save ? DialogOperation.save: DialogOperation.cancel}))
+            elementId: selectedId.id, dialogResult: save ? DialogOperation.save: DialogOperation.cancel}))
     }
 
     return (
