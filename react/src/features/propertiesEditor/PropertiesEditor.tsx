@@ -11,16 +11,20 @@ import {useRecoilValue} from "recoil";
 import {elementsAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
 import {ElementType, NodeState} from "../../package/packageModel";
 import {NodeProperties} from "../classDiagram/NodeProperties";
+import {LifelineProperties} from "../sequenceDiagram/LifelineProperties";
+import {LifelineState} from "../sequenceDiagram/sequenceDiagramModel";
 
 export const PropertiesEditor = () => {
     const selectedElementId = useRecoilValue(selectedElementsAtom)[0];
     const selectedElement = useRecoilValue(elementsAtom(selectedElementId));
     const kind = selectedElement?.type;
+    console.log(selectedElement)
 
     return (
         <>
             <Divider/>
             {kind === ElementType.ClassNode && <NodeProperties node={selectedElement! as NodeState}/>}
+            {kind === ElementType.SequenceLifeLine && <LifelineProperties lifeline={selectedElement! as LifelineState}/>}
             <Divider/>
             <List>
                 {["All mail", "Trash", "Spam"].map((text, index) => (
