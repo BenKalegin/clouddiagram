@@ -1,10 +1,17 @@
 import React from "react";
-import {TextField} from "@mui/material";
+import {Box, TextField} from "@mui/material";
+import {NodeState} from "../../package/packageModel";
 
-const NodeProperties = () => {
+export const NodeProperties = ({node} : {node: NodeState}) => {
     return (
-        <>
-            <TextField id="standard-basic" label="Name" variant="standard" />
-        </>
+        <Box display="flex" flexDirection="column" p={2}>
+            <TextField
+                id="node-name"
+                label="Name"
+                variant="outlined"
+                size="small"
+                value={node.text}
+            />
+        </Box>
     )
 }
