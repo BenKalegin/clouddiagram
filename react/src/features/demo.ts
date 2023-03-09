@@ -154,6 +154,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
     return {
         id: id,
         title: title,
+        selectedElements: [],
         type: ElementType.ClassDiagram,
         nodes: nodePlacements,
         ports: portPlacements,

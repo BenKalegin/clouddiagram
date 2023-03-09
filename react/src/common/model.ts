@@ -1,4 +1,4 @@
-import {DiagramElement} from "../package/packageModel";
+import {DiagramElement, IdAndKind} from "../package/packageModel";
 
 export interface Coordinate {
     y: number;
@@ -52,6 +52,7 @@ export const center = (bounds: Bounds): Coordinate => ({
 
 export interface Diagram extends DiagramElement{
     title?: string
+    selectedElements: IdAndKind[]
 }
 
 

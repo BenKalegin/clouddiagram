@@ -1,6 +1,6 @@
-import {Bounds, Coordinate, zeroCoordinate} from "../../common/model";
+import {Bounds, Coordinate, Diagram, zeroCoordinate} from "../../common/model";
 import {elementsAtom, Linking, linkingAtom, snapGridSizeAtom} from "./diagramEditorModel";
-import {ElementType, Id} from "../../package/packageModel";
+import {ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {classDiagramEditor} from "../classDiagram/classDiagramSlice";
@@ -82,28 +82,14 @@ export const linkToNewDialogCompletedAction = createAction<{
 }>('editor/linkToNewDialogCompleted');
 
 
-export interface ElementSelectAction {
-    id: Id
+export const elementSelectedAction = createAction<{
+    /**
+     * selected element id or undefined if clicked on empty space
+     */
+    element: IdAndKind | undefined
     shiftKey: boolean
     ctrlKey: boolean
-}
-
-export interface MoveResizeAction {
-    elementId: Id
-    mousePos: Coordinate
-    relativePos: Coordinate
-}
-
-export interface DrawLinkingAction {
-    elementId: Id
-    mousePos: Coordinate
-    shiftKey: boolean
-    ctrlKey: boolean
-}
-
-export interface AddNodeAndConnectAction {
-    name: string
-}
+}>('editor/elementSelected');
 
 export function useDispatch() {
     return useRecoilTransaction_UNSTABLE(
@@ -126,7 +112,11 @@ function handleAction(action: Action, get: Get, set: Set) {
         if (success)
             diagramEditors[diagramKind].createAndConnectTo(get, set, selectedName ?? "new node")
         scrubLinking(set);
-    }else
+    }else if (elementSelectedAction.match(action)) {
+        const {element, shiftKey, ctrlKey} = action.payload;
+        handleElementSelection(get, set, element, shiftKey, ctrlKey);
+    }
+    else
         diagramEditors[diagramKind].handleAction(action, get, set);
 }
 
@@ -134,31 +124,6 @@ export function screenToCanvas(e: KonvaEventObject<DragEvent | MouseEvent>) {
     const stage = e.target.getStage()?.getPointerPosition() ?? zeroCoordinate;
     return {x: stage.x, y: stage.y};
 }
-
-
-
-// const nodeDeselect1 = (editor: WritableDraft<DiagramEditor>) => {
-//     editor.selectedElements = [];
-//     editor.focusedElement = undefined;
-//     editor.linking = undefined;
-// };
-
-// const nodeSelect1 = (editor: WritableDraft<DiagramEditor>, action: PayloadAction<ElementSelectAction>) => {
-//     const append = action.payload.shiftKey || action.payload.ctrlKey
-//     let selectedIds = editor.selectedElements;
-//     const id = action.payload.id
-//     if (!append) {
-//         selectedIds = [id]
-//     } else {
-//         if (!editor.selectedElements.includes(id)) {
-//             selectedIds.push(id)
-//         } else
-//             selectedIds = selectedIds.filter(e => e !== id)
-//     }
-//
-//     editor.selectedElements = selectedIds;
-//     editor.focusedElement = selectedIds.length > 0 ? selectedIds[selectedIds.length - 1] : undefined
-// };
 
 const snapToGrid = (pos: Coordinate, gridSize: number) => {
     const x = Math.round(pos.x / gridSize) * gridSize;
@@ -215,3 +180,24 @@ const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: 
 }
 
 
+function handleElementSelection(get: Get, set: Set, idAndKind: IdAndKind | undefined, shiftKey: boolean, ctrlKey: boolean) {
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as Diagram;
+    if (!idAndKind) {
+        diagram.selectedElements = [];
+    }else {
+        const append = shiftKey || ctrlKey
+        let selection = diagram.selectedElements;
+        if (!append) {
+            selection = [idAndKind]
+        } else {
+            if (!diagram.selectedElements.map(ik => ik.id).includes(idAndKind.id)) {
+                selection.push(idAndKind)
+            } else
+                selection = selection.filter(e => e !== idAndKind)
+        }
+
+        const updatedDiagram = {...diagram, selectedElements: selection}
+        set(elementsAtom(diagramId), updatedDiagram)
+    }
+}

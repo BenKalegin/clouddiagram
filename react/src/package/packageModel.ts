@@ -11,9 +11,13 @@ export enum ElementType {
     SequenceMessage,
     SequenceActivation,
 }
-export interface DiagramElement {
+
+export interface IdAndKind {
     id: Id;
     type: ElementType
+}
+
+export interface DiagramElement extends IdAndKind {
 }
 
 export interface Package {

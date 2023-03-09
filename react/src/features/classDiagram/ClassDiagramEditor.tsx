@@ -3,22 +3,21 @@ import React from "react";
 import {Layer, Stage} from 'react-konva';
 import Konva from "konva";
 import {Link} from "./Link";
-import {ClassDiagramModalDialog, classDiagramSelector} from "./classDiagramModel";
-import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
-import {DiagramId, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
-import {NodePropertiesDialog} from "./dialogs/NodePropertiesDialog";
+import {classDiagramSelector} from "./classDiagramModel";
+import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilValue} from "recoil";
+import {DiagramId} from "../diagramEditor/diagramEditorModel";
+import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 
 export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
     const diagram = useRecoilValue(classDiagramSelector(diagramId))
-    const [, setSelectedElements] = useRecoilState(selectedElementsAtom)
-    const[, setLinking] = useRecoilState(linkingAtom)
+    const dispatch = useDispatch()
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on empty area
         const clickedOnEmpty = e.target === e.target.getStage()
         if (clickedOnEmpty) {
-            // TODO: make transactional
-            setSelectedElements([])
-            setLinking(undefined)
+            if (clickedOnEmpty) {
+                dispatch(elementSelectedAction({element: undefined, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
+            }
         }
     }
 
@@ -26,7 +25,6 @@ export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
 
     return (
         <>
-        {diagram.modalDialog === ClassDiagramModalDialog.nodeProperties && <NodePropertiesDialog/>}
         <Stage
             width={window.innerWidth}
             height={window.innerHeight}

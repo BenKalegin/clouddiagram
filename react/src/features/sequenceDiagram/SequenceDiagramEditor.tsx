@@ -4,17 +4,18 @@ import {Layer, Stage} from "react-konva";
 import {sequenceDiagramSelector} from "./sequenceDiagramModel";
 import {Lifeline} from "./Lifeline";
 import {Message} from "./Message";
-import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
-import {DiagramId, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
+import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilValue} from "recoil";
+import {DiagramId} from "../diagramEditor/diagramEditorModel";
+import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 
 export const SequenceDiagramEditor = ({diagramId}: { diagramId: DiagramId }) => {
     const diagram = useRecoilValue(sequenceDiagramSelector(diagramId))
-    const [, setSelectedElements] = useRecoilState(selectedElementsAtom)
+    const dispatch = useDispatch()
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on empty area
         const clickedOnEmpty = e.target === e.target.getStage()
         if (clickedOnEmpty) {
-            setSelectedElements([])
+            dispatch(elementSelectedAction({element: undefined, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
         }
     }
 

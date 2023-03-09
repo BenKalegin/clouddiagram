@@ -8,16 +8,20 @@ import React, {FC} from "react";
 import {Scaffold} from "../scaffold/Scaffold";
 import {Activation} from "./Activation";
 import {DrawingMessage} from "./DrawingMessage";
-import {useRecoilState, useRecoilValue} from "recoil";
-import {DiagramId, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
+import {useRecoilValue} from "recoil";
+import {
+    DiagramId,
+    linkingAtom,
+    selectedElementsSelector
+} from "../diagramEditor/diagramEditorModel";
 import {
     elementMoveAction,
-    ElementMoveResizePhase,
+    ElementMoveResizePhase, elementSelectedAction,
     screenToCanvas,
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
 import {Coordinate} from "../../common/model";
-import {ElementType} from "../../package/packageModel";
+import {ElementType, IdAndKind} from "../../package/packageModel";
 
 export interface LifelineProps {
     lifelineId: LifelineId
@@ -25,7 +29,7 @@ export interface LifelineProps {
 }
 
 export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
-    const [selectedElements, setSelectedElements] = useRecoilState(selectedElementsAtom)
+    const selectedElements = useRecoilValue(selectedElementsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(lifelineId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === lifelineId;
     const lifeline = useRecoilValue(lifelineSelector({lifelineId, diagramId}))
@@ -48,7 +52,10 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             shadowBlur={3}
             shadowOffset={{x: 2, y: 2}}
             shadowOpacity={0.4}
-            onClick={() => setSelectedElements([{id: lifelineId, type: ElementType.SequenceLifeLine}])}
+            onClick={(e) => {
+                const element: IdAndKind = {id: lifelineId, type: ElementType.SequenceLifeLine}
+                dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
+            }}
             draggable={true}
             dragBoundFunc={(pos) => ({
                 x: pos.x,
@@ -58,7 +65,9 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 const pos = screenToCanvas(e);
                 setStartNodePos(placement.headBounds);
                 setStartPointerPos(pos);
-                setSelectedElements([{id: lifelineId, type: ElementType.SequenceLifeLine}])
+                const element: IdAndKind = {id: lifelineId, type: ElementType.SequenceLifeLine}
+                if (!isSelected)
+                    dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
 
                 dispatch(elementMoveAction({
                     phase: ElementMoveResizePhase.start,

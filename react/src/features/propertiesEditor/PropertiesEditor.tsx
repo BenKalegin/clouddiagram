@@ -8,19 +8,22 @@ import MailIcon from "@mui/icons-material/Mail";
 import ListItemText from "@mui/material/ListItemText";
 import React from "react";
 import {useRecoilValue} from "recoil";
-import {selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
+import {selectedElementsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType} from "../../package/packageModel";
 import {NodeProperties} from "../classDiagram/NodeProperties";
 import {LifelineProperties} from "../sequenceDiagram/LifelineProperties";
+import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 
 export const PropertiesEditor = () => {
-    const selectedElement = useRecoilValue(selectedElementsAtom)[0]
+    const diagramId = useRecoilValue(activeDiagramIdAtom)
+    const selectedElements = useRecoilValue(selectedElementsSelector(diagramId))
+    const selectedElement = selectedElements.length > 0 ? selectedElements.at(-1) : undefined
     const kind = selectedElement?.type
     return (
         <>
             <Divider/>
-            {kind === ElementType.ClassNode && <NodeProperties nodeId={selectedElement.id}/>}
-            {kind === ElementType.SequenceLifeLine && <LifelineProperties lifelineId={selectedElement.id}/>}
+            {kind === ElementType.ClassNode && <NodeProperties nodeId={selectedElement!.id}/>}
+            {kind === ElementType.SequenceLifeLine && <LifelineProperties lifelineId={selectedElement!.id}/>}
             <Divider/>
             <List>
                 {["All mail", "Trash", "Spam"].map((text, index) => (

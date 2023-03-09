@@ -1,5 +1,5 @@
 import {Bounds, Coordinate, Diagram} from "../../common/model";
-import {DiagramElement, ElementType, Id} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {atom, atomFamily, selectorFamily} from "recoil";
 import {elements} from "../demo";
 import {nanoid} from 'nanoid';
@@ -48,18 +48,15 @@ export const diagramKindSelector = selectorFamily<ElementType, DiagramId>({
     get: (id) => ({get}) => get(elementsAtom(id)).type
 })
 
+export const selectedElementsSelector = selectorFamily<IdAndKind[], DiagramId>({
+    key: 'selectedElements',
+    get: (id) => ({get}) => (get(elementsAtom(id)) as Diagram).selectedElements ?? []
+})
+
+
 export const linkingAtom = atom<Linking | undefined>({
     key: 'linking',
     default: undefined
-})
-
-export interface IdAndType {
-    id: Id
-    type: ElementType
-}
-export const selectedElementsAtom = atom<IdAndType[]>({
-    key: 'selectedElements',
-    default: [],
 })
 
 export const snapGridSizeAtom = atom<number>({

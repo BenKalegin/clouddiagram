@@ -4,13 +4,18 @@ import {Port} from "./Port";
 import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "./DrawingLink";
 import {classDiagramSelector, NodeId, NodePlacement} from "./classDiagramModel";
-import {DefaultValue, selectorFamily, useRecoilState, useRecoilValue} from "recoil";
-import {DiagramId, elementsAtom, linkingAtom, selectedElementsAtom} from "../diagramEditor/diagramEditorModel";
-import {ElementType, NodeState} from "../../package/packageModel";
+import {DefaultValue, selectorFamily, useRecoilValue} from "recoil";
+import {
+    DiagramId,
+    elementsAtom,
+    linkingAtom,
+    selectedElementsSelector
+} from "../diagramEditor/diagramEditorModel";
+import {ElementType, IdAndKind, NodeState} from "../../package/packageModel";
 import {Coordinate} from "../../common/model";
 import {
     elementMoveAction,
-    ElementMoveResizePhase,
+    ElementMoveResizePhase, elementSelectedAction,
     screenToCanvas,
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
@@ -37,14 +42,16 @@ export const nodePlacement = selectorFamily<NodePlacement, {nodeId: NodeId, diag
 export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const node = useRecoilValue(elementsAtom(nodeId)) as NodeState
     const placement = useRecoilValue(nodePlacement({nodeId, diagramId}))
-    const [selectedElements, setSelectedElements] = useRecoilState(selectedElementsAtom)
+
+    const selectedElements = useRecoilValue(selectedElementsSelector(diagramId))
+    const isSelected = selectedElements.map(e => e.id).includes(nodeId);
+    const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === nodeId;
+
     const linking = useRecoilValue(linkingAtom)
     const [startNodePos, setStartNodePos] = React.useState<Coordinate | undefined>();
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
     const dispatch = useDispatch()
 
-    const isSelected = selectedElements.map(e => e.id).includes(nodeId);
-    const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === nodeId;
 
     return (
         <React.Fragment>
@@ -55,13 +62,18 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                 cornerRadius={10}
                 cursor={"crosshair"}
                 //draggable
-                onClick={() => setSelectedElements([{id: nodeId, type: ElementType.ClassNode}])}
+                onClick={(e) => {
+                    const element: IdAndKind = {id: nodeId, type: ElementType.ClassNode}
+                    dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
+                }}
                 draggable={true}
                 onDragStart={(e) => {
                     const pos = screenToCanvas(e);
                     setStartNodePos(placement.bounds);
                     setStartPointerPos(pos);
-                    setSelectedElements([{id: nodeId, type: ElementType.ClassNode}])
+                    const element: IdAndKind = {id: nodeId, type: ElementType.ClassNode}
+                    if (!isSelected)
+                        dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
 
                     dispatch(elementMoveAction({
                         phase: ElementMoveResizePhase.start,
