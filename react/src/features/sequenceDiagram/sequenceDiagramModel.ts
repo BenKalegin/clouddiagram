@@ -1,10 +1,10 @@
 import {Bounds, Coordinate, Diagram, withinBounds, withinYBounds, zeroBounds} from "../../common/model";
-import {DiagramElement, ElementType, Id} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
-
+import produce,  { Draft } from 'immer';
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
 export const lifelineDefaultHeight = 60;
@@ -449,3 +449,21 @@ export const messageRenderSelector = selectorFamily<MessageRender, {messageId: M
         return renderMessage(activation1, activation2, message.sourceActivationOffset, message.activation1 === message.activation2);
     }
 })
+
+export function handleSequenceElementPropertyChanged(get: Get, set: Set, elements: IdAndKind[], propertyName: string, value: any) {
+    const diagramId = get(activeDiagramIdAtom)
+    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+
+    const update = produce(diagram, (draft: Draft<SequenceDiagramState>) => {
+
+        elements.forEach(element => {
+            switch (element.type) {
+                case ElementType.SequenceLifeLine:
+                    const object: any = draft.lifelines[element.id];
+                    object[propertyName] = value
+            }
+        });
+    })
+
+    set(elementsAtom(diagramId), update);
+}

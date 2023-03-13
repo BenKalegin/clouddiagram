@@ -1,10 +1,12 @@
 import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
-import {ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../../package/packageModel";
+import {ElementType, Id, IdAndKind, LinkState, NodeState, PortAlignment, PortState} from "../../package/packageModel";
 import {selector, selectorFamily} from "recoil";
 import {DiagramId, elementsAtom, generateId, Linking, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
+import produce, {Draft} from "immer";
+import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 
 export type NodePlacement = {
     bounds: Bounds
@@ -352,4 +354,24 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, targetId: Id)
     };
 
     set(elementsAtom(diagramId), updatedDiagram);
+}
+
+
+export function handleClassElementPropertyChanged(get: Get, set: Set, elements: IdAndKind[], propertyName: string, value: any) {
+    // const diagramId = get(activeDiagramIdAtom)
+    // const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+
+    // const update = produce(diagram, (draft) => {
+
+        elements.forEach(element => {
+            switch (element.type) {
+                case ElementType.ClassNode:
+                    const object: any = {...get(elementsAtom(element.id))};
+                    object[propertyName] = value
+                    set(elementsAtom(element.id), object);
+            }
+        });
+    // })
+
+    // set(elementsAtom(diagramId), update);
 }

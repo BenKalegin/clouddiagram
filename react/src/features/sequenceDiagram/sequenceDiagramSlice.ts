@@ -2,12 +2,12 @@ import {Action} from "@reduxjs/toolkit";
 import {
     DiagramEditor,
     dropFromPaletteAction,
-    elementMoveAction,
+    elementMoveAction, elementPropertyChangedAction,
     elementResizeAction, Get, Set
 } from "../diagramEditor/diagramEditorSlice";
 import {
     autoConnectActivations, createLifelineAndConnectTo,
-    findActivationAtPos,
+    findActivationAtPos, handleSequenceElementPropertyChanged,
     handleSequenceDropFromLibrary,
     handleSequenceMoveElement,
     handleSequenceResizeElement, SequenceDiagramState
@@ -32,6 +32,9 @@ class SequenceDiagramEditor implements DiagramEditor {
         else if (elementResizeAction.match(action)) {
             const {phase, elementId, suggestedBounds} = action.payload;
             handleSequenceResizeElement(get, set, phase, elementId, suggestedBounds);
+        }else if (elementPropertyChangedAction.match(action)) {
+            const {elements, propertyName, value} = action.payload;
+            handleSequenceElementPropertyChanged(get, set, elements, propertyName, value);
         }
     }
 

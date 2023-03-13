@@ -1,10 +1,13 @@
 import React from "react";
 import {Box, TextField} from "@mui/material";
 import {NodeId, nodeSelector} from "./classDiagramModel";
-import {useRecoilState} from "recoil";
+import { useRecoilValue} from "recoil";
+import {elementPropertyChangedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {ElementType} from "../../package/packageModel";
 
 export const NodeProperties = ({nodeId} : {nodeId: NodeId}) => {
-    const [node, setNode] = useRecoilState(nodeSelector(nodeId))
+    const node = useRecoilValue(nodeSelector(nodeId))
+    const dispatch = useDispatch()
     return (
         <Box display="flex" flexDirection="column" p={2}>
             <TextField
@@ -13,9 +16,11 @@ export const NodeProperties = ({nodeId} : {nodeId: NodeId}) => {
                 variant="outlined"
                 size="small"
                 value={node.text}
-                onChange={ event => {
-                    setNode({...node, text: event.target.value || ''});
-                }}
+                onChange={e => dispatch(elementPropertyChangedAction({
+                    elements: [{id: nodeId, type: ElementType.ClassNode}],
+                    propertyName: "text",
+                    value: e.target.value
+                }))}
             />
         </Box>
     )

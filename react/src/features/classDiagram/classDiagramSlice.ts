@@ -2,11 +2,11 @@ import {
     dropFromPaletteAction,
     elementMoveAction,
     elementResizeAction, Get, Set,
-    propertiesDialogAction, DiagramEditor
+    propertiesDialogAction, DiagramEditor, elementPropertyChangedAction
 } from "../diagramEditor/diagramEditorSlice";
 import {
     addNewElementAt, addNodeAndConnect,
-    autoConnectNodes,
+    autoConnectNodes, handleClassElementPropertyChanged,
     moveElement,
     nodePropertiesDialog,
     resizeElement
@@ -28,6 +28,9 @@ class ClassDiagramEditor implements DiagramEditor {
         }else if(propertiesDialogAction.match(action)) {
             const {elementId, dialogResult} = action.payload;
             nodePropertiesDialog(get, set, elementId, dialogResult);
+        }else if (elementPropertyChangedAction.match(action)) {
+            const {elements, propertyName, value} = action.payload;
+            handleClassElementPropertyChanged(get, set, elements, propertyName, value);
         }
     }
 

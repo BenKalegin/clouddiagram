@@ -14,9 +14,7 @@ export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 export interface DiagramEditor {
     handleAction(action: Action, get: Get, set: Set) : void
     snapToElements(get: Get, diagramPos: Coordinate): Coordinate | undefined
-
     connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void;
-
     createAndConnectTo(get: Get, set: Set, name: string): void;
 }
 
@@ -91,6 +89,13 @@ export const elementSelectedAction = createAction<{
     ctrlKey: boolean
 }>('editor/elementSelected');
 
+
+export const elementPropertyChangedAction = createAction<{
+    elements: IdAndKind[]
+    propertyName: string
+    value: any
+}>('editor/elementPropertyChanged');
+
 export function useDispatch() {
     return useRecoilTransaction_UNSTABLE(
         ({get, set}) => (action: Action) => {
@@ -100,6 +105,7 @@ export function useDispatch() {
     )
 
 }
+
 function handleAction(action: Action, get: Get, set: Set) {
     const activeDiagramId = get(activeDiagramIdAtom);
     const diagramKind = get(elementsAtom(activeDiagramId)).type;
@@ -184,7 +190,8 @@ function handleElementSelection(get: Get, set: Set, idAndKind: IdAndKind | undef
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as Diagram;
     if (!idAndKind) {
-        diagram.selectedElements = [];
+        let updatedDiagram = {...diagram, selectedElements: []};
+        set(elementsAtom(diagramId), updatedDiagram);
     }else {
         const append = shiftKey || ctrlKey
         let selection = diagram.selectedElements;
@@ -201,3 +208,5 @@ function handleElementSelection(get: Get, set: Set, idAndKind: IdAndKind | undef
         set(elementsAtom(diagramId), updatedDiagram)
     }
 }
+
+
