@@ -5,8 +5,6 @@ import {selector, selectorFamily} from "recoil";
 import {DiagramId, elementsAtom, generateId, Linking, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
-import produce, {Draft} from "immer";
-import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 
 export type NodePlacement = {
     bounds: Bounds
