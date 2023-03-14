@@ -29,12 +29,15 @@ interface PropertyDefinition {
     supportMultiEdit: boolean;
 }
 
+// TODO split by features
 function getPropertyList(type: ElementType): PropertyDefinition[] {
     switch (type) {
         case ElementType.ClassNode:
             return [{name: "text", type: PropertyType.String, supportMultiEdit: false}];
         case ElementType.SequenceLifeLine:
             return [{name: "title", type: PropertyType.String, supportMultiEdit: false}];
+        case ElementType.SequenceMessage:
+            return [{name: "text", type: PropertyType.String, supportMultiEdit: false}];
         default:
             return [];
     }
@@ -84,7 +87,7 @@ export const PropertiesEditor = () => {
                         label={p.prop.name}
                         variant="outlined"
                         size="small"
-                        value={getPropertyValue(p)}
+                        value={getPropertyValue(p) || ""}
                         onChange={e => dispatch(elementPropertyChangedAction({
                             elements: selectedIds.filter(element => element.type === p.kind),
                             propertyName: p.prop.name,
@@ -95,10 +98,6 @@ export const PropertiesEditor = () => {
 
             ))}
 
-
-
-            {/*{kind === ElementType.ClassNode && <NodeProperties nodeId={selectedElement!.id}/>}*/}
-            {/*{kind === ElementType.SequenceLifeLine && <LifelineProperties lifelineId={selectedElement!.id}/>}*/}
             <Divider/>
             <List>
                 {["All mail", "Trash", "Spam"].map((text, index) => (

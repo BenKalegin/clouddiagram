@@ -60,6 +60,7 @@ export interface MessagePlacement {
 
 export interface MessageState extends DiagramElement {
     kind: MessageKind
+    text?: string
     activation1: Id
     activation2: Id
     sourceActivationOffset: number
@@ -460,7 +461,12 @@ export function handleSequenceElementPropertyChanged(get: Get, set: Set, element
             switch (element.type) {
                 case ElementType.SequenceLifeLine:
                     const object: any = draft.lifelines[element.id];
-                    object[propertyName] = value
+                    object[propertyName] = value;
+                    break;
+                case ElementType.SequenceMessage:
+                    const message: any = draft.messages[element.id];
+                    message[propertyName] = value;
+                    break;
             }
         });
     })
