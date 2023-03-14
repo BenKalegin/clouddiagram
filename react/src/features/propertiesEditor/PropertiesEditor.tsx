@@ -26,6 +26,7 @@ enum PropertyType {
 
 interface PropertyDefinition {
     name: string;
+    label: string;
     type: PropertyType;
     supportMultiEdit: boolean;
 }
@@ -34,13 +35,13 @@ interface PropertyDefinition {
 function getPropertyList(type: ElementType): PropertyDefinition[] {
     switch (type) {
         case ElementType.ClassNode:
-            return [{name: "text", type: PropertyType.String, supportMultiEdit: false}];
+            return [{name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false}];
         case ElementType.SequenceLifeLine:
-            return [{name: "title", type: PropertyType.String, supportMultiEdit: false}];
+            return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}];
         case ElementType.SequenceMessage:
             return [
-                {name: "Text", type: PropertyType.String, supportMultiEdit: false},
-                {name: "Is Return", type: PropertyType.Boolean, supportMultiEdit: false}
+                {name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false},
+                {name: "isReturn", label: "Is Return", type: PropertyType.Boolean, supportMultiEdit: false}
             ];
         default:
             return [];
@@ -89,7 +90,7 @@ export const PropertiesEditor = () => {
                 <Box display="flex" flexDirection="column" p={2}  key={i}>
                     {p.prop.type === PropertyType.String &&
                     <TextField
-                        label={p.prop.name}
+                        label={p.prop.label}
                         variant="outlined"
                         size="small"
                         value={getPropertyValue(p) || ""}
@@ -101,8 +102,15 @@ export const PropertiesEditor = () => {
                     />}
                     {p.prop.type === PropertyType.Boolean &&
                         <FormControlLabel control={
-                            <Switch defaultChecked checked={getPropertyValue(p) === true} />
-                        } label={p.prop.name}
+                            <Switch
+                                checked={getPropertyValue(p) === true}
+                                onChange={e => dispatch(elementPropertyChangedAction({
+                                    elements: selectedIds.filter(element => element.type === p.kind),
+                                    propertyName: p.prop.name,
+                                    value: e.target.checked
+                                }))}
+                            />
+                        } label={p.prop.label}
                         />
                     }
                 </Box>

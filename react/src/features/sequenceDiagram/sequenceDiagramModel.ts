@@ -40,17 +40,6 @@ export interface LifelineState extends DiagramElement {
     title: string;
 }
 
-export enum MessageKind {
-    Call,
-    Return,
-    /*
-        Self,
-        Recursive,
-        Create,
-        Destroy
-    */
-}
-
 export interface MessageRender extends ConnectorRender {
 }
 
@@ -59,7 +48,7 @@ export interface MessagePlacement {
 }
 
 export interface MessageState extends DiagramElement {
-    kind: MessageKind
+    isReturn: boolean
     text?: string
     activation1: Id
     activation2: Id
@@ -277,7 +266,7 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, targetI
         placement: {},
         type: ElementType.SequenceMessage,
         id: messageId,
-        kind: MessageKind.Call,
+        isReturn: false,
         activation1: sourceActivationId,
         activation2: targetId,
         sourceActivationOffset: diagramPos.y - sourceActivationBounds!.y,

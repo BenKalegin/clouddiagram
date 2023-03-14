@@ -1,7 +1,7 @@
 import {Arrow, Group, Text} from "react-konva";
 import {useRecoilValue} from "recoil";
 import {ElementType, Id, IdAndKind} from "../../package/packageModel";
-import {MessageKind, messageRenderSelector, messageSelector} from "./sequenceDiagramModel";
+import {messageRenderSelector, messageSelector} from "./sequenceDiagramModel";
 import {DiagramId, selectedElementsSelector} from "../diagramEditor/diagramEditorModel";
 import {Scaffold} from "../scaffold/Scaffold";
 import React from "react";
@@ -25,12 +25,14 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === messageId;
     const dispatch = useDispatch()
 
+    const dash = message.isReturn ? [5, 4] : undefined;
+
     return (
         <Group>
             <Arrow
                 fill={"burlywood"}
                 stroke={'burlywood'}
-                dash={message.kind === MessageKind.Return ?  [5, 3]: undefined}
+                dash={dash}
                 strokeWidth={2}
                 pointerLength={8}
                 pointerWidth={6}

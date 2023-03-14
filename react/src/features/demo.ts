@@ -7,7 +7,6 @@ import {
     lifelineHeadY,
     LifelinePlacement,
     LifelineState,
-    MessageKind,
     MessageState,
     SequenceDiagramState
 } from "./sequenceDiagram/sequenceDiagramModel";
@@ -229,7 +228,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
     const message1: MessageState =
     {
         type: ElementType.SequenceMessage,
-        kind: MessageKind.Call,
+        isReturn: false,
         id: 'message1',
         activation1: 'act1',
         activation2: 'act2',
