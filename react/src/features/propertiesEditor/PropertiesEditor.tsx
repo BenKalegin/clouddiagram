@@ -1,4 +1,4 @@
-import {Box, Divider, TextField} from "@mui/material";
+import {Box, Divider, FormControlLabel, Switch, TextField} from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -20,7 +20,8 @@ import {Diagram} from "../../common/model";
 
 
 enum PropertyType {
-    String
+    String,
+    Boolean,
 }
 
 interface PropertyDefinition {
@@ -37,7 +38,10 @@ function getPropertyList(type: ElementType): PropertyDefinition[] {
         case ElementType.SequenceLifeLine:
             return [{name: "title", type: PropertyType.String, supportMultiEdit: false}];
         case ElementType.SequenceMessage:
-            return [{name: "text", type: PropertyType.String, supportMultiEdit: false}];
+            return [
+                {name: "Text", type: PropertyType.String, supportMultiEdit: false},
+                {name: "Is Return", type: PropertyType.Boolean, supportMultiEdit: false}
+            ];
         default:
             return [];
     }
@@ -83,6 +87,7 @@ export const PropertiesEditor = () => {
             <Divider/>
             {properties.map((p,i) => (
                 <Box display="flex" flexDirection="column" p={2}  key={i}>
+                    {p.prop.type === PropertyType.String &&
                     <TextField
                         label={p.prop.name}
                         variant="outlined"
@@ -93,7 +98,13 @@ export const PropertiesEditor = () => {
                             propertyName: p.prop.name,
                             value: e.target.value
                         }))}
-                    />
+                    />}
+                    {p.prop.type === PropertyType.Boolean &&
+                        <FormControlLabel control={
+                            <Switch defaultChecked checked={getPropertyValue(p) === true} />
+                        } label={p.prop.name}
+                        />
+                    }
                 </Box>
 
             ))}

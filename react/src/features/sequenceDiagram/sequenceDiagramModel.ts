@@ -42,8 +42,8 @@ export interface LifelineState extends DiagramElement {
 
 export enum MessageKind {
     Call,
+    Return,
     /*
-        Return,
         Self,
         Recursive,
         Create,
