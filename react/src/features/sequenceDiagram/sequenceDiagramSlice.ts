@@ -2,21 +2,27 @@ import {Action} from "@reduxjs/toolkit";
 import {
     DiagramEditor,
     dropFromPaletteAction,
-    elementMoveAction, elementPropertyChangedAction,
-    elementResizeAction, Get, Set
+    elementMoveAction,
+    elementPropertyChangedAction,
+    elementResizeAction,
+    Get,
+    Set
 } from "../diagramEditor/diagramEditorSlice";
 import {
-    autoConnectActivations, createLifelineAndConnectTo,
-    findActivationAtPos, handleSequenceElementPropertyChanged,
+    autoConnectActivations,
+    createLifelineAndConnectTo,
+    findActivationAtPos,
     handleSequenceDropFromLibrary,
+    handleSequenceElementPropertyChanged,
     handleSequenceMoveElement,
-    handleSequenceResizeElement, SequenceDiagramState
+    handleSequenceResizeElement,
+    SequenceDiagramState
 } from "./sequenceDiagramModel";
-import {Coordinate} from "../../common/model";
+import {Coordinate, Diagram} from "../../common/model";
 import {elementsAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {snapToBounds} from "../../common/Geometry/snap";
-import {Id} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
 
 
 class SequenceDiagramEditor implements DiagramEditor {
@@ -55,6 +61,16 @@ class SequenceDiagramEditor implements DiagramEditor {
     }
     createAndConnectTo(get: Get, set: Set, name: string): void {
         createLifelineAndConnectTo(get, set, name);
+    }
+
+    getElement(get: Get, ref: IdAndKind, diagram: Diagram): DiagramElement {
+        switch (ref.type) {
+            case ElementType.SequenceLifeLine: return (diagram as SequenceDiagramState).lifelines[ref.id]
+            case ElementType.SequenceActivation: return (diagram as SequenceDiagramState).activations[ref.id]
+            case ElementType.SequenceMessage: return (diagram as SequenceDiagramState).messages[ref.id]
+            default:
+                throw new Error(`Unknown element type: ${ref.type}`)
+        }
     }
 
 }

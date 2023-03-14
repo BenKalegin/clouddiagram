@@ -1,6 +1,6 @@
 import {Bounds, Coordinate, Diagram, zeroCoordinate} from "../../common/model";
 import {elementsAtom, Linking, linkingAtom, snapGridSizeAtom} from "./diagramEditorModel";
-import {ElementType, Id, IdAndKind} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {classDiagramEditor} from "../classDiagram/classDiagramSlice";
@@ -8,20 +8,6 @@ import {Action, createAction} from "@reduxjs/toolkit";
 import {sequenceDiagramEditor} from "../sequenceDiagram/sequenceDiagramSlice";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
-
-export type Get = (<T>(a: RecoilValue<T>) => T)
-export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
-export interface DiagramEditor {
-    handleAction(action: Action, get: Get, set: Set) : void
-    snapToElements(get: Get, diagramPos: Coordinate): Coordinate | undefined
-    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void;
-    createAndConnectTo(get: Get, set: Set, name: string): void;
-}
-
-const diagramEditors: Record<any, DiagramEditor> = {
-    [ElementType.ClassDiagram]: classDiagramEditor,
-    [ElementType.SequenceDiagram]: sequenceDiagramEditor
-};
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -96,6 +82,19 @@ export const elementPropertyChangedAction = createAction<{
     value: any
 }>('editor/elementPropertyChanged');
 
+export type Get = (<T>(a: RecoilValue<T>) => T)
+export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
+
+export interface DiagramEditor {
+    handleAction(action: Action, get: Get, set: Set) : void
+    snapToElements(get: Get, diagramPos: Coordinate): Coordinate | undefined
+    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void;
+    createAndConnectTo(get: Get, set: Set, name: string): void;
+    getElement(get: Get, ref: IdAndKind, diagram: Diagram): DiagramElement
+}
+
+
+
 export function useDispatch() {
     return useRecoilTransaction_UNSTABLE(
         ({get, set}) => (action: Action) => {
@@ -103,8 +102,18 @@ export function useDispatch() {
         },
         []
     )
-
 }
+
+export function useElementsSelector() {
+    return useRecoilTransaction_UNSTABLE(
+        ({get}) => (diagram: Diagram, refs: IdAndKind[], consumer: (el: DiagramElement[]) => void) => {
+            const diagramEditor  = diagramEditors[diagram.type];
+            consumer(refs.map(ref => diagramEditor.getElement(get, ref, diagram)))
+        },
+        []
+    )
+}
+
 
 function handleAction(action: Action, get: Get, set: Set) {
     const activeDiagramId = get(activeDiagramIdAtom);
@@ -209,4 +218,7 @@ function handleElementSelection(get: Get, set: Set, idAndKind: IdAndKind | undef
     }
 }
 
-
+export const diagramEditors: Record<any, DiagramEditor> = {
+    [ElementType.ClassDiagram]: classDiagramEditor,
+    [ElementType.SequenceDiagram]: sequenceDiagramEditor
+};

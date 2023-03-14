@@ -8,12 +8,15 @@ import MailIcon from "@mui/icons-material/Mail";
 import ListItemText from "@mui/material/ListItemText";
 import React from "react";
 import {useRecoilValue} from "recoil";
-import {selectedElementsSelector} from "../diagramEditor/diagramEditorModel";
-import {ElementType} from "../../package/packageModel";
-import {NodeProperties} from "../classDiagram/NodeProperties";
-import {LifelineProperties} from "../sequenceDiagram/LifelineProperties";
+import {elementsAtom, selectedElementsSelector} from "../diagramEditor/diagramEditorModel";
+import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
-import {elementPropertyChangedAction} from "../diagramEditor/diagramEditorSlice";
+import {
+    elementPropertyChangedAction,
+    useDispatch,
+    useElementsSelector
+} from "../diagramEditor/diagramEditorSlice";
+import {Diagram} from "../../common/model";
 
 
 enum PropertyType {
@@ -39,31 +42,52 @@ function getPropertyList(type: ElementType): PropertyDefinition[] {
 
 export const PropertiesEditor = () => {
     const diagramId = useRecoilValue(activeDiagramIdAtom)
-    const selectedElements = useRecoilValue(selectedElementsSelector(diagramId))
-    const selectedKinds = [...new Set(selectedElements.map(element => element.type))]
+    const diagram = useRecoilValue(elementsAtom(diagramId)) as Diagram;
+    const selectedIds = useRecoilValue(selectedElementsSelector(diagramId))
+    const elementSelector = useElementsSelector()
+    let selectedElements: Map<Id, DiagramElement>
+    elementSelector(diagram, selectedIds, el => selectedElements = new Map(el.map(e => [e.id, e])))
 
-    const properties = selectedKinds.flatMap(kind => [kind: kindgetPropertyList(kind))
-        .filter(p => p.supportMultiEdit || selectedElements.length === 1)
+    const selectedKinds = [...new Set(selectedIds.map(element => element.type))]
+    const dispatch = useDispatch()
 
-    const getPropertyValue = (property: PropertyDefinition) => {
-        const
+    type PropAndKind = {kind: ElementType, prop: PropertyDefinition}
+    const properties = selectedKinds
+        .flatMap(kind => getPropertyList(kind).map<PropAndKind>(prop => ({kind, prop: prop})))
+        .filter(({kind, prop}) => prop.supportMultiEdit || selectedIds.length === 1)
+
+
+    const getPropertyValue = (property: PropAndKind): any => {
+        const {kind, prop} = property;
+        const elementsOfAKind = selectedIds.filter(element => element.type === kind)
+
+        const values: any[] = elementsOfAKind.map(element => {
+            const obj: any = selectedElements.get(element.id)
+            return obj[prop.name];
+        })
+
+        if (values.every(value => value === values[0])) {
+            return values[0]
+        }
+        else {
+            return undefined
+        }
+
     }
 
-    const selectedElement = selectedElements.length > 0 ? selectedElements.at(-1) : undefined
-    const kind = selectedElement?.type
     return (
         <>
             <Divider/>
             {properties.map((p,i) => (
                 <Box display="flex" flexDirection="column" p={2}  key={i}>
                     <TextField
-                        label={p.name}
+                        label={p.prop.name}
                         variant="outlined"
                         size="small"
                         value={getPropertyValue(p)}
                         onChange={e => dispatch(elementPropertyChangedAction({
-                            elements: [{id: nodeId, type: ElementType.ClassNode}],
-                            propertyName: "text",
+                            elements: selectedIds.filter(element => element.type === p.kind),
+                            propertyName: p.prop.name,
                             value: e.target.value
                         }))}
                     />
@@ -73,9 +97,8 @@ export const PropertiesEditor = () => {
 
 
 
-            {kind === ElementType.ClassNode && <NodeProperties nodeId={selectedElement!.id}/>}
-            {kind === ElementType.SequenceLifeLine && <LifelineProperties lifelineId={selectedElement!.id}/>}
-            {kind === ElementType.SequenceMessage && <MessageProperties lifelineId={selectedElement!.id}/>}
+            {/*{kind === ElementType.ClassNode && <NodeProperties nodeId={selectedElement!.id}/>}*/}
+            {/*{kind === ElementType.SequenceLifeLine && <LifelineProperties lifelineId={selectedElement!.id}/>}*/}
             <Divider/>
             <List>
                 {["All mail", "Trash", "Spam"].map((text, index) => (

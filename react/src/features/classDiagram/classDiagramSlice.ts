@@ -1,19 +1,26 @@
 import {
+    DiagramEditor,
     dropFromPaletteAction,
     elementMoveAction,
-    elementResizeAction, Get, Set,
-    propertiesDialogAction, DiagramEditor, elementPropertyChangedAction
+    elementPropertyChangedAction,
+    elementResizeAction,
+    Get,
+    propertiesDialogAction,
+    Set
 } from "../diagramEditor/diagramEditorSlice";
 import {
-    addNewElementAt, addNodeAndConnect,
-    autoConnectNodes, handleClassElementPropertyChanged,
+    addNewElementAt,
+    addNodeAndConnect,
+    autoConnectNodes,
+    handleClassElementPropertyChanged,
     moveElement,
     nodePropertiesDialog,
     resizeElement
 } from "./classDiagramModel";
 import {Action} from "@reduxjs/toolkit";
 import {Coordinate} from "../../common/model";
-import {Id} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
+import {elementsAtom} from "../diagramEditor/diagramEditorModel";
 
 class ClassDiagramEditor implements DiagramEditor {
     handleAction(action: Action, get: Get, set: Set): void {
@@ -45,6 +52,18 @@ class ClassDiagramEditor implements DiagramEditor {
     createAndConnectTo(get: Get, set: Set, name: string): void {
         addNodeAndConnect(get, set, name)
     }
+
+    getElement(get: Get, ref: IdAndKind): DiagramElement {
+        switch (ref.type)
+        {
+            case ElementType.ClassNode: return get(elementsAtom(ref.id));
+            case ElementType.ClassLink: return get(elementsAtom(ref.id));
+
+            default:
+                throw new Error(`Unknown element type: ${ref.type}`);
+        }
+    }
+
 }
 
 export const classDiagramEditor = new ClassDiagramEditor();
