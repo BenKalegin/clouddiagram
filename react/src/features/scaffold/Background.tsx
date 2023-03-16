@@ -1,14 +1,14 @@
 import {Bounds, Coordinate} from "../../common/model";
-import React from "react";
+import React, {useContext} from "react";
 import {Rect} from "react-konva";
 import {
-    DialogOperation,
     elementMoveAction,
     ElementMoveResizePhase,
-    propertiesDialogAction, screenToCanvas,
+    screenToCanvas,
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
 import {Id} from "../../package/packageModel";
+import {AppLayout, AppLayoutContext} from "../../app/AppModel";
 
 export interface BackgroundProps {
     backgroundBounds: Bounds;
@@ -22,6 +22,11 @@ export const Background = (props: BackgroundProps) => {
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
 
     const dispatch = useDispatch()
+    const {appLayout, setAppLayout} = useContext(AppLayoutContext);
+    const handleDrawerClose = () => {
+        const newLayout: AppLayout = {...appLayout, propsPaneOpen: !appLayout.propsPaneOpen};
+        setAppLayout(newLayout);
+    };
 
     return (
         <Rect
@@ -63,11 +68,7 @@ export const Background = (props: BackgroundProps) => {
                     currentPointerPos: screenToCanvas(e)}));
                 }
             }
-            onDblClick={() =>
-                dispatch(propertiesDialogAction({
-                    elementId: props.originId, dialogResult: DialogOperation.open
-                }))
-            }
+            onDblClick={handleDrawerClose}
         />
     );
 };

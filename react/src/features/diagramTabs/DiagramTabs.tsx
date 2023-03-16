@@ -4,10 +4,14 @@ import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
 import {Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
-import {atom, useRecoilState, useRecoilValue} from "recoil";
+import {atom, useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType, Id} from "../../package/packageModel";
 import {DiagramId, diagramKindSelector, diagramTitleSelector, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
+import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import Konva from "konva";
+import {Stage} from 'react-konva';
+import {AppLayoutContext} from "../../app/AppModel";
 
 
 interface StyledTabProps {
@@ -49,10 +53,23 @@ export const DiagramTabs = () => {
     const linking = useRecoilValue(linkingAtom)
 
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
+    const dispatch = useDispatch()
+    const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
+        // deselect when clicked on empty area
+        const clickedOnEmpty = e.target === e.target.getStage()
+        if (clickedOnEmpty) {
+            if (clickedOnEmpty) {
+                dispatch(elementSelectedAction({element: undefined, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
+            }
+        }
+    }
+
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setActiveDiagramId(openDiagramIds[newValue]);
     }
+
+    const Bridge = useRecoilBridgeAcrossReactRoots_UNSTABLE();
 
     return (
         <Stack direction="column" spacing="2">
@@ -68,9 +85,22 @@ export const DiagramTabs = () => {
 
             <div>
                 <HtmlDrop>
-                    {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
-                    {diagramKind === ElementType.SequenceDiagram &&
-                        <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
+                    <AppLayoutContext.Consumer>
+                        { value => (
+                    <Stage
+                        width={window.innerWidth}
+                        height={window.innerHeight}
+                        onMouseDown={e => checkDeselect(e)}
+                    >
+                        <Bridge>
+                                <AppLayoutContext.Provider value={value}>
+                                    {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
+                                    {diagramKind === ElementType.SequenceDiagram && <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
+                                </AppLayoutContext.Provider>
+                        </Bridge>
+                    </Stage>
+                        )}
+            </AppLayoutContext.Consumer>
                 </HtmlDrop>
             </div>
             {linking && linking.showLinkToNewDialog && <LinkToNewDialog/>}
