@@ -19,7 +19,7 @@ export const Activation = ({activationId, diagramId}: ActivationProps) => {
             fill={"cornsilk"}
             stroke={"peru"}
             strokeWidth={1}
-            shadowEnabled={activationId === linkingTarget || activationId === linkingSource}
+            shadowEnabled={activationId === linkingTarget?.id || activationId === linkingSource}
             shadowColor={'black'}
             shadowBlur={3}
             shadowOffset={{x: 2, y: 2}}

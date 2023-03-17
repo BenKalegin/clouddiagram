@@ -1,4 +1,12 @@
-import {Bounds, Coordinate, Diagram, withinBounds, withinYBounds, zeroBounds} from "../../common/model";
+import {
+    Bounds,
+    Coordinate,
+    Diagram,
+    withinBounds,
+    withinXBounds,
+    withinYBounds,
+    zeroBounds
+} from "../../common/model";
 import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom} from "../diagramEditor/diagramEditorModel";
@@ -182,7 +190,7 @@ export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[
 /**
  * Search for activation at specified X,Y diagram position
  */
-export function findActivationAtPos(get: Get, activations: { [p: string]: ActivationState }, pos: Coordinate, diagramId: string, tolerance: number) :
+export function findActivationAtPos(get: Get, pos: Coordinate, diagramId: string, tolerance: number) :
     [ActivationId?, Bounds?]  {
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
@@ -196,10 +204,32 @@ export function findActivationAtPos(get: Get, activations: { [p: string]: Activa
         return renderActivation(activation!, lifelinePlacement)
     }
 
-    for (const activationId of Object.keys(activations)) {
+    for (const activationId of Object.keys(diagram.activations)) {
         const bounds = activationRender(activationId).bounds;
         if (withinBounds(bounds, pos, tolerance))
             return [activationId, bounds];
+    }
+
+    return [undefined, undefined];
+}
+
+/**
+ * Search for lifeline at specified X diagram position
+ */
+export function findLifelineAtPos(get: Get, pos: Coordinate, diagramId: string, tolerance: number) :
+    [LifelineId?, Bounds?]  {
+    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+
+    for (const lifelineId of Object.keys(diagram.lifelines)) {
+        const headBounds = diagram.lifelines[lifelineId].placement.headBounds;
+        const lifelineBounds: Bounds = {
+            x: headBounds.x + headBounds.width / 2,
+            y: 0,
+            width: 1,
+            height: 0
+        };
+        if (withinXBounds(lifelineBounds, pos.x, tolerance))
+            return [lifelineId, lifelineBounds];
     }
 
     return [undefined, undefined];
@@ -367,7 +397,7 @@ export const drawingMessageRenderSelector = selector<MessageRender | undefined>(
         const activationRender2: ActivationRender = renderActivation(activation2, lifelinePlacement2);
         let messageActivationOffset = y - activationRender1.bounds.y;
 
-        return renderMessage(activationRender1, activationRender2, messageActivationOffset, activation1.id === linking.targetElement);
+        return renderMessage(activationRender1, activationRender2, messageActivationOffset, activation1.id === linking.targetElement?.id);
     }
 })
 

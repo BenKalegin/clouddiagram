@@ -11,7 +11,7 @@ import {
 import {
     autoConnectActivations,
     createLifelineAndConnectTo,
-    findActivationAtPos,
+    findActivationAtPos, findLifelineAtPos,
     handleSequenceDropFromLibrary,
     handleSequenceElementPropertyChanged,
     handleSequenceMoveElement,
@@ -19,7 +19,6 @@ import {
     SequenceDiagramState
 } from "./sequenceDiagramModel";
 import {Coordinate, Diagram} from "../../common/model";
-import {elementsAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {snapToBounds} from "../../common/Geometry/snap";
 import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
@@ -44,14 +43,15 @@ class SequenceDiagramEditor implements DiagramEditor {
         }
     }
 
-    snapToElements(get: Get, diagramPos: Coordinate): Coordinate | undefined {
-        const linking = get(linkingAtom)!;
+    snapToElements(get: Get, diagramPos: Coordinate): [Coordinate, DiagramElement] | undefined {
         const diagramId = get(activeDiagramIdAtom);
-        const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
-        const [targetActivationId, targetBounds] = findActivationAtPos(get, diagram.activations, diagramPos, diagramId, 3);
-        linking.targetElement = targetActivationId;
+        const [targetActivationId, targetBounds] = findActivationAtPos(get, diagramPos, diagramId, 3);
         if (targetActivationId && targetBounds) {
-            return snapToBounds(diagramPos, targetBounds);
+            return [snapToBounds(diagramPos, targetBounds), {id: targetActivationId, type: ElementType.SequenceActivation}]
+        }
+        const [targetLifelineId, targetLifelineBounds] = findLifelineAtPos(get, diagramPos, diagramId, 3);
+        if(targetLifelineId && targetLifelineBounds){
+            return [snapToBounds(diagramPos, targetLifelineBounds), {id: targetLifelineId, type: ElementType.SequenceLifeLine}]
         }
         return undefined;
     }

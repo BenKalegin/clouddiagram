@@ -13,7 +13,7 @@ export interface Linking {
 
     drawing: boolean
     showLinkToNewDialog?: boolean
-    targetElement?: Id
+    targetElement?: IdAndKind
 }
 
 export interface MoveResize {

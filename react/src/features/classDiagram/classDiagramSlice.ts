@@ -41,7 +41,7 @@ class ClassDiagramEditor implements DiagramEditor {
         }
     }
 
-    snapToElements(get: Get, diagramPos: Coordinate): Coordinate | undefined {
+    snapToElements(get: Get, diagramPos: Coordinate): [Coordinate, DiagramElement] | undefined {
         return undefined;
     }
 

@@ -30,7 +30,9 @@ export const withinYBounds = (bounds: Bounds, y: number, tolerance: number): boo
     bounds.y - tolerance <= y &&
     bounds.y + bounds.height + tolerance >= y
 
-
+export const withinXBounds = (bounds: Bounds, x: number, tolerance: number): boolean =>
+    bounds.x - tolerance <= x &&
+    bounds.x + bounds.width + tolerance >= x
 export function shift(bounds: Bounds, dx: number, dy: number): Bounds {
     return {
         x: bounds.x + dx,

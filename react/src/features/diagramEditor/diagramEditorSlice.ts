@@ -87,7 +87,7 @@ export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 
 export interface DiagramEditor {
     handleAction(action: Action, get: Get, set: Set) : void
-    snapToElements(get: Get, diagramPos: Coordinate): Coordinate | undefined
+    snapToElements(get: Get, diagramPos: Coordinate): [Coordinate, DiagramElement] | undefined
     connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void;
     createAndConnectTo(get: Get, set: Set, name: string): void;
     getElement(get: Get, ref: IdAndKind, diagram: Diagram): DiagramElement
@@ -153,7 +153,7 @@ export function toDiagramPos(linking: Linking, screenPos: Coordinate) : Coordina
     }
 }
 
-function snapToElements(get: Get, diagramKind: ElementType, diagramPos: Coordinate): Coordinate | undefined {
+function snapToElements(get: Get, diagramKind: ElementType, diagramPos: Coordinate): [Coordinate, DiagramElement] | undefined {
     return diagramEditors[diagramKind].snapToElements(get, diagramPos)
 }
 
@@ -180,14 +180,15 @@ const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: 
             return
 
         const diagramPos = toDiagramPos(linking, mousePos)
-        let snapped = snapToElements(get, diagramKind, diagramPos) ?? snapToGrid(diagramPos, get(snapGridSizeAtom))
+        const snappedToElement = snapToElements(get, diagramKind, diagramPos)
+        const snappedPos = snappedToElement? snappedToElement[0] : snapToGrid(diagramPos, get(snapGridSizeAtom))
 
-        set(linkingAtom, {...linking, mousePos: mousePos, diagramPos: snapped})
+        set(linkingAtom, {...linking, mousePos: mousePos, diagramPos: snappedPos, targetElement: snappedToElement?.[1]})
     }else if (phase === LinkingPhase.end) {
         const linking = get(linkingAtom)!;
         const endPos = toDiagramPos(linking, mousePos)!
         if (linking.targetElement) {
-            diagramEditors[diagramKind].connectNodes(get, set, linking.sourceElement, linking.targetElement!, endPos);
+            diagramEditors[diagramKind].connectNodes(get, set, linking.sourceElement, linking.targetElement!.id, endPos);
             scrubLinking(set);
         }else
             set(linkingAtom, {...linking!, drawing: false, showLinkToNewDialog: true, diagramPos: endPos})
