@@ -88,7 +88,8 @@ export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 export interface DiagramEditor {
     handleAction(action: Action, get: Get, set: Set) : void
     snapToElements(get: Get, diagramPos: Coordinate): [Coordinate, DiagramElement] | undefined
-    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void;
+
+    connectNodes(get: Get, set: Set, sourceId: Id, targetId: IdAndKind, diagramPos: Coordinate): void;
     createAndConnectTo(get: Get, set: Set, name: string): void;
     getElement(get: Get, ref: IdAndKind, diagram: Diagram): DiagramElement
 }
@@ -182,13 +183,14 @@ const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: 
         const diagramPos = toDiagramPos(linking, mousePos)
         const snappedToElement = snapToElements(get, diagramKind, diagramPos)
         const snappedPos = snappedToElement? snappedToElement[0] : snapToGrid(diagramPos, get(snapGridSizeAtom))
+        const targetElement = snappedToElement ? snappedToElement[1] : undefined;
 
-        set(linkingAtom, {...linking, mousePos: mousePos, diagramPos: snappedPos, targetElement: snappedToElement?.[1]})
+        set(linkingAtom, {...linking, mousePos: mousePos, diagramPos: snappedPos, targetElement})
     }else if (phase === LinkingPhase.end) {
         const linking = get(linkingAtom)!;
         const endPos = toDiagramPos(linking, mousePos)!
         if (linking.targetElement) {
-            diagramEditors[diagramKind].connectNodes(get, set, linking.sourceElement, linking.targetElement!.id, endPos);
+            diagramEditors[diagramKind].connectNodes(get, set, linking.sourceElement, linking.targetElement, endPos);
             scrubLinking(set);
         }else
             set(linkingAtom, {...linking!, drawing: false, showLinkToNewDialog: true, diagramPos: endPos})

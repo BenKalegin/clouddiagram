@@ -1,18 +1,11 @@
-import {
-    Bounds,
-    Coordinate,
-    Diagram,
-    withinBounds,
-    withinXBounds,
-    withinYBounds,
-    zeroBounds
-} from "../../common/model";
+import {Bounds, Coordinate, Diagram, withinBounds, withinXBounds, withinYBounds, zeroBounds} from "../../common/model";
 import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
-import produce,  { Draft } from 'immer';
+import produce, {Draft} from 'immer';
+
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
 export const lifelineDefaultHeight = 60;
@@ -260,7 +253,7 @@ export function findLifelineActivationAt(get: Get, y: number, diagramId: string,
 
 const DefaultActivationLength = 40;
 
-export function autoConnectActivations(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate) {
+export function autoConnectActivations(get: Get, set: Set, sourceId: Id, target: IdAndKind, diagramPos: Coordinate) {
     const messageId = generateId()
 
     const diagramId = get(activeDiagramIdAtom);
@@ -291,6 +284,26 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, targetI
         updatedDiagram.lifelines = {...diagram.lifelines, [sourceId]: updatedLifeline}
     }
 
+    let targetActivationId: ActivationId;
+
+    if(target.type === ElementType.SequenceLifeLine) {
+        const targetLifeline = diagram.lifelines[target.id];
+        const targetActivation: ActivationState = {
+            type: ElementType.SequenceActivation,
+            id: generateId(),
+            length: DefaultActivationLength,
+            lifelineId: target.id,
+            placement: {},
+            start: diagramPos.y - targetLifeline.placement.headBounds.y - targetLifeline.placement.headBounds.height - 2 /* shadow */,
+        }
+        targetActivationId = targetActivation.id
+        updatedDiagram.activations = {...diagram.activations, [targetActivation.id]: targetActivation}
+        updatedDiagram.lifelines = {...diagram.lifelines, [target.id]: {...targetLifeline, activations: [...targetLifeline.activations, targetActivation.id]} }
+    }else if(target.type === ElementType.SequenceActivation) {
+        targetActivationId = target.id
+    }else{
+        throw new Error(`Unknown target type ${target.type}`)
+    }
 
     const message: MessageState = {
         placement: {},
@@ -298,7 +311,7 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, targetI
         id: messageId,
         isReturn: false,
         activation1: sourceActivationId,
-        activation2: targetId,
+        activation2: targetActivationId,
         sourceActivationOffset: diagramPos.y - sourceActivationBounds!.y,
     }
 
@@ -345,7 +358,7 @@ export function createLifelineAndConnectTo(get: Get, set: Set, name: string) {
     }
     set(elementsAtom(diagramId), updateDiagram)
 
-    autoConnectActivations(get, set, linking.sourceElement, targetActivation.id, diagramPos)
+    autoConnectActivations(get, set, linking.sourceElement, { id: targetActivation.id, type: ElementType.SequenceActivation}, diagramPos)
 }
 
 export const drawingMessageRenderSelector = selector<MessageRender | undefined>({

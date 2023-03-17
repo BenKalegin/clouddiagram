@@ -56,7 +56,7 @@ class SequenceDiagramEditor implements DiagramEditor {
         return undefined;
     }
 
-    connectNodes(get: Get, set: Set, sourceId: Id, targetId: Id, diagramPos: Coordinate): void {
+    connectNodes(get: Get, set: Set, sourceId: Id, targetId: IdAndKind, diagramPos: Coordinate): void {
         autoConnectActivations(get, set, sourceId, targetId, diagramPos);
     }
     createAndConnectTo(get: Get, set: Set, name: string): void {
