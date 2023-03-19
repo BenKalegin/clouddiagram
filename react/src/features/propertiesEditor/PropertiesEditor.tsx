@@ -1,11 +1,5 @@
-import {Box, Divider, FormControlLabel, Switch, TextField} from "@mui/material";
+import {Box, Button, Divider, FormControlLabel, Switch, TextField} from "@mui/material";
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
-import ListItemText from "@mui/material/ListItemText";
 import React from "react";
 import {useRecoilValue} from "recoil";
 import {elementsAtom, selectedElementsSelector} from "../diagramEditor/diagramEditorModel";
@@ -31,18 +25,46 @@ interface PropertyDefinition {
     supportMultiEdit: boolean;
 }
 
+export enum ActionKind {
+    StrokeStyle = "stroke-style",
+    FillStyle = "fill-style",
+}
+
+interface ActionDefinition {
+    kind: ActionKind;
+    label: string;
+    supportMultiEdit: boolean;
+}
+
 // TODO split by features
+const textProp = {name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false};
 function getPropertyList(type: ElementType): PropertyDefinition[] {
     switch (type) {
         case ElementType.ClassNode:
-            return [{name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false}];
+            return [textProp];
         case ElementType.SequenceLifeLine:
             return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}];
         case ElementType.SequenceMessage:
             return [
-                {name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false},
+                textProp,
                 {name: "isReturn", label: "Is Return", type: PropertyType.Boolean, supportMultiEdit: false}
             ];
+        default:
+            return [];
+    }
+}
+
+type ActionAndKind = {kind: ElementType, action: ActionDefinition}
+
+const strokeStyle = {label: "Stroke Style", kind: ActionKind.StrokeStyle, supportMultiEdit: true};
+function getActionList(type: ElementType): ActionDefinition[] {
+    switch (type) {
+        case ElementType.ClassNode:
+            return [strokeStyle];
+        case ElementType.SequenceLifeLine:
+            return [strokeStyle];
+        case ElementType.SequenceMessage:
+            return [strokeStyle];
         default:
             return [];
     }
@@ -64,6 +86,9 @@ export const PropertiesEditor = () => {
         .flatMap(kind => getPropertyList(kind).map<PropAndKind>(prop => ({kind, prop: prop})))
         .filter(({kind, prop}) => prop.supportMultiEdit || selectedIds.length === 1)
 
+    const actions = selectedKinds
+        .flatMap(kind => getActionList(kind).map<ActionAndKind>(action => ({kind, action})))
+        .filter(({kind, action}) => action.supportMultiEdit || selectedIds.length === 1)
 
     const getPropertyValue = (property: PropAndKind): any => {
         const {kind, prop} = property;
@@ -119,15 +144,8 @@ export const PropertiesEditor = () => {
 
             <Divider/>
             <List>
-                {["All mail", "Trash", "Spam"].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon/> : <MailIcon/>}
-                            </ListItemIcon>
-                            <ListItemText primary={text}/>
-                        </ListItemButton>
-                    </ListItem>
+                {actions.map((a,i) => (
+                    <Button variant="text" key={i} size="small">{a.action.label}</Button>
                 ))}
             </List>
         </>
