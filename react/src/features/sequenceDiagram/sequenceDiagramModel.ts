@@ -257,67 +257,65 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, target:
     const messageId = generateId()
 
     const diagramId = get(activeDiagramIdAtom);
-    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
-    const updatedDiagram: SequenceDiagramState = {
-        ...diagram,
-    }
+    const diagram1 = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
-    const lifeline = diagram.lifelines[sourceId];
-    let [sourceActivationId, sourceActivationBounds] = findLifelineActivationAt(get, diagramPos.y, diagramId, lifeline, 1);
+    const update = produce(diagram1, (diagram: Draft<SequenceDiagramState>) => {
 
-    if (!sourceActivationId) {
-        // create activation for the source lifeline
-        sourceActivationId = generateId()
-        const sourceActivation: ActivationState = {
-            type: ElementType.SequenceActivation,
-            id: sourceActivationId,
-            length: DefaultActivationLength,
-            lifelineId: sourceId,
-            placement: {},
-            start: diagramPos.y - lifeline.placement.headBounds.y - lifeline.placement.headBounds.height - 2 /* shadow */,
+        const lifeline = diagram.lifelines[sourceId];
+        let [sourceActivationId, sourceActivationBounds] = findLifelineActivationAt(get, diagramPos.y, diagramId, lifeline, 1);
 
+        if (!sourceActivationId) {
+            // create activation for the source lifeline
+            sourceActivationId = generateId()
+            const sourceActivation: ActivationState = {
+                type: ElementType.SequenceActivation,
+                id: sourceActivationId,
+                length: DefaultActivationLength,
+                lifelineId: sourceId,
+                placement: {},
+                start: diagramPos.y - lifeline.placement.headBounds.y - lifeline.placement.headBounds.height - 2 /* shadow */,
+
+            }
+            sourceActivationId = sourceActivation.id;
+            sourceActivationBounds = renderActivation(sourceActivation, lifeline.placement).bounds;
+            lifeline.activations.push(sourceActivationId);
+            diagram.activations[sourceActivationId] = sourceActivation;
+            diagram.lifelines[sourceId].activations.push(sourceActivationId)
         }
-        sourceActivationId = sourceActivation.id;
-        sourceActivationBounds = renderActivation(sourceActivation, lifeline.placement).bounds;
-        const updatedLifeline = { ...lifeline, activations: [...lifeline.activations, sourceActivationId]}
-        updatedDiagram.activations = {...diagram.activations, [sourceActivation.id]: sourceActivation}
-        updatedDiagram.lifelines = {...diagram.lifelines, [sourceId]: updatedLifeline}
-    }
 
-    let targetActivationId: ActivationId;
+        let targetActivationId: ActivationId;
 
-    if(target.type === ElementType.SequenceLifeLine) {
-        const targetLifeline = diagram.lifelines[target.id];
-        const targetActivation: ActivationState = {
-            type: ElementType.SequenceActivation,
-            id: generateId(),
-            length: DefaultActivationLength,
-            lifelineId: target.id,
-            placement: {},
-            start: diagramPos.y - targetLifeline.placement.headBounds.y - targetLifeline.placement.headBounds.height - 2 /* shadow */,
+        if (target.type === ElementType.SequenceLifeLine) {
+            const targetLifeline = diagram.lifelines[target.id];
+            const targetActivation: ActivationState = {
+                type: ElementType.SequenceActivation,
+                id: generateId(),
+                length: DefaultActivationLength,
+                lifelineId: target.id,
+                placement: {},
+                start: diagramPos.y - targetLifeline.placement.headBounds.y - targetLifeline.placement.headBounds.height - 2 /* shadow */,
+            }
+            targetActivationId = targetActivation.id
+            diagram.activations[targetActivationId] = targetActivation
+            diagram.lifelines[target.id].activations.push(targetActivationId)
+        } else if (target.type === ElementType.SequenceActivation) {
+            targetActivationId = target.id
+        } else {
+            throw new Error(`Unknown target type ${target.type}`)
         }
-        targetActivationId = targetActivation.id
-        updatedDiagram.activations = {...diagram.activations, [targetActivation.id]: targetActivation}
-        updatedDiagram.lifelines = {...diagram.lifelines, [target.id]: {...targetLifeline, activations: [...targetLifeline.activations, targetActivation.id]} }
-    }else if(target.type === ElementType.SequenceActivation) {
-        targetActivationId = target.id
-    }else{
-        throw new Error(`Unknown target type ${target.type}`)
-    }
 
-    const message: MessageState = {
-        placement: {},
-        type: ElementType.SequenceMessage,
-        id: messageId,
-        isReturn: false,
-        activation1: sourceActivationId,
-        activation2: targetActivationId,
-        sourceActivationOffset: diagramPos.y - sourceActivationBounds!.y,
-    }
+        diagram.messages[messageId] = {
+            placement: {},
+            type: ElementType.SequenceMessage,
+            id: messageId,
+            isReturn: false,
+            activation1: sourceActivationId,
+            activation2: targetActivationId,
+            sourceActivationOffset: diagramPos.y - sourceActivationBounds!.y,
+        }
+    })
 
-    updatedDiagram.messages = {...diagram.messages, [messageId]: message}
-
-    set(elementsAtom(diagramId), updatedDiagram)
+    set(elementsAtom(diagramId), update)
 }
 
 export function createLifelineAndConnectTo(get: Get, set: Set, name: string) {

@@ -258,15 +258,13 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
 }
 
 const demoDiagram1 = getClassDemoDiagram( "class-d-1", "Demo Class Diagram 1")
-const demoDiagram2 = getClassDemoDiagram( "class-d-2", "Demo Class Diagram 2")
 const demoDiagram3 = getSequenceDemoDiagram()
 
 elements[demoDiagram1.id] = demoDiagram1;
-elements[demoDiagram2.id] = demoDiagram2;
 elements[demoDiagram3.id] = demoDiagram3;
 
 export const demoActiveDiagramId = demoDiagram1.id;
-export const demoOpenDiagramIds = [demoDiagram1.id, demoDiagram2.id, demoDiagram3.id];
+export const demoOpenDiagramIds = [demoDiagram1.id, demoDiagram3.id];
 
 
 
