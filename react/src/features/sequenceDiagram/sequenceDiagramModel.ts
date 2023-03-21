@@ -5,6 +5,7 @@ import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom} from 
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import produce, {Draft} from 'immer';
+import {Command} from "../propertiesEditor/PropertiesEditor";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
@@ -97,12 +98,12 @@ export const renderMessage = (activation1: ActivationRender, activation2: Activa
     if (rightToLeft) {
         return {
             bounds: {
-                x: activation1.bounds.x,
+                x: activation2.bounds.x + activation1.bounds.width,
                 y: activation1.bounds.y + messageOffset,
-                width: activation1.bounds.x - activation2.bounds.x + activation2.bounds.width,
+                width: activation1.bounds.x - activation2.bounds.x -  activation1.bounds.width,
                 height: 0,
             },
-            points: [0, 0, activation2.bounds.x - activation1.bounds.x + activation1.bounds.width, 0],
+            points: [activation1.bounds.x - activation2.bounds.x - activation1.bounds.width, 0, 0, 0],
         }
     }
 
@@ -503,3 +504,29 @@ export function handleSequenceElementPropertyChanged(get: Get, set: Set, element
 
     set(elementsAtom(diagramId), update);
 }
+
+function reverseMessage(draft: Draft<SequenceDiagramState>, messageId: MessageId) {
+    const message = draft.messages[messageId];
+    const swap = message.activation1
+    message.activation1 = message.activation2;
+    message.activation2 = swap;
+}
+
+export function handleSequenceCommand(get: Get, set: Set, elements: IdAndKind[], command: Command) {
+    const diagramId = get(activeDiagramIdAtom)
+    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+
+    const update = produce(diagram, (draft: Draft<SequenceDiagramState>) => {
+
+
+        switch (command) {
+            case Command.ReverseMessage:
+                elements.forEach(element => {
+                    reverseMessage(draft, element.id);
+                });
+        }
+    })
+
+    set(elementsAtom(diagramId), update);
+}
+

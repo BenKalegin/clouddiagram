@@ -1,7 +1,7 @@
 import {Action} from "@reduxjs/toolkit";
 import {
     DiagramEditor,
-    dropFromPaletteAction,
+    dropFromPaletteAction, elementCommandAction,
     elementMoveAction,
     elementPropertyChangedAction,
     elementResizeAction,
@@ -11,7 +11,7 @@ import {
 import {
     autoConnectActivations,
     createLifelineAndConnectTo,
-    findActivationAtPos, findLifelineAtPos,
+    findActivationAtPos, findLifelineAtPos, handleSequenceCommand,
     handleSequenceDropFromLibrary,
     handleSequenceElementPropertyChanged,
     handleSequenceMoveElement,
@@ -40,6 +40,9 @@ class SequenceDiagramEditor implements DiagramEditor {
         }else if (elementPropertyChangedAction.match(action)) {
             const {elements, propertyName, value} = action.payload;
             handleSequenceElementPropertyChanged(get, set, elements, propertyName, value);
+        }else if(elementCommandAction.match(action)) {
+            const {elements, command} = action.payload;
+            handleSequenceCommand(get, set, elements, command)
         }
     }
 
@@ -72,7 +75,6 @@ class SequenceDiagramEditor implements DiagramEditor {
                 throw new Error(`Unknown element type: ${ref.type}`)
         }
     }
-
 }
 
 export const sequenceDiagramEditor = new SequenceDiagramEditor();

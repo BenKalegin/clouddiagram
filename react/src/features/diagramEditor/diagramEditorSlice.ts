@@ -8,6 +8,7 @@ import {Action, createAction} from "@reduxjs/toolkit";
 import {sequenceDiagramEditor} from "../sequenceDiagram/sequenceDiagramSlice";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
+import {Command} from "../propertiesEditor/PropertiesEditor";
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -81,6 +82,11 @@ export const elementPropertyChangedAction = createAction<{
     propertyName: string
     value: any
 }>('editor/elementPropertyChanged');
+
+export const elementCommandAction = createAction<{
+    elements: IdAndKind[]
+    command: Command
+}>('editor/elementCommand');
 
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)

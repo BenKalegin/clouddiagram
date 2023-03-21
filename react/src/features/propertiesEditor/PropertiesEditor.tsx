@@ -1,4 +1,4 @@
-import {Box, Button, Divider, FormControlLabel, Switch, TextField} from "@mui/material";
+import {Box, Button, Divider, FormControlLabel, ListItem, Switch, TextField} from "@mui/material";
 import List from "@mui/material/List";
 import React from "react";
 import {useRecoilValue} from "recoil";
@@ -6,7 +6,7 @@ import {elementsAtom, selectedElementsSelector} from "../diagramEditor/diagramEd
 import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {
-    elementPropertyChangedAction,
+    elementPropertyChangedAction, elementCommandAction,
     useDispatch,
     useElementsSelector
 } from "../diagramEditor/diagramEditorSlice";
@@ -25,13 +25,14 @@ interface PropertyDefinition {
     supportMultiEdit: boolean;
 }
 
-export enum ActionKind {
-    StrokeStyle = "stroke-style",
-    FillStyle = "fill-style",
+export enum Command {
+    Delete = "delete",
+    AddReturnMessage = "add-return-message",
+    ReverseMessage = "reverse-message",
 }
 
-interface ActionDefinition {
-    kind: ActionKind;
+interface CommandDefinition {
+    kind: Command;
     label: string;
     supportMultiEdit: boolean;
 }
@@ -54,17 +55,20 @@ function getPropertyList(type: ElementType): PropertyDefinition[] {
     }
 }
 
-type ActionAndKind = {kind: ElementType, action: ActionDefinition}
+type CommandAndKind = {kind: ElementType, command: CommandDefinition}
 
-const strokeStyle = {label: "Stroke Style", kind: ActionKind.StrokeStyle, supportMultiEdit: true};
-function getActionList(type: ElementType): ActionDefinition[] {
+const deleteCommand = {label: "Delete", kind: Command.Delete, supportMultiEdit: true};
+function getActionList(type: ElementType): CommandDefinition[] {
     switch (type) {
         case ElementType.ClassNode:
-            return [strokeStyle];
+            return [deleteCommand];
         case ElementType.SequenceLifeLine:
-            return [strokeStyle];
+            return [deleteCommand];
         case ElementType.SequenceMessage:
-            return [strokeStyle];
+            return [deleteCommand,
+                {label: "Add Return Message", kind: Command.AddReturnMessage, supportMultiEdit: false},
+                {label: "Reverse Message", kind: Command.ReverseMessage, supportMultiEdit: false},
+            ];
         default:
             return [];
     }
@@ -86,9 +90,9 @@ export const PropertiesEditor = () => {
         .flatMap(kind => getPropertyList(kind).map<PropAndKind>(prop => ({kind, prop: prop})))
         .filter(({kind, prop}) => prop.supportMultiEdit || selectedIds.length === 1)
 
-    const actions = selectedKinds
-        .flatMap(kind => getActionList(kind).map<ActionAndKind>(action => ({kind, action})))
-        .filter(({kind, action}) => action.supportMultiEdit || selectedIds.length === 1)
+    const commands = selectedKinds
+        .flatMap(kind => getActionList(kind).map<CommandAndKind>(action => ({kind, command: action})))
+        .filter(({kind, command}) => command.supportMultiEdit || selectedIds.length === 1)
 
     const getPropertyValue = (property: PropAndKind): any => {
         const {kind, prop} = property;
@@ -108,46 +112,55 @@ export const PropertiesEditor = () => {
 
     }
 
-    return (
-        <>
-            <Divider/>
-            {properties.map((p,i) => (
-                <Box display="flex" flexDirection="column" p={2}  key={i}>
-                    {p.prop.type === PropertyType.String &&
-                    <TextField
-                        label={p.prop.label}
-                        variant="outlined"
-                        size="small"
-                        value={getPropertyValue(p) || ""}
+    const PropertiesSection = properties.map((p, i) => (
+        <Box display="flex" flexDirection="column" p={2}  key={i}>
+            {p.prop.type === PropertyType.String &&
+                <TextField
+                    label={p.prop.label}
+                    variant="outlined"
+                    size="small"
+                    value={getPropertyValue(p) || ""}
+                    onChange={e => dispatch(elementPropertyChangedAction({
+                        elements: selectedIds.filter(element => element.type === p.kind),
+                        propertyName: p.prop.name,
+                        value: e.target.value
+                    }))}
+                />}
+            {p.prop.type === PropertyType.Boolean &&
+                <FormControlLabel control={
+                    <Switch
+                        checked={getPropertyValue(p) === true}
                         onChange={e => dispatch(elementPropertyChangedAction({
                             elements: selectedIds.filter(element => element.type === p.kind),
                             propertyName: p.prop.name,
-                            value: e.target.value
+                            value: e.target.checked
                         }))}
-                    />}
-                    {p.prop.type === PropertyType.Boolean &&
-                        <FormControlLabel control={
-                            <Switch
-                                checked={getPropertyValue(p) === true}
-                                onChange={e => dispatch(elementPropertyChangedAction({
-                                    elements: selectedIds.filter(element => element.type === p.kind),
-                                    propertyName: p.prop.name,
-                                    value: e.target.checked
-                                }))}
-                            />
-                        } label={p.prop.label}
-                        />
-                    }
-                </Box>
+                    />
+                } label={p.prop.label}
+                />
+            }
+        </Box>
 
-            ))}
+    ));
+
+    const actionsSection = <List>
+        {commands.map((a,i) => (
+            <ListItem key={i}>
+                <Button variant="text" size="small" onClick={() => dispatch(elementCommandAction({
+                    elements: selectedIds, command: a.command.kind}))}>
+                    {a.command.label}
+                </Button>
+            </ListItem>
+        ))}
+    </List>;
+
+    return (
+        <>
+            <Divider/>
+            {PropertiesSection}
 
             <Divider/>
-            <List>
-                {actions.map((a,i) => (
-                    <Button variant="text" key={i} size="small">{a.action.label}</Button>
-                ))}
-            </List>
+            {actionsSection}
         </>
     );
 }
