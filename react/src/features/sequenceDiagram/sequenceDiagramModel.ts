@@ -1,7 +1,13 @@
 import {Bounds, Coordinate, Diagram, withinBounds, withinXBounds, withinYBounds, zeroBounds} from "../../common/model";
 import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
-import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {
+    ConnectorRender,
+    DiagramId,
+    elementsAtom,
+    generateId,
+    linkingAtom,
+} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import produce, {Draft} from 'immer';
@@ -512,6 +518,33 @@ function reverseMessage(draft: Draft<SequenceDiagramState>, messageId: MessageId
     message.activation2 = swap;
 }
 
+function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: IdAndKind) {
+    function deleteActivation(activationId: ActivationId) {
+        const activation = diagram.activations[activationId];
+        const lifeline = diagram.lifelines[activation.lifelineId];
+        diagram.messages = Object.fromEntries(Object.entries(diagram.messages)
+            .filter(([, value]) => value.activation1 !== activationId && value.activation2 !== activationId));
+        lifeline.activations = lifeline.activations.filter(a => a !== activationId);
+        delete diagram.activations[activationId];
+    }
+
+    switch(element.type) {
+        case ElementType.SequenceMessage:
+            delete diagram.messages[element.id];
+            break;
+        case ElementType.SequenceActivation:
+            deleteActivation(element.id);
+            break;
+
+        case ElementType.SequenceLifeLine:
+            const lifeline = diagram.lifelines[element.id];
+            lifeline.activations.forEach(activationId => deleteActivation(activationId));
+            delete diagram.lifelines[element.id];
+            break;
+    }
+    diagram.selectedElements = diagram.selectedElements.filter(e => e.id !== element.id);
+}
+
 export function handleSequenceCommand(get: Get, set: Set, elements: IdAndKind[], command: Command) {
     const diagramId = get(activeDiagramIdAtom)
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
@@ -524,6 +557,13 @@ export function handleSequenceCommand(get: Get, set: Set, elements: IdAndKind[],
                 elements.forEach(element => {
                     reverseMessage(draft, element.id);
                 });
+                break;
+
+            case Command.Delete:
+                elements.forEach(element => {
+                    deleteSequenceElement(draft, element);
+                });
+                break;
         }
     })
 
