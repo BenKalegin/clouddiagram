@@ -2,6 +2,7 @@ import {NodeId} from "../features/classDiagram/classDiagramModel";
 
 export type Id = string;
 export enum ElementType {
+    Unexpected,
     ClassNode,
     ClassDiagram,
     ClassLink,
@@ -51,6 +52,7 @@ export interface PortState extends DiagramElement {
      */
     longitude: number;
     nodeId: NodeId
+    links: Id[]
 }
 
 export interface NodeState extends DiagramElement {

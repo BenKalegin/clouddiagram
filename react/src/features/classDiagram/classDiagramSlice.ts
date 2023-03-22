@@ -1,6 +1,6 @@
 import {
     DiagramEditor,
-    dropFromPaletteAction,
+    dropFromPaletteAction, elementCommandAction,
     elementMoveAction,
     elementPropertyChangedAction,
     elementResizeAction,
@@ -11,7 +11,7 @@ import {
 import {
     addNewElementAt,
     addNodeAndConnect,
-    autoConnectNodes,
+    autoConnectNodes, handleClassCommand,
     handleClassElementPropertyChanged,
     moveElement,
     nodePropertiesDialog,
@@ -38,6 +38,9 @@ class ClassDiagramEditor implements DiagramEditor {
         }else if (elementPropertyChangedAction.match(action)) {
             const {elements, propertyName, value} = action.payload;
             handleClassElementPropertyChanged(get, set, elements, propertyName, value);
+        }else if(elementCommandAction.match(action)) {
+            const {elements, command} = action.payload;
+        handleClassCommand(get, set, elements, command)
         }
     }
 

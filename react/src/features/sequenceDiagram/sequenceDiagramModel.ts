@@ -19,7 +19,7 @@ export const lifelineDefaultHeight = 60;
 const activationWidth = 10;
 
 export type LifelineId = Id;
-export type ActivationId = Id;
+export type PortId = Id;
 export type MessageId = Id;
 
 
@@ -43,7 +43,7 @@ export interface LifelinePlacement{
 }
 
 export interface LifelineState extends DiagramElement {
-    activations: ActivationId[]
+    activations: PortId[]
     placement: LifelinePlacement;
     title: string;
 }
@@ -67,7 +67,7 @@ export interface MessageState extends DiagramElement {
 export interface SequenceDiagramState extends Diagram {
     lifelines: {[id: LifelineId]: LifelineState}
     messages: {[id: MessageId]: MessageState}
-    activations: {[id: ActivationId]: ActivationState}
+    activations: {[id: PortId]: ActivationState}
 }
 
 
@@ -191,10 +191,10 @@ export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[
  * Search for activation at specified X,Y diagram position
  */
 export function findActivationAtPos(get: Get, pos: Coordinate, diagramId: string, tolerance: number) :
-    [ActivationId?, Bounds?]  {
+    [PortId?, Bounds?]  {
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
-    function activationRender(activationId: ActivationId) : ActivationRender {
+    function activationRender(activationId: PortId) : ActivationRender {
         const activation = diagram.activations[activationId];
 
 
@@ -239,10 +239,10 @@ export function findLifelineAtPos(get: Get, pos: Coordinate, diagramId: string, 
  * Search for activation in lifeline at specified Y diagram position
  */
 export function findLifelineActivationAt(get: Get, y: number, diagramId: string, lifeline: LifelineState, tolerance: number) :
-    [ActivationId?, Bounds?]  {
+    [PortId?, Bounds?]  {
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
-    function activationRender(activationId: ActivationId) : ActivationRender {
+    function activationRender(activationId: PortId) : ActivationRender {
         const activation = diagram.activations[activationId];
         return renderActivation(activation!, lifeline.placement)
     }
@@ -290,7 +290,7 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, target:
             diagram.lifelines[sourceId].activations.push(sourceActivationId)
         }
 
-        let targetActivationId: ActivationId;
+        let targetActivationId: PortId;
 
         if (target.type === ElementType.SequenceLifeLine) {
             const targetLifeline = diagram.lifelines[target.id];
@@ -519,7 +519,7 @@ function reverseMessage(draft: Draft<SequenceDiagramState>, messageId: MessageId
 }
 
 function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: IdAndKind) {
-    function deleteActivation(activationId: ActivationId) {
+    function deleteActivation(activationId: PortId) {
         const activation = diagram.activations[activationId];
         const lifeline = diagram.lifelines[activation.lifelineId];
         diagram.messages = Object.fromEntries(Object.entries(diagram.messages)
@@ -550,8 +550,6 @@ export function handleSequenceCommand(get: Get, set: Set, elements: IdAndKind[],
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
     const update = produce(diagram, (draft: Draft<SequenceDiagramState>) => {
-
-
         switch (command) {
             case Command.ReverseMessage:
                 elements.forEach(element => {

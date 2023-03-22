@@ -27,10 +27,11 @@ export interface Scrub {
 }
 
 export type DiagramId = Id;
+export const emptyElementSentinel: DiagramElement = {id: "", type: ElementType.ClassNode};
 
 export const elementsAtom = atomFamily<DiagramElement, Id>({
     key: 'elements',
-    default: id => elements[id]
+    default: id => elements[id] ?? emptyElementSentinel
 })
 
 export const diagramTitleSelector = selectorFamily<string | undefined, DiagramId | undefined>({

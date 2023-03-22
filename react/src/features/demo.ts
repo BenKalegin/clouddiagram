@@ -24,7 +24,8 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         depthRatio: 50,
         latitude: 8,
         longitude: 8,
-        nodeId: node1Id
+        nodeId: node1Id,
+        links: []
     }
     elements[port11.id] = port11;
 
@@ -39,7 +40,8 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         depthRatio: 50,
         latitude: 8,
         longitude: 8,
-        nodeId: node1Id
+        nodeId: node1Id,
+        links: []
     }
     elements[port12.id] = port12;
 
@@ -54,7 +56,8 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         depthRatio: 50,
         latitude: 8,
         longitude: 8,
-        nodeId: node1Id
+        nodeId: node1Id,
+        links: []
     }
     elements[port13.id] = port13;
 
@@ -92,7 +95,8 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         depthRatio: 50,
         latitude: 8,
         longitude: 8,
-        nodeId: nodeId2
+        nodeId: nodeId2,
+        links: []
     }
     elements[port2.id] = port2;
 
@@ -140,6 +144,8 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
     };
 
     elements[link1.id] = link1;
+    port11.links.push(link1.id);
+    port2.links.push(link1.id);
 
     const Link1Placement: LinkPlacement = {
         //cornerStyle: CornerStyle.Straight

@@ -1,10 +1,28 @@
 import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
-import {ElementType, Id, IdAndKind, LinkState, NodeState, PortAlignment, PortState} from "../../package/packageModel";
+import {
+    DiagramElement,
+    ElementType,
+    Id,
+    IdAndKind,
+    LinkState,
+    NodeState,
+    PortAlignment,
+    PortState
+} from "../../package/packageModel";
 import {selector, selectorFamily} from "recoil";
-import {DiagramId, elementsAtom, generateId, Linking, linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {
+    DiagramId,
+    elementsAtom,
+    emptyElementSentinel,
+    generateId,
+    Linking,
+    linkingAtom
+} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
+import {Command} from "../propertiesEditor/PropertiesEditor";
+import produce, {Draft} from "immer";
 
 export type NodePlacement = {
     bounds: Bounds
@@ -180,7 +198,8 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
             id: "DrawingLinkSourcePort",
             depthRatio: 50,
             latitude: 0,
-            longitude: 0
+            longitude: 0,
+            links: []
         }
 
         const port1Placement: PortPlacement = {
@@ -198,7 +217,8 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
             id: "DrawingLinkTarget",
             depthRatio: 50,
             latitude: 0,
-            longitude: 0
+            longitude: 0,
+            links: []
         }
 
         const port2Placement: PortPlacement = {
@@ -311,7 +331,8 @@ function addNewPort(get: Get, set: Set, node: NodeState) {
         id: generateId(),
         depthRatio: 50,
         latitude: 8,
-        longitude: 8
+        longitude: 8,
+        links: []
     }
     set(elementsAtom(result.id), result);
     set(elementsAtom(node.id), {...node, ports: [...node.ports, result.id]} as NodeState);
@@ -340,6 +361,10 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, targetId: Id)
         port2: port2.id
     }
     set(elementsAtom(linkId), link);
+
+    set(elementsAtom(port1.id), {...port1, links: [...port1.links, linkId]} as PortState);
+    set(elementsAtom(port2.id), {...port2, links: [...port2.links, linkId]} as PortState);
+
     const linkPlacement: LinkPlacement = {};
 
     const updatedDiagram = {
@@ -372,4 +397,46 @@ export function handleClassElementPropertyChanged(get: Get, set: Set, elements: 
     // })
 
     // set(elementsAtom(diagramId), update);
+}
+
+function deleteClassElement(diagram: Draft<ClassDiagramState>, element: IdAndKind,
+                            getElement: (id: Id) => DiagramElement,
+                            setElement: (id: Id, element: DiagramElement) => void) {
+    switch(element.type) {
+        case ElementType.ClassNode:
+            const node = getElement(element.id) as NodeState;
+            node.ports.forEach(portId => {
+                const port = getElement(portId) as PortState;
+                port.links.forEach(linkId => {
+                    delete diagram.links[linkId];
+                    setElement(linkId, emptyElementSentinel);
+                })
+                delete diagram.ports[portId];
+                setElement(portId, emptyElementSentinel);
+            })
+
+            delete diagram.nodes[element.id];
+
+            setElement(element.id, emptyElementSentinel);
+            break;
+    }
+    diagram.selectedElements = diagram.selectedElements.filter(e => e.id !== element.id);
+}
+
+export function handleClassCommand(get: Get, set: Set, elements: IdAndKind[], command: Command) {
+    const diagramId = get(activeDiagramIdAtom)
+    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+    const getElement = (id: Id) => get(elementsAtom(id));
+    const setElement = (id: Id, element: DiagramElement) => set(elementsAtom(id), element);
+
+    const update = produce(diagram, (draft: Draft<ClassDiagramState>) => {
+        switch (command) {
+            case Command.Delete:
+                elements.forEach(element => {
+                    deleteClassElement(draft, element, getElement, setElement);
+                });
+                break;
+        }
+    })
+    set(elementsAtom(diagramId), update);
 }
