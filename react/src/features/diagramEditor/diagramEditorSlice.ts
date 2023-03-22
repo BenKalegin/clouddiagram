@@ -88,6 +88,9 @@ export const elementCommandAction = createAction<{
     command: Command
 }>('editor/elementCommand');
 
+export const addDiagramTabAction = createAction<{
+}>('tabs/addDiagramTab');
+
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 

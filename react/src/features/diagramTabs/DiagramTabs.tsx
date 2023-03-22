@@ -2,17 +2,18 @@ import React from "react";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
-import {Stack, styled, Tab, Tabs} from "@mui/material";
+import {Box, Fab, IconButton, Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
 import {atom, useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType, Id} from "../../package/packageModel";
 import {DiagramId, diagramKindSelector, diagramTitleSelector, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
-import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {addDiagramTabAction, elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import Konva from "konva";
 import {Stage} from 'react-konva';
 import {AppLayoutContext} from "../../app/AppModel";
-
+import CloseIcon from '@mui/icons-material/Close';
+import AddIcon from '@mui/icons-material/Add';
 
 interface StyledTabProps {
     diagramId: DiagramId
@@ -23,11 +24,31 @@ const objectWithoutKey = (object: any, key: string) => {
     return otherKeys;
 }
 
+interface CustomTabProps {
+    onClose: () => void;
+}
+const CustomTab: React.FC<CustomTabProps & React.ComponentProps<typeof Tab>> =
+    ({
+        onClose,
+        ...props
+    }) => (
+    <Tab
+        label={
+            <Box sx={{display: 'flex', alignItems: 'right'}}>
+                {props.label}
+                <IconButton size="small" onClick={onClose}>
+                    <CloseIcon fontSize="inherit"/>
+                </IconButton>
+            </Box>
+        }
+        {...props}
+    />
+);
 const PlainTab = styled((props: StyledTabProps) => {
     const label = useRecoilValue(diagramTitleSelector(props.diagramId)) ?? "New";
 
-    return <Tab
-        label = {label}
+    return <CustomTab
+        label={label}
         {...objectWithoutKey(props, "diagramId")}
         disableRipple = {true}
     />;
@@ -73,34 +94,43 @@ export const DiagramTabs = () => {
 
     return (
         <Stack direction="column" spacing="2">
-            <Tabs
-                value={openDiagramIds.indexOf(activeDiagramId!)}
-                onChange={handleTabChange}
-                aria-label="Open diagrams"
-            >
-                {openDiagramIds.map((diagramId, index) =>
-                    <PlainTab key={index} diagramId={diagramId}/>
-                )}
-            </Tabs>
-
+            <Stack direction="row" spacing="2">
+                <Tabs
+                    value={openDiagramIds.indexOf(activeDiagramId!)}
+                    onChange={handleTabChange}
+                    aria-label="Open diagrams"
+                >
+                    {openDiagramIds.map((diagramId, index) =>
+                        <PlainTab key={index} diagramId={diagramId}/>
+                    )}
+                </Tabs>
+                <Fab
+                    size="small"
+                    color="inherit"
+                    onClick={_ => dispatch(addDiagramTabAction({}))}
+                    sx={{ backgroundColor: 'white', color: 'darkgrey', boxShadow: 'none'}}
+                >
+                    <AddIcon />
+                </Fab>
+            </Stack>
             <div>
                 <HtmlDrop>
                     <AppLayoutContext.Consumer>
-                        { value => (
-                    <Stage
-                        width={window.innerWidth}
-                        height={window.innerHeight}
-                        onMouseDown={e => checkDeselect(e)}
-                    >
-                        <Bridge>
+                    { value => (
+                        <Stage
+                            width={window.innerWidth}
+                            height={window.innerHeight}
+                            onMouseDown={e => checkDeselect(e)}
+                        >
+                            <Bridge>
                                 <AppLayoutContext.Provider value={value}>
                                     {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
                                     {diagramKind === ElementType.SequenceDiagram && <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
                                 </AppLayoutContext.Provider>
-                        </Bridge>
-                    </Stage>
-                        )}
-            </AppLayoutContext.Consumer>
+                            </Bridge>
+                        </Stage>
+                    )}
+                    </AppLayoutContext.Consumer>
                 </HtmlDrop>
             </div>
             {linking && linking.showLinkToNewDialog && <LinkToNewDialog/>}
