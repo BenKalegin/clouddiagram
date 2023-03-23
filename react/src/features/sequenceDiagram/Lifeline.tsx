@@ -71,7 +71,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
 
                 dispatch(elementMoveAction({
                     phase: ElementMoveResizePhase.start,
-                    elementId: lifelineId,
+                    element: { id: lifelineId, type: ElementType.SequenceLifeLine },
                     startNodePos: {x: placement.headBounds.x, y: placement.headBounds.y},
                     startPointerPos: pos,
                     currentPointerPos: pos}))
@@ -81,7 +81,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 if (startPointerPos && startNodePos)
                     dispatch(elementMoveAction({
                         phase: ElementMoveResizePhase.move,
-                        elementId: lifelineId,
+                        element: { id: lifelineId, type: ElementType.SequenceLifeLine },
                         startNodePos: startNodePos,
                         startPointerPos: startPointerPos,
                         currentPointerPos: screenToCanvas(e)}));
@@ -92,7 +92,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 if (startPointerPos && startNodePos)
                     dispatch(elementMoveAction({
                         phase: ElementMoveResizePhase.end,
-                        elementId: lifelineId,
+                        element: { id: lifelineId, type: ElementType.SequenceLifeLine },
                         startNodePos: startNodePos,
                         startPointerPos: startPointerPos,
                         currentPointerPos: screenToCanvas(e)}));
@@ -126,7 +126,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
         )
         }
         {isSelected && <Scaffold
-                elementId={lifelineId}
+                element={{id: lifelineId, type: ElementType.SequenceLifeLine}}
                 bounds={{
                     ...placement.headBounds,
                     height: placement.headBounds.y + placement.lifelineEnd

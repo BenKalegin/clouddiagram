@@ -18,8 +18,8 @@ export enum ElementMoveResizePhase {
     end    = "end",
 }
 export const elementMoveAction = createAction<{
-    elementId: Id
     phase: ElementMoveResizePhase
+    element: IdAndKind
     currentPointerPos: Coordinate
     startPointerPos: Coordinate
     startNodePos: Coordinate

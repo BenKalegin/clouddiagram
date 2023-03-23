@@ -27,8 +27,8 @@ class ClassDiagramEditor implements DiagramEditor {
         if (dropFromPaletteAction.match(action)) {
             addNewElementAt(get, set, action.payload.droppedAt, action.payload.name);
         }else if(elementMoveAction.match(action)){
-            const {elementId, currentPointerPos, startNodePos, startPointerPos} = action.payload;
-            moveElement(get, set, elementId, currentPointerPos, startPointerPos, startNodePos);
+            const {element, currentPointerPos, startNodePos, startPointerPos} = action.payload;
+            moveElement(get, set, element, currentPointerPos, startPointerPos, startNodePos);
         }else if(elementResizeAction.match(action)){
             const {elementId, suggestedBounds} = action.payload;
             resizeElement(get, set, elementId, suggestedBounds);

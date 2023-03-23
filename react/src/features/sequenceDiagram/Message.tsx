@@ -62,7 +62,7 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
                 visible={!!message.text}
             />
             {isSelected && <Scaffold
-                elementId={messageId}
+                element={{id: messageId, type: ElementType.SequenceMessage}}
                 bounds={render.bounds}
                 excludeDiagonalResize={true}
                 excludeVerticalResize={true}

@@ -51,6 +51,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const [startNodePos, setStartNodePos] = React.useState<Coordinate | undefined>();
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
     const dispatch = useDispatch()
+    const element = {id: nodeId, type: ElementType.ClassNode};
 
 
     return (
@@ -63,7 +64,6 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                 cursor={"crosshair"}
                 //draggable
                 onClick={(e) => {
-                    const element: IdAndKind = {id: nodeId, type: ElementType.ClassNode}
                     dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
                 }}
                 draggable={true}
@@ -77,7 +77,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
 
                     dispatch(elementMoveAction({
                         phase: ElementMoveResizePhase.start,
-                        elementId: nodeId,
+                        element,
                         startNodePos: {x: placement.bounds.x, y: placement.bounds.y},
                         startPointerPos: pos,
                         currentPointerPos: pos}))
@@ -86,7 +86,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     if (startPointerPos && startNodePos)
                         dispatch(elementMoveAction({
                             phase: ElementMoveResizePhase.move,
-                            elementId: nodeId,
+                            element,
                             startNodePos: startNodePos,
                             startPointerPos: startPointerPos,
                             currentPointerPos: screenToCanvas(e)}));
@@ -97,7 +97,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     if (startPointerPos && startNodePos)
                         dispatch(elementMoveAction({
                             phase: ElementMoveResizePhase.end,
-                            elementId: nodeId,
+                            element,
                             startNodePos: startNodePos,
                             startPointerPos: startPointerPos,
                             currentPointerPos: screenToCanvas(e)}));
@@ -106,7 +106,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
             />
             {isSelected && (
                 <Scaffold
-                    elementId={nodeId}
+                    element={{id: nodeId, type: ElementType.ClassNode}}
                     bounds={placement.bounds}
                     isFocused={isFocused}
                     isLinking={linking?.drawing === true}

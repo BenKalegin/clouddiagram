@@ -261,10 +261,10 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
     return node
 }
 
-export function moveElement(get: Get, set: Set, nodeId: Id, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
+export function moveElement(get: Get, set: Set, element: IdAndKind, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-    const nodePlacement = diagram.nodes[nodeId];
+    const nodePlacement = diagram.nodes[element.id];
     const updatedNodePlacement = {
         ...nodePlacement,
         bounds: {
@@ -273,7 +273,7 @@ export function moveElement(get: Get, set: Set, nodeId: Id, currentPointerPos: C
             y: startNodePos.y + currentPointerPos.y - startPointerPos.y
         }
     }
-    const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [nodeId]: updatedNodePlacement}};
+    const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [element.id]: updatedNodePlacement}};
     set(elementsAtom(diagramId), updatedDiagram)
 }
 

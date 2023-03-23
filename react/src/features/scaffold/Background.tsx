@@ -7,13 +7,13 @@ import {
     screenToCanvas,
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
-import {Id} from "../../package/packageModel";
+import {IdAndKind} from "../../package/packageModel";
 import {AppLayout, AppLayoutContext} from "../../app/AppModel";
 
 export interface BackgroundProps {
     backgroundBounds: Bounds;
     nodeBounds: Bounds;
-    originId: Id
+    origin: IdAndKind
 }
 
 export const Background = (props: BackgroundProps) => {
@@ -42,7 +42,7 @@ export const Background = (props: BackgroundProps) => {
 
                 dispatch(elementMoveAction({
                     phase: ElementMoveResizePhase.start,
-                    elementId: props.originId,
+                    element: props.origin,
                     startNodePos: {x: props.nodeBounds.x, y: props.nodeBounds.y},
                     startPointerPos: pos,
                     currentPointerPos: pos}))
@@ -51,7 +51,7 @@ export const Background = (props: BackgroundProps) => {
                 if (startPointerPos && startNodePos)
                     dispatch(elementMoveAction({
                         phase: ElementMoveResizePhase.move,
-                        elementId: props.originId,
+                        element: props.origin,
                         startNodePos: startNodePos,
                         startPointerPos: startPointerPos,
                         currentPointerPos: screenToCanvas(e)}));
@@ -61,11 +61,11 @@ export const Background = (props: BackgroundProps) => {
                 // check required because DragMove event can be received before DragStart updated the state
                 if (startPointerPos && startNodePos)
                     dispatch(elementMoveAction({
-                    phase: ElementMoveResizePhase.end,
-                    elementId: props.originId,
-                    startNodePos: startNodePos,
-                    startPointerPos: startPointerPos,
-                    currentPointerPos: screenToCanvas(e)}));
+                        phase: ElementMoveResizePhase.end,
+                        element: props.origin,
+                        startNodePos: startNodePos,
+                        startPointerPos: startPointerPos,
+                        currentPointerPos: screenToCanvas(e)}));
                 }
             }
             onDblClick={handleDrawerClose}

@@ -4,14 +4,14 @@ import {Background} from "./Background";
 import {ResizeHandles} from "./ResizeHandle";
 import {FocusFrame} from "./FocusFrame";
 import {ContextButtons} from "./ContextButtons";
-import {Id} from "../../package/packageModel";
+import {IdAndKind} from "../../package/packageModel";
 import {linkingAction, LinkingPhase, useDispatch} from "../diagramEditor/diagramEditorSlice";
 
 export interface ScaffoldProps {
     bounds: Bounds;
     isFocused: boolean;
     isLinking: boolean;
-    elementId: Id;
+    element: IdAndKind;
     excludeDiagonalResize?: boolean;
     excludeVerticalResize?: boolean;
     linkingDrawing: JSX.Element | undefined
@@ -29,7 +29,7 @@ export const Scaffold = (props: ScaffoldProps) => {
                     ctrlKey: event.ctrlKey,
                     shiftKey: event.shiftKey,
                     phase: LinkingPhase.draw,
-                    elementId: props.elementId
+                    elementId: props.element.id
                 }))
             }
         };
@@ -42,7 +42,7 @@ export const Scaffold = (props: ScaffoldProps) => {
                     ctrlKey: event.ctrlKey,
                     shiftKey: event.shiftKey,
                     phase: LinkingPhase.end,
-                    elementId: props.elementId
+                    elementId: props.element.id
                 }))
             }
         };
@@ -71,19 +71,19 @@ export const Scaffold = (props: ScaffoldProps) => {
     return (
         <>
             <Background
-                originId={props.elementId}
+                origin={props.element}
                 backgroundBounds={bounds}
                 nodeBounds={props.bounds}
             />
             <ResizeHandles
                 perimeterBounds={bounds}
                 nodeBounds={props.bounds}
-                elementId={props.elementId}
+                elementId={props.element.id}
                 excludeDiagonal={props.excludeDiagonalResize}
                 excludeVertical={props.excludeVerticalResize}
             />
             {props.isFocused && <FocusFrame bounds={bounds} />}
-            {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.elementId}/>}
+            {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.element.id}/>}
             {props.isFocused && props.isLinking && props.linkingDrawing}
         </>
     )
