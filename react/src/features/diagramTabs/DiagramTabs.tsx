@@ -87,10 +87,10 @@ function AddNewTabButton() {
         <Button
             onClick={handleClick}
             variant="contained"
-            startIcon={<AddIcon />}
-            endIcon={<ArrowDropDownIcon />}
+            startIcon={<AddIcon sx={{marginRight: '-6px'}} />}
+            endIcon={<ArrowDropDownIcon sx={{marginLeft: '-6px'}} />}
             size="small"
-            sx={{paddingLeft: "2px", paddingRight: "2px"}}
+            sx={{paddingLeft: "2px", paddingRight: "2px", minWidth: "48px"}}
         >
         </Button>
         <Menu
