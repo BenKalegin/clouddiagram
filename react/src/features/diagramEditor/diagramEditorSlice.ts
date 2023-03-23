@@ -1,14 +1,16 @@
 import {Bounds, Coordinate, Diagram, zeroCoordinate} from "../../common/model";
-import {elementsAtom, Linking, linkingAtom, snapGridSizeAtom} from "./diagramEditorModel";
+import {elementsAtom, generateId, Linking, linkingAtom, snapGridSizeAtom} from "./diagramEditorModel";
 import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
-import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {activeDiagramIdAtom, openDiagramIdsAtom} from "../diagramTabs/DiagramTabs";
 import {classDiagramEditor} from "../classDiagram/classDiagramSlice";
 import {Action, createAction} from "@reduxjs/toolkit";
 import {sequenceDiagramEditor} from "../sequenceDiagram/sequenceDiagramSlice";
 import Konva from "konva";
-import KonvaEventObject = Konva.KonvaEventObject;
 import {Command} from "../propertiesEditor/PropertiesEditor";
+import {ClassDiagramState} from "../classDiagram/classDiagramModel";
+import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
+import KonvaEventObject = Konva.KonvaEventObject;
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -89,6 +91,7 @@ export const elementCommandAction = createAction<{
 }>('editor/elementCommand');
 
 export const addDiagramTabAction = createAction<{
+    diagramKind: ElementType
 }>('tabs/addDiagramTab');
 
 export type Get = (<T>(a: RecoilValue<T>) => T)
@@ -140,6 +143,8 @@ function handleAction(action: Action, get: Get, set: Set) {
     }else if (elementSelectedAction.match(action)) {
         const {element, shiftKey, ctrlKey} = action.payload;
         handleElementSelection(get, set, element, shiftKey, ctrlKey);
+    }else if (addDiagramTabAction.match(action)) {
+        addDiagramTab(get, set, action.payload.diagramKind);
     }
     else
         diagramEditors[diagramKind].handleAction(action, get, set);
@@ -229,6 +234,46 @@ function handleElementSelection(get: Get, set: Set, idAndKind: IdAndKind | undef
         set(elementsAtom(diagramId), updatedDiagram)
     }
 }
+
+function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
+    const openDiagramIds = get(openDiagramIdsAtom);
+    const newDiagramId = generateId();
+    let diagram : Diagram = {id: "", selectedElements: [], type: ElementType.Unexpected};
+
+    switch (diagramKind) {
+        case ElementType.ClassDiagram:
+            diagram = {
+                id: newDiagramId,
+                type: ElementType.ClassDiagram,
+                title: "Class Diagram",
+                nodes: {},
+                ports: {},
+                links: {},
+
+            } as ClassDiagramState;
+            break;
+
+        case ElementType.SequenceDiagram:
+            diagram = {
+                id: newDiagramId,
+                type: ElementType.SequenceDiagram,
+                title: "Sequence Diagram",
+                lifelines: {},
+                messages: {},
+                activations: {}
+            } as SequenceDiagramState;
+            break;
+
+
+        default: throw new Error(`Unknown diagram kind: ${diagramKind}`);
+
+    }
+    set(elementsAtom(newDiagramId), diagram)
+    set(openDiagramIdsAtom, [...openDiagramIds, newDiagramId])
+    set(activeDiagramIdAtom, newDiagramId)
+}
+
+
 
 export const diagramEditors: Record<any, DiagramEditor> = {
     [ElementType.ClassDiagram]: classDiagramEditor,

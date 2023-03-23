@@ -1,8 +1,8 @@
-import React from "react";
+import React, {useState} from "react";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
-import {Box, Fab, IconButton, Stack, styled, Tab, Tabs} from "@mui/material";
+import {Box, Button, IconButton, Menu, Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
 import {atom, useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType, Id} from "../../package/packageModel";
@@ -14,7 +14,8 @@ import {Stage} from 'react-konva';
 import {AppLayoutContext} from "../../app/AppModel";
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
-
+import MenuItem from '@mui/material/MenuItem';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 interface StyledTabProps {
     diagramId: DiagramId
 }
@@ -63,10 +64,46 @@ export const activeDiagramIdAtom = atom<Id>({
     default: demoActiveDiagramId
 })
 
-const openDiagramIdsAtom = atom<DiagramId[]>({
+export const openDiagramIdsAtom = atom<DiagramId[]>({
     key: 'openDiagrams',
     default: demoOpenDiagramIds
 })
+
+function AddNewTabButton() {
+    const dispatch = useDispatch()
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = (diagramKind: ElementType) => {
+        setAnchorEl(null);
+        dispatch(addDiagramTabAction({diagramKind}));
+    };
+
+    return (
+        <div style={{lineHeight: "3em"}}>
+        <Button
+            onClick={handleClick}
+            variant="contained"
+            startIcon={<AddIcon />}
+            endIcon={<ArrowDropDownIcon />}
+            size="small"
+            sx={{paddingLeft: "2px", paddingRight: "2px"}}
+        >
+        </Button>
+        <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+        >
+            <MenuItem onClick={() => handleClose(ElementType.ClassDiagram)}>Class Diagram</MenuItem>
+            <MenuItem onClick={() => handleClose(ElementType.SequenceDiagram)}>Sequence Diagram</MenuItem>
+        </Menu>
+        </div>
+    );
+}
 
 export const DiagramTabs = () => {
     const [activeDiagramId, setActiveDiagramId] = useRecoilState(activeDiagramIdAtom);
@@ -104,14 +141,7 @@ export const DiagramTabs = () => {
                         <PlainTab key={index} diagramId={diagramId}/>
                     )}
                 </Tabs>
-                <Fab
-                    size="small"
-                    color="inherit"
-                    onClick={_ => dispatch(addDiagramTabAction({}))}
-                    sx={{ backgroundColor: 'white', color: 'darkgrey', boxShadow: 'none'}}
-                >
-                    <AddIcon />
-                </Fab>
+                <AddNewTabButton/>
             </Stack>
             <div>
                 <HtmlDrop>
