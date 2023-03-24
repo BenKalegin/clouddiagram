@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
-import {Button, IconButton, Menu, Stack, styled, Tab, Tabs} from "@mui/material";
+import {IconButton, Menu, Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
 import {atom, useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType, Id} from "../../package/packageModel";
@@ -20,9 +20,8 @@ import {AppLayoutContext} from "../../app/AppModel";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
 import MenuItem from '@mui/material/MenuItem';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
-const TabHeight = '44px';
+const TabHeight = '48px';
 interface StyledTabProps {
     diagramId: DiagramId
 }
@@ -133,15 +132,12 @@ function AddNewTabButton() {
 
     return (
         <div style={{lineHeight: "3em"}}>
-        <Button
+        <IconButton
             onClick={handleClick}
-            variant="contained"
-            startIcon={<AddIcon sx={{marginRight: '-6px'}} />}
-            endIcon={<ArrowDropDownIcon sx={{marginLeft: '-6px'}} />}
             size="small"
-            sx={{paddingLeft: "2px", paddingRight: "2px", minWidth: "48px"}}
         >
-        </Button>
+            <AddIcon fontSize="inherit" />
+        </IconButton>
         <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
