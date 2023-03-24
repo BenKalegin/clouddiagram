@@ -2,20 +2,27 @@ import React, {useState} from "react";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
-import {Box, Button, IconButton, Menu, Stack, styled, Tab, Tabs} from "@mui/material";
+import {Button, IconButton, Menu, Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
 import {atom, useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType, Id} from "../../package/packageModel";
 import {DiagramId, diagramKindSelector, diagramTitleSelector, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
-import {addDiagramTabAction, elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {
+    addDiagramTabAction,
+    closeDiagramTabAction,
+    elementSelectedAction,
+    useDispatch
+} from "../diagramEditor/diagramEditorSlice";
 import Konva from "konva";
 import {Stage} from 'react-konva';
 import {AppLayoutContext} from "../../app/AppModel";
-import CloseIcon from '@mui/icons-material/Close';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
 import MenuItem from '@mui/material/MenuItem';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+
+const TabHeight = '44px';
 interface StyledTabProps {
     diagramId: DiagramId
 }
@@ -32,19 +39,61 @@ const CustomTab: React.FC<CustomTabProps & React.ComponentProps<typeof Tab>> =
     ({
         onClose,
         ...props
-    }) => (
-    <Tab
-        label={
-            <Box sx={{display: 'flex', alignItems: 'right'}}>
-                {props.label}
-                <IconButton size="small" onClick={onClose}>
-                    <CloseIcon fontSize="inherit"/>
-                </IconButton>
-            </Box>
+    }) => {
+        const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+        const dispatch = useDispatch()
+
+        const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+            setAnchorEl(event.currentTarget);
+        };
+
+        const handleCloseTab = () => {
+            handleCloseMenu()
+            dispatch(closeDiagramTabAction({}))
         }
-        {...props}
-    />
-);
+        const handleCloseMenu = () => {
+            setAnchorEl(null);
+        };
+
+        return (
+
+            <Tab
+                sx={{height: TabHeight, minHeight: TabHeight, paddingRight: "0px"}}
+                icon={<>
+                    <IconButton
+                        aria-label="options"
+                        arial-controls="tab-options-menu"
+                        aria-haspopup="true"
+                        onClick={handleClick}
+                        sx={{
+                            padding: '2px',
+                            borderRadius: '50%',
+                            '&:hover': {
+                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                            },
+                        }}
+                    >
+                        <MoreVertIcon
+                            sx={{
+                                fontSize: '14px',
+                            }}
+                        />
+                    </IconButton>
+                    <Menu
+                        id="tab-options-menu"
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleCloseMenu}
+                    >
+                        <MenuItem onClick={handleCloseTab}>Close</MenuItem>
+                    </Menu>
+                </>
+                }
+                iconPosition={"end"}
+                {...props}
+            />
+        );
+    };
 const PlainTab = styled((props: StyledTabProps) => {
     const label = useRecoilValue(diagramTitleSelector(props.diagramId)) ?? "New";
 
@@ -133,12 +182,13 @@ export const DiagramTabs = () => {
         <Stack direction="column" spacing="2">
             <Stack direction="row" spacing="2">
                 <Tabs
+                    sx={{height: TabHeight, minHeight: TabHeight}}
                     value={openDiagramIds.indexOf(activeDiagramId!)}
                     onChange={handleTabChange}
                     aria-label="Open diagrams"
                 >
                     {openDiagramIds.map((diagramId, index) =>
-                        <PlainTab key={index} diagramId={diagramId}/>
+                        <PlainTab key={index} diagramId={diagramId} />
                     )}
                 </Tabs>
                 <AddNewTabButton/>

@@ -94,6 +94,9 @@ export const addDiagramTabAction = createAction<{
     diagramKind: ElementType
 }>('tabs/addDiagramTab');
 
+export const closeDiagramTabAction = createAction<{
+}>('tabs/closeDiagramTab');
+
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 
@@ -145,6 +148,8 @@ function handleAction(action: Action, get: Get, set: Set) {
         handleElementSelection(get, set, element, shiftKey, ctrlKey);
     }else if (addDiagramTabAction.match(action)) {
         addDiagramTab(get, set, action.payload.diagramKind);
+    }else if (closeDiagramTabAction.match(action)) {
+        closeDiagramTab(get, set);
     }
     else
         diagramEditors[diagramKind].handleAction(action, get, set);
@@ -273,6 +278,12 @@ function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
     set(activeDiagramIdAtom, newDiagramId)
 }
 
+function closeDiagramTab(get: Get, set: Set) {
+    const diagramId = get(activeDiagramIdAtom);
+    const openDiagramIds = get(openDiagramIdsAtom);
+    set(openDiagramIdsAtom, openDiagramIds.filter(id => id !== diagramId))
+    set(activeDiagramIdAtom, openDiagramIds.length === 0 ? "" : openDiagramIds[-1])
+}
 
 
 export const diagramEditors: Record<any, DiagramEditor> = {
