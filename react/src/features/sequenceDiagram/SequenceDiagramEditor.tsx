@@ -5,12 +5,16 @@ import {Lifeline} from "./Lifeline";
 import {Message} from "./Message";
 import {useRecoilValue} from "recoil";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
+import {EmptyDiagramHint} from "../diagramTabs/DiagramEditorContainer";
 
 export const SequenceDiagramEditor = ({diagramId}: { diagramId: DiagramId }) => {
     const diagram = useRecoilValue(sequenceDiagramSelector(diagramId))
+    const lifelines = Object.values(diagram.lifelines);
+    const messages = Object.values(diagram.messages);
+
     return (
         <Layer>
-            {Object.values(diagram.lifelines).map((lifeline, i) => {
+            {lifelines.map((lifeline, i) => {
                 return (
                     <Lifeline
                         key={i}
@@ -19,7 +23,7 @@ export const SequenceDiagramEditor = ({diagramId}: { diagramId: DiagramId }) => 
                     />
                 );
             })}
-            {Object.values(diagram.messages).map((message, i) => {
+            {messages.map((message, i) => {
                 return (
                     <Message
                         key={i}
@@ -28,6 +32,7 @@ export const SequenceDiagramEditor = ({diagramId}: { diagramId: DiagramId }) => 
                     />
                 )
             })}
+            {lifelines.length === 0 && messages.length === 0 && <EmptyDiagramHint/>}
         </Layer>
     )
 }

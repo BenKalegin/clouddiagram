@@ -5,13 +5,17 @@ import {Link} from "./Link";
 import {classDiagramSelector} from "./classDiagramModel";
 import {useRecoilValue} from "recoil";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
+import {EmptyDiagramHint} from "../diagramTabs/DiagramEditorContainer";
 
 export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
     const diagram = useRecoilValue(classDiagramSelector(diagramId))
 
+    const nodeIds = Object.keys(diagram.nodes);
+    const linkIds = Object.keys(diagram.links);
+
     return (
         <Layer>
-            {Object.keys(diagram.nodes).map((id, i) => {
+            {nodeIds.map((id, i) => {
                 return (
                     <Node
                         key={i}
@@ -20,7 +24,7 @@ export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
                     />
                 );
             })}
-            {Object.keys(diagram.links).map((linkId, index) => {
+            {linkIds.map((linkId, index) => {
                 return (
                     <Link
                         key={index}
@@ -29,6 +33,7 @@ export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
                     />
                 )
             })}
+            {(nodeIds.length === 0) && (linkIds.length === 0) && <EmptyDiagramHint/> }
         </Layer>
     )
 };
