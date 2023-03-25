@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
-import {IconButton, Menu, Stack, styled, Tab, Tabs} from "@mui/material";
+import {Icon, IconButton, Menu, Stack, styled, Tab, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
 import {atom, useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType, Id} from "../../package/packageModel";
@@ -23,7 +23,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 const TabHeight = '48px';
 interface StyledTabProps {
-    diagramId: DiagramId
+    diagram_id: DiagramId
 }
 
 const objectWithoutKey = (object: any, key: string) => {
@@ -33,7 +33,7 @@ const objectWithoutKey = (object: any, key: string) => {
 
 interface CustomTabProps {
     onClose: () => void;
-    diagramId: DiagramId
+    diagram_id: DiagramId
 }
 const CustomTab: React.FC<CustomTabProps & React.ComponentProps<typeof Tab>> =
     ({
@@ -42,7 +42,7 @@ const CustomTab: React.FC<CustomTabProps & React.ComponentProps<typeof Tab>> =
     }) => {
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
         const activeDiagramId = useRecoilValue(activeDiagramIdAtom)
-        const isIconVisible = props.diagramId === activeDiagramId
+        const isIconVisible = props.diagram_id === activeDiagramId
         const dispatch = useDispatch()
 
         const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -62,7 +62,7 @@ const CustomTab: React.FC<CustomTabProps & React.ComponentProps<typeof Tab>> =
             <Tab
                 sx={{height: TabHeight, minHeight: TabHeight, paddingRight: "0px"}}
                 icon={<>
-                    <IconButton
+                    <Icon
                         aria-label="options"
                         arial-controls="tab-options-menu"
                         aria-haspopup="true"
@@ -79,9 +79,10 @@ const CustomTab: React.FC<CustomTabProps & React.ComponentProps<typeof Tab>> =
                         <MoreVertIcon
                             sx={{
                                 fontSize: '14px',
+                                marginBottom: '0.4em',
                             }}
                         />
-                    </IconButton>
+                    </Icon>
                     <Menu
                         id="tab-options-menu"
                         anchorEl={anchorEl}
@@ -98,13 +99,13 @@ const CustomTab: React.FC<CustomTabProps & React.ComponentProps<typeof Tab>> =
         );
     };
 const PlainTab = styled((props: StyledTabProps) => {
-    const label = useRecoilValue(diagramTitleSelector(props.diagramId)) ?? "New";
+    const label = useRecoilValue(diagramTitleSelector(props.diagram_id)) ?? "New";
 
     return <CustomTab
         label={label}
         {...objectWithoutKey(props, "diagramId")}
         disableRipple = {true}
-        diagramId={props.diagramId}
+        diagram_id={props.diagram_id}
     />;
     })(
     () => ({
@@ -189,7 +190,7 @@ export const DiagramTabs = () => {
                     aria-label="Open diagrams"
                 >
                     {openDiagramIds.map((diagramId, index) =>
-                        <PlainTab key={index} diagramId={diagramId} />
+                        <PlainTab key={index} diagram_id={diagramId} />
                     )}
                 </Tabs>
                 <AddNewTabButton/>
