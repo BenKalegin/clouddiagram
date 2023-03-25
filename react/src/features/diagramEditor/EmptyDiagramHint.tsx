@@ -7,9 +7,10 @@ export const EmptyDiagramHint = () => {
             y={50}
             x={50}
             fontSize={14}
+            lineHeight={1.5}
             opacity={0.4}
-            align={"center"}
-            text={"Your diagram is empty. Drag component from the palette or click on the plus button to add a new class"}
+            align={"left"}
+            text={"Your diagram is empty. You can \n\n- drag component from the library, \n- load demo example diagram \n- click on the plus button \n- start free drawing and follow suggestions \n- import diagram from the external  storage"}
             draggable={false}
             listening={false}
             preventDefault={true}

@@ -5,7 +5,7 @@ import {Lifeline} from "./Lifeline";
 import {Message} from "./Message";
 import {useRecoilValue} from "recoil";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
-import {EmptyDiagramHint} from "../diagramTabs/DiagramEditorContainer";
+import {EmptyDiagramHint} from "../diagramEditor/EmptyDiagramHint";
 
 export const SequenceDiagramEditor = ({diagramId}: { diagramId: DiagramId }) => {
     const diagram = useRecoilValue(sequenceDiagramSelector(diagramId))

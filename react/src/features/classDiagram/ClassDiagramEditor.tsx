@@ -5,7 +5,7 @@ import {Link} from "./Link";
 import {classDiagramSelector} from "./classDiagramModel";
 import {useRecoilValue} from "recoil";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
-import {EmptyDiagramHint} from "../diagramTabs/DiagramEditorContainer";
+import {EmptyDiagramHint} from "../diagramEditor/EmptyDiagramHint";
 
 export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
     const diagram = useRecoilValue(classDiagramSelector(diagramId))
