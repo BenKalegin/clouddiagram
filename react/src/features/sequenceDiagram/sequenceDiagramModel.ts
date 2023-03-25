@@ -288,13 +288,19 @@ function createActivation(diagramPos: Coordinate, lifeline: Draft<LifelineState>
 
     // todo check if activation overlaps another and adjust length
 
+    let start = diagramPos.y - lifeline.placement.headBounds.y - lifeline.placement.headBounds.height - 2 /* shadow */;
+
+    if (start < 0)
+        start = 0;
+
+
     const activation = {
         type: ElementType.SequenceActivation,
         id: generateId(),
         length: length,
         lifelineId: lifeline.id,
         placement: {},
-        start: diagramPos.y - lifeline.placement.headBounds.y - lifeline.placement.headBounds.height - 2 /* shadow */,
+        start: start,
     };
     lifeline.activations.push(activation.id);
 
