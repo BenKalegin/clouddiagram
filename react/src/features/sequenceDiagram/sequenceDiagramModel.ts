@@ -1,13 +1,7 @@
 import {Bounds, Coordinate, Diagram, withinBounds, withinXBounds, withinYBounds, zeroBounds} from "../../common/model";
 import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
-import {
-    ConnectorRender,
-    DiagramId,
-    elementsAtom,
-    generateId,
-    linkingAtom,
-} from "../diagramEditor/diagramEditorModel";
+import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom,} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import produce, {Draft} from 'immer';
@@ -39,6 +33,13 @@ export interface ActivationRender {
 
 export interface LifelinePlacement{
     headBounds: Bounds;
+    /**
+     * Relative position of the start of the lifeline. If 0, it will start right below the head
+      */
+    lifelineStart: number;
+    /**
+     * Relative position of the end of the lifeline. Length of the lifeline will be lifelineEnd - lifelineStart
+     */
     lifelineEnd: number;
 }
 
@@ -183,6 +184,7 @@ export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coo
                 width: lifelineDefaultWidth,
                 height: lifelineDefaultHeight
             },
+            lifelineStart: 0,
             lifelineEnd: 100
         },
         activations: []
@@ -193,12 +195,15 @@ export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coo
     set(elementsAtom(diagramId), updatedDiagram)
 }
 
-export function lifelinePoints(headBounds: Bounds, lifelineEnd: number): number[] {
+/**
+ * Calculate lifeline bounds relative to the headBounds
+ */
+export function lifelinePoints(headBounds: Bounds, lifelineStart: number, lifelineEnd: number): number[] {
     return [
         headBounds.width/2,
-        headBounds.height + 2 /* shadow*/,
+        headBounds.height + 2 /* shadow*/ + lifelineStart,
         headBounds.width/2,
-        headBounds.y + lifelineEnd
+        headBounds.height + 2 + lifelineEnd
     ];
 
 }
@@ -275,6 +280,30 @@ export function findLifelineActivationAt(get: Get, y: number, diagramId: string,
 
 
 const DefaultActivationLength = 40;
+const LifelineTailAfterActivation = 40;
+
+
+function createActivation(diagramPos: Coordinate, lifeline: Draft<LifelineState>) {
+    const length = DefaultActivationLength;
+
+    // todo check if activation overlaps another and adjust length
+
+    const activation = {
+        type: ElementType.SequenceActivation,
+        id: generateId(),
+        length: length,
+        lifelineId: lifeline.id,
+        placement: {},
+        start: diagramPos.y - lifeline.placement.headBounds.y - lifeline.placement.headBounds.height - 2 /* shadow */,
+    };
+    lifeline.activations.push(activation.id);
+
+    const activationEnd = activation.start + activation.length
+
+    lifeline.placement.lifelineEnd = Math.max(lifeline.placement.lifelineEnd, activationEnd + LifelineTailAfterActivation);
+
+    return activation;
+}
 
 export function autoConnectActivations(get: Get, set: Set, sourceId: Id, target: IdAndKind, diagramPos: Coordinate) {
     const messageId = generateId()
@@ -284,43 +313,24 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, target:
 
     const update = produce(diagram, (draft: Draft<SequenceDiagramState>) => {
 
-        const lifeline = draft.lifelines[sourceId];
-        let [sourceActivationId, sourceActivationBounds] = findLifelineActivationAt(get, diagramPos.y, diagramId, lifeline, 1);
+        const sourceLifeline = draft.lifelines[sourceId];
+        let [sourceActivationId, sourceActivationBounds] = findLifelineActivationAt(get, diagramPos.y, diagramId, sourceLifeline, 1);
 
         if (!sourceActivationId) {
             // create activation for the source lifeline
             sourceActivationId = generateId()
-            const sourceActivation: ActivationState = {
-                type: ElementType.SequenceActivation,
-                id: sourceActivationId,
-                length: DefaultActivationLength,
-                lifelineId: sourceId,
-                placement: {},
-                start: diagramPos.y - lifeline.placement.headBounds.y - lifeline.placement.headBounds.height - 2 /* shadow */,
-
-            }
+            const sourceActivation = createActivation(diagramPos, sourceLifeline);
             sourceActivationId = sourceActivation.id;
-            sourceActivationBounds = renderActivation(sourceActivation, lifeline.placement).bounds;
-            lifeline.activations.push(sourceActivationId);
+            sourceActivationBounds = renderActivation(sourceActivation, sourceLifeline.placement).bounds;
             draft.activations[sourceActivationId] = sourceActivation;
-            draft.lifelines[sourceId].activations.push(sourceActivationId)
         }
 
         let targetActivationId: PortId;
 
         if (target.type === ElementType.SequenceLifeLine) {
-            const targetLifeline = draft.lifelines[target.id];
-            const targetActivation: ActivationState = {
-                type: ElementType.SequenceActivation,
-                id: generateId(),
-                length: DefaultActivationLength,
-                lifelineId: target.id,
-                placement: {},
-                start: diagramPos.y - targetLifeline.placement.headBounds.y - targetLifeline.placement.headBounds.height - 2 /* shadow */,
-            }
+            const targetActivation = createActivation(diagramPos, draft.lifelines[target.id])
             targetActivationId = targetActivation.id
             draft.activations[targetActivationId] = targetActivation
-            draft.lifelines[target.id].activations.push(targetActivationId)
         } else if (target.type === ElementType.SequenceActivation) {
             targetActivationId = target.id
         } else {
@@ -344,42 +354,41 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, target:
 export function createLifelineAndConnectTo(get: Get, set: Set, name: string) {
     const linking = get(linkingAtom)!;
     const diagramPos = linking.diagramPos!;
-    const targetLifeline: LifelineState = {
-        activations: [],
-        type: ElementType.SequenceLifeLine,
-        id: generateId(),
-        title: name,
-        placement: {
-            headBounds: {
-                x: diagramPos.x - lifelineDefaultWidth / 2,
-                y: lifelineHeadY,
-                width: lifelineDefaultWidth,
-                height: lifelineDefaultHeight
-            },
-            lifelineEnd: Math.max(lifelineDefaultHeight, diagramPos.y - lifelineHeadY - 2),
-        }
-    }
-
-    const targetActivation: ActivationState = {
-        type: ElementType.SequenceActivation,
-        id: generateId(),
-        length: DefaultActivationLength,
-        lifelineId: targetLifeline.id,
-        placement: {},
-        start: diagramPos.y - targetLifeline.placement.headBounds.y - targetLifeline.placement.headBounds.height - 2 /* shadow */,
-    }
-    targetLifeline.activations = [targetActivation.id]
 
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
-    const updateDiagram = {
-        ...diagram,
-        lifelines: {...diagram.lifelines, [targetLifeline.id]: targetLifeline},
-        activations: {...diagram.activations, [targetActivation.id]: targetActivation}
-    }
-    set(elementsAtom(diagramId), updateDiagram)
 
-    autoConnectActivations(get, set, linking.sourceElement, { id: targetActivation.id, type: ElementType.SequenceActivation}, diagramPos)
+    let targetActivationId : Id = '';
+
+    const update = produce(diagram, (draft: Draft<SequenceDiagramState>) => {
+        const targetLifeline: LifelineState = {
+            activations: [],
+            type: ElementType.SequenceLifeLine,
+            id: generateId(),
+            title: name,
+            placement: {
+                headBounds: {
+                    x: diagramPos.x - lifelineDefaultWidth / 2,
+                    y: lifelineHeadY,
+                    width: lifelineDefaultWidth,
+                    height: lifelineDefaultHeight
+                },
+                lifelineStart: 0,
+                lifelineEnd: Math.max(lifelineDefaultHeight, diagramPos.y - lifelineHeadY - 2),
+            }
+        }
+
+        produce(targetLifeline,lifelineDraft => {
+            const targetActivation = createActivation(diagramPos, lifelineDraft);
+            targetActivationId = targetActivation.id;
+            draft.lifelines[targetLifeline.id] = targetLifeline;
+            draft.activations[targetActivation.id] = targetActivation;
+        });
+    })
+
+    set(elementsAtom(diagramId), update)
+
+    autoConnectActivations(get, set, linking.sourceElement, { id: targetActivationId, type: ElementType.SequenceActivation}, diagramPos)
 }
 
 export const drawingMessageRenderSelector = selector<MessageRender | undefined>({
@@ -426,6 +435,7 @@ export const drawingMessageRenderSelector = selector<MessageRender | undefined>(
                 width: lifeline1Placement.headBounds.width,
                 height: lifeline1Placement.headBounds.height
             },
+            lifelineStart: 0,
             lifelineEnd: lifeline1Placement.lifelineEnd
         }
         const activationRender2: ActivationRender = renderActivation(activation2, lifelinePlacement2);

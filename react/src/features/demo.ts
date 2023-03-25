@@ -186,6 +186,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
             width: lifelineDefaultWidth,
             height: lifelineDefaultHeight
         },
+        lifelineStart: 0,
         lifelineEnd: 200,
     }
 
@@ -215,6 +216,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
             width: lifelineDefaultWidth,
             height: lifelineDefaultHeight
         },
+        lifelineStart: 0,
         lifelineEnd: 200,
     }
 

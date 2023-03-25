@@ -115,7 +115,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
 
             x={placement.headBounds.x}
             y={placement.headBounds.y}
-            points={lifelinePoints(placement.headBounds, placement.lifelineEnd)}
+            points={lifelinePoints(placement.headBounds, placement.lifelineEnd, placement.lifelineStart)}
         />
         {lifeline.activations.map((activation, i) =>
             <Activation
@@ -129,7 +129,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 element={{id: lifelineId, type: ElementType.SequenceLifeLine}}
                 bounds={{
                     ...placement.headBounds,
-                    height: placement.headBounds.y + placement.lifelineEnd
+                    height: placement.headBounds.y + placement.headBounds.height + placement.lifelineEnd
                 }}
                 excludeDiagonalResize={true}
                 excludeVerticalResize={true}
