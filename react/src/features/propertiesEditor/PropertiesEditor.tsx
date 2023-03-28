@@ -2,15 +2,13 @@ import {Box, Button, Divider, FormControlLabel, ListItem, Switch, TextField} fro
 import List from "@mui/material/List";
 import React from "react";
 import {useRecoilValue} from "recoil";
-import {elementsAtom, selectedElementsSelector} from "../diagramEditor/diagramEditorModel";
-import {DiagramElement, ElementType, Id} from "../../package/packageModel";
+import {selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
+import {ElementType} from "../../package/packageModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {
     elementPropertyChangedAction, elementCommandAction,
-    useDispatch,
-    useElementsSelector
+    useDispatch
 } from "../diagramEditor/diagramEditorSlice";
-import {Diagram} from "../../common/model";
 
 
 enum PropertyType {
@@ -76,11 +74,8 @@ function getActionList(type: ElementType): CommandDefinition[] {
 
 export const PropertiesEditor = () => {
     const diagramId = useRecoilValue(activeDiagramIdAtom)
-    const diagram = useRecoilValue(elementsAtom(diagramId)) as Diagram;
-    const selectedIds = useRecoilValue(selectedElementsSelector(diagramId))
-    const elementSelector = useElementsSelector()
-    let selectedElements: Map<Id, DiagramElement>
-    elementSelector(diagram, selectedIds, el => selectedElements = new Map(el.map(e => [e.id, e])))
+    const selectedIds = useRecoilValue(selectedRefsSelector(diagramId))
+    const selectedElements = new Map(useRecoilValue(selectedElementsSelector(diagramId)).map(e => [e.id, e]))
 
     const selectedKinds = [...new Set(selectedIds.map(element => element.type))]
     const dispatch = useDispatch()

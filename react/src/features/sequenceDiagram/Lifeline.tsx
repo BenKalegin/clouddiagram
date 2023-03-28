@@ -12,7 +12,7 @@ import {useRecoilValue} from "recoil";
 import {
     DiagramId,
     linkingAtom,
-    selectedElementsSelector
+    selectedRefsSelector
 } from "../diagramEditor/diagramEditorModel";
 import {
     elementMoveAction,
@@ -29,7 +29,7 @@ export interface LifelineProps {
 }
 
 export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
-    const selectedElements = useRecoilValue(selectedElementsSelector(diagramId))
+    const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(lifelineId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === lifelineId;
     const lifeline = useRecoilValue(lifelineSelector({lifelineId, diagramId}))

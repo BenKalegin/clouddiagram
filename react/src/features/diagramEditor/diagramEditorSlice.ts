@@ -119,18 +119,6 @@ export function useDispatch() {
         []
     )
 }
-
-export function useElementsSelector() {
-    return useRecoilTransaction_UNSTABLE(
-        ({get}) => (diagram: Diagram, refs: IdAndKind[], consumer: (el: DiagramElement[]) => void) => {
-            const diagramEditor  = diagramEditors[diagram.type];
-            consumer(refs.map(ref => diagramEditor.getElement(get, ref, diagram)))
-        },
-        []
-    )
-}
-
-
 function handleAction(action: Action, get: Get, set: Set) {
     const activeDiagramId = get(activeDiagramIdAtom);
     const diagramKind = get(elementsAtom(activeDiagramId)).type;

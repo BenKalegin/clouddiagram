@@ -9,7 +9,7 @@ import {
     DiagramId,
     elementsAtom,
     linkingAtom,
-    selectedElementsSelector
+    selectedRefsSelector
 } from "../diagramEditor/diagramEditorModel";
 import {ElementType, IdAndKind, NodeState} from "../../package/packageModel";
 import {Coordinate} from "../../common/model";
@@ -43,7 +43,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const node = useRecoilValue(elementsAtom(nodeId)) as NodeState
     const placement = useRecoilValue(nodePlacement({nodeId, diagramId}))
 
-    const selectedElements = useRecoilValue(selectedElementsSelector(diagramId))
+    const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(nodeId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === nodeId;
 

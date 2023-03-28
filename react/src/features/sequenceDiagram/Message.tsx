@@ -2,7 +2,7 @@ import {Arrow, Group, Text} from "react-konva";
 import {useRecoilValue} from "recoil";
 import {ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {messageRenderSelector, messageSelector} from "./sequenceDiagramModel";
-import {DiagramId, selectedElementsSelector} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {Scaffold} from "../scaffold/Scaffold";
 import React from "react";
 import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
@@ -20,7 +20,7 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
         y: render.bounds.y - textShiftUp,
         width: textWidth, height: textHeight}
 
-    const selectedElements = useRecoilValue(selectedElementsSelector(diagramId))
+    const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(messageId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === messageId;
     const dispatch = useDispatch()

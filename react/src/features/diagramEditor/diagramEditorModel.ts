@@ -3,6 +3,7 @@ import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageM
 import {atom, atomFamily, selectorFamily} from "recoil";
 import {elements} from "../demo";
 import {nanoid} from 'nanoid';
+import {diagramEditors} from "./diagramEditorSlice";
 
 export interface Linking {
     sourceElement: Id
@@ -14,16 +15,6 @@ export interface Linking {
     drawing: boolean
     showLinkToNewDialog?: boolean
     targetElement?: IdAndKind
-}
-
-export interface MoveResize {
-    element: Id
-    mouseStartPos: Coordinate
-    relativeStartPos: Coordinate
-}
-
-export interface Scrub {
-
 }
 
 export type DiagramId = Id;
@@ -49,11 +40,20 @@ export const diagramKindSelector = selectorFamily<ElementType, DiagramId>({
     get: (id) => ({get}) => get(elementsAtom(id)).type
 })
 
-export const selectedElementsSelector = selectorFamily<IdAndKind[], DiagramId>({
+export const selectedRefsSelector = selectorFamily<IdAndKind[], DiagramId>({
     key: 'selectedElements',
     get: (id) => ({get}) => (get(elementsAtom(id)) as Diagram).selectedElements ?? []
 })
 
+export const selectedElementsSelector = selectorFamily<IdAndKind[], DiagramId>({
+    key: 'selectedElements',
+    get: (diagramId) => ({get}) => {
+        const diagram = get(elementsAtom(diagramId)) as Diagram
+        const refs = diagram.selectedElements || []
+        const diagramEditor  = diagramEditors[diagram.type];
+        return (refs.map(ref => diagramEditor.getElement(get, ref, diagram)))
+    }
+})
 
 export const linkingAtom = atom<Linking | undefined>({
     key: 'linking',

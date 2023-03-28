@@ -381,22 +381,19 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, targetId: Id)
 
 
 export function handleClassElementPropertyChanged(get: Get, set: Set, elements: IdAndKind[], propertyName: string, value: any) {
-    // const diagramId = get(activeDiagramIdAtom)
-    // const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
 
-    // const update = produce(diagram, (draft) => {
-
-        elements.forEach(element => {
-            switch (element.type) {
-                case ElementType.ClassNode:
-                    const object: any = {...get(elementsAtom(element.id))};
+    elements.forEach(element => {
+        switch (element.type) {
+            case ElementType.ClassNode:
+                const node = get(elementsAtom(element.id)) as NodeState;
+                const update = produce(node, (draft: Draft<NodeState>) => {
+                    const object: any = draft;
                     object[propertyName] = value
-                    set(elementsAtom(element.id), object);
-            }
-        });
-    // })
-
-    // set(elementsAtom(diagramId), update);
+                })
+                set(elementsAtom(element.id), update);
+                break;
+        }
+    });
 }
 
 function deleteClassElement(diagram: Draft<ClassDiagramState>, element: IdAndKind,
