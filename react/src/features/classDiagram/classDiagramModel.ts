@@ -1,4 +1,4 @@
-import {Bounds, Coordinate, Diagram} from "../../common/model";
+import {Bounds, Coordinate, Diagram, withinBounds} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {
     DiagramElement,
@@ -37,9 +37,9 @@ export interface PortPlacement {
     edgePosRatio: number
 }
 
-export enum CornerStyle {
-    Straight = "straight"
-}
+// export enum CornerStyle {
+//     Straight = "straight"
+// }
 
 export interface LinkPlacement {
     //cornerStyle: CornerStyle;
@@ -436,4 +436,38 @@ export function handleClassCommand(get: Get, set: Set, elements: IdAndKind[], co
         }
     })
     set(elementsAtom(diagramId), update);
+}
+
+
+/**
+ * Search for a port at specified X,Y diagram position
+ */
+export function findPortAtPos(get: Get, pos: Coordinate, diagramId: string, tolerance: number) : [Id?, Bounds?]  {
+    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+    const portIds = Object.keys(diagram.ports);
+    for (let i = 0; i < portIds.length; i++) {
+        const portId = portIds[i];
+        const port = get(elementsAtom(portId)) as PortState;
+        const nodeId = port.nodeId;
+        const nodeBounds = diagram.nodes[nodeId].bounds;
+        const portBounds = renderPort(nodeBounds, port, diagram.ports[portId]).bounds;
+        if (withinBounds(portBounds, pos, tolerance)) {
+             return [portId, portBounds];
+        }
+    }
+    return [undefined, undefined];
+}
+
+
+export function findNodeAtPos(get: Get, pos: Coordinate, diagramId: string, tolerance: number) : [Id?, Bounds?]  {
+    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+    const nodeIds = Object.keys(diagram.nodes);
+    for (let i = 0; i < nodeIds.length; i++) {
+        const nodeId = nodeIds[i];
+        const nodeBounds = diagram.nodes[nodeId].bounds;
+        if (withinBounds(nodeBounds, pos, tolerance)) {
+            return [nodeId, nodeBounds];
+        }
+    }
+    return [undefined, undefined];
 }

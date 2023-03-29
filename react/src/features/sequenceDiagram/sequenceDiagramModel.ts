@@ -212,7 +212,7 @@ export function lifelinePoints(headBounds: Bounds, lifelineStart: number, lifeli
  * Search for activation at specified X,Y diagram position
  */
 export function findActivationAtPos(get: Get, pos: Coordinate, diagramId: string, tolerance: number) :
-    [PortId?, Bounds?]  {
+    [Id?, Bounds?]  {
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
     function activationRender(activationId: PortId) : ActivationRender {

@@ -11,7 +11,7 @@ import {
 import {
     addNewElementAt,
     addNodeAndConnect,
-    autoConnectNodes, handleClassCommand,
+    autoConnectNodes, findNodeAtPos, findPortAtPos, handleClassCommand,
     handleClassElementPropertyChanged,
     moveElement,
     nodePropertiesDialog,
@@ -21,6 +21,8 @@ import {Action} from "@reduxjs/toolkit";
 import {Coordinate} from "../../common/model";
 import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
 import {elementsAtom} from "../diagramEditor/diagramEditorModel";
+import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {snapToBounds} from "../../common/Geometry/snap";
 
 class ClassDiagramEditor implements DiagramEditor {
     handleAction(action: Action, get: Get, set: Set): void {
@@ -45,7 +47,17 @@ class ClassDiagramEditor implements DiagramEditor {
     }
 
     snapToElements(get: Get, diagramPos: Coordinate): [Coordinate, DiagramElement] | undefined {
+        const diagramId = get(activeDiagramIdAtom);
+        const [targetPortId, targetBounds] = findPortAtPos(get, diagramPos, diagramId, 3);
+        if (targetPortId && targetBounds) {
+            return [snapToBounds(diagramPos, targetBounds), {id: targetPortId, type: ElementType.ClassPort}]
+        }
+        const [targetNodeId, targetNodeBounds] = findNodeAtPos(get, diagramPos, diagramId, 3);
+        if(targetNodeId && targetNodeBounds){
+            return [snapToBounds(diagramPos, targetNodeBounds), {id: targetNodeId, type: ElementType.ClassNode}]
+        }
         return undefined;
+
     }
 
     connectNodes(get: Get, set: Set, sourceId: Id, target: IdAndKind, diagramPos: Coordinate): void {
