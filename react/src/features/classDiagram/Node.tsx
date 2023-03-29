@@ -11,7 +11,7 @@ import {
     linkingAtom,
     selectedRefsSelector
 } from "../diagramEditor/diagramEditorModel";
-import {ElementType, IdAndKind, NodeState} from "../../package/packageModel";
+import {ElementType, ElementRef, NodeState} from "../../package/packageModel";
 import {Coordinate} from "../../common/model";
 import {
     elementMoveAction,
@@ -73,7 +73,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     const pos = screenToCanvas(e);
                     setStartNodePos(placement.bounds);
                     setStartPointerPos(pos);
-                    const element: IdAndKind = {id: nodeId, type: ElementType.ClassNode}
+                    const element: ElementRef = {id: nodeId, type: ElementType.ClassNode}
                     if (!isSelected)
                         dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
 

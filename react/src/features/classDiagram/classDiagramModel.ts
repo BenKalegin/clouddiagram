@@ -4,7 +4,7 @@ import {
     DiagramElement,
     ElementType,
     Id,
-    IdAndKind,
+    ElementRef,
     LinkState,
     NodeState,
     PortAlignment,
@@ -117,16 +117,6 @@ export const classDiagramSelector = selectorFamily<ClassDiagramState, DiagramId>
     },
     set: (id) => ({set}, newValue) => {
         set(elementsAtom(id), newValue);
-    }
-})
-
-export const nodeSelector = selectorFamily<NodeState, NodeId>({
-    key: 'node',
-    get: (nodeId) => ({get}) => {
-        return get(elementsAtom(nodeId)) as NodeState;
-    },
-    set: (nodeId) => ({set}, newValue) => {
-        set(elementsAtom(nodeId), newValue);
     }
 })
 
@@ -261,7 +251,7 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
     return node
 }
 
-export function moveElement(get: Get, set: Set, element: IdAndKind, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
+export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
     const nodePlacement = diagram.nodes[element.id];
@@ -319,7 +309,7 @@ export function addNodeAndConnect(get: Get, set: Set, name: string) {
     const linking = get(linkingAtom) as Linking;
     const pos = linking.diagramPos
     const node = addNewElementAt(get, set, pos, name);
-    autoConnectNodes(get, set, linking.sourceElement, node.id);
+    autoConnectNodes(get, set, linking.sourceElement, node);
     set(linkingAtom, {...linking, showLinkToNewDialog: false } )
 }
 
@@ -339,18 +329,25 @@ function addNewPort(get: Get, set: Set, node: NodeState) {
     return result
 }
 
-export function autoConnectNodes(get: Get, set: Set, sourceId: Id, targetId: Id) {
+export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: ElementRef) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
 
     const sourceNode = get(elementsAtom(sourceId)) as NodeState;
-    const targetNode = get(elementsAtom(targetId)) as NodeState;
-
-
     const port1 = addNewPort(get, set, sourceNode);
-    const port2 = addNewPort(get, set, targetNode);
     const placement1: PortPlacement = {alignment: PortAlignment.Right, edgePosRatio: 50};
-    const placement2: PortPlacement = {alignment: PortAlignment.Left, edgePosRatio: 50};
+
+    let port2: PortState;
+    let placement2: PortPlacement;
+    if (target.type === ElementType.ClassNode) {
+        const targetNode = get(elementsAtom(target.id)) as NodeState;
+        port2 = addNewPort(get, set, targetNode);
+        placement2 = {alignment: PortAlignment.Left, edgePosRatio: 50};
+    } else if (target.type === ElementType.ClassPort) {
+        port2 = get(elementsAtom(target.id)) as PortState;
+        placement2 = diagram.ports[port2.id]
+    }else
+        throw new Error("Invalid target type " + target.type);
 
 
     const linkId = generateId()
@@ -380,7 +377,7 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, targetId: Id)
 }
 
 
-export function handleClassElementPropertyChanged(get: Get, set: Set, elements: IdAndKind[], propertyName: string, value: any) {
+export function handleClassElementPropertyChanged(get: Get, set: Set, elements: ElementRef[], propertyName: string, value: any) {
 
     elements.forEach(element => {
         switch (element.type) {
@@ -396,7 +393,7 @@ export function handleClassElementPropertyChanged(get: Get, set: Set, elements: 
     });
 }
 
-function deleteClassElement(diagram: Draft<ClassDiagramState>, element: IdAndKind,
+function deleteClassElement(diagram: Draft<ClassDiagramState>, element: ElementRef,
                             getElement: (id: Id) => DiagramElement,
                             setElement: (id: Id, element: DiagramElement) => void) {
     switch(element.type) {
@@ -420,7 +417,7 @@ function deleteClassElement(diagram: Draft<ClassDiagramState>, element: IdAndKin
     diagram.selectedElements = diagram.selectedElements.filter(e => e.id !== element.id);
 }
 
-export function handleClassCommand(get: Get, set: Set, elements: IdAndKind[], command: Command) {
+export function handleClassCommand(get: Get, set: Set, elements: ElementRef[], command: Command) {
     const diagramId = get(activeDiagramIdAtom)
     const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
     const getElement = (id: Id) => get(elementsAtom(id));

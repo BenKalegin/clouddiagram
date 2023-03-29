@@ -1,6 +1,6 @@
 import {Arrow, Group, Text} from "react-konva";
 import {useRecoilValue} from "recoil";
-import {ElementType, Id, IdAndKind} from "../../package/packageModel";
+import {ElementType, Id, ElementRef} from "../../package/packageModel";
 import {messageRenderSelector, messageSelector} from "./sequenceDiagramModel";
 import {DiagramId, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {Scaffold} from "../scaffold/Scaffold";
@@ -42,7 +42,7 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
                 pointerAtEnding={true}
                 hitStrokeWidth={10}
                 onClick={(e) => {
-                    const element: IdAndKind = {id: messageId, type: ElementType.SequenceMessage}
+                    const element: ElementRef = {id: messageId, type: ElementType.SequenceMessage}
                     dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
                 }}
 

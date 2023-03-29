@@ -1,6 +1,6 @@
 import {Bounds, Coordinate, Diagram, zeroCoordinate} from "../../common/model";
 import {elementsAtom, generateId, Linking, linkingAtom, snapGridSizeAtom} from "./diagramEditorModel";
-import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
 import {activeDiagramIdAtom, openDiagramIdsAtom} from "../diagramTabs/DiagramTabs";
 import {classDiagramEditor} from "../classDiagram/classDiagramSlice";
@@ -19,7 +19,7 @@ export enum ElementMoveResizePhase {
 }
 export const elementMoveAction = createAction<{
     phase: ElementMoveResizePhase
-    element: IdAndKind
+    element: ElementRef
     currentPointerPos: Coordinate
     startPointerPos: Coordinate
     startNodePos: Coordinate
@@ -73,20 +73,20 @@ export const elementSelectedAction = createAction<{
     /**
      * selected element id or undefined if clicked on empty space
      */
-    element: IdAndKind | undefined
+    element: ElementRef | undefined
     shiftKey: boolean
     ctrlKey: boolean
 }>('editor/elementSelected');
 
 
 export const elementPropertyChangedAction = createAction<{
-    elements: IdAndKind[]
+    elements: ElementRef[]
     propertyName: string
     value: any
 }>('editor/elementPropertyChanged');
 
 export const elementCommandAction = createAction<{
-    elements: IdAndKind[]
+    elements: ElementRef[]
     command: Command
 }>('editor/elementCommand');
 
@@ -104,9 +104,9 @@ export interface DiagramEditor {
     handleAction(action: Action, get: Get, set: Set) : void
     snapToElements(get: Get, diagramPos: Coordinate): [Coordinate, DiagramElement] | undefined
 
-    connectNodes(get: Get, set: Set, sourceId: Id, targetId: IdAndKind, diagramPos: Coordinate): void;
+    connectNodes(get: Get, set: Set, sourceId: Id, targetId: ElementRef, diagramPos: Coordinate): void;
     createAndConnectTo(get: Get, set: Set, name: string): void;
-    getElement(get: Get, ref: IdAndKind, diagram: Diagram): DiagramElement
+    getElement(get: Get, ref: ElementRef, diagram: Diagram): DiagramElement
 }
 
 
@@ -205,7 +205,7 @@ const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: 
 }
 
 
-function handleElementSelection(get: Get, set: Set, idAndKind: IdAndKind | undefined, shiftKey: boolean, ctrlKey: boolean) {
+function handleElementSelection(get: Get, set: Set, idAndKind: ElementRef | undefined, shiftKey: boolean, ctrlKey: boolean) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as Diagram;
     if (!idAndKind) {

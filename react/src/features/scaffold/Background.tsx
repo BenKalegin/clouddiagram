@@ -7,13 +7,13 @@ import {
     screenToCanvas,
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
-import {IdAndKind} from "../../package/packageModel";
+import {ElementRef} from "../../package/packageModel";
 import {AppLayout, AppLayoutContext} from "../../app/AppModel";
 
 export interface BackgroundProps {
     backgroundBounds: Bounds;
     nodeBounds: Bounds;
-    origin: IdAndKind
+    origin: ElementRef
 }
 
 export const Background = (props: BackgroundProps) => {

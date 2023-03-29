@@ -21,7 +21,7 @@ import {
 import {Coordinate, Diagram} from "../../common/model";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {snapToBounds} from "../../common/Geometry/snap";
-import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
 
 
 class SequenceDiagramEditor implements DiagramEditor {
@@ -59,14 +59,14 @@ class SequenceDiagramEditor implements DiagramEditor {
         return undefined;
     }
 
-    connectNodes(get: Get, set: Set, sourceId: Id, targetId: IdAndKind, diagramPos: Coordinate): void {
+    connectNodes(get: Get, set: Set, sourceId: Id, targetId: ElementRef, diagramPos: Coordinate): void {
         autoConnectActivations(get, set, sourceId, targetId, diagramPos);
     }
     createAndConnectTo(get: Get, set: Set, name: string): void {
         createLifelineAndConnectTo(get, set, name);
     }
 
-    getElement(get: Get, ref: IdAndKind, diagram: Diagram): DiagramElement {
+    getElement(get: Get, ref: ElementRef, diagram: Diagram): DiagramElement {
         switch (ref.type) {
             case ElementType.SequenceLifeLine: return (diagram as SequenceDiagramState).lifelines[ref.id]
             case ElementType.SequenceActivation: return (diagram as SequenceDiagramState).activations[ref.id]

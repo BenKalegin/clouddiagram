@@ -13,12 +13,12 @@ export enum ElementType {
     SequenceActivation,
 }
 
-export interface IdAndKind {
+export interface ElementRef {
     id: Id;
     type: ElementType
 }
 
-export interface DiagramElement extends IdAndKind {
+export interface DiagramElement extends ElementRef {
 }
 
 export interface Package {

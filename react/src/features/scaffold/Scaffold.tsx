@@ -4,14 +4,14 @@ import {Background} from "./Background";
 import {ResizeHandles} from "./ResizeHandle";
 import {FocusFrame} from "./FocusFrame";
 import {ContextButtons} from "./ContextButtons";
-import {IdAndKind} from "../../package/packageModel";
+import {ElementRef} from "../../package/packageModel";
 import {linkingAction, LinkingPhase, useDispatch} from "../diagramEditor/diagramEditorSlice";
 
 export interface ScaffoldProps {
     bounds: Bounds;
     isFocused: boolean;
     isLinking: boolean;
-    element: IdAndKind;
+    element: ElementRef;
     excludeDiagonalResize?: boolean;
     excludeVerticalResize?: boolean;
     linkingDrawing: JSX.Element | undefined

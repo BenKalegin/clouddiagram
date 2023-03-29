@@ -21,7 +21,7 @@ import {
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
 import {Coordinate} from "../../common/model";
-import {ElementType, IdAndKind} from "../../package/packageModel";
+import {ElementType, ElementRef} from "../../package/packageModel";
 
 export interface LifelineProps {
     lifelineId: LifelineId
@@ -53,7 +53,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             shadowOffset={{x: 2, y: 2}}
             shadowOpacity={0.4}
             onClick={(e) => {
-                const element: IdAndKind = {id: lifelineId, type: ElementType.SequenceLifeLine}
+                const element: ElementRef = {id: lifelineId, type: ElementType.SequenceLifeLine}
                 dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
             }}
             draggable={true}
@@ -65,7 +65,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 const pos = screenToCanvas(e);
                 setStartNodePos(placement.headBounds);
                 setStartPointerPos(pos);
-                const element: IdAndKind = {id: lifelineId, type: ElementType.SequenceLifeLine}
+                const element: ElementRef = {id: lifelineId, type: ElementType.SequenceLifeLine}
                 if (!isSelected)
                     dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
 

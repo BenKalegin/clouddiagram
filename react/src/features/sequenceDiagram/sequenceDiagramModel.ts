@@ -1,5 +1,5 @@
 import {Bounds, Coordinate, Diagram, withinBounds, withinXBounds, withinYBounds, zeroBounds} from "../../common/model";
-import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom,} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
@@ -125,7 +125,7 @@ export const renderMessage = (activation1: ActivationRender, activation2: Activa
     }
 }
 
-export function handleSequenceMoveElement(get: Get, set: Set, phase: ElementMoveResizePhase, elementId: IdAndKind, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
+export function handleSequenceMoveElement(get: Get, set: Set, phase: ElementMoveResizePhase, elementId: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
@@ -311,7 +311,7 @@ function createActivation(diagramPos: Coordinate, lifeline: Draft<LifelineState>
     return activation;
 }
 
-export function autoConnectActivations(get: Get, set: Set, sourceId: Id, target: IdAndKind, diagramPos: Coordinate) {
+export function autoConnectActivations(get: Get, set: Set, sourceId: Id, target: ElementRef, diagramPos: Coordinate) {
     const messageId = generateId()
 
     const diagramId = get(activeDiagramIdAtom);
@@ -520,7 +520,7 @@ export const messageRenderSelector = selectorFamily<MessageRender, {messageId: M
     }
 })
 
-export function handleSequenceElementPropertyChanged(get: Get, set: Set, elements: IdAndKind[], propertyName: string, value: any) {
+export function handleSequenceElementPropertyChanged(get: Get, set: Set, elements: ElementRef[], propertyName: string, value: any) {
     const diagramId = get(activeDiagramIdAtom)
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
@@ -550,7 +550,7 @@ function reverseMessage(draft: Draft<SequenceDiagramState>, messageId: MessageId
     message.activation2 = swap;
 }
 
-function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: IdAndKind) {
+function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: ElementRef) {
     function deleteActivation(activationId: PortId) {
         const activation = diagram.activations[activationId];
         const lifeline = diagram.lifelines[activation.lifelineId];
@@ -577,7 +577,7 @@ function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: Id
     diagram.selectedElements = diagram.selectedElements.filter(e => e.id !== element.id);
 }
 
-export function handleSequenceCommand(get: Get, set: Set, elements: IdAndKind[], command: Command) {
+export function handleSequenceCommand(get: Get, set: Set, elements: ElementRef[], command: Command) {
     const diagramId = get(activeDiagramIdAtom)
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 

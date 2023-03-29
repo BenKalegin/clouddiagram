@@ -19,7 +19,7 @@ import {
 } from "./classDiagramModel";
 import {Action} from "@reduxjs/toolkit";
 import {Coordinate} from "../../common/model";
-import {DiagramElement, ElementType, Id, IdAndKind} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
 import {elementsAtom} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {snapToBounds} from "../../common/Geometry/snap";
@@ -60,15 +60,15 @@ class ClassDiagramEditor implements DiagramEditor {
 
     }
 
-    connectNodes(get: Get, set: Set, sourceId: Id, target: IdAndKind, diagramPos: Coordinate): void {
-        autoConnectNodes(get, set, sourceId, target.id);
+    connectNodes(get: Get, set: Set, sourceId: Id, target: ElementRef, diagramPos: Coordinate): void {
+        autoConnectNodes(get, set, sourceId, target);
     }
 
     createAndConnectTo(get: Get, set: Set, name: string): void {
         addNodeAndConnect(get, set, name)
     }
 
-    getElement(get: Get, ref: IdAndKind): DiagramElement {
+    getElement(get: Get, ref: ElementRef): DiagramElement {
         switch (ref.type)
         {
             case ElementType.ClassNode: return get(elementsAtom(ref.id));
