@@ -1,8 +1,8 @@
 import {Circle} from "react-konva";
-import React, {useState} from "react";
+import React from "react";
 import {useRecoilValue} from "recoil";
 import {NodeId, PortId, portRenderSelector, portSelector} from "./classDiagramModel";
-import {DiagramId} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 
 export interface PortProps {
     portId: PortId
@@ -12,7 +12,9 @@ export interface PortProps {
 export const Port = ({diagramId, nodeId, portId}: PortProps) => {
     const port = useRecoilValue(portSelector(portId))
     const render = useRecoilValue(portRenderSelector({portId, nodeId, diagramId}))
-    const [isHover, setIsHover] = useState(false)
+    const linking = useRecoilValue(linkingAtom)
+    const linkingTarget = linking?.targetElement;
+    const linkingSource = linking?.sourceElement;
 
     return (
         <Circle
@@ -20,9 +22,7 @@ export const Port = ({diagramId, nodeId, portId}: PortProps) => {
             y={render.bounds.y + render.bounds.height / 2}
             radius={port.latitude / 2}
             stroke={"burlywood"}
-            fill={isHover ? "burlywood": "cornsilk"}
-            onMouseEnter={() => {setIsHover(true)}}
-            onMouseLeave={() => {setIsHover(false)}}
+            fill={portId === linkingTarget?.id || portId === linkingSource ? "burlywood": "cornsilk"}
         />
     )
 }

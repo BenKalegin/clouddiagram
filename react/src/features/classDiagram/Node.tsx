@@ -48,6 +48,8 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === nodeId;
 
     const linking = useRecoilValue(linkingAtom)
+    const linkingTarget = linking?.targetElement;
+    const linkingSource = linking?.sourceElement;
     const [startNodePos, setStartNodePos] = React.useState<Coordinate | undefined>();
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
     const dispatch = useDispatch()
@@ -103,6 +105,13 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                             currentPointerPos: screenToCanvas(e)}));
                 }
                 }
+                shadowEnabled={nodeId === linkingTarget?.id || nodeId === linkingSource}
+                shadowColor={'black'}
+                shadowBlur={3}
+                shadowOffset={{x: 2, y: 2}}
+                shadowOpacity={0.4}
+
+
             />
             {isSelected && (
                 <Scaffold
