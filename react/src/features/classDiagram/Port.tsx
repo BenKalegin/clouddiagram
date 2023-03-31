@@ -3,13 +3,15 @@ import React from "react";
 import {useRecoilValue} from "recoil";
 import {NodeId, PortId, portRenderSelector, portSelector} from "./classDiagramModel";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {ShapeStyle} from "../../package/packageModel";
 
 export interface PortProps {
     portId: PortId
     nodeId: NodeId
     diagramId: DiagramId
+    shapeStyle: ShapeStyle
 }
-export const Port = ({diagramId, nodeId, portId}: PortProps) => {
+export const Port = ({diagramId, nodeId, portId, shapeStyle}: PortProps) => {
     const port = useRecoilValue(portSelector(portId))
     const render = useRecoilValue(portRenderSelector({portId, nodeId, diagramId}))
     const linking = useRecoilValue(linkingAtom)
@@ -21,8 +23,8 @@ export const Port = ({diagramId, nodeId, portId}: PortProps) => {
             x={render.bounds.x + render.bounds.width / 2}
             y={render.bounds.y + render.bounds.height / 2}
             radius={port.latitude / 2}
-            stroke={"burlywood"}
-            fill={portId === linkingTarget?.id || portId === linkingSource ? "burlywood": "cornsilk"}
+            stroke={shapeStyle.strokeColor}
+            fill={portId === linkingTarget?.id || portId === linkingSource ? shapeStyle.strokeColor: shapeStyle.fillColor}
         />
     )
 }

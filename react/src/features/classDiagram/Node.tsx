@@ -138,6 +138,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     portId={port}
                     nodeId={nodeId}
                     diagramId={diagramId}
+                    shapeStyle={node.shapeStyle}
                 />
             )}
 
