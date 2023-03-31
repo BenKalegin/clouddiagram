@@ -1,4 +1,7 @@
-import {defaultShapeStyle, leafShapeStyle, pinkShapeStyle, ShapeStyle} from "../../package/packageModel";
+import {
+    ShapeStyle,
+    shapeStyleList
+} from "../../package/packageModel";
 import React, {useState} from "react";
 import {
     ButtonGroup,
@@ -50,12 +53,6 @@ export const ShapeStylePropertyEditor: React.FC<ShapeStylePropertyEditorProps> =
         setAnchorEl(event.currentTarget);
     };
 
-    const shapeStyles: ShapeStyle[] = [
-        defaultShapeStyle,
-        pinkShapeStyle,
-        leafShapeStyle
-    ]
-
     const popupOpen = Boolean(anchorEl);
     return (
             <FormControlLabel control={
@@ -79,9 +76,12 @@ export const ShapeStylePropertyEditor: React.FC<ShapeStylePropertyEditorProps> =
                         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                         open={popupOpen}
                     >
-                        {shapeStyles.map((shapeStyle, i) => (
-                            <MenuItem key={i} onClick={() => handleItemClick(shapeStyle)}>
-                            <ShapeStyleIcon {...shapeStyle} />
+                        {shapeStyleList.map((shapeStyle, i) => (
+                            <MenuItem
+                                key={i}
+                                sx={{height: "24"}}
+                                onClick={() => handleItemClick(shapeStyle)}>
+                                <ShapeStyleIcon {...shapeStyle} />
                             </MenuItem>
                             ))
                         }

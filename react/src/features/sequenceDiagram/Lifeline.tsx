@@ -41,8 +41,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
 
     return <Group>
         <Rect
-            fill={"cornsilk"}
-            stroke={"peru"}
+            fill={lifeline.shapeStyle.fillColor}
+            stroke={lifeline.shapeStyle.strokeColor}
             strokeWidth={1}
             x={placement.headBounds.x}
             y={placement.headBounds.y}
@@ -109,7 +109,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             preventDefault={true}
         />
         <Line
-            stroke={'burlywood'}
+            stroke={lifeline.shapeStyle.strokeColor}
             strokeWidth={2}
             dash={[5, 3]}
 

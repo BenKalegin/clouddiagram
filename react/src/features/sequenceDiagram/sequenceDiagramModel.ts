@@ -1,5 +1,5 @@
 import {Bounds, Coordinate, Diagram, withinBounds, withinXBounds, withinYBounds, zeroBounds} from "../../common/model";
-import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, ElementRef, ShapeStyle, defaultShapeStyle} from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom,} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
@@ -47,6 +47,7 @@ export interface LifelineState extends DiagramElement {
     activations: PortId[]
     placement: LifelinePlacement;
     title: string;
+    shapeStyle: ShapeStyle
 }
 
 export interface MessageRender extends ConnectorRender {
@@ -187,7 +188,8 @@ export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coo
             lifelineStart: 0,
             lifelineEnd: 100
         },
-        activations: []
+        activations: [],
+        shapeStyle: defaultShapeStyle
     };
 
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
@@ -381,7 +383,8 @@ export function createLifelineAndConnectTo(get: Get, set: Set, name: string) {
                 },
                 lifelineStart: 0,
                 lifelineEnd: Math.max(lifelineDefaultHeight, diagramPos.y - lifelineHeadY - 2),
-            }
+            },
+            shapeStyle: defaultShapeStyle
         }
 
         produce(targetLifeline,lifelineDraft => {

@@ -47,7 +47,7 @@ function getPropertyList(type: ElementType): PropertyDefinition[] {
         case ElementType.ClassNode:
             return [textProp, shapeStyleProp];
         case ElementType.SequenceLifeLine:
-            return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}];
+            return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}, shapeStyleProp];
         case ElementType.SequenceMessage:
             return [
                 textProp,

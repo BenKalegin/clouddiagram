@@ -207,7 +207,8 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         type: ElementType.SequenceLifeLine,
         id: lifeline1Id,
         title: 'Alice',
-        activations: [activation1.id]
+        activations: [activation1.id],
+        shapeStyle: defaultShapeStyle
     }
 
     const lifeline2Id = 'line2';
@@ -236,7 +237,8 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         id: lifeline2Id,
         title: 'Bob',
         activations: [activation2.id],
-        placement: lifeline2Placement
+        placement: lifeline2Placement,
+        shapeStyle: defaultShapeStyle
     }
 
     const lifelines: { [id: Id]: LifelineState } = {

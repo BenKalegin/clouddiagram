@@ -73,19 +73,34 @@ export interface LinkState extends DiagramElement {
 
 
 export const defaultShapeStyle: ShapeStyle = {
-    strokeColor: "burlywood",
+    strokeColor: "burlywood", // "peru"
     fillColor: "cornsilk"
 }
 
-export const pinkShapeStyle: ShapeStyle = {
-    strokeColor: "#F58527",
-    fillColor: "#FDECDE"
+const pinkShapeStyle: ShapeStyle = {
+    strokeColor: "lightcoral",
+    fillColor: "mistyrose"
 }
 
-export const leafShapeStyle: ShapeStyle = {
+const leafShapeStyle: ShapeStyle = {
     strokeColor: "#9EBD5D",
     fillColor: "#F4F7EC"
 }
+
+const steelShapeStyle: ShapeStyle = {
+    strokeColor: "#AEBFD1", // darker "lightsteelblue",
+    fillColor: "#F0F5FF" // "lightsteelblue" + 20% ligghter
+}
+
+export const shapeStyleList: ShapeStyle[] = [
+    defaultShapeStyle,
+    pinkShapeStyle,
+    leafShapeStyle,
+    steelShapeStyle
+]
+
+
+
 
 
 
