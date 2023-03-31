@@ -138,20 +138,20 @@ function AddNewTabButton() {
 
     return (
         <div style={{lineHeight: "3em"}}>
-        <IconButton
-            onClick={handleClick}
-            size="small"
-        >
-            <AddIcon fontSize="inherit" />
-        </IconButton>
-        <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-        >
-            <MenuItem onClick={() => handleClose(ElementType.ClassDiagram)}>Class Diagram</MenuItem>
-            <MenuItem onClick={() => handleClose(ElementType.SequenceDiagram)}>Sequence Diagram</MenuItem>
-        </Menu>
+            <IconButton
+                onClick={handleClick}
+                size="small"
+            >
+                <AddIcon fontSize="inherit" />
+            </IconButton>
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+            >
+                <MenuItem onClick={() => handleClose(ElementType.ClassDiagram)}>Class Diagram</MenuItem>
+                <MenuItem onClick={() => handleClose(ElementType.SequenceDiagram)}>Sequence Diagram</MenuItem>
+            </Menu>
         </div>
     );
 }

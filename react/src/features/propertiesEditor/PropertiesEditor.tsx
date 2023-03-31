@@ -1,4 +1,4 @@
-import {Box, Button, Divider, FormControlLabel, ListItem, SvgIcon, Switch, TextField} from "@mui/material";
+import {Box, Button, Divider, FormControlLabel, ListItem, Switch, TextField} from "@mui/material";
 import List from "@mui/material/List";
 import React from "react";
 import {useRecoilValue} from "recoil";
@@ -114,30 +114,22 @@ export const PropertiesEditor = () => {
 
     }
 
-    function stringPropertyEditor(p: PropAndKind, value: string) {
+    function StringPropertyEditor(p: PropAndKind, value: string, updateProps: (value: any) => void) {
         return (
             <TextField
                 label={p.prop.label}
                 variant="outlined"
                 size="small"
                 value={value || ""}
-                onChange={e => dispatch(elementPropertyChangedAction({
-                    elements: selectedIds.filter(element => element.type === p.kind),
-                    propertyName: p.prop.name,
-                    value: e.target.value
-                }))}
+                onChange={e => updateProps(e.target.value)}
             /> )
     }
 
-    function BooleanPropertyEditor(p: PropAndKind, value: boolean) {
+    function BooleanPropertyEditor(p: PropAndKind, value: boolean, updateProps: (value: any) => void) {
         return <FormControlLabel control={
             <Switch
                 checked={value}
-                onChange={e => dispatch(elementPropertyChangedAction({
-                    elements: selectedIds.filter(element => element.type === p.kind),
-                    propertyName: p.prop.name,
-                    value: e.target.checked
-                }))}
+                onChange={e => updateProps(e.target.checked)}
             />
         } label={p.prop.label}
         />;
@@ -145,11 +137,18 @@ export const PropertiesEditor = () => {
 
     const PropertiesSection = properties.map((p, i) => {
         const value = getPropertyValue(p)
+        function updateProps(value: any) {
+            dispatch(elementPropertyChangedAction({
+                elements: selectedIds.filter(element => element.type === p.kind),
+                propertyName: p.prop.name,
+                value
+            }))}
+
         return (
             <Box display="flex" flexDirection="column" p={2} key={i}>
-                {p.prop.type === PropertyType.String && stringPropertyEditor(p, value as string)}
-                {p.prop.type === PropertyType.Boolean && BooleanPropertyEditor(p, value as boolean)}
-                {p.prop.type === PropertyType.ShapeStyle && <ShapeStylePropertyEditor propAndKind={p} value = {value as ShapeStyle}/>}
+                {p.prop.type === PropertyType.String && StringPropertyEditor(p, value as string, updateProps)}
+                {p.prop.type === PropertyType.Boolean && BooleanPropertyEditor(p, value as boolean, updateProps)}
+                {p.prop.type === PropertyType.ShapeStyle && <ShapeStylePropertyEditor propAndKind={p} value = {value as ShapeStyle} updateProps={updateProps}/>}
             </Box>
 
         );

@@ -77,4 +77,16 @@ export const defaultShapeStyle: ShapeStyle = {
     fillColor: "cornsilk"
 }
 
+export const pinkShapeStyle: ShapeStyle = {
+    strokeColor: "#F58527",
+    fillColor: "#FDECDE"
+}
+
+export const leafShapeStyle: ShapeStyle = {
+    strokeColor: "#9EBD5D",
+    fillColor: "#F4F7EC"
+}
+
+
+
 

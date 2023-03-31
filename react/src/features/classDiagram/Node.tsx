@@ -59,8 +59,8 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     return (
         <React.Fragment>
             <Rect
-                fill={"cornsilk"}
-                stroke={"burlywood"}
+                fill={node.shapeStyle.fillColor}
+                stroke={node.shapeStyle.strokeColor}
                 {...placement.bounds}
                 cornerRadius={10}
                 cursor={"crosshair"}

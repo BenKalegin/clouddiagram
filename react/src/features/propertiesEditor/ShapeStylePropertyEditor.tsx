@@ -1,139 +1,96 @@
-import {ShapeStyle} from "../../package/packageModel";
-import React from "react";
+import {defaultShapeStyle, leafShapeStyle, pinkShapeStyle, ShapeStyle} from "../../package/packageModel";
+import React, {useState} from "react";
 import {
-    Button,
     ButtonGroup,
-    ClickAwayListener,
     FormControlLabel,
-    Grow,
-    IconButton,
-    MenuList,
-    Paper,
-    Popper, SvgIcon
+    IconButton, Menu,
+    SvgIcon
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
 import {PropAndKind} from "./PropertiesEditor";
 
-function shapeStyleIcon(fill: string, stroke: string) {
-    return <SvgIcon>
-        <svg viewBox="0 0 100 80">
-            <rect
-                rx="15"
-                ry="15"
-                y="10"
-                x="10"
-                height="60"
-                width="80"
-                fill={fill}
-                stroke={stroke}
-                strokeWidth={2}
-            />
-        </svg>
-    </SvgIcon>;
+const ShapeStyleIcon: React.FC<ShapeStyle> = (props:ShapeStyle) => {
+    return (
+        <SvgIcon>
+            <svg viewBox="0 0 100 80">
+                <rect
+                    rx="15"
+                    ry="15"
+                    y="10"
+                    x="10"
+                    height="60"
+                    width="80"
+                    fill={props.fillColor}
+                    stroke={props.strokeColor}
+                    strokeWidth={2}
+                />
+            </svg>
+        </SvgIcon>
+    );
 }
-
 interface ShapeStylePropertyEditorProps{
-   propAndKind: PropAndKind
+    propAndKind: PropAndKind
     value: ShapeStyle
+    updateProps: (value: any) => void
 }
 
-export const ShapeStylePropertyEditor: React.FC<ShapeStylePropertyEditorProps> = ( props: ShapeStylePropertyEditorProps ) => {
-    // const anchorRef = React.useRef<HTMLDivElement>(null);
-    const [popupOpen, setPopupOpen] = React.useState(false);
-    // const [selectedIndex, setSelectedIndex] = React.useState(1);
-
-    const options = ['Create a merge commit', 'Squash and merge', 'Rebase and merge'];
-
-    const handleClick = () => {
-        console.info(`You clicked`);
+export const ShapeStylePropertyEditor: React.FC<ShapeStylePropertyEditorProps> = (props: ShapeStylePropertyEditorProps ) => {
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const handleClose = () => {
+        setAnchorEl(null);
     };
 
-    const handleMenuItemClick = (
-        event: React.MouseEvent<HTMLLIElement, MouseEvent>,
-        index: number,
-    ) => {
-        //setSelectedIndex(index);
-        //setPopupOpen(false);
+    const handleItemClick = (shapeStyle: ShapeStyle) => {
+        props.updateProps(shapeStyle);
+        handleClose();
     };
 
-    const handleToggle = () => {
-        //setPopupOpen((prevOpen) => !prevOpen);
+    const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
     };
 
-    const handleClose = (event: Event) => {
-        // if (
-        //     // anchorRef.current &&
-        //     // anchorRef.current.contains(event.target as HTMLElement)
-        // ) {
-        //     return;
-        // }
+    const shapeStyles: ShapeStyle[] = [
+        defaultShapeStyle,
+        pinkShapeStyle,
+        leafShapeStyle
+    ]
 
-        //setPopupOpen(false);
-    };
-
-    return <FormControlLabel control={
-        <>
-            <ButtonGroup variant="text" aria-label="split button">
-                <IconButton
-                    aria-label="change color"
-                    sx={{
-                        borderRadius: "10%"
-                    }}
-                >
-                    {shapeStyleIcon(props.value.fillColor, props.value.strokeColor)}
-                </IconButton>
-                {/*<Button onClick={handleClick}>{options[selectedIndex]}</Button>*/}
-                <Button
-                    size="small"
-                    // aria-controls={popupOpen ? 'split-button-menu' : undefined}
-                    // aria-expanded={popupOpen ? 'true' : undefined}
-                    aria-label="select merge strategy"
-                    aria-haspopup="menu"
-                    onClick={handleToggle}
-                >
-                    <ArrowDropDownIcon/>
-                </Button>
-            </ButtonGroup>
-            <Popper
-                sx={{
-                    zIndex: 1,
-                }}
-                open={false}
-                // open={popupOpen}
-                // anchorEl={anchorRef.current}
-                role={undefined}
-                transition
-                disablePortal
-            >
-                {({TransitionProps, placement}) => (
-                    <Grow
-                        {...TransitionProps}
-                        style={{
-                            transformOrigin:
-                                placement === 'bottom' ? 'center top' : 'center bottom',
-                        }}
+    const popupOpen = Boolean(anchorEl);
+    return (
+            <FormControlLabel control={
+                <>
+                    <ButtonGroup variant="text" aria-label="split button">
+                        <IconButton
+                            aria-label="change color"
+                            sx={{
+                                borderRadius: "10%"
+                            }}
+                            onClick={handleOpenMenu}
+                        >
+                            <ShapeStyleIcon {...props.value} />
+                            <ArrowDropDownIcon/>
+                        </IconButton>
+                    </ButtonGroup>
+                    <Menu
+                        onClose={handleClose}
+                        anchorEl={anchorEl}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                        open={popupOpen}
                     >
-                        <Paper>
-                            <ClickAwayListener onClickAway={handleClose}>
-                                <MenuList id="split-button-menu" autoFocusItem>
-                                    {options.map((option, index) => (
-                                        <MenuItem
-                                            key={option}
-                                            disabled={index === 2}
-                                            // selected={index === selectedIndex}
-                                            onClick={(event) => handleMenuItemClick(event, index)}
-                                        >
-                                            {option}
-                                        </MenuItem>
-                                    ))}
-                                </MenuList>
-                            </ClickAwayListener>
-                        </Paper>
-                    </Grow>
-                )}
-            </Popper>
-        </>
-    } label={props.propAndKind.prop.label}
-    />;
-};
+                        {shapeStyles.map((shapeStyle, i) => (
+                            <MenuItem key={i} onClick={() => handleItemClick(shapeStyle)}>
+                            <ShapeStyleIcon {...shapeStyle} />
+                            </MenuItem>
+                            ))
+                        }
+                    </Menu>
+                </>
+            }
+             label={props.propAndKind.prop.label}
+            />
+
+    );
+}
+
