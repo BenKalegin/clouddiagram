@@ -8,7 +8,7 @@ import {
     LinkState,
     NodeState,
     PortAlignment,
-    PortState
+    PortState, defaultShapeStyle
 } from "../../package/packageModel";
 import {selector, selectorFamily} from "recoil";
 import {
@@ -232,7 +232,8 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
         type: ElementType.ClassNode,
         id: generateId(),
         text: name,
-        ports: []
+        ports: [],
+        shapeStyle: defaultShapeStyle
     };
 
     const placement: NodePlacement = {

@@ -1,20 +1,22 @@
-import {Box, Button, Divider, FormControlLabel, ListItem, Switch, TextField} from "@mui/material";
+import {Box, Button, Divider, FormControlLabel, ListItem, SvgIcon, Switch, TextField} from "@mui/material";
 import List from "@mui/material/List";
 import React from "react";
 import {useRecoilValue} from "recoil";
 import {selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
-import {ElementType} from "../../package/packageModel";
+import {ElementType, ShapeStyle} from "../../package/packageModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
-import {
-    elementPropertyChangedAction, elementCommandAction,
-    useDispatch
-} from "../diagramEditor/diagramEditorSlice";
+import {elementCommandAction, elementPropertyChangedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {ShapeStylePropertyEditor} from "./ShapeStylePropertyEditor";
 
 
-enum PropertyType {
+export enum PropertyType {
     String,
     Boolean,
+    ShapeStyle,
 }
+
+export type PropAndKind = {kind: ElementType, prop: PropertyDefinition}
+
 
 interface PropertyDefinition {
     name: string;
@@ -37,10 +39,13 @@ interface CommandDefinition {
 
 // TODO split by features
 const textProp = {name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false};
+const shapeStyleProp = {name: "shapeStyle", label: "Shape Style", type: PropertyType.ShapeStyle, supportMultiEdit: true}
+
+
 function getPropertyList(type: ElementType): PropertyDefinition[] {
     switch (type) {
         case ElementType.ClassNode:
-            return [textProp];
+            return [textProp, shapeStyleProp];
         case ElementType.SequenceLifeLine:
             return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}];
         case ElementType.SequenceMessage:
@@ -72,6 +77,8 @@ function getActionList(type: ElementType): CommandDefinition[] {
     }
 }
 
+
+
 export const PropertiesEditor = () => {
     const diagramId = useRecoilValue(activeDiagramIdAtom)
     const selectedIds = useRecoilValue(selectedRefsSelector(diagramId))
@@ -80,7 +87,7 @@ export const PropertiesEditor = () => {
     const selectedKinds = [...new Set(selectedIds.map(element => element.type))]
     const dispatch = useDispatch()
 
-    type PropAndKind = {kind: ElementType, prop: PropertyDefinition}
+
     const properties = selectedKinds
         .flatMap(kind => getPropertyList(kind).map<PropAndKind>(prop => ({kind, prop: prop})))
         .filter(({kind, prop}) => prop.supportMultiEdit || selectedIds.length === 1)
@@ -107,36 +114,46 @@ export const PropertiesEditor = () => {
 
     }
 
-    const PropertiesSection = properties.map((p, i) => (
-        <Box display="flex" flexDirection="column" p={2}  key={i}>
-            {p.prop.type === PropertyType.String &&
-                <TextField
-                    label={p.prop.label}
-                    variant="outlined"
-                    size="small"
-                    value={getPropertyValue(p) || ""}
-                    onChange={e => dispatch(elementPropertyChangedAction({
-                        elements: selectedIds.filter(element => element.type === p.kind),
-                        propertyName: p.prop.name,
-                        value: e.target.value
-                    }))}
-                />}
-            {p.prop.type === PropertyType.Boolean &&
-                <FormControlLabel control={
-                    <Switch
-                        checked={getPropertyValue(p) === true}
-                        onChange={e => dispatch(elementPropertyChangedAction({
-                            elements: selectedIds.filter(element => element.type === p.kind),
-                            propertyName: p.prop.name,
-                            value: e.target.checked
-                        }))}
-                    />
-                } label={p.prop.label}
-                />
-            }
-        </Box>
+    function stringPropertyEditor(p: PropAndKind, value: string) {
+        return (
+            <TextField
+                label={p.prop.label}
+                variant="outlined"
+                size="small"
+                value={value || ""}
+                onChange={e => dispatch(elementPropertyChangedAction({
+                    elements: selectedIds.filter(element => element.type === p.kind),
+                    propertyName: p.prop.name,
+                    value: e.target.value
+                }))}
+            /> )
+    }
 
-    ));
+    function BooleanPropertyEditor(p: PropAndKind, value: boolean) {
+        return <FormControlLabel control={
+            <Switch
+                checked={value}
+                onChange={e => dispatch(elementPropertyChangedAction({
+                    elements: selectedIds.filter(element => element.type === p.kind),
+                    propertyName: p.prop.name,
+                    value: e.target.checked
+                }))}
+            />
+        } label={p.prop.label}
+        />;
+    }
+
+    const PropertiesSection = properties.map((p, i) => {
+        const value = getPropertyValue(p)
+        return (
+            <Box display="flex" flexDirection="column" p={2} key={i}>
+                {p.prop.type === PropertyType.String && stringPropertyEditor(p, value as string)}
+                {p.prop.type === PropertyType.Boolean && BooleanPropertyEditor(p, value as boolean)}
+                {p.prop.type === PropertyType.ShapeStyle && <ShapeStylePropertyEditor propAndKind={p} value = {value as ShapeStyle}/>}
+            </Box>
+
+        );
+    });
 
     const actionsSection = <List>
         {commands.map((a,i) => (

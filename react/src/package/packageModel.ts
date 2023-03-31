@@ -18,6 +18,11 @@ export interface ElementRef {
     type: ElementType
 }
 
+export interface ShapeStyle {
+    strokeColor: string;
+    fillColor: string;
+}
+
 export interface DiagramElement extends ElementRef {
 }
 
@@ -57,12 +62,19 @@ export interface PortState extends DiagramElement {
 
 export interface NodeState extends DiagramElement {
     text: string;
+    shapeStyle: ShapeStyle
     ports: Id[];
 }
 
 export interface LinkState extends DiagramElement {
     port1: Id;
     port2: Id;
+}
+
+
+export const defaultShapeStyle: ShapeStyle = {
+    strokeColor: "burlywood",
+    fillColor: "cornsilk"
 }
 
 

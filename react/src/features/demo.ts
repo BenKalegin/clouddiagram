@@ -10,7 +10,16 @@ import {
     MessageState,
     SequenceDiagramState
 } from "./sequenceDiagram/sequenceDiagramModel";
-import {DiagramElement, ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../package/packageModel";
+import {
+    defaultShapeStyle,
+    DiagramElement,
+    ElementType,
+    Id,
+    LinkState,
+    NodeState,
+    PortAlignment,
+    PortState,
+} from "../package/packageModel";
 
 
 export const elements: {[id: Id]: DiagramElement } = {
@@ -76,6 +85,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
             port13.id
         ],
         text: "Alice",
+        shapeStyle: defaultShapeStyle
     };
     elements[node1.id] = node1;
 
@@ -119,6 +129,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
             port2.id,
         ],
         text: "Bob",
+        shapeStyle: defaultShapeStyle
     };
     elements[node2.id] = node2;
 
