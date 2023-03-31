@@ -68,6 +68,7 @@ export const Background = (props: BackgroundProps) => {
                         currentPointerPos: screenToCanvas(e)}));
                 }
             }
+            onClick={handleDrawerClose}
             onDblClick={handleDrawerClose}
         />
     );
