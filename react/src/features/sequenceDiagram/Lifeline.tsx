@@ -122,6 +122,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 key={i}
                 activationId={activation}
                 diagramId={diagramId}
+                shapeStyle={lifeline.shapeStyle}
             />
         )
         }

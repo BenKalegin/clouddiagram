@@ -2,13 +2,15 @@ import {Rect} from "react-konva";
 import {useRecoilValue} from "recoil";
 import {PortId, activationRenderSelector} from "./sequenceDiagramModel";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {ShapeStyle} from "../../package/packageModel";
 
 export interface ActivationProps {
     activationId: PortId
     diagramId: DiagramId
+    shapeStyle: ShapeStyle
 }
 
-export const Activation = ({activationId, diagramId}: ActivationProps) => {
+export const Activation = ({activationId, diagramId, shapeStyle}: ActivationProps) => {
 
     const render = useRecoilValue(activationRenderSelector({activationId, diagramId}))
     const linking = useRecoilValue(linkingAtom)
@@ -16,8 +18,8 @@ export const Activation = ({activationId, diagramId}: ActivationProps) => {
     const linkingSource = linking?.sourceElement;
     return (
         <Rect
-            fill={"cornsilk"}
-            stroke={"peru"}
+            fill={shapeStyle.fillColor}
+            stroke={shapeStyle.strokeColor}
             strokeWidth={1}
             shadowEnabled={activationId === linkingTarget?.id || activationId === linkingSource}
             shadowColor={'black'}
