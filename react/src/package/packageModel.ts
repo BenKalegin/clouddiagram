@@ -23,6 +23,12 @@ export interface ShapeStyle {
     fillColor: string;
 }
 
+export interface LineStyle {
+    strokeColor: string;
+    fillColor: string;
+    width: number;
+}
+
 export interface DiagramElement extends ElementRef {
 }
 
@@ -72,24 +78,36 @@ export interface LinkState extends DiagramElement {
 }
 
 
+const khakiStrokeColor = "burlywood";
+const khakiFillColor = "cornsilk";
+
+const pinkStrokeColor = "lightcoral";
+const pinkFillColor = "mistyrose";
+
+const leafStrokeColor = "#9EBD5D";
+const leafFillColor = "#F4F7EC";
+
+const steelStrokeColor = "#AEBFD1"; // darker "lightsteelblue",
+const steelFillColor = "#F0F5FF"; // "lightsteelblue" + 20% ligghter
+
 export const defaultShapeStyle: ShapeStyle = {
-    strokeColor: "burlywood", // "peru"
-    fillColor: "cornsilk"
+    strokeColor: khakiStrokeColor, // "peru"
+    fillColor: khakiFillColor
 }
 
 const pinkShapeStyle: ShapeStyle = {
-    strokeColor: "lightcoral",
-    fillColor: "mistyrose"
+    strokeColor: pinkStrokeColor,
+    fillColor: pinkFillColor
 }
 
 const leafShapeStyle: ShapeStyle = {
-    strokeColor: "#9EBD5D",
-    fillColor: "#F4F7EC"
+    strokeColor: leafStrokeColor,
+    fillColor: leafFillColor
 }
 
 const steelShapeStyle: ShapeStyle = {
-    strokeColor: "#AEBFD1", // darker "lightsteelblue",
-    fillColor: "#F0F5FF" // "lightsteelblue" + 20% ligghter
+    strokeColor: steelStrokeColor,
+    fillColor: steelFillColor
 }
 
 export const shapeStyleList: ShapeStyle[] = [
@@ -99,6 +117,36 @@ export const shapeStyleList: ShapeStyle[] = [
     steelShapeStyle
 ]
 
+export const defaultLineStyle: LineStyle = {
+    width: 2,
+    strokeColor: khakiStrokeColor,
+    fillColor: khakiStrokeColor
+}
+
+const pinkLineStyle: LineStyle = {
+    width: 2,
+    strokeColor: pinkStrokeColor,
+    fillColor: pinkStrokeColor
+}
+
+const leafLineStyle: LineStyle = {
+    width: 2,
+    strokeColor: leafStrokeColor,
+    fillColor: leafStrokeColor
+}
+
+const steelLineStyle: LineStyle = {
+    width: 2,
+    strokeColor: steelStrokeColor,
+    fillColor: steelStrokeColor
+}
+
+export const lineStyleList: LineStyle[] = [
+    defaultLineStyle,
+    pinkLineStyle,
+    leafLineStyle,
+    steelLineStyle
+]
 
 
 

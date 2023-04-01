@@ -3,16 +3,18 @@ import List from "@mui/material/List";
 import React from "react";
 import {useRecoilValue} from "recoil";
 import {selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
-import {ElementType, ShapeStyle} from "../../package/packageModel";
+import {ElementType, LineStyle, ShapeStyle} from "../../package/packageModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {elementCommandAction, elementPropertyChangedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ShapeStylePropertyEditor} from "./ShapeStylePropertyEditor";
+import {LineStylePropertyEditor} from "./LineStylePropertyEditor";
 
 
 export enum PropertyType {
     String,
     Boolean,
     ShapeStyle,
+    LineStyle,
 }
 
 export type PropAndKind = {kind: ElementType, prop: PropertyDefinition}
@@ -40,6 +42,7 @@ interface CommandDefinition {
 // TODO split by features
 const textProp = {name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false};
 const shapeStyleProp = {name: "shapeStyle", label: "Shape Style", type: PropertyType.ShapeStyle, supportMultiEdit: true}
+const lineStyleProp = {name: "lineStyle", label: "Line Style", type: PropertyType.LineStyle, supportMultiEdit: true}
 
 
 function getPropertyList(type: ElementType): PropertyDefinition[] {
@@ -50,7 +53,7 @@ function getPropertyList(type: ElementType): PropertyDefinition[] {
             return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}, shapeStyleProp];
         case ElementType.SequenceMessage:
             return [
-                textProp,
+                textProp, lineStyleProp,
                 {name: "isReturn", label: "Is Return", type: PropertyType.Boolean, supportMultiEdit: false}
             ];
         default:
@@ -149,6 +152,7 @@ export const PropertiesEditor = () => {
                 {p.prop.type === PropertyType.String && StringPropertyEditor(p, value as string, updateProps)}
                 {p.prop.type === PropertyType.Boolean && BooleanPropertyEditor(p, value as boolean, updateProps)}
                 {p.prop.type === PropertyType.ShapeStyle && <ShapeStylePropertyEditor propAndKind={p} value = {value as ShapeStyle} updateProps={updateProps}/>}
+                {p.prop.type === PropertyType.LineStyle && <LineStylePropertyEditor propAndKind={p} value = {value as LineStyle} updateProps={updateProps}/>}
             </Box>
 
         );

@@ -11,6 +11,7 @@ import {
     SequenceDiagramState
 } from "./sequenceDiagram/sequenceDiagramModel";
 import {
+    defaultLineStyle,
     defaultShapeStyle,
     DiagramElement,
     ElementType,
@@ -256,7 +257,8 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         sourceActivationOffset: 10,
         placement: {
             x: 0, y: 0, points: []
-        }
+        },
+        lineStyle: defaultLineStyle,
     }
 
 

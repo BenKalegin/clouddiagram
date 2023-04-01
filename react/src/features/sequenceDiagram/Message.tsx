@@ -30,10 +30,10 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
     return (
         <Group>
             <Arrow
-                fill={"burlywood"}
-                stroke={'burlywood'}
+                fill={message.lineStyle.fillColor}
+                stroke={message.lineStyle.strokeColor}
                 dash={dash}
-                strokeWidth={2}
+                strokeWidth={message.lineStyle.width}
                 pointerLength={8}
                 pointerWidth={6}
                 tension={undefined}

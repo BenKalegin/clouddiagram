@@ -1,5 +1,13 @@
 import {Bounds, Coordinate, Diagram, withinBounds, withinXBounds, withinYBounds, zeroBounds} from "../../common/model";
-import {DiagramElement, ElementType, Id, ElementRef, ShapeStyle, defaultShapeStyle} from "../../package/packageModel";
+import {
+    DiagramElement,
+    ElementType,
+    Id,
+    ElementRef,
+    ShapeStyle,
+    defaultShapeStyle,
+    LineStyle, defaultLineStyle
+} from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom,} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
@@ -64,6 +72,7 @@ export interface MessageState extends DiagramElement {
     activation2: Id
     sourceActivationOffset: number
     placement: MessagePlacement
+    lineStyle: LineStyle
 }
 
 export interface SequenceDiagramState extends Diagram {
@@ -353,6 +362,7 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, target:
             activation1: sourceActivationId,
             activation2: targetActivationId,
             sourceActivationOffset: diagramPos.y - sourceActivationBounds!.y,
+            lineStyle: defaultLineStyle
         }
     })
 
