@@ -54,7 +54,8 @@ function getPropertyList(type: ElementType): PropertyDefinition[] {
         case ElementType.SequenceMessage:
             return [
                 textProp, lineStyleProp,
-                {name: "isReturn", label: "Is Return", type: PropertyType.Boolean, supportMultiEdit: false}
+                {name: "isReturn", label: "Is Return", type: PropertyType.Boolean, supportMultiEdit: false},
+                {name: "isAsync", label: "Is Asynchronous", type: PropertyType.Boolean, supportMultiEdit: false},
             ];
         default:
             return [];

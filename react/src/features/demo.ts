@@ -249,6 +249,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
 
     const message1: MessageState =
     {
+        isAsync: false,
         type: ElementType.SequenceMessage,
         isReturn: false,
         id: 'message1',
@@ -258,7 +259,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         placement: {
             x: 0, y: 0, points: []
         },
-        lineStyle: defaultLineStyle,
+        lineStyle: defaultLineStyle
     }
 
 

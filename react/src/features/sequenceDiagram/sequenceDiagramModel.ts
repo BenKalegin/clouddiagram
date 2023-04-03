@@ -67,6 +67,7 @@ export interface MessagePlacement {
 
 export interface MessageState extends DiagramElement {
     isReturn: boolean
+    isAsync: boolean
     text?: string
     activation1: Id
     activation2: Id
@@ -359,6 +360,7 @@ export function autoConnectActivations(get: Get, set: Set, sourceId: Id, target:
             type: ElementType.SequenceMessage,
             id: messageId,
             isReturn: false,
+            isAsync: false,
             activation1: sourceActivationId,
             activation2: targetActivationId,
             sourceActivationOffset: diagramPos.y - sourceActivationBounds!.y,
