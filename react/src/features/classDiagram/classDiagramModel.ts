@@ -17,12 +17,13 @@ import {
     emptyElementSentinel,
     generateId,
     Linking,
-    linkingAtom
+    linkingAtom, snapGridSizeAtom
 } from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {Command} from "../propertiesEditor/PropertiesEditor";
 import produce, {Draft} from "immer";
+import {snapToGrid} from "../../common/Geometry/snap";
 
 export type NodePlacement = {
     bounds: Bounds
@@ -256,12 +257,16 @@ export function moveElement(get: Get, set: Set, element: ElementRef, currentPoin
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
     const nodePlacement = diagram.nodes[element.id];
+    const pos = snapToGrid({
+        x: startNodePos.x + currentPointerPos.x - startPointerPos.x,
+        y: startNodePos.y + currentPointerPos.y - startPointerPos.y
+    }, get(snapGridSizeAtom))
+
     const updatedNodePlacement = {
         ...nodePlacement,
         bounds: {
             ...nodePlacement.bounds,
-            x: startNodePos.x + currentPointerPos.x - startPointerPos.x,
-            y: startNodePos.y + currentPointerPos.y - startPointerPos.y
+            ...pos
         }
     }
     const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [element.id]: updatedNodePlacement}};
