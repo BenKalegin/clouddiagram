@@ -31,8 +31,8 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
 
     const dash = message.isReturn ? [5, 4] : undefined;
 
-    const pointerLength = 10;
-    const pointerWidth = 7;
+    const pointerLength = 11;
+    const pointerWidth = 8;
     const pointerAtEnding = true;
     const pointerAtBeginning = false;
 
@@ -93,7 +93,7 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
         const PI2 = Math.PI * 2;
 
         const points = render.points;
-        const length = pointerLength;
+        const length = isAsync ? pointerLength : pointerLength * 0.8;
 
         const n = points.length;
 
