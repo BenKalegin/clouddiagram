@@ -1,23 +1,59 @@
 import {NoteId, noteSelector} from "./commonComponentsModel";
-import {DiagramId, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
-import {Group, Rect, Text} from "react-konva";
+import {DiagramId, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
+import {Group, Shape, Text} from "react-konva";
 import {useRecoilValue} from "recoil";
+import {Scaffold} from "../scaffold/Scaffold";
+import {ElementRef, ElementType} from "../../package/packageModel";
+import {DrawingMessage} from "../sequenceDiagram/DrawingMessage";
+import React from "react";
+import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 
 export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId }) => {
     const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(noteId)
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === noteId;
+    const linking = useRecoilValue(linkingAtom)
+    const dispatch = useDispatch()
 
     const note = useRecoilValue(noteSelector({noteId, diagramId}))
-
+    const cornerSize = 10;
+    const width = note.bounds.width;
+    const height = note.bounds.height;
     return (
         <Group>
-            <Rect
-                {...note.bounds}
-                fill="white"
-                stroke="black"
-                strokeWidth={0.5}
-                cornerRadius={0}
+            <Shape
+                x={note.bounds.x}
+                y={note.bounds.y}
+                fill="lightyellow"
+                stroke="darkgrey"
+                strokeWidth={1}
+
+                sceneFunc={(context, shape) => {
+                    context.beginPath();
+                    context.moveTo(0, 0);
+                    context.lineTo(width - cornerSize, 0);
+                    context.lineTo(width, cornerSize);
+                    context.lineTo(width, height);
+                    context.lineTo(0, height);
+                    context.lineTo(0, 0);
+                    context.closePath();
+                    context.fillStrokeShape(shape);
+
+                    context.beginPath();
+                    context.moveTo(width - cornerSize, 0);
+                    context.lineTo(width - cornerSize, cornerSize);
+                    context.lineTo(width, cornerSize);
+                    context.closePath();
+                    context.strokeShape(shape);
+                }}
+
+                onClick={(e) => {
+                    console.log(e)
+                    const element: ElementRef = {id: noteId, type: ElementType.Note}
+                    dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
+                }}
+                draggable={true}
+
             />
             <Text
                 text={note.text}
@@ -25,7 +61,20 @@ export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId
                 {...note.bounds}
                 align={"center"}
                 verticalAlign={"middle"}
+                draggable={false}
+                listening={false}
+                preventDefault={true}
             />
+            {isSelected && <Scaffold
+                element={{id: noteId, type: ElementType.Note}}
+                bounds={{...note.bounds}}
+                excludeDiagonalResize={false}
+                excludeVerticalResize={false}
+                isFocused={isFocused}
+                isLinking={linking?.drawing === true}
+                linkingDrawing={<DrawingMessage/> }
+            />}
+
         </Group>
     )
 }

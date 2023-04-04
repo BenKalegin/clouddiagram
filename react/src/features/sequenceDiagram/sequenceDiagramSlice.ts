@@ -71,6 +71,7 @@ class SequenceDiagramEditor implements DiagramEditor {
             case ElementType.SequenceLifeLine: return (diagram as SequenceDiagramState).lifelines[ref.id]
             case ElementType.SequenceActivation: return (diagram as SequenceDiagramState).activations[ref.id]
             case ElementType.SequenceMessage: return (diagram as SequenceDiagramState).messages[ref.id]
+            case ElementType.Note: return (diagram as SequenceDiagramState).notes[ref.id]
             default:
                 throw new Error(`Unknown element type: ${ref.type}`)
         }
