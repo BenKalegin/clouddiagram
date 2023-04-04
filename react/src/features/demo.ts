@@ -21,6 +21,7 @@ import {
     PortAlignment,
     PortState,
 } from "../package/packageModel";
+import {NoteState} from "./commonComponents/commonComponentsModel";
 
 
 export const elements: {[id: Id]: DiagramElement } = {
@@ -177,6 +178,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         ports: portPlacements,
         links: linkPlacements,
         modalDialog: undefined,
+        notes: {},
     };
 };
 
@@ -271,13 +273,31 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         [activation1.id]: activation1,
         [activation2.id]: activation2
     }
+
+    const note1: NoteState = {
+        type: ElementType.Note,
+        id: 'note1',
+        text:
+            'This is how we connect Alice to Bob',
+        bounds: {
+            x: 400,
+            y: 120,
+            width: 160,
+            height: 60
+        }
+    }
+    const notes: { [id: Id]: NoteState } = {
+        [note1.id]: note1
+    }
+
     return {
         lifelines,
         messages,
         activations,
         type: ElementType.SequenceDiagram,
         id: 'sequence-d-1',
-        title: 'Demo Sequence Diagram'
+        title: 'Demo Sequence Diagram',
+        notes: notes
     } as SequenceDiagramState
 }
 

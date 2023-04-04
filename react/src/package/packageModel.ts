@@ -11,6 +11,7 @@ export enum ElementType {
     SequenceLifeLine,
     SequenceMessage,
     SequenceActivation,
+    Note,
 }
 
 export interface ElementRef {

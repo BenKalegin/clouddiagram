@@ -1,4 +1,5 @@
 import {DiagramElement, ElementRef} from "../package/packageModel";
+import {NoteId, NoteState} from "../features/commonComponents/commonComponentsModel";
 
 export interface Coordinate {
     y: number;
@@ -55,6 +56,7 @@ export const center = (bounds: Bounds): Coordinate => ({
 export interface Diagram extends DiagramElement{
     title?: string
     selectedElements: ElementRef[]
+    notes: {[id: NoteId]: NoteState}
 }
 
 
