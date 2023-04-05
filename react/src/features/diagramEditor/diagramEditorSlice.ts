@@ -206,7 +206,6 @@ const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: 
 
 
 function handleElementSelection(get: Get, set: Set, idAndKind: ElementRef | undefined, shiftKey: boolean, ctrlKey: boolean) {
-    console.log("handleElementSelection", idAndKind)
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as Diagram;
     if (!idAndKind) {

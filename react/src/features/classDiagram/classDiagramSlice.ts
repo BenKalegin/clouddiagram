@@ -11,7 +11,7 @@ import {
 import {
     addNewElementAt,
     addNodeAndConnect,
-    autoConnectNodes, findNodeAtPos, findPortAtPos, handleClassCommand,
+    autoConnectNodes, ClassDiagramState, findNodeAtPos, findPortAtPos, handleClassCommand,
     handleClassElementPropertyChanged,
     moveElement,
     nodePropertiesDialog,
@@ -68,7 +68,7 @@ class ClassDiagramEditor implements DiagramEditor {
         addNodeAndConnect(get, set, name)
     }
 
-    getElement(get: Get, ref: ElementRef): DiagramElement {
+    getElement(get: Get, ref: ElementRef, diagram: ClassDiagramState): DiagramElement {
         switch (ref.type)
         {
             case ElementType.ClassNode: return get(elementsAtom(ref.id));

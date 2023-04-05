@@ -6,11 +6,13 @@ import {classDiagramSelector} from "./classDiagramModel";
 import {useRecoilValue} from "recoil";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
 import {EmptyDiagramHint} from "../diagramEditor/EmptyDiagramHint";
+import {Note} from "../commonComponents/Note";
 
 export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
     const diagram = useRecoilValue(classDiagramSelector(diagramId))
 
     const nodeIds = Object.keys(diagram.nodes);
+    const notes = Object.values(diagram.notes);
     const linkIds = Object.keys(diagram.links);
 
     return (
@@ -33,6 +35,12 @@ export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
                     />
                 )
             })}
+            {notes.map((note, i) =>
+                <Note
+                    key={i}
+                    noteId={note.id}
+                    diagramId={diagramId}
+                />)}
             {(nodeIds.length === 0) && (linkIds.length === 0) && <EmptyDiagramHint/> }
         </Layer>
     )

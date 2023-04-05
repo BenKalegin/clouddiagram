@@ -162,6 +162,12 @@ export function handleSequenceMoveElement(get: Get, set: Set, phase: ElementMove
                 }
                 message.sourceActivationOffset = activationOffset
                 break;
+
+            case ElementType.Note:
+                const note = draft.notes[elementId.id]
+                note.bounds.x = currentPointerPos.x - startPointerPos.x + startNodePos.x
+                note.bounds.y = currentPointerPos.y - startPointerPos.y + startNodePos.y
+                break;
         }
     })
 

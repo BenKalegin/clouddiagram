@@ -51,7 +51,11 @@ export const selectedElementsSelector = selectorFamily<ElementRef[], DiagramId>(
         const diagram = get(elementsAtom(diagramId)) as Diagram
         const refs = diagram.selectedElements || []
         const diagramEditor  = diagramEditors[diagram.type];
-        return (refs.map(ref => diagramEditor.getElement(get, ref, diagram)))
+        return (refs.map(ref => {
+            if (ref.type === ElementType.Note)
+                return diagram.notes[ref.id];
+            return diagramEditor.getElement(get, ref, diagram);
+        }))
     }
 })
 

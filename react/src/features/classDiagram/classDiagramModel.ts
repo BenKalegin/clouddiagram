@@ -1,14 +1,15 @@
 import {Bounds, Coordinate, Diagram, withinBounds} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {
+    defaultShapeStyle,
     DiagramElement,
+    ElementRef,
     ElementType,
     Id,
-    ElementRef,
     LinkState,
     NodeState,
     PortAlignment,
-    PortState, defaultShapeStyle
+    PortState
 } from "../../package/packageModel";
 import {selector, selectorFamily} from "recoil";
 import {
@@ -17,7 +18,8 @@ import {
     emptyElementSentinel,
     generateId,
     Linking,
-    linkingAtom, snapGridSizeAtom
+    linkingAtom,
+    snapGridSizeAtom
 } from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
@@ -255,22 +257,28 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
 
 export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
-    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-    const nodePlacement = diagram.nodes[element.id];
-    const pos = snapToGrid({
-        x: startNodePos.x + currentPointerPos.x - startPointerPos.x,
-        y: startNodePos.y + currentPointerPos.y - startPointerPos.y
-    }, get(snapGridSizeAtom))
+    const originalDiagram = get(elementsAtom(diagramId)) as ClassDiagramState;
 
-    const updatedNodePlacement = {
-        ...nodePlacement,
-        bounds: {
-            ...nodePlacement.bounds,
-            ...pos
-        }
+    function updateElementPos(bounds: Draft<Bounds>) {
+        const pos = snapToGrid({
+            x: startNodePos.x + currentPointerPos.x - startPointerPos.x,
+            y: startNodePos.y + currentPointerPos.y - startPointerPos.y
+        }, get(snapGridSizeAtom))
+        bounds.x = pos.x;
+        bounds.y = pos.y;
     }
-    const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [element.id]: updatedNodePlacement}};
-    set(elementsAtom(diagramId), updatedDiagram)
+
+    const update = produce(originalDiagram, (diagram: Draft<ClassDiagramState>) => {
+        switch (element.type) {
+            case ElementType.ClassNode:
+                updateElementPos(diagram.nodes[element.id].bounds);
+                break;
+            case ElementType.Note:
+                updateElementPos(diagram.notes[element.id].bounds);
+                break;
+        }
+    })
+    set(elementsAtom(diagramId), update)
 }
 
 export function resizeElement(get: Get, set: Set, nodeId: Id, suggestedBounds: Bounds) {

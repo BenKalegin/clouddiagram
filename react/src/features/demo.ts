@@ -169,6 +169,19 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
     }
 
 
+    const note1: NoteState = {
+        type: ElementType.Note,
+        id: 'note1',
+        text:
+            'This is how we connect Alice to Bob',
+        bounds: {
+            x: 300,
+            y: 120,
+            width: 160,
+            height: 60
+        }
+    }
+
     return {
         id: id,
         title: title,
@@ -178,7 +191,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         ports: portPlacements,
         links: linkPlacements,
         modalDialog: undefined,
-        notes: {},
+        notes: {[note1.id]: note1},
     };
 };
 
