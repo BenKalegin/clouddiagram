@@ -7,7 +7,7 @@ import {
     elementResizeAction,
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
-import {Id} from "../../package/packageModel";
+import {ElementRef} from "../../package/packageModel";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
 import Vector2d = Konva.Vector2d;
@@ -44,7 +44,7 @@ function isVertical (direction: ResizeHandleDirection): boolean {
 }
 
 export interface ResizeHandleProps {
-    elementId: Id
+    element: ElementRef
     cursor: string;
     handlerBounds: Bounds;
     direction: ResizeHandleDirection;
@@ -215,7 +215,7 @@ export const ResizeHandle = (props: ResizeHandleProps) => {
 
             dispatch(elementResizeAction({
                 phase: ElementMoveResizePhase.start,
-                elementId: props.elementId,
+                element: props.element,
                 suggestedBounds: props.nodeBounds,
             }))
         }}
@@ -226,7 +226,7 @@ export const ResizeHandle = (props: ResizeHandleProps) => {
                 const suggestedBounds = calculateResizedBounds(delta, props.nodeBounds, props.direction);
                 dispatch(elementResizeAction({
                     phase: ElementMoveResizePhase.move,
-                    elementId: props.elementId,
+                    element: props.element,
                     suggestedBounds: suggestedBounds
                 }));
             }
@@ -239,7 +239,7 @@ export const ResizeHandle = (props: ResizeHandleProps) => {
                 setStartBounds(undefined);
                 dispatch(elementResizeAction({
                     phase: ElementMoveResizePhase.end,
-                    elementId: props.elementId,
+                    element: props.element,
                     suggestedBounds: calculateResizedBounds(delta, props.nodeBounds, props.direction)
                 }));
             }
@@ -317,13 +317,13 @@ const resizeHandleCursor = (direction: ResizeHandleDirection): string => {
 export interface ResizeHandlesProps {
     perimeterBounds: Bounds
     nodeBounds: Bounds
-    elementId: Id
+    element: ElementRef
     excludeDiagonal?: boolean
     excludeVertical?: boolean
 }
 
 
-export const ResizeHandles = ({nodeBounds, perimeterBounds, elementId, excludeDiagonal, excludeVertical}: ResizeHandlesProps) => {
+export const ResizeHandles = ({nodeBounds, perimeterBounds, element, excludeDiagonal, excludeVertical}: ResizeHandlesProps) => {
 
     const [nodeStart] = React.useState<Bounds>(nodeBounds);
     return (
@@ -335,7 +335,7 @@ export const ResizeHandles = ({nodeBounds, perimeterBounds, elementId, excludeDi
                 .map((direction, index) =>
                 <ResizeHandle
                     key={index}
-                    elementId={elementId}
+                    element={element}
                     handlerBounds={resizeHandleBounds(direction, perimeterBounds)}
                     nodeBounds={nodeStart}
                     cursor={resizeHandleCursor(direction)}

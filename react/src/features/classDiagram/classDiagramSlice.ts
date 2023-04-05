@@ -32,8 +32,8 @@ class ClassDiagramEditor implements DiagramEditor {
             const {element, currentPointerPos, startNodePos, startPointerPos} = action.payload;
             moveElement(get, set, element, currentPointerPos, startPointerPos, startNodePos);
         }else if(elementResizeAction.match(action)){
-            const {elementId, suggestedBounds} = action.payload;
-            resizeElement(get, set, elementId, suggestedBounds);
+            const {element, suggestedBounds} = action.payload;
+            resizeElement(get, set, element, suggestedBounds);
         }else if(propertiesDialogAction.match(action)) {
             const {elementId, dialogResult} = action.payload;
             nodePropertiesDialog(get, set, elementId, dialogResult);

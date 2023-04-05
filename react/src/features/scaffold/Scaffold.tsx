@@ -78,7 +78,7 @@ export const Scaffold = (props: ScaffoldProps) => {
             <ResizeHandles
                 perimeterBounds={bounds}
                 nodeBounds={props.bounds}
-                elementId={props.element.id}
+                element={props.element}
                 excludeDiagonal={props.excludeDiagonalResize}
                 excludeVertical={props.excludeVerticalResize}
             />

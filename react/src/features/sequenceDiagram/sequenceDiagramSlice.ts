@@ -35,8 +35,8 @@ class SequenceDiagramEditor implements DiagramEditor {
             handleSequenceMoveElement(get, set, phase, element, currentPointerPos, startPointerPos, startNodePos);
         }
         else if (elementResizeAction.match(action)) {
-            const {phase, elementId, suggestedBounds} = action.payload;
-            handleSequenceResizeElement(get, set, phase, elementId, suggestedBounds);
+            const {phase, element, suggestedBounds} = action.payload;
+            handleSequenceResizeElement(get, set, phase, element, suggestedBounds);
         }else if (elementPropertyChangedAction.match(action)) {
             const {elements, propertyName, value} = action.payload;
             handleSequenceElementPropertyChanged(get, set, elements, propertyName, value);

@@ -26,7 +26,7 @@ export const elementMoveAction = createAction<{
 }>("editor/elementMove")
 
 export const elementResizeAction = createAction<{
-    elementId: Id
+    element: ElementRef
     phase: ElementMoveResizePhase
     suggestedBounds: Bounds
 }>("editor/elementResize")

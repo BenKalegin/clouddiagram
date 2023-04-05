@@ -175,15 +175,26 @@ export function handleSequenceMoveElement(get: Get, set: Set, phase: ElementMove
 
 }
 
-export function handleSequenceResizeElement(get: Get, set: Set, phase: ElementMoveResizePhase, elementId: Id, suggestedBounds: Bounds) {
+export function handleSequenceResizeElement(get: Get, set: Set, phase: ElementMoveResizePhase, element: ElementRef, suggestedBounds: Bounds) {
     const diagramId = get(activeDiagramIdAtom);
-    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
-    const placement = diagram.lifelines[elementId].placement
-    const width = Math.max(10, suggestedBounds.width);
-    const headBounds = {...placement.headBounds, width: width, x: suggestedBounds.x};
-    const newPlacement = {...placement, headBounds: headBounds}
-    const newDiagram = {...diagram, lifelines: {...diagram.lifelines, [elementId]: {...diagram.lifelines[elementId], placement: newPlacement}}}
-    set(elementsAtom(diagramId), newDiagram)
+    const originalDiagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+    const update = produce(originalDiagram, (diagram: Draft<SequenceDiagramState>) => {
+        switch (element.type) {
+            case ElementType.SequenceLifeLine:
+                const placement = diagram.lifelines[element.id].placement
+                placement.headBounds.x = suggestedBounds.x
+                placement.headBounds.width = Math.max(10, suggestedBounds.width)
+                break;
+            case ElementType.Note:
+                const note = diagram.notes[element.id]
+                note.bounds.x = suggestedBounds.x
+                note.bounds.y = suggestedBounds.y
+                note.bounds.width = Math.max(10, suggestedBounds.width)
+                note.bounds.height = Math.max(10, suggestedBounds.height)
+                break;
+        }
+    })
+    set(elementsAtom(diagramId), update)
 }
 
 

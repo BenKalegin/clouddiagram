@@ -281,23 +281,29 @@ export function moveElement(get: Get, set: Set, element: ElementRef, currentPoin
     set(elementsAtom(diagramId), update)
 }
 
-export function resizeElement(get: Get, set: Set, nodeId: Id, suggestedBounds: Bounds) {
+export function resizeElement(get: Get, set: Set, element: ElementRef, suggestedBounds: Bounds) {
     const diagramId = get(activeDiagramIdAtom);
-    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-    const nodePlacement = diagram.nodes[nodeId];
-    const newWidth = Math.max(10, suggestedBounds.width);
-    const newHeight = Math.max(10, suggestedBounds.height);
-    const updatedNodePlacement = {
-        ...nodePlacement,
-        bounds: {
-            x: suggestedBounds.x,
-            y: suggestedBounds.y,
-            width: newWidth,
-            height: newHeight
+    const originalDiagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+
+    const update = produce(originalDiagram, (diagram: Draft<ClassDiagramState>) => {
+        switch (element.type) {
+            case ElementType.ClassNode:
+                const bounds = diagram.nodes[element.id].bounds
+                bounds.x = suggestedBounds.x;
+                bounds.y = suggestedBounds.y;
+                bounds.width = Math.max(10, suggestedBounds.width);
+                bounds.height = Math.max(10, suggestedBounds.height);
+                break;
+            case ElementType.Note:
+                const noteBounds = diagram.notes[element.id].bounds
+                noteBounds.x = suggestedBounds.x;
+                noteBounds.y = suggestedBounds.y;
+                noteBounds.width = Math.max(10, suggestedBounds.width);
+                noteBounds.height = Math.max(10, suggestedBounds.height);
+                break;
         }
-    }
-    const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [nodeId]: updatedNodePlacement}};
-    set(elementsAtom(diagramId), updatedDiagram)
+    })
+    set(elementsAtom(diagramId), update)
 }
 
 export function nodePropertiesDialog(get: Get, set: Set, elementId: string, dialogResult: DialogOperation) {
