@@ -21,7 +21,7 @@ import {
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
 import {Coordinate} from "../../common/model";
-import {ElementType, ElementRef} from "../../package/packageModel";
+import {ElementType} from "../../package/packageModel";
 
 export interface LifelineProps {
     lifelineId: LifelineId
@@ -38,6 +38,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
     const dispatch = useDispatch()
     const linking = useRecoilValue(linkingAtom)
+    const element = { id: lifelineId, type: ElementType.SequenceLifeLine };
 
     return <Group>
         <Rect
@@ -53,7 +54,6 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             shadowOffset={{x: 2, y: 2}}
             shadowOpacity={0.4}
             onClick={(e) => {
-                const element: ElementRef = {id: lifelineId, type: ElementType.SequenceLifeLine}
                 dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
             }}
             draggable={true}
@@ -65,13 +65,12 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 const pos = screenToCanvas(e);
                 setStartNodePos(placement.headBounds);
                 setStartPointerPos(pos);
-                const element: ElementRef = {id: lifelineId, type: ElementType.SequenceLifeLine}
                 if (!isSelected)
                     dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
 
                 dispatch(elementMoveAction({
                     phase: ElementMoveResizePhase.start,
-                    element: { id: lifelineId, type: ElementType.SequenceLifeLine },
+                    element: element,
                     startNodePos: {x: placement.headBounds.x, y: placement.headBounds.y},
                     startPointerPos: pos,
                     currentPointerPos: pos}))
@@ -81,7 +80,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 if (startPointerPos && startNodePos)
                     dispatch(elementMoveAction({
                         phase: ElementMoveResizePhase.move,
-                        element: { id: lifelineId, type: ElementType.SequenceLifeLine },
+                        element,
                         startNodePos: startNodePos,
                         startPointerPos: startPointerPos,
                         currentPointerPos: screenToCanvas(e)}));
@@ -92,7 +91,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 if (startPointerPos && startNodePos)
                     dispatch(elementMoveAction({
                         phase: ElementMoveResizePhase.end,
-                        element: { id: lifelineId, type: ElementType.SequenceLifeLine },
+                        element,
                         startNodePos: startNodePos,
                         startPointerPos: startPointerPos,
                         currentPointerPos: screenToCanvas(e)}));
@@ -127,7 +126,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
         )
         }
         {isSelected && <Scaffold
-                element={{id: lifelineId, type: ElementType.SequenceLifeLine}}
+                element={element}
                 bounds={{
                     ...placement.headBounds,
                     height: placement.headBounds.y + placement.headBounds.height + placement.lifelineEnd
