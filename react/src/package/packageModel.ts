@@ -116,6 +116,11 @@ export const defaultNoteStyle: ShapeStyle = {
     fillColor: "white"
 }
 
+export const defaultNoteWidth = 120;
+export const defaultNoteHeight = 70;
+
+
+
 export const shapeStyleList: ShapeStyle[] = [
     defaultShapeStyle,
     pinkShapeStyle,

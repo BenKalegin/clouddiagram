@@ -27,8 +27,8 @@ import {DiagramElement, ElementType, Id, ElementRef} from "../../package/package
 class SequenceDiagramEditor implements DiagramEditor {
     handleAction(action: Action, get: Get, set: Set): void {
         if (dropFromPaletteAction.match(action)) {
-            const {name, droppedAt} = action.payload;
-            handleSequenceDropFromLibrary(get, set, droppedAt, name);
+            const {name, droppedAt, kind} = action.payload;
+            handleSequenceDropFromLibrary(get, set, droppedAt, name, kind);
         }
         else if (elementMoveAction.match(action)) {
             const {currentPointerPos, phase, startNodePos, startPointerPos, element} = action.payload;

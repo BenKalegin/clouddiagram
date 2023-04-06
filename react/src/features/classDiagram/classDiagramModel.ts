@@ -1,6 +1,9 @@
 import {Bounds, Coordinate, Diagram, withinBounds} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {
+    defaultNoteHeight,
+    defaultNoteStyle,
+    defaultNoteWidth,
     defaultShapeStyle,
     DiagramElement,
     ElementRef,
@@ -26,6 +29,7 @@ import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {Command} from "../propertiesEditor/PropertiesEditor";
 import produce, {Draft} from "immer";
 import {snapToGrid} from "../../common/Geometry/snap";
+import {NoteState} from "../commonComponents/commonComponentsModel";
 
 export type NodePlacement = {
     bounds: Bounds
@@ -226,33 +230,57 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
     }
 })
 
-export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name: string) {
+export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name: string, elementType: ElementType ): ElementRef {
 
-    const defaultWidth = 100;
-    const defaultHeight = 80;
-    const diagramId = get(activeDiagramIdAtom);
-    const node: NodeState = {
-        type: ElementType.ClassNode,
-        id: generateId(),
-        text: name,
-        ports: [],
-        shapeStyle: defaultShapeStyle
-    };
+    if (elementType === ElementType.ClassNode) {
+        const defaultWidth = 100;
+        const defaultHeight = 80;
+        const diagramId = get(activeDiagramIdAtom);
+        const node: NodeState = {
+            type: ElementType.ClassNode,
+            id: generateId(),
+            text: name,
+            ports: [],
+            shapeStyle: defaultShapeStyle
+        };
 
-    const placement: NodePlacement = {
-        bounds: {
-            x: droppedAt.x - defaultWidth / 2,
-            y: droppedAt.y,
-            width: defaultWidth,
-            height: defaultHeight
+        const placement: NodePlacement = {
+            bounds: {
+                x: droppedAt.x - defaultWidth / 2,
+                y: droppedAt.y,
+                width: defaultWidth,
+                height: defaultHeight
+            }
         }
-    }
 
-    set(elementsAtom(node.id), node)
-    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-    const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [node.id]: placement}};
-    set(elementsAtom(diagramId), updatedDiagram)
-    return node
+        set(elementsAtom(node.id), node)
+        const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+        const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [node.id]: placement}};
+        set(elementsAtom(diagramId), updatedDiagram)
+        return node
+    }
+    else if (elementType === ElementType.Note)
+    {
+        const diagramId = get(activeDiagramIdAtom);
+        const note: NoteState = {
+            type: ElementType.Note,
+            id: generateId(),
+            text: name,
+            shapeStyle: defaultNoteStyle,
+            bounds: {
+                x: droppedAt.x - defaultNoteWidth / 2,
+                y: droppedAt.y,
+                width: defaultNoteWidth,
+                height: defaultNoteHeight
+            }
+        };
+
+        const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+        const updatedDiagram = {...diagram, notes: {...diagram.notes, [note.id]: note}};
+        set(elementsAtom(diagramId), updatedDiagram)
+        return note
+    }
+    throw new Error("Unknown element type: " + elementType);
 }
 
 export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
@@ -328,8 +356,8 @@ export function nodePropertiesDialog(get: Get, set: Set, elementId: string, dial
 export function addNodeAndConnect(get: Get, set: Set, name: string) {
     const linking = get(linkingAtom) as Linking;
     const pos = linking.diagramPos
-    const node = addNewElementAt(get, set, pos, name);
-    autoConnectNodes(get, set, linking.sourceElement, node);
+    const node = addNewElementAt(get, set, pos, name, ElementType.ClassNode);
+    autoConnectNodes(get, set, linking.sourceElement, node as ElementRef);
     set(linkingAtom, {...linking, showLinkToNewDialog: false } )
 }
 

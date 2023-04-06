@@ -34,6 +34,7 @@ export const elementResizeAction = createAction<{
 export const dropFromPaletteAction = createAction<{
     droppedAt: Coordinate;
     name: string
+    kind: ElementType
 }>("editor/dropFromPalette");
 
 export enum DialogOperation {

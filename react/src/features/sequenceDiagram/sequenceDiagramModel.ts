@@ -6,7 +6,7 @@ import {
     ElementRef,
     ShapeStyle,
     defaultShapeStyle,
-    LineStyle, defaultLineStyle
+    LineStyle, defaultLineStyle, defaultNoteStyle, defaultNoteWidth, defaultNoteHeight
 } from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom,} from "../diagramEditor/diagramEditorModel";
@@ -14,11 +14,14 @@ import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import produce, {Draft} from 'immer';
 import {Command} from "../propertiesEditor/PropertiesEditor";
+import {NoteState} from "../commonComponents/commonComponentsModel";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
 export const lifelineDefaultHeight = 60;
+
 const activationWidth = 10;
+
 
 export type LifelineId = Id;
 export type PortId = Id;
@@ -198,30 +201,55 @@ export function handleSequenceResizeElement(get: Get, set: Set, phase: ElementMo
 }
 
 
-export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coordinate, name: string) {
-
+export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coordinate, name: string, kind: ElementType) {
     const diagramId = get(activeDiagramIdAtom);
-    const newLifeline: LifelineState = {
-        type: ElementType.SequenceLifeLine,
-        id: generateId(),
-        title: name,
-        placement: {
-            headBounds: {
-                x: droppedAt.x - lifelineDefaultWidth / 2,
-                y: lifelineHeadY,
-                width: lifelineDefaultWidth,
-                height: lifelineDefaultHeight
-            },
-            lifelineStart: 0,
-            lifelineEnd: 100
-        },
-        activations: [],
-        shapeStyle: defaultShapeStyle
-    };
+    const originalDiagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
-    const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
-    const updatedDiagram = {...diagram , lifelines: {...diagram.lifelines, [newLifeline.id]: newLifeline}}
-    set(elementsAtom(diagramId), updatedDiagram)
+    const update = produce(originalDiagram, (diagram: Draft<SequenceDiagramState>) => {
+        switch (kind) {
+            case ElementType.SequenceLifeLine:
+                const newLifeline: LifelineState = {
+                    type: ElementType.SequenceLifeLine,
+                    id: generateId(),
+                    title: name,
+                    placement: {
+                        headBounds: {
+                            x: droppedAt.x - lifelineDefaultWidth / 2,
+                            y: lifelineHeadY,
+                            width: lifelineDefaultWidth,
+                            height: lifelineDefaultHeight
+                        },
+                        lifelineStart: 0,
+                        lifelineEnd: 100
+                    },
+                    activations: [],
+                    shapeStyle: defaultShapeStyle
+                };
+
+                diagram.lifelines[newLifeline.id] = newLifeline;
+                break;
+
+            case ElementType.Note:
+                const note: NoteState = {
+                    type: ElementType.Note,
+                    id: generateId(),
+                    text: name,
+                    shapeStyle: defaultNoteStyle,
+                    bounds: {
+                        x: droppedAt.x - defaultNoteWidth / 2,
+                        y: droppedAt.y,
+                        width: defaultNoteWidth,
+                        height: defaultNoteHeight
+                    }
+                };
+                diagram.notes[note.id] = note;
+
+                break;
+            default:
+                throw new Error('Invalid element type ' + kind)
+        }
+    })
+    set(elementsAtom(diagramId), update)
 }
 
 /**
