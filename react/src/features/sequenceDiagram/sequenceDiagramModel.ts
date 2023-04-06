@@ -568,6 +568,10 @@ export function handleSequenceElementPropertyChanged(get: Get, set: Set, element
                     const message: any = draft.messages[element.id];
                     message[propertyName] = value;
                     break;
+                case ElementType.Note:
+                    const note: any = draft.notes[element.id];
+                    note[propertyName] = value;
+                    break;
             }
         });
     })

@@ -111,6 +111,11 @@ const steelShapeStyle: ShapeStyle = {
     fillColor: steelFillColor
 }
 
+export const defaultNoteStyle: ShapeStyle = {
+    strokeColor: "black",
+    fillColor: "white"
+}
+
 export const shapeStyleList: ShapeStyle[] = [
     defaultShapeStyle,
     pinkShapeStyle,

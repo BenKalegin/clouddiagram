@@ -57,6 +57,8 @@ function getPropertyList(type: ElementType): PropertyDefinition[] {
                 {name: "isReturn", label: "Is Return", type: PropertyType.Boolean, supportMultiEdit: false},
                 {name: "isAsync", label: "Is Asynchronous", type: PropertyType.Boolean, supportMultiEdit: false},
             ];
+        case ElementType.Note:
+            return [textProp, shapeStyleProp];
         default:
             return [];
     }

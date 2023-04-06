@@ -11,7 +11,7 @@ import {
     SequenceDiagramState
 } from "./sequenceDiagram/sequenceDiagramModel";
 import {
-    defaultLineStyle,
+    defaultLineStyle, defaultNoteStyle,
     defaultShapeStyle,
     DiagramElement,
     ElementType,
@@ -179,7 +179,8 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
             y: 120,
             width: 160,
             height: 60
-        }
+        },
+        shapeStyle: defaultNoteStyle
     }
 
     return {
@@ -297,7 +298,8 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
             y: 120,
             width: 160,
             height: 60
-        }
+        },
+        shapeStyle: defaultNoteStyle
     }
     const notes: { [id: Id]: NoteState } = {
         [note1.id]: note1

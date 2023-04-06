@@ -398,6 +398,8 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
 
 
 export function handleClassElementPropertyChanged(get: Get, set: Set, elements: ElementRef[], propertyName: string, value: any) {
+    const diagramId = get(activeDiagramIdAtom)
+    const originalDiagram = get(elementsAtom(diagramId)) as ClassDiagramState;
 
     elements.forEach(element => {
         switch (element.type) {
@@ -409,6 +411,12 @@ export function handleClassElementPropertyChanged(get: Get, set: Set, elements: 
                 })
                 set(elementsAtom(element.id), update);
                 break;
+            case ElementType.Note:
+                const diagramUpdate = produce(originalDiagram, (diagram: Draft<ClassDiagramState>) => {
+                    const object: any = diagram.notes[element.id];
+                    object[propertyName] = value
+                })
+                set(elementsAtom(diagramId), diagramUpdate);
         }
     });
 }
