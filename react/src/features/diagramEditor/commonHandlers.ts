@@ -36,11 +36,6 @@ export const useCustomDispatch = ({
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
 
 
-    // const handleEvent = (event: React.MouseEvent, ...args: Parameters<ActionCreator<A>>) => {
-    //     event.preventDefault();
-    //     dispatch(actionCreator(...args));
-    // };
-
     const eventHandlers: Partial<KonvaNodeEvents> = {};
 
     if (onClick) {
