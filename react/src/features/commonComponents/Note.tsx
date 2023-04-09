@@ -6,28 +6,27 @@ import {Scaffold} from "../scaffold/Scaffold";
 import {ElementRef, ElementType} from "../../package/packageModel";
 import {DrawingMessage} from "../sequenceDiagram/DrawingMessage";
 import React from "react";
-import {
-    elementMoveAction, ElementMoveResizePhase,
-    elementSelectedAction,
-    screenToCanvas,
-    useDispatch
-} from "../diagramEditor/diagramEditorSlice";
-import {Coordinate} from "../../common/model";
+import {useCustomDispatch} from "../diagramEditor/commonHandlers";
 
 export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId }) => {
     const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(noteId)
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === noteId;
     const linking = useRecoilValue(linkingAtom)
-    const dispatch = useDispatch()
-    const [startNodePos, setStartNodePos] = React.useState<Coordinate | undefined>();
-    const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
 
     const note = useRecoilValue(noteSelector({noteId, diagramId}))
     const cornerSize = 10;
     const width = note.bounds.width;
     const height = note.bounds.height;
     const element: ElementRef = {id: noteId, type: ElementType.Note}
+
+    const eventHandlers = useCustomDispatch({
+        onClick: true,
+        onDrag: true,
+        element: element,
+        diagramId: diagramId,
+        bounds: note.bounds,
+    });
 
     return (
         <Group>
@@ -57,46 +56,7 @@ export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId
                     context.strokeShape(shape);
                 }}
 
-                onClick={(e) => {
-                    dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
-                }}
-
-                onDragStart={(e) => {
-                    const pos = screenToCanvas(e);
-                    setStartNodePos(note.bounds);
-                    setStartPointerPos(pos);
-                    if (!isSelected)
-                        dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
-
-                    dispatch(elementMoveAction({
-                        phase: ElementMoveResizePhase.start,
-                        element,
-                        startNodePos: {x: note.bounds.x, y: note.bounds.y},
-                        startPointerPos: pos,
-                        currentPointerPos: pos}))
-                }}
-                onDragMove={(e) => {
-                    if (startPointerPos && startNodePos)
-                        dispatch(elementMoveAction({
-                            phase: ElementMoveResizePhase.move,
-                            element,
-                            startNodePos: startNodePos,
-                            startPointerPos: startPointerPos,
-                            currentPointerPos: screenToCanvas(e)}));
-                }}
-
-                onDragEnd={(e) => {
-                    // check required because DragMove event can be received before DragStart updated the state
-                    if (startPointerPos && startNodePos)
-                        dispatch(elementMoveAction({
-                            phase: ElementMoveResizePhase.end,
-                            element,
-                            startNodePos: startNodePos,
-                            startPointerPos: startPointerPos,
-                            currentPointerPos: screenToCanvas(e)}));
-                }}
-
-
+                {...eventHandlers}
                 draggable={true}
 
             />

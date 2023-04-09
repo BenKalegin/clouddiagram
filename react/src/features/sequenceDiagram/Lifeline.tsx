@@ -14,19 +14,14 @@ import {
     linkingAtom,
     selectedRefsSelector
 } from "../diagramEditor/diagramEditorModel";
-import {
-    elementMoveAction,
-    ElementMoveResizePhase, elementSelectedAction,
-    screenToCanvas,
-    useDispatch
-} from "../diagramEditor/diagramEditorSlice";
-import {Coordinate} from "../../common/model";
 import {ElementType} from "../../package/packageModel";
+import {useCustomDispatch} from "../diagramEditor/commonHandlers";
 
 export interface LifelineProps {
     lifelineId: LifelineId
     diagramId: DiagramId
 }
+
 
 export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
@@ -34,14 +29,21 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === lifelineId;
     const lifeline = useRecoilValue(lifelineSelector({lifelineId, diagramId}))
     const placement = lifeline.placement
-    const [startNodePos, setStartNodePos] = React.useState<Coordinate | undefined>();
-    const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
-    const dispatch = useDispatch()
     const linking = useRecoilValue(linkingAtom)
     const element = { id: lifelineId, type: ElementType.SequenceLifeLine };
 
+    const eventHandlers = useCustomDispatch({
+        onClick: true,
+        onDrag: true,
+        element: element,
+        diagramId: diagramId,
+        bounds: placement.headBounds,
+    });
+
+
     return <Group>
         <Rect
+            {...eventHandlers}
             fill={lifeline.shapeStyle.fillColor}
             stroke={lifeline.shapeStyle.strokeColor}
             strokeWidth={1}
@@ -53,49 +55,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             shadowBlur={3}
             shadowOffset={{x: 2, y: 2}}
             shadowOpacity={0.4}
-            onClick={(e) => {
-                dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
-            }}
             draggable={true}
-            dragBoundFunc={(pos) => ({
-                x: pos.x,
-                y: startNodePos ? startNodePos.y : pos.y
-            })}
-            onDragStart={(e) => {
-                const pos = screenToCanvas(e);
-                setStartNodePos(placement.headBounds);
-                setStartPointerPos(pos);
-                if (!isSelected)
-                    dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
-
-                dispatch(elementMoveAction({
-                    phase: ElementMoveResizePhase.start,
-                    element: element,
-                    startNodePos: {x: placement.headBounds.x, y: placement.headBounds.y},
-                    startPointerPos: pos,
-                    currentPointerPos: pos}))
-            }}
-            onDragMove={(e) => {
-                // check required because DragMove event can be received before DragStart updated the state
-                if (startPointerPos && startNodePos)
-                    dispatch(elementMoveAction({
-                        phase: ElementMoveResizePhase.move,
-                        element,
-                        startNodePos: startNodePos,
-                        startPointerPos: startPointerPos,
-                        currentPointerPos: screenToCanvas(e)}));
-            }}
-
-            onDragEnd={(e) => {
-                // check required because DragMove event can be received before DragStart updated the state
-                if (startPointerPos && startNodePos)
-                    dispatch(elementMoveAction({
-                        phase: ElementMoveResizePhase.end,
-                        element,
-                        startNodePos: startNodePos,
-                        startPointerPos: startPointerPos,
-                        currentPointerPos: screenToCanvas(e)}));
-            }}
         />
         <Text
             {...placement.headBounds}
