@@ -3,7 +3,7 @@ import {
     classClass,
     classInterface,
     commonNote,
-    GalleryItem,
+    GalleryItem, interactionActor,
     interactionBoundary,
     interactionLifeline
 } from "../toolbox/models";
@@ -28,6 +28,8 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
 
         case interactionBoundary:
             return { type: ElementType.SequenceLifeLine, subType: PredefinedSvg.Boundary }
+        case interactionActor:
+            return { type: ElementType.SequenceLifeLine, subType: PredefinedSvg.Actor }
 
         default:
             throw new Error("Unknown gallery type: " + galleryType);

@@ -12,7 +12,7 @@ import Context = Konva.Context;
 
 
 export enum PredefinedSvg {
-    Actor,
+    Actor = 1,
     Boundary,
     Class,
     Interface,
@@ -21,6 +21,10 @@ export enum PredefinedSvg {
 }
 
 export const iconRegistry: Record<PredefinedSvg, React.FunctionComponent<React.SVGProps<SVGSVGElement>>> = {
+    [PredefinedSvg.Actor]: ActorIcon,
+    [PredefinedSvg.Boundary]: BoundaryIcon,
+    [PredefinedSvg.Class]: ClassIcon,
+    [PredefinedSvg.Interface]: InterfaceIcon,
     [PredefinedSvg.Actor]: ActorIcon,
     [PredefinedSvg.Boundary]: BoundaryIcon,
     [PredefinedSvg.Class]: ClassIcon,
@@ -61,12 +65,32 @@ function drawBoundary(context: Context, shape: Shape<ShapeConfig>): void {
     context.fillStrokeShape(shape);
 }
 
+function drawActor(context: Context, shape: Shape<ShapeConfig>): void {
+    context.beginPath();
+    context.arc(shape.width() * 0.5, shape.height() * 0.2, shape.height() * 0.15, 0, Math.PI * 2, false);
+    // body
+    context.moveTo(shape.width() * 0.5, shape.height() * 0.33);
+    context.lineTo(shape.width() * 0.5, shape.height() * 0.7);
+    // legs
+    context.moveTo(shape.width() * 0.5, shape.height() * 0.65);
+    context.lineTo(shape.width() * 0.4, shape.height() * 0.9);
+    context.moveTo(shape.width() * 0.5, shape.height() * 0.65);
+    context.lineTo(shape.width() * 0.6, shape.height() * 0.9);
+    // hands
+    context.moveTo(shape.width() * 0.4, shape.height() * 0.5);
+    context.lineTo(shape.width() * 0.6, shape.height() * 0.5);
+    context.closePath();
+    context.fillStrokeShape(shape);
+}
+
 
 
 export function getCustomDrawById(id: PredefinedSvg) : CustomDraw {
     switch (id) {
         case PredefinedSvg.Boundary:
             return drawBoundary;
+        case PredefinedSvg.Actor:
+            return drawActor;
         default:
             throw new Error("No custom draw for id: " + id);
     }

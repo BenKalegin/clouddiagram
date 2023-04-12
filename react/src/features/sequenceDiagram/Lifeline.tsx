@@ -66,6 +66,19 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
 
     function CustomHead() {
         return <>
+            <Rect
+                {...placement.headBounds}
+                {...eventHandlers}
+                draggable={true}
+                fill={"transparent"}
+                stroke={""}
+                listening={true}
+                // TODO
+                // dragBoundFunc={(pos) => ({
+                //     x: pos.x,
+                //     y: startNodePos ? startNodePos.y : pos.y
+                // })}
+            />
             <Shape
                 {...eventHandlers}
                 sceneFunc={getCustomDrawById(lifeline.customShape?.pictureId!)}
