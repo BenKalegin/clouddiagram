@@ -73,11 +73,6 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 fill={"transparent"}
                 stroke={""}
                 listening={true}
-                // TODO
-                // dragBoundFunc={(pos) => ({
-                //     x: pos.x,
-                //     y: startNodePos ? startNodePos.y : pos.y
-                // })}
             />
             <Shape
                 {...eventHandlers}

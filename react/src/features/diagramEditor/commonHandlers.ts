@@ -11,16 +11,22 @@ import React from "react";
 import {Bounds, Coordinate} from "../../common/model";
 import {DiagramId, selectedRefsSelector} from "./diagramEditorModel";
 import {useRecoilValue} from "recoil";
+import {Vector2d} from "konva/lib/types";
+import {Node} from "konva/lib/Node";
 
 interface CustomDispatchOptions {
     onClick?: boolean;
     onDrag?: boolean;
+    disableVerticalDrag?: boolean;
     element: ElementRef
     diagramId: DiagramId
     bounds: Bounds
 }
 
 
+interface  DragBoundFunc{
+    dragBoundFunc?: (this: Node, pos: Vector2d) => Vector2d;
+}
 
 export const useCustomDispatch = ({
     element,
@@ -28,6 +34,7 @@ export const useCustomDispatch = ({
     diagramId,
     onClick = true,
     onDrag = true,
+    disableVerticalDrag = false
 }: CustomDispatchOptions) => {
     const dispatch = useDispatch();
     const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
@@ -36,7 +43,7 @@ export const useCustomDispatch = ({
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();
 
 
-    const eventHandlers: Partial<KonvaNodeEvents> = {};
+    const eventHandlers: Partial<KonvaNodeEvents> & DragBoundFunc = {};
 
     if (onClick) {
         eventHandlers.onClick = (e) => dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
@@ -78,6 +85,12 @@ export const useCustomDispatch = ({
                 startPointerPos: startPointerPos,
                 currentPointerPos: screenToCanvas(e)}));
         }
+
+        if (disableVerticalDrag)
+            eventHandlers.dragBoundFunc=(pos) => ({
+                x: pos.x,
+                y: startNodePos ? startNodePos.y : pos.y
+            })
     }
 
     return eventHandlers;
