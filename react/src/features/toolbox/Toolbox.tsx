@@ -1,8 +1,16 @@
 import React from "react";
-import {Collapse, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, SvgIcon} from "@mui/material";
+import {
+    Collapse,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    ListSubheader,
+} from "@mui/material";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {GalleryItem, galleryGroups} from "./models";
+import {iconRegistry} from "../graphics/graphicsReader";
 
 export const Toolbox = () => {
     const [open, setOpen] = React.useState<{ [key: string]: boolean }>({});
@@ -12,6 +20,7 @@ export const Toolbox = () => {
     };
 
     function getItem(item: GalleryItem) {
+        const Icon = item.icon !== undefined ? iconRegistry[item.icon] : undefined;
         return <ListItemButton
             key={item.key}
             onDragStart={(e) => {
@@ -22,7 +31,7 @@ export const Toolbox = () => {
             draggable={true}
         >
             <ListItemIcon sx={{minWidth: 36}}>
-                <SvgIcon component={item.icon} fontSize="small" />
+                {Icon && <Icon />}
             </ListItemIcon>
             <ListItemText
                 primary={item.name}
@@ -49,12 +58,12 @@ export const Toolbox = () => {
             {galleryGroups.map(group => (
                     <React.Fragment key={group.key}>
                         <ListItemButton disableRipple onClick={() => handleClick(group.key)}>
+                            <ListItemText primary={group.name}/>
                             <ListItemIcon
                                 sx={{minWidth: 26}}
                             >
                                 {open[group.key] ? <ExpandLess/> : <ExpandMore/>}
                             </ListItemIcon>
-                            <ListItemText primary={group.name}/>
                         </ListItemButton>
                         <Collapse
                             in={open[group.key]}

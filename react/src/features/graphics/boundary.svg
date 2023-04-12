@@ -8,37 +8,30 @@
    >
   <ellipse
      style="fill:#000000"
-     id="path326"
      cx="7.7351508"
      cy="7.3612466"
      rx="0.023369037"
      ry="0.07010711" />
   <ellipse
      style="fill:none"
-     id="path328"
      ry="2.4070108"
      rx="2.2317429"
      cy="14.558909"
      cx="12" />
   <path
      style="fill:none"
-     id="path332"
      d="m 18.087634,14.488802 a 4.1129503,2.1733203 0 0 1 -1.295398,1.583267 l -2.817552,-1.583267 z" />
   <path
      style="fill:none"
-     id="path336"
      d="M 5.6786757,4.7439141 A 1.670886,1.962999 0 0 1 5.1524203,6.1739619 L 4.0077896,4.7439141 Z" />
   <path
      style="fill:none"
-     id="path338"
      d="m 12.011684,12.070107 a 2.8510225,2.7224927 0 0 1 -0.897946,1.983341 L 9.1606617,12.070107 Z" />
   <path
      style="fill:#ffffff"
-     id="path340"
      d="m 8.5764359,12.046738 a 0.09347615,0.1285297 0 0 1 -0.029441,0.09363 l -0.064035,-0.09363 z" />
   <ellipse
      style="fill:none;stroke:#000000;stroke-opacity:1;stroke-width:2;stroke-dasharray:none"
-     id="path1075"
      cx="10.656281"
      cy="12.315482"
      rx="6.1460567"
@@ -46,9 +39,9 @@
   <path
      style="fill:none;stroke:#000000;stroke-opacity:1;stroke-width:2;stroke-dasharray:none"
      d="M 1.4722492,5.5150925 V 18.952288"
-     id="path1857" />
+  />
   <path
      style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1;stroke-dasharray:none"
      d="m 1.7748036,12.45573 2.2692828,0.0233"
-     id="path1861" />
+  />
 </svg>

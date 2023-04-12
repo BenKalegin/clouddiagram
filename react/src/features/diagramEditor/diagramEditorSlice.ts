@@ -11,6 +11,7 @@ import {Command} from "../propertiesEditor/PropertiesEditor";
 import {ClassDiagramState} from "../classDiagram/classDiagramModel";
 import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 import KonvaEventObject = Konva.KonvaEventObject;
+import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -34,7 +35,7 @@ export const elementResizeAction = createAction<{
 export const dropFromPaletteAction = createAction<{
     droppedAt: Coordinate;
     name: string
-    kind: ElementType
+    kind: TypeAndSubType
 }>("editor/dropFromPalette");
 
 export enum DialogOperation {

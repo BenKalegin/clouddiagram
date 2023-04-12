@@ -1,21 +1,14 @@
-import {Group, Line, Rect, Text} from "react-konva";
-import {
-    LifelineId,
-    lifelinePoints,
-    lifelineSelector
-} from "./sequenceDiagramModel";
+import {Group, Line, Rect, Shape, Text} from "react-konva";
+import {LifelineId, lifelinePoints, lifelineSelector} from "./sequenceDiagramModel";
 import React, {FC} from "react";
 import {Scaffold} from "../scaffold/Scaffold";
 import {Activation} from "./Activation";
 import {DrawingMessage} from "./DrawingMessage";
 import {useRecoilValue} from "recoil";
-import {
-    DiagramId,
-    linkingAtom,
-    selectedRefsSelector
-} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType} from "../../package/packageModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
+import {getCustomDrawById} from "../graphics/graphicsReader";
 
 export interface LifelineProps {
     lifelineId: LifelineId
@@ -41,32 +34,73 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     });
 
 
+    function DefaultHead() {
+        return <>
+            <Rect
+                {...eventHandlers}
+                fill={lifeline.shapeStyle.fillColor}
+                stroke={lifeline.shapeStyle.strokeColor}
+                strokeWidth={1}
+                x={placement.headBounds.x}
+                y={placement.headBounds.y}
+                width={placement.headBounds.width}
+                height={placement.headBounds.height}
+                shadowColor={'black'}
+                shadowBlur={3}
+                shadowOffset={{x: 2, y: 2}}
+                shadowOpacity={0.4}
+                draggable={true}
+            />
+            <Text
+                {...placement.headBounds}
+                fontSize={14}
+                align={"center"}
+                verticalAlign={"middle"}
+                text={lifeline.title}
+                draggable={false}
+                listening={false}
+                preventDefault={true}
+            />
+        </>;
+    }
+
+    function CustomHead() {
+        return <>
+            <Shape
+                {...eventHandlers}
+                sceneFunc={getCustomDrawById(lifeline.customShape?.pictureId!)}
+                fill={lifeline.shapeStyle.fillColor}
+                stroke={lifeline.shapeStyle.strokeColor}
+                strokeWidth={1}
+                x={placement.headBounds.x}
+                y={placement.headBounds.y}
+                width={placement.headBounds.width}
+                height={placement.headBounds.height - 16}
+                shadowColor={'black'}
+                shadowBlur={3}
+                shadowOffset={{x: 2, y: 2}}
+                shadowOpacity={0.4}
+                draggable={true}
+            />
+            <Text
+                x = {placement.headBounds.x}
+                y = {placement.headBounds.y + placement.headBounds.height - 14}
+                width={placement.headBounds.width}
+                height={16}
+                fontSize={14}
+                align={"center"}
+                verticalAlign={"middle"}
+                text={lifeline.title}
+                draggable={false}
+                listening={false}
+                preventDefault={true}
+            />
+        </>;
+    }
+
     return <Group>
-        <Rect
-            {...eventHandlers}
-            fill={lifeline.shapeStyle.fillColor}
-            stroke={lifeline.shapeStyle.strokeColor}
-            strokeWidth={1}
-            x={placement.headBounds.x}
-            y={placement.headBounds.y}
-            width={placement.headBounds.width}
-            height={placement.headBounds.height}
-            shadowColor={'black'}
-            shadowBlur={3}
-            shadowOffset={{x: 2, y: 2}}
-            shadowOpacity={0.4}
-            draggable={true}
-        />
-        <Text
-            {...placement.headBounds}
-            fontSize={14}
-            align={"center"}
-            verticalAlign={"middle"}
-            text={lifeline.title}
-            draggable={false}
-            listening={false}
-            preventDefault={true}
-        />
+        {!lifeline.customShape && DefaultHead()}
+        {lifeline.customShape && CustomHead()}
         <Line
             stroke={lifeline.shapeStyle.strokeColor}
             strokeWidth={2}
@@ -86,17 +120,17 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
         )
         }
         {isSelected && <Scaffold
-                element={element}
-                bounds={{
-                    ...placement.headBounds,
-                    height: placement.headBounds.y + placement.headBounds.height + placement.lifelineEnd
-                }}
-                excludeDiagonalResize={true}
-                excludeVerticalResize={true}
-                isFocused={isFocused}
-                isLinking={linking?.drawing === true}
-                linkingDrawing={<DrawingMessage/> }
-            />}
+            element={element}
+            bounds={{
+                ...placement.headBounds,
+                height: placement.headBounds.y + placement.headBounds.height + placement.lifelineEnd
+            }}
+            excludeDiagonalResize={true}
+            excludeVerticalResize={true}
+            isFocused={isFocused}
+            isLinking={linking?.drawing === true}
+            linkingDrawing={<DrawingMessage/>}
+        />}
 
     </Group>
 }

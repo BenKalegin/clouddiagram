@@ -38,7 +38,7 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
 
     const overrideSceneFunc = (context: Context, shape: Shape<ShapeConfig>) => {
         drawLine(context, shape, render.points, undefined, false, false)
-        drawMessage(context, shape, message.isAsync);
+        drawTip(context, shape, message.isAsync);
     };
 
     return (
@@ -89,7 +89,7 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
 
     )
 
-    function drawMessage(ctx: Context, shape: Shape<ShapeConfig>, isAsync: boolean) {
+    function drawTip(ctx: Context, shape: Shape<ShapeConfig>, isAsync: boolean) {
         const PI2 = Math.PI * 2;
 
         const points = render.points;

@@ -1,14 +1,9 @@
-import {ReactComponent as ClassIcon} from "../classDiagram/graphics/class.svg";
-import {ReactComponent as InterfaceIcon} from "../classDiagram/graphics/interface.svg";
-import {ReactComponent as ActorIcon} from "../classDiagram/graphics/actor.svg";
-import {ReactComponent as LifelineIcon} from "../classDiagram/graphics/lifeline.svg";
-import {ReactComponent as NoteIcon} from "../classDiagram/graphics/note.svg";
-import {ReactComponent as BoundaryIcon} from "../classDiagram/graphics/boundary.svg";
+import {PredefinedSvg} from "../graphics/graphicsReader";
 
 export interface GalleryItem {
     key: string;
     name: string;
-    icon?: any
+    icon?: PredefinedSvg
 
     thumbnail?: string;
     description?: string;
@@ -32,17 +27,17 @@ export const interactionFragment = 'interaction:fragment';
 export const interactionEndpoint = 'interaction:endpoint';
 
 const items: GalleryItem[] = [
-    {key: classClass, name: 'Class', icon: ClassIcon},
-    {key: classInterface, name: 'Interface', icon: InterfaceIcon},
+    {key: classClass, name: 'Class', icon: PredefinedSvg.Class},
+    {key: classInterface, name: 'Interface', icon: PredefinedSvg.Interface},
     {key: 'class:data-type', name: 'Data Type'},
     {key: 'class:enum', name: 'Enumeration'},
     {key: 'class:primitive', name: 'Primitive'},
     {key: 'class:signal', name: 'Signal'},
     {key: 'class:association', name: 'Association'},
-    {key: interactionActor, name: 'Actor', icon: ActorIcon},
-    {key: interactionLifeline, name: 'Lifeline', icon: LifelineIcon},
-    {key: 'interaction:activation', name: 'Boundary', icon: BoundaryIcon},
-    {key: commonNote, name: 'Note', icon: NoteIcon},
+    {key: interactionActor, name: 'Actor', icon: PredefinedSvg.Actor},
+    {key: interactionLifeline, name: 'Lifeline', icon: PredefinedSvg.Lifeline},
+    {key: interactionBoundary, name: 'Boundary', icon: PredefinedSvg.Boundary},
+    {key: commonNote, name: 'Note', icon: PredefinedSvg.Note},
 ]
 
 

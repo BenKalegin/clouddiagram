@@ -27,7 +27,7 @@ import {snapToBounds} from "../../common/Geometry/snap";
 class ClassDiagramEditor implements DiagramEditor {
     handleAction(action: Action, get: Get, set: Set): void {
         if (dropFromPaletteAction.match(action)) {
-            addNewElementAt(get, set, action.payload.droppedAt, action.payload.name, action.payload.kind);
+            addNewElementAt(get, set, action.payload.droppedAt, action.payload.name, action.payload.kind.type);
         }else if(elementMoveAction.match(action)){
             const {element, currentPointerPos, startNodePos, startPointerPos} = action.payload;
             moveElement(get, set, element, currentPointerPos, startPointerPos, startNodePos);

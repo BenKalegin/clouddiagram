@@ -1,4 +1,5 @@
 import {NodeId} from "../features/classDiagram/classDiagramModel";
+import {PredefinedSvg} from "../features/graphics/graphicsReader";
 
 export type Id = string;
 export enum ElementType {
@@ -30,7 +31,23 @@ export interface LineStyle {
     width: number;
 }
 
+export enum PictureLayout {
+    Stretch,
+    StretchKeepRatio,
+    Center,
+    TopLeftCorner,
+    Top
+}
+
+
+export interface CustomShape {
+    pictureId: PredefinedSvg
+    layout: PictureLayout
+
+}
+
 export interface DiagramElement extends ElementRef {
+    customShape?: CustomShape
 }
 
 export interface Package {

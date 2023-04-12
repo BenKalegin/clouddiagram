@@ -1,0 +1,73 @@
+import {ReactComponent as ClassIcon} from "../graphics/class.svg";
+import {ReactComponent as InterfaceIcon} from "../graphics/interface.svg";
+import {ReactComponent as ActorIcon} from "../graphics/actor.svg";
+import {ReactComponent as LifelineIcon} from "../graphics/lifeline.svg";
+import {ReactComponent as NoteIcon} from "../graphics/note.svg";
+import {ReactComponent as BoundaryIcon} from "../graphics/boundary.svg";
+import Konva from "konva";
+import {Shape} from "konva/lib/Shape";
+import React from "react";
+import ShapeConfig = Konva.ShapeConfig;
+import Context = Konva.Context;
+
+
+export enum PredefinedSvg {
+    Actor,
+    Boundary,
+    Class,
+    Interface,
+    Note,
+    Lifeline
+}
+
+export const iconRegistry: Record<PredefinedSvg, React.FunctionComponent<React.SVGProps<SVGSVGElement>>> = {
+    [PredefinedSvg.Actor]: ActorIcon,
+    [PredefinedSvg.Boundary]: BoundaryIcon,
+    [PredefinedSvg.Class]: ClassIcon,
+    [PredefinedSvg.Interface]: InterfaceIcon,
+    [PredefinedSvg.Note]: NoteIcon,
+    [PredefinedSvg.Lifeline]: LifelineIcon
+};
+
+export function getSvgComponentById(id: PredefinedSvg | undefined) {
+    switch (id) {
+        case PredefinedSvg.Actor:
+            return ActorIcon;
+        case PredefinedSvg.Boundary:
+            return BoundaryIcon;
+        case PredefinedSvg.Class:
+            return ClassIcon;
+        case PredefinedSvg.Interface:
+            return InterfaceIcon;
+        case PredefinedSvg.Note:
+            return NoteIcon;
+        default:
+            return undefined;
+    }
+}
+
+
+export type CustomDraw  = (context: Context, shape: Shape<ShapeConfig>) => void
+
+
+function drawBoundary(context: Context, shape: Shape<ShapeConfig>): void {
+    context.beginPath();
+    context.arc(shape.width() * 0.5, shape.height() / 2, shape.height() * 0.5, 0, Math.PI * 2, false);
+    context.moveTo(shape.width() * 0.3, shape.height() * 0.5);
+    context.lineTo(shape.width() * 0.2, shape.height() * 0.5);
+    context.moveTo(shape.width() * 0.2, shape.height() * 0.1);
+    context.lineTo(shape.width() * 0.2, shape.height() * 0.9);
+    context.closePath();
+    context.fillStrokeShape(shape);
+}
+
+
+
+export function getCustomDrawById(id: PredefinedSvg) : CustomDraw {
+    switch (id) {
+        case PredefinedSvg.Boundary:
+            return drawBoundary;
+        default:
+            throw new Error("No custom draw for id: " + id);
+    }
+}

@@ -1,19 +1,33 @@
 import React, {ReactNode} from "react";
-import {classClass, classInterface, commonNote, GalleryItem, interactionLifeline} from "../toolbox/models";
+import {
+    classClass,
+    classInterface,
+    commonNote,
+    GalleryItem,
+    interactionBoundary,
+    interactionLifeline
+} from "../toolbox/models";
 import {dropFromPaletteAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ElementType} from "../../package/packageModel";
+import {PredefinedSvg} from "../graphics/graphicsReader";
 
-
-function mapGalleryType(galleryType: string) : ElementType {
+export interface TypeAndSubType {
+    type: ElementType;
+    subType?: PredefinedSvg;
+}
+function mapGalleryType(galleryType: string) : TypeAndSubType {
     switch (galleryType) {
         case commonNote:
-            return ElementType.Note;
+            return { type: ElementType.Note};
         case classClass:
         case classInterface:
-            return ElementType.ClassNode;
+            return { type: ElementType.ClassNode};
 
         case interactionLifeline:
-            return ElementType.SequenceLifeLine;
+            return { type: ElementType.SequenceLifeLine};
+
+        case interactionBoundary:
+            return { type: ElementType.SequenceLifeLine, subType: PredefinedSvg.Boundary }
 
         default:
             throw new Error("Unknown gallery type: " + galleryType);

@@ -1,12 +1,18 @@
 import {Bounds, Coordinate, Diagram, withinBounds, withinXBounds, withinYBounds, zeroBounds} from "../../common/model";
 import {
+    CustomShape,
+    defaultLineStyle,
+    defaultNoteHeight,
+    defaultNoteStyle,
+    defaultNoteWidth,
+    defaultShapeStyle,
     DiagramElement,
+    ElementRef,
     ElementType,
     Id,
-    ElementRef,
-    ShapeStyle,
-    defaultShapeStyle,
-    LineStyle, defaultLineStyle, defaultNoteStyle, defaultNoteWidth, defaultNoteHeight
+    LineStyle,
+    PictureLayout,
+    ShapeStyle
 } from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom,} from "../diagramEditor/diagramEditorModel";
@@ -15,11 +21,11 @@ import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSl
 import produce, {Draft} from 'immer';
 import {Command} from "../propertiesEditor/PropertiesEditor";
 import {NoteState} from "../commonComponents/commonComponentsModel";
+import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
 export const lifelineDefaultHeight = 60;
-
 const activationWidth = 10;
 
 
@@ -201,17 +207,24 @@ export function handleSequenceResizeElement(get: Get, set: Set, phase: ElementMo
 }
 
 
-export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coordinate, name: string, kind: ElementType) {
+export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coordinate, name: string, kind: TypeAndSubType) {
     const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
     const update = produce(originalDiagram, (diagram: Draft<SequenceDiagramState>) => {
-        switch (kind) {
+        switch (kind.type) {
             case ElementType.SequenceLifeLine:
+                const customShape : CustomShape | undefined  = kind.subType?
+                {
+                    layout: PictureLayout.Top,
+                    pictureId: kind.subType,
+                }
+                : undefined;
                 const newLifeline: LifelineState = {
                     type: ElementType.SequenceLifeLine,
                     id: generateId(),
                     title: name,
+                    customShape: customShape,
                     placement: {
                         headBounds: {
                             x: droppedAt.x - lifelineDefaultWidth / 2,
