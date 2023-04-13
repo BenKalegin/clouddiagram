@@ -4,6 +4,8 @@ import {ReactComponent as ActorIcon} from "../graphics/actor.svg";
 import {ReactComponent as LifelineIcon} from "../graphics/lifeline.svg";
 import {ReactComponent as NoteIcon} from "../graphics/note.svg";
 import {ReactComponent as BoundaryIcon} from "../graphics/boundary.svg";
+import {ReactComponent as ControlIcon} from "../graphics/control.svg";
+import {ReactComponent as EntityIcon} from "../graphics/entity.svg";
 import Konva from "konva";
 import {Shape} from "konva/lib/Shape";
 import React from "react";
@@ -14,6 +16,8 @@ import Context = Konva.Context;
 export enum PredefinedSvg {
     Actor = 1,
     Boundary,
+    Control,
+    Entity,
     Class,
     Interface,
     Note,
@@ -23,6 +27,8 @@ export enum PredefinedSvg {
 export const iconRegistry: Record<PredefinedSvg, React.FunctionComponent<React.SVGProps<SVGSVGElement>>> = {
     [PredefinedSvg.Actor]: ActorIcon,
     [PredefinedSvg.Boundary]: BoundaryIcon,
+    [PredefinedSvg.Control]: ControlIcon,
+    [PredefinedSvg.Entity]: EntityIcon,
     [PredefinedSvg.Class]: ClassIcon,
     [PredefinedSvg.Interface]: InterfaceIcon,
     [PredefinedSvg.Actor]: ActorIcon,
@@ -65,6 +71,26 @@ function drawBoundary(context: Context, shape: Shape<ShapeConfig>): void {
     context.fillStrokeShape(shape);
 }
 
+function drawEntity(context: Context, shape: Shape<ShapeConfig>): void {
+    context.beginPath();
+    context.arc(shape.width() * 0.5, shape.height() / 2, shape.height() * 0.5, 0, Math.PI * 2, false);
+    context.moveTo(shape.width() * 0.25, shape.height() * 1.05);
+    context.lineTo(shape.width() * 0.75, shape.height() * 1.05);
+    context.closePath();
+    context.fillStrokeShape(shape);
+}
+
+function drawControl(context: Context, shape: Shape<ShapeConfig>): void {
+    context.beginPath();
+    context.arc(shape.width() * 0.5, shape.height() / 2, shape.height() * 0.5, 0, Math.PI * 2, false);
+    context.moveTo(shape.width() * 0.5, 0);
+    context.lineTo(shape.width() * 0.6, shape.height() * -0.1);
+    context.moveTo(shape.width() * 0.5, 0);
+    context.lineTo(shape.width() * 0.6, shape.height() * 0.15);
+    context.closePath();
+    context.fillStrokeShape(shape);
+}
+
 function drawActor(context: Context, shape: Shape<ShapeConfig>): void {
     context.beginPath();
     context.arc(shape.width() * 0.5, shape.height() * 0.2, shape.height() * 0.15, 0, Math.PI * 2, false);
@@ -87,10 +113,14 @@ function drawActor(context: Context, shape: Shape<ShapeConfig>): void {
 
 export function getCustomDrawById(id: PredefinedSvg) : CustomDraw {
     switch (id) {
-        case PredefinedSvg.Boundary:
-            return drawBoundary;
         case PredefinedSvg.Actor:
             return drawActor;
+        case PredefinedSvg.Boundary:
+            return drawBoundary;
+        case PredefinedSvg.Control:
+            return drawControl;
+        case PredefinedSvg.Entity:
+            return drawEntity;
         default:
             throw new Error("No custom draw for id: " + id);
     }

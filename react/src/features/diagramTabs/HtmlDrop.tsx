@@ -4,7 +4,7 @@ import {
     classInterface,
     commonNote,
     GalleryItem, interactionActor,
-    interactionBoundary,
+    interactionBoundary, interactionControl, interactionEntity,
     interactionLifeline
 } from "../toolbox/models";
 import {dropFromPaletteAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
@@ -28,6 +28,10 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
 
         case interactionBoundary:
             return { type: ElementType.SequenceLifeLine, subType: PredefinedSvg.Boundary }
+        case interactionControl:
+            return { type: ElementType.SequenceLifeLine, subType: PredefinedSvg.Control }
+        case interactionEntity:
+            return { type: ElementType.SequenceLifeLine, subType: PredefinedSvg.Entity }
         case interactionActor:
             return { type: ElementType.SequenceLifeLine, subType: PredefinedSvg.Actor }
 

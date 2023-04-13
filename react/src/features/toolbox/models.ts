@@ -37,6 +37,8 @@ const items: GalleryItem[] = [
     {key: interactionActor, name: 'Actor', icon: PredefinedSvg.Actor},
     {key: interactionLifeline, name: 'Lifeline', icon: PredefinedSvg.Lifeline},
     {key: interactionBoundary, name: 'Boundary', icon: PredefinedSvg.Boundary},
+    {key: interactionControl, name: 'Control', icon: PredefinedSvg.Control},
+    {key: interactionEntity, name: 'Entity', icon: PredefinedSvg.Entity},
     {key: commonNote, name: 'Note', icon: PredefinedSvg.Note},
 ]
 
