@@ -2,116 +2,19 @@ import React, {useState} from "react";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
-import {Icon, IconButton, Menu, Stack, styled, Tab, Tabs} from "@mui/material";
+import {IconButton, Menu, Stack, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../classDiagram/dialogs/LinkToNewDialog";
 import {atom, useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType, Id} from "../../package/packageModel";
-import {DiagramId, diagramKindSelector, diagramTitleSelector, linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, diagramKindSelector, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
-import {
-    addDiagramTabAction,
-    closeDiagramTabAction,
-    elementSelectedAction,
-    useDispatch
-} from "../diagramEditor/diagramEditorSlice";
+import {addDiagramTabAction, elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import Konva from "konva";
 import {Stage} from 'react-konva';
 import {AppLayoutContext} from "../../app/AppModel";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
 import MenuItem from '@mui/material/MenuItem';
-
-const TabHeight = '48px';
-interface StyledTabProps {
-    diagram_id: DiagramId
-}
-
-const objectWithoutKey = (object: any, key: string) => {
-    const {[key]: deletedKey, ...otherKeys} = object;
-    return otherKeys;
-}
-
-interface CustomTabProps {
-    onClose: () => void;
-    diagram_id: DiagramId
-}
-const CustomTab: React.FC<CustomTabProps & React.ComponentProps<typeof Tab>> =
-    ({
-        onClose,
-        ...props
-    }) => {
-        const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-        const activeDiagramId = useRecoilValue(activeDiagramIdAtom)
-        const isIconVisible = props.diagram_id === activeDiagramId
-        const dispatch = useDispatch()
-
-        const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-            setAnchorEl(event.currentTarget);
-        };
-
-        const handleCloseTab = () => {
-            handleCloseMenu()
-            dispatch(closeDiagramTabAction({}))
-        }
-        const handleCloseMenu = () => {
-            setAnchorEl(null);
-        };
-
-        return (
-
-            <Tab
-                sx={{height: TabHeight, minHeight: TabHeight, paddingRight: "0px"}}
-                icon={<>
-                    <Icon
-                        aria-label="options"
-                        arial-controls="tab-options-menu"
-                        aria-haspopup="true"
-                        onClick={handleClick}
-                        sx={{
-                            padding: '2px',
-                            borderRadius: '50%',
-                            visibility: isIconVisible ? 'visible' : 'hidden',
-                            '&:hover': {
-                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                            },
-                        }}
-                    >
-                        <MoreVertIcon
-                            sx={{
-                                fontSize: '14px',
-                                marginBottom: '0.4em',
-                            }}
-                        />
-                    </Icon>
-                    <Menu
-                        id="tab-options-menu"
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleCloseMenu}
-                    >
-                        <MenuItem onClick={handleCloseTab}>Close</MenuItem>
-                    </Menu>
-                </>
-                }
-                iconPosition={"end"}
-                {...props}
-            />
-        );
-    };
-const PlainTab = styled((props: StyledTabProps) => {
-    const label = useRecoilValue(diagramTitleSelector(props.diagram_id)) ?? "New";
-
-    return <CustomTab
-        label={label}
-        {...objectWithoutKey(props, "diagramId")}
-        disableRipple = {true}
-        diagram_id={props.diagram_id}
-    />;
-    })(
-    () => ({
-        textTransform: 'none'
-    }),
-);
+import {PlainTab, TabHeight} from "./DiagramTab";
 
 export const activeDiagramIdAtom = atom<Id>({
     key: 'activeDiagramId',

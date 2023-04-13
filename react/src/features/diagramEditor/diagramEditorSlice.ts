@@ -99,6 +99,9 @@ export const addDiagramTabAction = createAction<{
 export const closeDiagramTabAction = createAction<{
 }>('tabs/closeDiagramTab');
 
+export const exportDiagramTabAction = createAction<{
+}>("tabs/exportDiagramTab");
+
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 
