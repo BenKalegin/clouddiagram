@@ -7,10 +7,10 @@ import {
     List, ListItemButton, ListItemIcon, ListItemText,
 } from "@mui/material";
 import React from "react";
-import {galleryGroups, GalleryItem} from "../../toolbox/models";
+import {galleryGroups, GalleryItem} from "../toolbox/models";
 import {useRecoilValue} from "recoil";
-import {linkingAtom} from "../../diagramEditor/diagramEditorModel";
-import {linkToNewDialogCompletedAction, useDispatch} from "../../diagramEditor/diagramEditorSlice";
+import {linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {linkToNewDialogCompletedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 
 
 export const LinkToNewDialog = () => {

@@ -1,5 +1,13 @@
 import {Bounds, Coordinate, Diagram, zeroCoordinate} from "../../common/model";
-import {elementsAtom, generateId, Linking, linkingAtom, snapGridSizeAtom} from "./diagramEditorModel";
+import {
+    elementsAtom,
+    exportingAtom,
+    ExportPhase,
+    generateId,
+    Linking,
+    linkingAtom,
+    snapGridSizeAtom
+} from "./diagramEditorModel";
 import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
 import {activeDiagramIdAtom, openDiagramIdsAtom} from "../diagramTabs/DiagramTabs";
@@ -12,6 +20,7 @@ import {ClassDiagramState} from "../classDiagram/classDiagramModel";
 import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 import KonvaEventObject = Konva.KonvaEventObject;
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
+import {ExportKind} from "../export/exportFormats";
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -100,6 +109,8 @@ export const closeDiagramTabAction = createAction<{
 }>('tabs/closeDiagramTab');
 
 export const exportDiagramTabAction = createAction<{
+    exportState: ExportPhase
+    kind?: ExportKind
 }>("tabs/exportDiagramTab");
 
 export type Get = (<T>(a: RecoilValue<T>) => T)
@@ -143,6 +154,9 @@ function handleAction(action: Action, get: Get, set: Set) {
         addDiagramTab(get, set, action.payload.diagramKind);
     }else if (closeDiagramTabAction.match(action)) {
         closeDiagramTab(get, set);
+    }else if (exportDiagramTabAction.match(action)) {
+        const { exportState, kind } = action.payload ;
+        exportDiagramTab(get, set, exportState, kind);
     }
     else
         diagramEditors[diagramKind].handleAction(action, get, set);
@@ -277,6 +291,22 @@ function closeDiagramTab(get: Get, set: Set) {
     set(openDiagramIdsAtom, openDiagramIds.filter(id => id !== diagramId))
     set(activeDiagramIdAtom, openDiagramIds.length === 0 ? "" : openDiagramIds[-1])
 }
+
+export function exportDiagramTab(get: Get, set: Set, exportState: ExportPhase, kind: ExportKind | undefined) {
+    switch (exportState) {
+        case ExportPhase.start:
+            set(exportingAtom, {phase: ExportPhase.exporting})
+            break;
+
+        case ExportPhase.selected:
+            set(exportingAtom, {phase: ExportPhase.exporting, kind: kind})
+            break;
+
+         case ExportPhase.cancel:
+            set(exportingAtom, undefined)
+    }
+}
+
 
 
 export const diagramEditors: Record<any, DiagramEditor> = {

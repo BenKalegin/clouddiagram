@@ -1,6 +1,6 @@
 import {Icon, Menu, styled, Tab} from "@mui/material";
 import {useRecoilValue} from "recoil";
-import {DiagramId, diagramTitleSelector} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, diagramTitleSelector, ExportPhase} from "../diagramEditor/diagramEditorModel";
 import React, {useState} from "react";
 import {closeDiagramTabAction, exportDiagramTabAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -21,7 +21,7 @@ const objectWithoutKey = (object: any, key: string) => {
 
 interface DiagramTabProps {
     onClose: () => void;
-    diagram_id: DiagramId
+    diagramId: DiagramId
 }
 
 const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
@@ -31,7 +31,7 @@ const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
      }) => {
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
         const activeDiagramId = useRecoilValue(activeDiagramIdAtom)
-        const isIconVisible = props.diagram_id === activeDiagramId
+        const isIconVisible = props.diagramId === activeDiagramId
         const dispatch = useDispatch()
 
         const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -45,7 +45,7 @@ const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
 
         const exportTab = () => {
             handleCloseMenu()
-            dispatch(exportDiagramTabAction({}))
+            dispatch(exportDiagramTabAction({exportState: ExportPhase.start}))
         }
         const handleCloseMenu = () => {
             setAnchorEl(null);
@@ -100,7 +100,7 @@ export const PlainTab = styled((props: StyledTabProps) => {
         label={label}
         {...objectWithoutKey(props, "diagramId")}
         disableRipple={true}
-        diagram_id={props.diagram_id}
+        diagramId={props.diagram_id}
     />;
 })(
     () => ({

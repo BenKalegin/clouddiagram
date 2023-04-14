@@ -4,6 +4,7 @@ import {atom, atomFamily, selectorFamily} from "recoil";
 import {elements} from "../demo";
 import {nanoid} from 'nanoid';
 import {diagramEditors} from "./diagramEditorSlice";
+import {ExportKind} from "../export/exportFormats";
 
 export interface Linking {
     sourceElement: Id
@@ -18,6 +19,20 @@ export interface Linking {
 }
 
 export type DiagramId = Id;
+
+
+export enum ExportPhase {
+    start,
+    selected,
+    exporting,
+    done,
+    cancel
+}
+export interface Exporting {
+    phase: ExportPhase;
+    kind?: ExportKind
+}
+
 export const emptyElementSentinel: DiagramElement = {id: "", type: ElementType.ClassNode};
 
 export const elementsAtom = atomFamily<DiagramElement, Id>({
@@ -61,6 +76,11 @@ export const selectedElementsSelector = selectorFamily<ElementRef[], DiagramId>(
 
 export const linkingAtom = atom<Linking | undefined>({
     key: 'linking',
+    default: undefined
+})
+
+export const exportingAtom = atom<Exporting | undefined>({
+    key: 'exporting',
     default: undefined
 })
 

@@ -1,46 +1,88 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   fill="#000000"
-   width="24"
-   height="24"
-   version="1.1"
-   id="svg199"
-   viewBox="0 0 24 24"
    xmlns="http://www.w3.org/2000/svg"
-   >
-  <ellipse
-     cx="11.801029"
-     cy="5.2034569"
-     style="fill:none;stroke:#000000;stroke-width:2"
-     id="circle187"
-     rx="2.8602061"
-     ry="2.6947336" />
-  <line
-     x1="11.801029"
-     y1="7.8981915"
-     x2="11.801029"
-     y2="14.635025"
-     style="stroke:#000000;stroke-width:2"
-     id="line189" />
-  <line
-     x1="6.0806179"
-     y1="10.592927"
-     x2="17.521442"
-     y2="10.592927"
-     style="stroke:#000000;stroke-width:2"
-     id="line191" />
-  <line
-     x1="11.801029"
-     y1="14.635025"
-     x2="7.5107217"
-     y2="21.371859"
-     style="stroke:#000000;stroke-width:2"
-     id="line193" />
-  <line
-     x1="11.801029"
-     y1="14.635025"
-     x2="16.091339"
-     y2="21.371859"
-     style="stroke:#000000;stroke-width:1"
-     id="line195" />
+   viewBox="0 0 24 24"
+   id="svg199"
+   version="1.1"
+   height="24"
+   width="24"
+   fill="#000000">
+  <defs
+     id="defs1013">
+    <linearGradient
+       id="linearGradient1088">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1"
+         offset="0"
+         id="stop1082" />
+      <stop
+         id="stop1084"
+         offset="0.5"
+         style="stop-color:#a0a0a0;stop-opacity:1" />
+      <stop
+         style="stop-color:#282828;stop-opacity:1"
+         offset="1"
+         id="stop1086" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient1052-3">
+      <stop
+         id="stop1048"
+         offset="0"
+         style="stop-color:#8eff8e;stop-opacity:0.55000001;" />
+      <stop
+         style="stop-color:#79b179;stop-opacity:0.77254902;"
+         offset="0.5"
+         id="stop1080" />
+      <stop
+         id="stop1050"
+         offset="1"
+         style="stop-color:#646464;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient
+       r="4.5491772"
+       fy="5.2370992"
+       fx="9.4656343"
+       cy="5.2370992"
+       cx="9.4656343"
+       gradientTransform="matrix(0.52616606,0,0,0.55150424,6.0195043,1.7119626)"
+       gradientUnits="userSpaceOnUse"
+       id="radialGradient1058"
+     />
+    <radialGradient
+       r="4.717473"
+       fy="4.5704308"
+       fx="10.545583"
+       cy="4.5704308"
+       cx="10.545583"
+       gradientTransform="matrix(1,0,0,0.98954808,0,0.06044973)"
+       gradientUnits="userSpaceOnUse"
+       id="radialGradient1078"
+       />
+  </defs>
+  <path
+     d="M 16.359161,5.7836008 A 4.217473,4.1681662 0 0 1 12.141688,9.951767 4.217473,4.1681662 0 0 1 7.9242153,5.7836008 4.217473,4.1681662 0 0 1 12.141688,1.6154346 4.217473,4.1681662 0 0 1 16.359161,5.7836008 Z"
+     style="fill:url(#radialGradient1078);fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path1019" />
+  <path
+     id="path1036"
+     d="m 12.141688,10 c 0,6.428314 0,6.428314 0,6.428314"
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+  <g
+     style="stroke-width:0.960096"
+     transform="matrix(1.041563,0,0,1.041563,-2.185826,-0.9870293)"
+     id="g1046">
+    <path
+       id="path1038"
+       d="m 18.006053,23.747792 c -4.25027,-7.275616 -4.25027,-7.275616 -4.25027,-7.275616"
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.960095px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.960095px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.5055132,23.747792 C 13.755783,16.472176 13.755783,16.472176 13.755783,16.472176"
+       id="path1040" />
+  </g>
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 16.878957,13.090736 c -9.4745374,0 -9.4745374,0 -9.4745374,0"
+     id="path1042" />
 </svg>
