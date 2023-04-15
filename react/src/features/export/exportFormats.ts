@@ -15,10 +15,17 @@ interface exportRegistryEntry {
 const exportRegistry: exportRegistryEntry[] = [
     {
         kind: ExportKind.PlantUmlSequenceDiagram,
-        name: "PlantUML Sequence Diagram",
+        name: "PlantUML",
         exportFunction: exportSequenceDiagramAsPlantUml,
     },
 ];
 export const exportFormats: [ExportKind, string][] =
     exportRegistry.map(e => [e.kind, e.name]);
+
+export function exportDiagramAs(diagram: Diagram, kind: ExportKind): string {
+    const entry = exportRegistry.find(e => e.kind === kind);
+    if (!entry)
+        throw new Error("Unknown export kind " + kind);
+    return entry.exportFunction(diagram);
+}
 

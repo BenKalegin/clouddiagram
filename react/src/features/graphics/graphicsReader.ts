@@ -21,7 +21,7 @@ export enum PredefinedSvg {
     Class,
     Interface,
     Note,
-    Lifeline
+    Lifeline,
 }
 
 export const iconRegistry: Record<PredefinedSvg, React.FunctionComponent<React.SVGProps<SVGSVGElement>>> = {

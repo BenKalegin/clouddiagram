@@ -1,11 +1,11 @@
 import {Rect} from "react-konva";
 import {useRecoilValue} from "recoil";
-import {PortId, activationRenderSelector} from "./sequenceDiagramModel";
+import {ActivationId, activationRenderSelector} from "./sequenceDiagramModel";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {ShapeStyle} from "../../package/packageModel";
 
 export interface ActivationProps {
-    activationId: PortId
+    activationId: ActivationId
     diagramId: DiagramId
     shapeStyle: ShapeStyle
 }

@@ -20,7 +20,7 @@ import {ClassDiagramState} from "../classDiagram/classDiagramModel";
 import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 import KonvaEventObject = Konva.KonvaEventObject;
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
-import {ExportKind} from "../export/exportFormats";
+import {exportDiagramAs, ExportKind} from "../export/exportFormats";
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -293,13 +293,16 @@ function closeDiagramTab(get: Get, set: Set) {
 }
 
 export function exportDiagramTab(get: Get, set: Set, exportState: ExportPhase, kind: ExportKind | undefined) {
+
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as Diagram;
     switch (exportState) {
         case ExportPhase.start:
             set(exportingAtom, {phase: ExportPhase.exporting})
             break;
 
         case ExportPhase.selected:
-            set(exportingAtom, {phase: ExportPhase.exporting, kind: kind})
+            set(exportingAtom, {phase: ExportPhase.exporting, kind: kind, code: exportDiagramAs(diagram, kind!)})
             break;
 
          case ExportPhase.cancel:

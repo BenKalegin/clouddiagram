@@ -21,7 +21,7 @@ const objectWithoutKey = (object: any, key: string) => {
 
 interface DiagramTabProps {
     onClose: () => void;
-    diagramId: DiagramId
+    diagram_id: DiagramId
 }
 
 const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
@@ -31,7 +31,7 @@ const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
      }) => {
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
         const activeDiagramId = useRecoilValue(activeDiagramIdAtom)
-        const isIconVisible = props.diagramId === activeDiagramId
+        const isIconVisible = props.diagram_id === activeDiagramId
         const dispatch = useDispatch()
 
         const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -100,7 +100,7 @@ export const PlainTab = styled((props: StyledTabProps) => {
         label={label}
         {...objectWithoutKey(props, "diagramId")}
         disableRipple={true}
-        diagramId={props.diagram_id}
+        diagram_id={props.diagram_id}
     />;
 })(
     () => ({
