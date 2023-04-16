@@ -9,40 +9,9 @@
    id="svg199"
    viewBox="0 0 24 24"
 >
-  <defs
-     id="defs1013">
+  <defs>
     <linearGradient
-       id="linearGradient1221">
-      <stop
-         style="stop-color:#ffffff;stop-opacity:1"
-         offset="0"
-         id="stop1215" />
-      <stop
-         id="stop1217"
-         offset="0.70217299"
-         style="stop-color:#a0a0a0;stop-opacity:1" />
-      <stop
-         style="stop-color:#282828;stop-opacity:1"
-         offset="1"
-         id="stop1219" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient1088">
-      <stop
-         style="stop-color:#ffffff;stop-opacity:1"
-         offset="0"
-         id="stop1208" />
-      <stop
-         id="stop1210"
-         offset="0.5"
-         style="stop-color:#a0a0a0;stop-opacity:1" />
-      <stop
-         style="stop-color:#282828;stop-opacity:1"
-         offset="1"
-         id="stop1212" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient1088-8">
+       id="intf-grad-1">
       <stop
          id="stop1082"
          offset="0"
@@ -56,31 +25,6 @@
          offset="1"
          style="stop-color:#282828;stop-opacity:1" />
     </linearGradient>
-    <linearGradient
-       id="linearGradient1052-3">
-      <stop
-         style="stop-color:#8eff8e;stop-opacity:0.55000001;"
-         offset="0"
-         id="stop1048" />
-      <stop
-         id="stop1080"
-         offset="0.5"
-         style="stop-color:#79b179;stop-opacity:0.77254902;" />
-      <stop
-         style="stop-color:#646464;stop-opacity:1"
-         offset="1"
-         id="stop1050" />
-    </linearGradient>
-    <radialGradient
-       xlink:href="#linearGradient1052-3"
-       id="radialGradient1058"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.52616606,0,0,0.55150424,6.0195043,1.7119626)"
-       cx="9.4656343"
-       cy="5.2370992"
-       fx="9.4656343"
-       fy="5.2370992"
-       r="4.5491772" />
     <radialGradient
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(0.99999998,0,0,0.9857131,0,0.26089939)"
@@ -90,7 +34,7 @@
        cy="9.3699045"
        cx="4.4092579"
        id="radialGradient3042"
-       xlink:href="#linearGradient1088-8"
+       xlink:href="#intf-grad-1"
        />
   </defs>
   <path

@@ -8,10 +8,9 @@
    height="24"
    width="24"
    fill="#000000">
-  <defs
-     id="defs1013">
+  <defs>
     <linearGradient
-       id="linearGradient1221">
+       id="class-grad-1">
       <stop
          id="stop1215"
          offset="0"
@@ -26,81 +25,14 @@
          style="stop-color:#282828;stop-opacity:1" />
     </linearGradient>
     <linearGradient
-       id="linearGradient1088">
-      <stop
-         id="stop1208"
-         offset="0"
-         style="stop-color:#ffffff;stop-opacity:1" />
-      <stop
-         style="stop-color:#a0a0a0;stop-opacity:1"
-         offset="0.5"
-         id="stop1210" />
-      <stop
-         id="stop1212"
-         offset="1"
-         style="stop-color:#282828;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient1088-8">
-      <stop
-         style="stop-color:#ffffff;stop-opacity:1"
-         offset="0"
-         id="stop1082" />
-      <stop
-         id="stop1084"
-         offset="0.5"
-         style="stop-color:#a0a0a0;stop-opacity:1" />
-      <stop
-         style="stop-color:#282828;stop-opacity:1"
-         offset="1"
-         id="stop1086" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient1052-3">
-      <stop
-         id="stop1048"
-         offset="0"
-         style="stop-color:#8eff8e;stop-opacity:0.55000001;" />
-      <stop
-         style="stop-color:#79b179;stop-opacity:0.77254902;"
-         offset="0.5"
-         id="stop1080" />
-      <stop
-         id="stop1050"
-         offset="1"
-         style="stop-color:#646464;stop-opacity:1" />
-    </linearGradient>
-    <radialGradient
-       r="4.5491772"
-       fy="5.2370992"
-       fx="9.4656343"
-       cy="5.2370992"
-       cx="9.4656343"
-       gradientTransform="matrix(0.52616606,0,0,0.55150424,6.0195043,1.7119626)"
-       gradientUnits="userSpaceOnUse"
-       id="radialGradient1058"
-       xlink:href="#linearGradient1052-3"
-       />
-    <radialGradient
-       r="4.717473"
-       fy="8.4664526"
-       fx="12.052979"
-       cy="8.4664526"
-       cx="12.052979"
-       gradientTransform="matrix(1.6477604,0,0,1.8513008,-8.5760972,-8.0256868)"
-       gradientUnits="userSpaceOnUse"
-       id="radialGradient1078"
-       xlink:href="#linearGradient1088-8"
-       />
-    <linearGradient
        gradientTransform="rotate(-90,6.2019485e-7,-6.0220789e-7)"
        gradientUnits="userSpaceOnUse"
        y2="18.999998"
        x2="24"
        y1="18.999998"
        x1="8"
-       id="linearGradient1206"
-       xlink:href="#linearGradient1221"
+       id="class-grad-2"
+       xlink:href="#class-grad-1"
        />
   </defs>
   <rect
@@ -110,7 +42,7 @@
      height="21.000002"
      width="21.000004"
      id="rect1198"
-     style="fill:url(#linearGradient1206);fill-opacity:1;stroke:#000000;stroke-width:0.999997;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+     style="fill:url(#class-grad-1);fill-opacity:1;stroke:#000000;stroke-width:0.999997;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   <path
      id="path2424"
      d="M 6.4389917,1.5453808 6.4662755,22.362968"
