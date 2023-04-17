@@ -121,7 +121,7 @@ export const DiagramTabs = () => {
                 </HtmlDrop>
             </div>
             {linking && linking.showLinkToNewDialog && <LinkToNewDialog/>}
-            {exporting &&  <ExportDialog/>}
+            {exporting &&  <ExportDialog diagramKind={diagramKind}/>}
 
         </Stack>
     )

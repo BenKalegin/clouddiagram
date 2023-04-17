@@ -14,8 +14,9 @@ import {exportingAtom, ExportPhase} from "../diagramEditor/diagramEditorModel";
 import {exportDiagramTabAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {exportFormats, ExportKind} from "../export/exportFormats";
 import {CodeMemo} from "../commonControls/CodeMemo";
+import {ElementType} from "../../package/packageModel";
 
-export const ExportDialog = () => {
+export const ExportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
     const exporting = useRecoilValue(exportingAtom)
     const dispatch = useDispatch();
 
@@ -34,7 +35,7 @@ export const ExportDialog = () => {
                 <Grid container spacing={2} style={{ display: 'flex', flexWrap: 'nowrap' }}>
                         <Grid item xs={4}>
                             <List>
-                                { exportFormats.map(([kind, name], index) => (
+                                { exportFormats(diagramKind).map(([kind, name], index) => (
                                     <ListItemButton
                                         key={index}
                                         onClick={() => toggleHideDialog(kind)}
