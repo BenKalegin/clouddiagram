@@ -31,7 +31,6 @@ export enum ExportPhase {
 export interface Exporting {
     phase: ExportPhase;
     kind?: ExportKind
-    code?: string
 }
 
 export const emptyElementSentinel: DiagramElement = {id: "", type: ElementType.ClassNode};

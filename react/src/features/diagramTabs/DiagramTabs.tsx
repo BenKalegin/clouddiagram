@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
@@ -68,6 +68,7 @@ export const DiagramTabs = () => {
 
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
     const dispatch = useDispatch()
+    let stageRef: React.RefObject<Konva.Stage> = useRef<Konva.Stage | null>(null);
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on empty area
         const clickedOnEmpty = e.target === e.target.getStage()
@@ -77,7 +78,6 @@ export const DiagramTabs = () => {
             }
         }
     }
-
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setActiveDiagramId(openDiagramIds[newValue]);
@@ -108,6 +108,7 @@ export const DiagramTabs = () => {
                             width={window.innerWidth}
                             height={window.innerHeight}
                             onMouseDown={e => checkDeselect(e)}
+                            ref={stageRef}
                         >
                             <Bridge>
                                 <AppLayoutContext.Provider value={value}>
@@ -121,7 +122,7 @@ export const DiagramTabs = () => {
                 </HtmlDrop>
             </div>
             {linking && linking.showLinkToNewDialog && <LinkToNewDialog/>}
-            {exporting &&  <ExportDialog diagramKind={diagramKind}/>}
+            {exporting &&  <ExportDialog diagramKind={diagramKind} getStage={() => stageRef.current}/>}
 
         </Stack>
     )

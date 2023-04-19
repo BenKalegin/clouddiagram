@@ -10,19 +10,26 @@ import {
 } from "@mui/material";
 import React from "react";
 import {useRecoilValue} from "recoil";
-import {exportingAtom, ExportPhase} from "../diagramEditor/diagramEditorModel";
+import {elementsAtom, exportingAtom, ExportPhase} from "../diagramEditor/diagramEditorModel";
 import {exportDiagramTabAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
-import {exportFormats, ExportKind} from "../export/exportFormats";
+import {exportDiagramAs, exportFormats, ExportKind} from "../export/exportFormats";
 import {CodeMemo} from "../commonControls/CodeMemo";
 import {ElementType} from "../../package/packageModel";
+import Konva from "konva";
+import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {Diagram} from "../../common/model";
 
-export const ExportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
+export const ExportDialog = ({diagramKind, getStage}: {diagramKind: ElementType, getStage: () => Konva.Stage | null}) => {
     const exporting = useRecoilValue(exportingAtom)
     const dispatch = useDispatch();
+    const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
+    const diagram = useRecoilValue(elementsAtom(activeDiagramId)) as Diagram;
 
     function toggleHideDialog(item: ExportKind | undefined) {
         dispatch(exportDiagramTabAction({exportState: item === undefined ? ExportPhase.cancel : ExportPhase.selected, kind: item}));
     }
+
+    const stage = getStage()
 
     return (
         <Dialog
@@ -49,7 +56,7 @@ export const ExportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
                             <CodeMemo
                                 label="Exported code"
                                 placeholder="Exported code"
-                                value={exporting?.code}
+                                value={ stage && exporting?.kind ? exportDiagramAs(diagram, exporting.kind, stage ) : "" }
                                 //readOnly={true}
                                 minRows={20}
                             />
@@ -57,7 +64,7 @@ export const ExportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
                     </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => toggleHideDialog(undefined)}>Cancel</Button>
+                <Button onClick={() => toggleHideDialog(undefined)}>Close</Button>
             </DialogActions>
         </Dialog>
     )

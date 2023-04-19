@@ -15,6 +15,7 @@ export enum ElementType {
     Note,
 }
 
+export const AllDiagramTypes: ElementType[] = [ElementType.ClassDiagram, ElementType.SequenceDiagram];
 export interface ElementRef {
     id: Id;
     type: ElementType
