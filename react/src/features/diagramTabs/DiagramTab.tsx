@@ -1,10 +1,16 @@
 import {Icon, Menu, styled, Tab} from "@mui/material";
 import {useRecoilValue} from "recoil";
-import {DiagramId, diagramTitleSelector, ExportPhase} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, diagramTitleSelector, ExportPhase, ImportPhase} from "../diagramEditor/diagramEditorModel";
 import React, {useState} from "react";
-import {closeDiagramTabAction, exportDiagramTabAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {
+    closeDiagramTabAction,
+    exportDiagramTabAction,
+    importDiagramTabAction,
+    useDispatch
+} from "../diagramEditor/diagramEditorSlice";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import MenuItem from "@mui/material/MenuItem";
+import MenuDivider from "@mui/material/Divider";
 import {activeDiagramIdAtom} from "./DiagramTabs";
 
 export const TabHeight = '48px';
@@ -47,6 +53,10 @@ const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
             handleCloseMenu()
             dispatch(exportDiagramTabAction({exportState: ExportPhase.start}))
         }
+        const importTab = () => {
+            handleCloseMenu()
+            dispatch(importDiagramTabAction({importState: ImportPhase.start}))
+        }
         const handleCloseMenu = () => {
             setAnchorEl(null);
         };
@@ -84,6 +94,8 @@ const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
                         onClose={handleCloseMenu}
                     >
                         <MenuItem onClick={exportTab}>Export</MenuItem>
+                        <MenuItem onClick={importTab}>Import</MenuItem>
+                        <MenuDivider />
                         <MenuItem onClick={closeTab}>Close</MenuItem>
                     </Menu>
                 </>

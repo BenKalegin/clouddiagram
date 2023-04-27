@@ -6,7 +6,7 @@ import {exportAsPng} from "./pngFormat";
 import Konva from "konva";
 import Stage = Konva.Stage;
 
-export enum ExportKind {
+export enum ExportImportFormat {
     PlantUmlSequenceDiagram = "plantuml_sequence",
     LucidChartSequenceDiagram = "lucid_sequence",
     Png = "png",
@@ -14,40 +14,56 @@ export enum ExportKind {
 
 
 interface exportRegistryEntry {
-    kind: ExportKind;
+    format: ExportImportFormat;
     name: string;
     supportedDiagram: ElementType[];
-    exportFunction: (diagram: Diagram, stage: Stage) => string;
+    exportFunction?: (diagram: Diagram, stage: Stage) => string;
+    importFunction?: (diagram: Diagram, content: string) => void;
 }
 
-const exportRegistry: exportRegistryEntry[] = [
+const formatRegistry: exportRegistryEntry[] = [
     {
-        kind: ExportKind.PlantUmlSequenceDiagram,
+        format: ExportImportFormat.PlantUmlSequenceDiagram,
         name: "PlantUML",
         exportFunction: exportSequenceDiagramAsPlantUml,
         supportedDiagram: [ElementType.SequenceDiagram]
     },
     {
-        kind: ExportKind.LucidChartSequenceDiagram,
+        format: ExportImportFormat.LucidChartSequenceDiagram,
         name: "Lucid Charts",
         exportFunction: exportSequenceDiagramAsLucid,
         supportedDiagram: [ElementType.SequenceDiagram]
     },
     {
-        kind: ExportKind.Png,
+        format: ExportImportFormat.Png,
         name: "PNG image",
         exportFunction: exportAsPng,
         supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram]
     },
 ];
-export function exportFormats(diagramType: ElementType): [ExportKind, string][] {
-    return exportRegistry.filter(e => e.supportedDiagram.includes(diagramType)).map(e => [e.kind, e.name]);
+export function exportFormats(diagramType: ElementType): [ExportImportFormat, string][] {
+    return formatRegistry
+        .filter(e => e.supportedDiagram.includes(diagramType) && e.exportFunction)
+        .map(e => [e.format, e.name]);
 }
 
-export function exportDiagramAs(diagram: Diagram, kind: ExportKind, stage: Stage): string {
-    const entry = exportRegistry.find(e => e.kind === kind);
+export function importFormats(diagramType: ElementType): [ExportImportFormat, string][] {
+    return formatRegistry
+        .filter(e => e.supportedDiagram.includes(diagramType) && e.importFunction)
+        .map(e => [e.format, e.name]);
+}
+
+export function exportDiagramAs(diagram: Diagram, kind: ExportImportFormat, stage: Stage): string {
+    const entry = formatRegistry.find(e => e.format === kind);
     if (!entry)
         throw new Error("Unknown export kind " + kind);
-    return entry.exportFunction(diagram, stage);
+    return entry.exportFunction!(diagram, stage);
+}
+
+export function importDiagramAs(diagram: Diagram, kind: ExportImportFormat, content: string): void {
+    const entry = formatRegistry.find(e => e.format === kind);
+    if (!entry)
+        throw new Error("Unknown export kind " + kind);
+    return entry.importFunction!(diagram, content);
 }
 

@@ -3,7 +3,7 @@ import {
     elementsAtom,
     exportingAtom,
     ExportPhase,
-    generateId,
+    generateId, Importing, importingAtom, ImportPhase,
     Linking,
     linkingAtom,
     snapGridSizeAtom
@@ -20,7 +20,7 @@ import {ClassDiagramState} from "../classDiagram/classDiagramModel";
 import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 import KonvaEventObject = Konva.KonvaEventObject;
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
-import {ExportKind} from "../export/exportFormats";
+import {ExportImportFormat} from "../export/exportFormats";
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -110,8 +110,13 @@ export const closeDiagramTabAction = createAction<{
 
 export const exportDiagramTabAction = createAction<{
     exportState: ExportPhase
-    kind?: ExportKind
+    format?: ExportImportFormat
 }>("tabs/exportDiagramTab");
+
+export const importDiagramTabAction = createAction<{
+    importState: ImportPhase
+    format?: ExportImportFormat
+}>('tabs/importDiagramTab');
 
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
@@ -155,8 +160,11 @@ function handleAction(action: Action, get: Get, set: Set) {
     }else if (closeDiagramTabAction.match(action)) {
         closeDiagramTab(get, set);
     }else if (exportDiagramTabAction.match(action)) {
-        const { exportState, kind } = action.payload ;
-        exportDiagramTab(get, set, exportState, kind);
+        const { exportState, format } = action.payload ;
+        exportDiagramTab(get, set, exportState, format);
+    }else if (importDiagramTabAction.match(action)) {
+        const { importState, format } = action.payload ;
+        importDiagramTab(get, set, importState, format);
     }
     else
         diagramEditors[diagramKind].handleAction(action, get, set);
@@ -261,6 +269,7 @@ function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
                 nodes: {},
                 ports: {},
                 links: {},
+                notes: {}
 
             } as ClassDiagramState;
             break;
@@ -272,7 +281,8 @@ function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
                 title: "Sequence Diagram",
                 lifelines: {},
                 messages: {},
-                activations: {}
+                activations: {},
+                notes: {}
             } as SequenceDiagramState;
             break;
 
@@ -292,7 +302,7 @@ function closeDiagramTab(get: Get, set: Set) {
     set(activeDiagramIdAtom, openDiagramIds.length === 0 ? "" : openDiagramIds[-1])
 }
 
-export function exportDiagramTab(get: Get, set: Set, exportState: ExportPhase, kind: ExportKind | undefined) {
+export function exportDiagramTab(get: Get, set: Set, exportState: ExportPhase, format: ExportImportFormat | undefined) {
 
     switch (exportState) {
         case ExportPhase.start:
@@ -300,11 +310,27 @@ export function exportDiagramTab(get: Get, set: Set, exportState: ExportPhase, k
             break;
 
         case ExportPhase.selected:
-            set(exportingAtom, {phase: ExportPhase.exporting, kind: kind})
+            set(exportingAtom, {phase: ExportPhase.exporting, format: format})
             break;
 
          case ExportPhase.cancel:
             set(exportingAtom, undefined)
+    }
+}
+
+export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format: ExportImportFormat | undefined) {
+
+    switch (phase) {
+        case ImportPhase.start:
+            set(importingAtom, {phase: ImportPhase.importing})
+            break;
+
+        case ImportPhase.selected:
+            set(importingAtom, {phase: ImportPhase.importing, format} as Importing)
+            break;
+
+         case ImportPhase.cancel:
+            set(importingAtom, undefined)
     }
 }
 

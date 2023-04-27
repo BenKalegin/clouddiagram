@@ -6,7 +6,13 @@ import {IconButton, Menu, Stack, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../dialogs/LinkToNewDialog";
 import {atom, useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType, Id} from "../../package/packageModel";
-import {DiagramId, diagramKindSelector, exportingAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {
+    DiagramId,
+    diagramKindSelector,
+    exportingAtom,
+    importingAtom,
+    linkingAtom
+} from "../diagramEditor/diagramEditorModel";
 import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
 import {addDiagramTabAction, elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import Konva from "konva";
@@ -16,6 +22,7 @@ import AddIcon from '@mui/icons-material/Add';
 import MenuItem from '@mui/material/MenuItem';
 import {PlainTab, TabHeight} from "./DiagramTab";
 import {ExportDialog} from "../dialogs/ExportDialog";
+import {ImportDialog} from "../dialogs/ImportDialog";
 
 export const activeDiagramIdAtom = atom<Id>({
     key: 'activeDiagramId',
@@ -65,6 +72,7 @@ export const DiagramTabs = () => {
     const openDiagramIds = useRecoilValue(openDiagramIdsAtom);
     const linking = useRecoilValue(linkingAtom)
     const exporting = useRecoilValue(exportingAtom)
+    const importing = useRecoilValue(importingAtom)
 
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
     const dispatch = useDispatch()
@@ -123,6 +131,8 @@ export const DiagramTabs = () => {
             </div>
             {linking && linking.showLinkToNewDialog && <LinkToNewDialog/>}
             {exporting &&  <ExportDialog diagramKind={diagramKind} getStage={() => stageRef.current}/>}
+            {importing &&  <ImportDialog diagramKind={diagramKind} />}
+
 
         </Stack>
     )
