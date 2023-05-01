@@ -1,0 +1,32 @@
+sequenceDiagram
+    participant Student
+    participant Instructor
+    participant Course
+    participant EnrollmentSystem
+    participant GradingSystem
+    participant PaymentGateway
+
+    Student->EnrollmentSystem: Request course enrollment
+    EnrollmentSystem->PaymentGateway: Process enrollment fee
+    PaymentGateway->EnrollmentSystem: Respond with payment status
+    EnrollmentSystem->Student: Respond with enrollment status
+    Student->Course: Request course information
+    Course->Instructor: Query for course information
+    Instructor->Course: Respond with course information
+    Course->Student: Respond with course information
+    Student->Course: Request course materials
+    Course->Instructor: Query for course materials
+    Instructor->Course: Respond with course materials
+    Course->Student: Respond with course materials
+    Student->GradingSystem: Request assignment submission
+    GradingSystem->Course: Query for assignment submission details
+    Course->GradingSystem: Respond with assignment submission details
+    GradingSystem->Student: Push assignment submission status
+    Student->GradingSystem: Submit assignment
+    GradingSystem->Course: Store assignment submission
+    Course->GradingSystem: Respond with submission status
+    GradingSystem->Student: Respond with submission status
+    Instructor->GradingSystem: Grade assignment submission
+    GradingSystem->Course: Update assignment grade
+    Course->GradingSystem: Respond with grade update status
+    GradingSystem->Student: Push grade update

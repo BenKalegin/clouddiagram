@@ -63,3 +63,31 @@ export function exportSequenceDiagramAsLucid(baseDiagram: Diagram): string {
 
     return lines.join("\n");
 }
+
+// export function importSequenceDiagramFromLucid(markup: string): Diagram {
+//     const lines = markup.split(/\r?\n/);
+//
+//     for (const line of lines) {
+//         if (line.startsWith('@startuml') || line.startsWith('@enduml')) {
+//             continue;
+//         }
+//
+//     }
+//
+//
+//         if (participantMatch || responseMatch) {
+//             const [_, from, to, content] = participantMatch || responseMatch;
+//             const isResponse = !!responseMatch;
+//
+//             this.addParticipant(parsedSequence, from);
+//             this.addParticipant(parsedSequence, to);
+//
+//             parsedSequence.messages.push({
+//                 from,
+//                 to,
+//                 content,
+//                 isResponse,
+//             });
+//         }
+//     }
+// }

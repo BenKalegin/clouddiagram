@@ -1,0 +1,28 @@
+sequenceDiagram
+    participant Trader
+    participant Broker
+    participant Exchange
+    participant MarketData
+
+    Trader->Broker: Request stock quote
+    Broker->Exchange: Query for stock quote
+    Exchange->Broker: Respond with stock quote
+    Broker->Trader: Respond with stock quote
+    Trader->Broker: Place buy order
+    Broker->Exchange: Place buy order
+    Exchange->Broker: Respond with order confirmation
+    Broker->Trader: Respond with order confirmation
+    Trader->Broker: Place sell order
+    Broker->Exchange: Place sell order
+    Exchange->Broker: Respond with order confirmation
+    Broker->Trader: Respond with order confirmation
+    MarketData->Exchange: Subscribe to market data updates
+    Exchange->MarketData: Register subscriber for market data updates
+    MarketData->Trader: Push market data updates
+    Trader->Broker: Request real-time quote stream
+    Broker->Exchange: Subscribe to real-time quote stream
+    Exchange->Broker: Respond with subscription status
+    Broker->Trader: Respond with subscription status
+    MarketData->Exchange: Push real-time quote stream updates
+    Exchange->Broker: Receive real-time quote stream updates
+    Broker->Trader: Push real-time quote stream updates

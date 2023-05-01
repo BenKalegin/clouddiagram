@@ -62,8 +62,8 @@ export const CodeMemo: React.FC<CodeMemoProps> = (props) => {
                     edge="end"
                     color="primary"
                     sx={{ position: 'absolute',
-                          top: 60,
-                          right: 30}}>
+                          top: 75,
+                          right: 35}}>
                     <FileCopyIcon />
                 </IconButton>
             </Tooltip>

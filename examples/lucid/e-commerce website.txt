@@ -1,0 +1,34 @@
+sequenceDiagram
+    participant User
+    participant Browser
+    participant WebServer
+    participant Database
+    participant PaymentGateway
+
+    User->Browser: Visit e-commerce website
+    Browser->WebServer: Request homepage
+    WebServer->Database: Query for products
+    Database->WebServer: Respond with products
+    WebServer->Browser: Render homepage with products
+    User->Browser: Search for product
+    Browser->WebServer: Request search results for product
+    WebServer->Database: Query for matching products
+    Database->WebServer: Respond with matching products
+    WebServer->Browser: Render search results
+    User->Browser: Add product to cart
+    Browser->WebServer: Request add-to-cart for product
+    WebServer->Database: Update cart with product
+    Database->WebServer: Respond with updated cart
+    WebServer->Browser: Render cart with added product
+    User->Browser: Proceed to checkout
+    Browser->WebServer: Request checkout page
+    WebServer->Database: Query for cart contents
+    Database->WebServer: Respond with cart contents
+    WebServer->Browser: Render checkout page with cart contents
+    User->Browser: Submit payment information
+    Browser->WebServer: Request payment processing
+    WebServer->PaymentGateway: Process payment with payment gateway
+    PaymentGateway->WebServer: Respond with payment status
+    WebServer->Database: Update order with payment status
+    Database->WebServer: Respond with updated order status
+    WebServer->Browser: Render order confirmation page

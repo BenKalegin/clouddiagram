@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant User
+    participant Client
+    participant AuthorizationServer
+    participant ResourceServer
+
+    User->Client: Click "Login with Provider"
+    Client->AuthorizationServer: Request Authorization Code
+    AuthorizationServer->User: Prompt for Login Credentials
+    User->AuthorizationServer: Provide Login Credentials
+    AuthorizationServer->User: Redirect to Client with Authorization Code
+    Client->AuthorizationServer: Request Access Token
+    AuthorizationServer->Client: Respond with Access Token
+    Client->ResourceServer: Request Resource with Access Token
+    ResourceServer->Client: Respond with Resource

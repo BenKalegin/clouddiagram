@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant User
+    participant ShoppingCart
+    participant PaymentGateway
+    participant OrderProcessingSystem
+    participant ShippingService
+    participant InventorySystem
+
+    User->ShoppingCart: Add items to cart
+    ShoppingCart->User: Respond with cart contents
+    User->ShoppingCart: Remove items from cart
+    ShoppingCart->User: Respond with updated cart contents
+    User->PaymentGateway: Request payment page
+    PaymentGateway->User: Redirect to payment page
+    User->PaymentGateway: Enter payment information
+    PaymentGateway->InventorySystem: Check item availability
+    InventorySystem->PaymentGateway: Respond with item availability
+    PaymentGateway->OrderProcessingSystem: Process order
+    OrderProcessingSystem->InventorySystem: Reserve items in inventory
+    InventorySystem->OrderProcessingSystem: Respond with inventory reservation status
+    OrderProcessingSystem->ShippingService: Schedule shipping
+    ShippingService->OrderProcessingSystem: Confirm shipping schedule
+    OrderProcessingSystem->PaymentGateway: Capture payment
+    PaymentGateway->OrderProcessingSystem: Respond with payment capture status
+    OrderProcessingSystem->User: Send order confirmation

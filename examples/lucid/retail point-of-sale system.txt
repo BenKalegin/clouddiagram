@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant Cashier
+    participant Customer
+    participant InventorySystem
+    participant PaymentGateway
+
+    Customer->Cashier: Present items for purchase
+    Cashier->InventorySystem: Query for item availability
+    InventorySystem->Cashier: Respond with item availability
+    Cashier->Customer: Offer available items for purchase
+    Customer->Cashier: Confirm items for purchase
+    Cashier->InventorySystem: Update inventory with items sold
+    InventorySystem->Cashier: Respond with inventory update status
+    Customer->PaymentGateway: Swipe card or enter payment information
+    PaymentGateway->InventorySystem: Process payment
+    InventorySystem->PaymentGateway: Respond with payment status
+    PaymentGateway->Customer: Respond with payment status
+    Cashier->Customer: Provide receipt

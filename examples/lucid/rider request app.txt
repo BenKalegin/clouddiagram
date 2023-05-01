@@ -1,0 +1,43 @@
+sequenceDiagram
+    participant Rider
+    participant Driver
+    participant AppServer
+    participant PaymentGateway
+    participant Database
+    participant SMSProvider
+
+    Rider->AppServer: Request ride
+    AppServer->Database: Query for available drivers
+    Database->AppServer: Respond with available drivers
+    AppServer->Rider: Send driver details
+    Rider->AppServer: Confirm ride request
+    AppServer->Database: Reserve driver and rider
+    Database->AppServer: Respond with reservation status
+    AppServer->Driver: Push ride request
+    Driver->AppServer: Accept ride request
+    AppServer->Database: Update ride status
+    Database->AppServer: Respond with ride status
+    AppServer->Rider: Push ride status update
+    Rider->AppServer: Request ride cancellation
+    AppServer->Driver: Push ride cancellation
+    Driver->AppServer: Confirm ride cancellation
+    AppServer->Database: Cancel ride reservation
+    Database->AppServer: Respond with cancellation status
+    AppServer->Rider: Push ride cancellation status update
+    Rider->PaymentGateway: Request ride payment
+    PaymentGateway->Rider: Redirect to payment page
+    Rider->PaymentGateway: Enter payment information
+    PaymentGateway->PaymentGateway: Process payment
+    PaymentGateway->Database: Store payment information
+    Database->PaymentGateway: Respond with payment status
+    PaymentGateway->Rider: Redirect to ride completion page
+    Rider->AppServer: Confirm ride completion
+    AppServer->Driver: Push ride completion
+    Driver->AppServer: Confirm ride completion
+    AppServer->Database: Update ride status
+    Database->AppServer: Respond with ride status
+    AppServer->Rider: Push ride status update
+    Rider->SMSProvider: Request ride receipt
+    SMSProvider->PaymentGateway: Query for payment information
+    PaymentGateway->SMSProvider: Respond with payment information
+    SMSProvider->Rider: Send ride receipt via SMS

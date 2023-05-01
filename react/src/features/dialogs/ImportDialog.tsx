@@ -54,9 +54,10 @@ export const ImportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
                             </List>
                         </Grid>
                         <Grid item xs={8}>
+                            <p/>
                             <CodeMemo
-                                label="Exported code"
-                                placeholder="Exported code"
+                                label="Imported code"
+                                placeholder="Copy and paste diagram code here"
                                 value={ "" }
                                 //readOnly={true}
                                 minRows={20}
@@ -65,7 +66,8 @@ export const ImportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
                     </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => toggleHideDialog(undefined)}>Close</Button>
+                <Button onClick={() => toggleHideDialog(undefined)}>Import</Button>
+                <Button onClick={() => toggleHideDialog(undefined)}>Cancel</Button>
             </DialogActions>
         </Dialog>
     )

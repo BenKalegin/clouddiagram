@@ -1,0 +1,28 @@
+sequenceDiagram
+    participant User
+    participant NotificationServer
+    participant MessagingServer
+    participant APIGateway
+    participant ExternalService
+
+    User->APIGateway: Send POST request to create post
+    APIGateway->ExternalService: Store post
+    ExternalService->APIGateway: Respond with post ID
+    APIGateway->User: Respond with post ID
+    User->NotificationServer: Subscribe to post notifications
+    NotificationServer->APIGateway: Register user for post notifications
+    APIGateway->NotificationServer: Respond with registration status
+    User->APIGateway: Request post details
+    APIGateway->ExternalService: Query for post details
+    ExternalService->APIGateway: Respond with post details
+    APIGateway->User: Respond with post details
+    User->MessagingServer: Send message to another user
+    MessagingServer->APIGateway: Store message
+    APIGateway->ExternalService: Send notification to recipient
+    ExternalService->APIGateway: Respond with notification status
+    APIGateway->MessagingServer: Respond with message ID
+    User->MessagingServer: Request message history
+    MessagingServer->APIGateway: Query for message history
+    APIGateway->ExternalService: Check for new messages
+    ExternalService->APIGateway: Respond with new messages
+    APIGateway->MessagingServer: Respond with message history

@@ -1,0 +1,30 @@
+sequenceDiagram
+    participant Patient
+    participant Doctor
+    participant Scheduler
+    participant ReminderService
+    participant ElectronicHealthRecord
+
+    Patient->Scheduler: Request appointment with Doctor
+    Scheduler->ElectronicHealthRecord: Query for Doctor availability
+    ElectronicHealthRecord->Scheduler: Respond with Doctor availability
+    Scheduler->Patient: Offer available appointment times
+    Patient->Scheduler: Confirm appointment time
+    Scheduler->ElectronicHealthRecord: Reserve appointment with Doctor
+    ElectronicHealthRecord->Scheduler: Respond with reservation status
+    Scheduler->Patient: Confirm appointment reservation
+    ReminderService->Scheduler: Schedule appointment reminder
+    Scheduler->ReminderService: Respond with reminder scheduling status
+    Doctor->ElectronicHealthRecord: Review patient health record
+    ElectronicHealthRecord->Doctor: Respond with patient health record
+    Doctor->Patient: Conduct appointment
+    Patient->Doctor: Provide symptoms and medical history
+    Doctor->ElectronicHealthRecord: Update patient health record
+    ElectronicHealthRecord->Scheduler: Update appointment status
+    Scheduler->ElectronicHealthRecord: Update appointment status
+    ElectronicHealthRecord->ReminderService: Cancel appointment reminder
+    ReminderService->ElectronicHealthRecord: Confirm reminder cancellation
+    Doctor->Patient: Prescribe medication and provide instructions
+    Patient->Doctor: Confirm medication and instructions
+    Doctor->ElectronicHealthRecord: Update patient health record with prescription
+    ElectronicHealthRecord->Scheduler: Update appointment status with prescription

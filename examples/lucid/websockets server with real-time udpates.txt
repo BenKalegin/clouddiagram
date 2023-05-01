@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant User
+    participant WebSocketServer
+    participant Database
+    participant ExternalService
+
+    User->WebSocketServer: Connect to WebSocket
+    WebSocketServer->Database: Query for unread messages
+    Database->WebSocketServer: Respond with unread messages
+    WebSocketServer->User: Push unread messages
+    User->WebSocketServer: Request message history
+    WebSocketServer->Database: Query for message history
+    Database->WebSocketServer: Respond with message history
+    WebSocketServer->User: Push message history
+    User->WebSocketServer: Send message
+    WebSocketServer->Database: Store message
+    Database->ExternalService: Send notification
+    ExternalService->Database: Update message with notification status
+    Database->WebSocketServer: Respond with updated message
+    WebSocketServer->User: Push updated message
