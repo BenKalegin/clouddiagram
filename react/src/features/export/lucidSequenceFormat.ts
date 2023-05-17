@@ -1,17 +1,13 @@
-import {ActivationId, LifelineState, MessageState, SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
+import {
+    ActivationId,
+    ActivationState, lifelineDefaultSpacing, lifelineDefaultStart, lifelineDefaultWidth,
+    LifelinePlacement,
+    LifelineState,
+    MessageState,
+    SequenceDiagramState
+} from "../sequenceDiagram/sequenceDiagramModel";
 import {Diagram} from "../../common/model";
-import {PredefinedSvg} from "../graphics/graphicsReader";
-
-function className(lifeline: LifelineState) {
-    switch (lifeline.customShape?.pictureId) {
-        case PredefinedSvg.Entity: return "entity";
-        case PredefinedSvg.Control: return "control";
-        case PredefinedSvg.Boundary: return "boundary";
-        case PredefinedSvg.Actor: return "actor";
-        // todo support database, collections, queue https://plantuml.com/sequence-diagram
-        default: return "participant"
-    }
-}
+import {defaultShapeStyle, ElementType} from "../../package/packageModel";
 
 function arrow(message: MessageState) {
     if (message.isReturn)
@@ -44,12 +40,6 @@ export function exportSequenceDiagramAsLucid(baseDiagram: Diagram): string {
             return acc;
         }, {} as Record<ActivationId, string>);
 
-    console.log(lifelineAliases);
-    Object.values(lifelines)
-        .sort((a, b) => a.placement.headBounds.x - b.placement.headBounds.x)
-        .forEach(lifeline =>
-            lines.push(`${className(lifeline)} ${lifeline.title} as ${lifelineAliases[lifeline.id]} `)); // to lifeline
-
     const activationOffsets = Object.values(diagram.activations).reduce((acc, activation) => {
         acc[activation.id] = activation.start;
         return acc;
@@ -64,30 +54,52 @@ export function exportSequenceDiagramAsLucid(baseDiagram: Diagram): string {
     return lines.join("\n");
 }
 
-// export function importSequenceDiagramFromLucid(markup: string): Diagram {
-//     const lines = markup.split(/\r?\n/);
-//
-//     for (const line of lines) {
-//         if (line.startsWith('@startuml') || line.startsWith('@enduml')) {
-//             continue;
-//         }
-//
-//     }
-//
-//
-//         if (participantMatch || responseMatch) {
-//             const [_, from, to, content] = participantMatch || responseMatch;
-//             const isResponse = !!responseMatch;
-//
-//             this.addParticipant(parsedSequence, from);
-//             this.addParticipant(parsedSequence, to);
-//
-//             parsedSequence.messages.push({
-//                 from,
-//                 to,
-//                 content,
-//                 isResponse,
-//             });
-//         }
-//     }
-// }
+export function importSequenceDiagramFromLucid(markup: string): Diagram {
+    const lines = markup.split(/\r?\n/);
+    const messages = new Array<MessageState>();
+    const lifeLines = new Map<string, LifelineState>();
+    let lifelineCounter = 0;
+    const activations = new Array<ActivationState>();
+
+    function findOrAddLifeline(lifelineAlias: string) {
+        if (!lifeLines.has(lifelineAlias)) {
+            const lifeline: LifelineState = {
+                activations: [],
+                id: `ll${++lifelineCounter}`,
+                placement: {
+                    headBounds: {
+                        x: (lifelineCounter-1) * (lifelineDefaultWidth + lifelineDefaultSpacing)+ lifelineDefaultStart,
+                        width: lifelineDefaultWidth
+                    }
+                } as LifelinePlacement,
+                shapeStyle: defaultShapeStyle,
+                title: "",
+                type: ElementType.SequenceLifeLine
+
+            }
+            lifeLines.set(lifelineAlias, lifeline);
+        }
+        return lifeLines.get(lifelineAlias);
+    }
+
+    for (const line of lines) {
+        function addMessage(leftToRight: boolean, arrowPos: number) {
+            const fromAlias = line.substring(0, arrowPos).trim();
+            const toAlias = line.substring(arrowPos + 2).trim();
+            const from
+            messages.push();
+        }
+
+        const rightArrow = line.indexOf("->");
+       if (rightArrow > 0) {
+           addMessage();
+       }
+
+            parsedSequence.messages.push({
+                from,
+                to,
+                content,
+                isResponse,
+            });
+    }
+}

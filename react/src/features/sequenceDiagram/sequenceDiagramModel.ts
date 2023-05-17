@@ -25,6 +25,8 @@ import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
+export const lifelineDefaultStart = 30;
+export const lifelineDefaultSpacing = 20;
 export const lifelineDefaultHeight = 60;
 const activationWidth = 10;
 
