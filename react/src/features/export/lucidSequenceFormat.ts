@@ -83,23 +83,28 @@ export function importSequenceDiagramFromLucid(markup: string): Diagram {
     }
 
     for (const line of lines) {
-        function addMessage(leftToRight: boolean, arrowPos: number) {
-            const fromAlias = line.substring(0, arrowPos).trim();
-            const toAlias = line.substring(arrowPos + 2).trim();
-            const from
-            messages.push();
-        }
-
-        const rightArrow = line.indexOf("->");
-       if (rightArrow > 0) {
-           addMessage();
-       }
-
-            parsedSequence.messages.push({
-                from,
-                to,
-                content,
-                isResponse,
-            });
+       //  function addMessage(leftToRight: boolean, arrowPos: number) {
+       //      const fromAlias = line.substring(0, arrowPos).trim();
+       //      const toAlias = line.substring(arrowPos + 2).trim();
+       //      const from
+       //      messages.push();
+       //  }
+       //
+       //  const rightArrow = line.indexOf("->");
+       // if (rightArrow > 0) {
+       //     addMessage();
+       // }
+       //
+       //      parsedSequence.messages.push({
+       //          from,
+       //          to,
+       //          content,
+       //          isResponse,
+       //      });
+    }
+    return {
+        id: "", notes: {}, selectedElements: [],
+        title: "new diagram",
+        type: ElementType.SequenceDiagram
     }
 }

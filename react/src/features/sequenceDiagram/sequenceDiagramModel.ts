@@ -28,6 +28,8 @@ export const lifelineDefaultWidth = 100;
 export const lifelineDefaultStart = 30;
 export const lifelineDefaultSpacing = 20;
 export const lifelineDefaultHeight = 60;
+export const messageDefaultSpacing = 40;
+
 const activationWidth = 10;
 
 
@@ -656,6 +658,26 @@ function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: El
     diagram.selectedElements = diagram.selectedElements.filter(e => e.id !== element.id);
 }
 
+function addReturnMessage(diagram: Draft<SequenceDiagramState>, id: Id) {
+    const origin = diagram.messages[id]
+    if(origin.isReturn)
+        return;
+    const result: MessageState = {
+        isAsync: false,
+        lineStyle: origin.lineStyle,
+        id: generateId(),
+        activation1: origin.activation2,
+        activation2: origin.activation1,
+        sourceActivationOffset: origin.sourceActivationOffset + messageDefaultSpacing,
+        isReturn: true,
+        text: ":",
+        type: ElementType.SequenceMessage,
+        placement: {...origin.placement}
+    }
+    diagram.messages[result.id] = result;
+    diagram.selectedElements = [{id: result.id, type: ElementType.SequenceMessage}];
+}
+
 export function handleSequenceCommand(get: Get, set: Set, elements: ElementRef[], command: Command) {
     const diagramId = get(activeDiagramIdAtom)
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
@@ -666,6 +688,10 @@ export function handleSequenceCommand(get: Get, set: Set, elements: ElementRef[]
                 elements.forEach(element => {
                     reverseMessage(draft, element.id);
                 });
+                break;
+
+            case Command.AddReturnMessage:
+                addReturnMessage(draft, elements[0].id);
                 break;
 
             case Command.Delete:
