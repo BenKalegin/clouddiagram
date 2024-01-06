@@ -31,6 +31,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
         element: element,
         diagramId: diagramId,
         bounds: placement.headBounds,
+        disableVerticalDrag: true
     });
 
 
