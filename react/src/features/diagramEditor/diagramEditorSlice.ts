@@ -21,6 +21,8 @@ import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 import KonvaEventObject = Konva.KonvaEventObject;
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {ExportImportFormat} from "../export/exportFormats";
+import {DeploymentDiagramState} from "../deploymentDiagram/deploymentDaigramModel";
+import {deploymentDiagramEditor} from "../deploymentDiagram/deploymentDiagramSlice";
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -274,6 +276,19 @@ function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
             } as ClassDiagramState;
             break;
 
+        case ElementType.DeploymentDiagram:
+            diagram = {
+                id: newDiagramId,
+                type: ElementType.DeploymentDiagram,
+                title: "Deployment Diagram",
+                nodes: {},
+                ports: {},
+                links: {},
+                notes: {}
+
+            } as DeploymentDiagramState;
+            break;
+
         case ElementType.SequenceDiagram:
             diagram = {
                 id: newDiagramId,
@@ -338,5 +353,6 @@ export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format:
 
 export const diagramEditors: Record<any, DiagramEditor> = {
     [ElementType.ClassDiagram]: classDiagramEditor,
+    [ElementType.DeploymentDiagram]: deploymentDiagramEditor,
     [ElementType.SequenceDiagram]: sequenceDiagramEditor
 };

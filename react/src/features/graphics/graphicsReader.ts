@@ -6,6 +6,7 @@ import {ReactComponent as NoteIcon} from "../graphics/note.svg";
 import {ReactComponent as BoundaryIcon} from "../graphics/boundary.svg";
 import {ReactComponent as ControlIcon} from "../graphics/control.svg";
 import {ReactComponent as EntityIcon} from "../graphics/entity.svg";
+import {ReactComponent as SqsIcon} from "../graphics/aws/sqs.svg";
 import Konva from "konva";
 import {Shape} from "konva/lib/Shape";
 import React from "react";
@@ -22,6 +23,7 @@ export enum PredefinedSvg {
     Interface,
     Note,
     Lifeline,
+    SQS
 }
 
 export const iconRegistry: Record<PredefinedSvg, React.FunctionComponent<React.SVGProps<SVGSVGElement>>> = {
@@ -36,27 +38,9 @@ export const iconRegistry: Record<PredefinedSvg, React.FunctionComponent<React.S
     [PredefinedSvg.Class]: ClassIcon,
     [PredefinedSvg.Interface]: InterfaceIcon,
     [PredefinedSvg.Note]: NoteIcon,
-    [PredefinedSvg.Lifeline]: LifelineIcon
+    [PredefinedSvg.Lifeline]: LifelineIcon,
+    [PredefinedSvg.SQS]: SqsIcon
 };
-
-export function getSvgComponentById(id: PredefinedSvg | undefined) {
-    switch (id) {
-        case PredefinedSvg.Actor:
-            return ActorIcon;
-        case PredefinedSvg.Boundary:
-            return BoundaryIcon;
-        case PredefinedSvg.Class:
-            return ClassIcon;
-        case PredefinedSvg.Interface:
-            return InterfaceIcon;
-        case PredefinedSvg.Note:
-            return NoteIcon;
-        default:
-            return undefined;
-    }
-}
-
-
 export type CustomDraw  = (context: Context, shape: Shape<ShapeConfig>) => void
 
 

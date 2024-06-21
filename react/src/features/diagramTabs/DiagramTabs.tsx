@@ -61,6 +61,7 @@ function AddNewTabButton() {
                 onClose={handleClose}
             >
                 <MenuItem onClick={() => handleClose(ElementType.ClassDiagram)}>Class Diagram</MenuItem>
+                <MenuItem onClick={() => handleClose(ElementType.DeploymentDiagram)}>Deployment Diagram</MenuItem>
                 <MenuItem onClick={() => handleClose(ElementType.SequenceDiagram)}>Sequence Diagram</MenuItem>
             </Menu>
         </div>

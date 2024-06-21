@@ -1,9 +1,9 @@
 import React, {FC} from "react";
 import {Rect, Text} from "react-konva";
-import {Port} from "./Port";
+import {Port} from "../classDiagram/Port";
 import {Scaffold} from "../scaffold/Scaffold";
-import {DrawingLink} from "./DrawingLink";
-import {classDiagramSelector, NodeId, NodePlacement} from "./classDiagramModel";
+import {DrawingLink} from "../classDiagram/DrawingLink";
+import {classDiagramSelector, NodeId, NodePlacement} from "../classDiagram/classDiagramModel";
 import {DefaultValue, selectorFamily, useRecoilValue} from "recoil";
 import {
     DiagramId,

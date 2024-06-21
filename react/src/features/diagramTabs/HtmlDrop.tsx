@@ -2,7 +2,7 @@ import React, {ReactNode} from "react";
 import {
     classClass,
     classInterface,
-    commonNote,
+    commonNote, deploymentSqs,
     GalleryItem, interactionActor,
     interactionBoundary, interactionControl, interactionEntity,
     interactionLifeline
@@ -34,6 +34,9 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
             return { type: ElementType.SequenceLifeLine, subType: PredefinedSvg.Entity }
         case interactionActor:
             return { type: ElementType.SequenceLifeLine, subType: PredefinedSvg.Actor }
+
+        case deploymentSqs:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.SQS }
 
         default:
             throw new Error("Unknown gallery type: " + galleryType);

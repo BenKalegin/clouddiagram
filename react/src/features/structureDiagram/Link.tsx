@@ -1,8 +1,9 @@
 import React from "react";
 import {Path} from "react-konva";
-import {LinkId, linkRenderSelector} from "./classDiagramModel";
+import {LinkId} from "../classDiagram/classDiagramModel";
 import {useRecoilValue} from "recoil";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
+import {linkRenderSelector} from "./structureDiagramEditor";
 
 export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}) => {
 

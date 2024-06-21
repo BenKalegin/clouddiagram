@@ -1,4 +1,4 @@
-import {Bounds, Coordinate, Diagram, withinBounds} from "../../common/model";
+import {Bounds, Coordinate} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {
     defaultNoteHeight,
@@ -14,22 +14,19 @@ import {
     PortAlignment,
     PortState
 } from "../../package/packageModel";
-import {selector, selectorFamily} from "recoil";
+import {selectorFamily} from "recoil";
 import {
     DiagramId,
     elementsAtom,
     emptyElementSentinel,
-    generateId,
-    Linking,
-    linkingAtom,
-    snapGridSizeAtom
+    generateId
 } from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {Command} from "../propertiesEditor/PropertiesEditor";
 import produce, {Draft} from "immer";
-import {snapToGrid} from "../../common/Geometry/snap";
 import {NoteState} from "../commonComponents/commonComponentsModel";
+import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
 
 export type NodePlacement = {
     bounds: Bounds
@@ -63,10 +60,8 @@ export type PortRender = {
 export enum ClassDiagramModalDialog {
     nodeProperties = "props"
 }
-export interface ClassDiagramState extends Diagram {
-    nodes: { [id: NodeId]: NodePlacement };
-    ports: { [id: PortId]: PortPlacement };
-    links: { [id: LinkId]: LinkPlacement };
+
+export interface ClassDiagramState extends StructureDiagramState {
     modalDialog: ClassDiagramModalDialog | undefined
 }
 
@@ -75,11 +70,6 @@ export type PortId = Id;
 export type LinkId = Id;
 
 
-const renderPort = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): PortRender => {
-    return {
-        bounds: portBounds(nodePlacement, port, portPlacement)
-    }
-}
 export const portBounds = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): Bounds => {
 
     switch (portPlacement.alignment) {
@@ -150,16 +140,6 @@ export const portPlacementSelector = selectorFamily<PortPlacement, { portId: Id,
     }
 })
 
-export const portRenderSelector = selectorFamily<PortRender, { portId: Id, nodeId: Id, diagramId: Id }>({
-    key: 'portRender',
-    get: ({portId, nodeId, diagramId}) => ({get}) => {
-        const nodePlacement = get(nodePlacementSelector({nodeId, diagramId}));
-        const port = get(portSelector(portId));
-        const portPlacement = get(portPlacementSelector({portId, diagramId}));
-        return renderPort(nodePlacement.bounds, port, portPlacement);
-    }
-})
-
 
 export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
                            targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement): LinkRender => {
@@ -169,66 +149,6 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
         svgPath: PathGenerators.Straight([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
     };
 }
-
-export const linkRenderSelector = selectorFamily<LinkRender, { linkId: LinkId, diagramId: DiagramId }>({
-    key: 'linkRender',
-    get: ({linkId, diagramId}) => ({get}) => {
-        const link = get(elementsAtom(linkId)) as LinkState;
-        const port1 = get(portSelector(link.port1));
-        const port2 = get(portSelector(link.port2));
-        const sourceRender = get(portRenderSelector({portId: link.port1, nodeId: port1.nodeId, diagramId}));
-        const targetRender = get(portRenderSelector({portId: link.port2, nodeId: port2.nodeId, diagramId}));
-        const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId}));
-        const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId}));
-        return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement);
-    }
-})
-
-export const drawingLinkRenderSelector = selector<LinkRender>({
-    key: 'drawLinkRender',
-    get: ({get}) => {
-        const linking = get(linkingAtom)!
-
-        const port1: PortState = {
-            nodeId: "",
-            type: ElementType.ClassPort,
-            id: "DrawingLinkSourcePort",
-            depthRatio: 50,
-            latitude: 0,
-            longitude: 0,
-            links: []
-        }
-
-        const port1Placement: PortPlacement = {
-            alignment: PortAlignment.Right,
-            edgePosRatio: 50,
-        }
-
-
-        const node1Placement = get(nodePlacementSelector({nodeId: linking.sourceElement, diagramId: get(activeDiagramIdAtom)}));
-        const port1Render =  renderPort(node1Placement.bounds, port1, port1Placement);
-
-        const port2: PortState = {
-            nodeId: "",
-            type: ElementType.ClassPort,
-            id: "DrawingLinkTarget",
-            depthRatio: 50,
-            latitude: 0,
-            longitude: 0,
-            links: []
-        }
-
-        const port2Placement: PortPlacement = {
-            alignment: PortAlignment.Left,
-            edgePosRatio: 50,
-        }
-
-        const port2Render =  renderPort({x: linking.diagramPos.x, y: linking.diagramPos.y, width: 0, height: 0},
-            port2, port2Placement);
-
-        return renderLink(port1, port1Render.bounds, port1Placement, port2, port2Render.bounds, port2Placement);
-    }
-})
 
 export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name: string, elementType: ElementType ): ElementRef {
 
@@ -283,57 +203,6 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
     throw new Error("Unknown element type: " + elementType);
 }
 
-export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
-    const diagramId = get(activeDiagramIdAtom);
-    const originalDiagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-
-    function updateElementPos(bounds: Draft<Bounds>) {
-        const pos = snapToGrid({
-            x: startNodePos.x + currentPointerPos.x - startPointerPos.x,
-            y: startNodePos.y + currentPointerPos.y - startPointerPos.y
-        }, get(snapGridSizeAtom))
-        bounds.x = pos.x;
-        bounds.y = pos.y;
-    }
-
-    const update = produce(originalDiagram, (diagram: Draft<ClassDiagramState>) => {
-        switch (element.type) {
-            case ElementType.ClassNode:
-                updateElementPos(diagram.nodes[element.id].bounds);
-                break;
-            case ElementType.Note:
-                updateElementPos(diagram.notes[element.id].bounds);
-                break;
-        }
-    })
-    set(elementsAtom(diagramId), update)
-}
-
-export function resizeElement(get: Get, set: Set, element: ElementRef, suggestedBounds: Bounds) {
-    const diagramId = get(activeDiagramIdAtom);
-    const originalDiagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-
-    const update = produce(originalDiagram, (diagram: Draft<ClassDiagramState>) => {
-        switch (element.type) {
-            case ElementType.ClassNode:
-                const bounds = diagram.nodes[element.id].bounds
-                bounds.x = suggestedBounds.x;
-                bounds.y = suggestedBounds.y;
-                bounds.width = Math.max(10, suggestedBounds.width);
-                bounds.height = Math.max(10, suggestedBounds.height);
-                break;
-            case ElementType.Note:
-                const noteBounds = diagram.notes[element.id].bounds
-                noteBounds.x = suggestedBounds.x;
-                noteBounds.y = suggestedBounds.y;
-                noteBounds.width = Math.max(10, suggestedBounds.width);
-                noteBounds.height = Math.max(10, suggestedBounds.height);
-                break;
-        }
-    })
-    set(elementsAtom(diagramId), update)
-}
-
 export function nodePropertiesDialog(get: Get, set: Set, elementId: string, dialogResult: DialogOperation) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
@@ -352,15 +221,6 @@ export function nodePropertiesDialog(get: Get, set: Set, elementId: string, dial
     const updatedDiagram = {...diagram, modalDialog: modalDialog};
     set(elementsAtom(diagramId), updatedDiagram);
 }
-
-export function addNodeAndConnect(get: Get, set: Set, name: string) {
-    const linking = get(linkingAtom) as Linking;
-    const pos = linking.diagramPos
-    const node = addNewElementAt(get, set, pos, name, ElementType.ClassNode);
-    autoConnectNodes(get, set, linking.sourceElement, node as ElementRef);
-    set(linkingAtom, {...linking, showLinkToNewDialog: false } )
-}
-
 
 function addNewPort(get: Get, set: Set, node: NodeState) {
     const result: PortState = {
@@ -492,35 +352,3 @@ export function handleClassCommand(get: Get, set: Set, elements: ElementRef[], c
 }
 
 
-/**
- * Search for a port at specified X,Y diagram position
- */
-export function findPortAtPos(get: Get, pos: Coordinate, diagramId: string, tolerance: number) : [Id?, Bounds?]  {
-    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-    const portIds = Object.keys(diagram.ports);
-    for (let i = 0; i < portIds.length; i++) {
-        const portId = portIds[i];
-        const port = get(elementsAtom(portId)) as PortState;
-        const nodeId = port.nodeId;
-        const nodeBounds = diagram.nodes[nodeId].bounds;
-        const portBounds = renderPort(nodeBounds, port, diagram.ports[portId]).bounds;
-        if (withinBounds(portBounds, pos, tolerance)) {
-             return [portId, portBounds];
-        }
-    }
-    return [undefined, undefined];
-}
-
-
-export function findNodeAtPos(get: Get, pos: Coordinate, diagramId: string, tolerance: number) : [Id?, Bounds?]  {
-    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-    const nodeIds = Object.keys(diagram.nodes);
-    for (let i = 0; i < nodeIds.length; i++) {
-        const nodeId = nodeIds[i];
-        const nodeBounds = diagram.nodes[nodeId].bounds;
-        if (withinBounds(nodeBounds, pos, tolerance)) {
-            return [nodeId, nodeBounds];
-        }
-    }
-    return [undefined, undefined];
-}

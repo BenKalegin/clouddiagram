@@ -26,6 +26,8 @@ export const interactionEntity = 'interaction:entity';
 export const interactionFragment = 'interaction:fragment';
 export const interactionEndpoint = 'interaction:endpoint';
 
+export const deploymentSqs = 'deployment:aws:sqs';
+
 const items: GalleryItem[] = [
     {key: classClass, name: 'Class', icon: PredefinedSvg.Class},
     {key: classInterface, name: 'Interface', icon: PredefinedSvg.Interface},
@@ -40,6 +42,7 @@ const items: GalleryItem[] = [
     {key: interactionControl, name: 'Control', icon: PredefinedSvg.Control},
     {key: interactionEntity, name: 'Entity', icon: PredefinedSvg.Entity},
     {key: commonNote, name: 'Note', icon: PredefinedSvg.Note},
+    {key: deploymentSqs, name: 'SQS', icon: PredefinedSvg.SQS},
 ]
 
 
@@ -64,6 +67,11 @@ export const galleryGroups: IGalleryGroup[] = [
         name: 'Common',
         key: 'common',
         items: items.filter(item => item.key.startsWith("common:"))
+    },
+    {
+        name: 'Deployment',
+        key: 'deployment',
+        items: items.filter(item => item.key.startsWith("deployment:"))
     },
 ];
 

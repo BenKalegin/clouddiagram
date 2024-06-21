@@ -13,6 +13,9 @@ export enum ElementType {
     SequenceMessage,
     SequenceActivation,
     Note,
+    DeploymentDiagram,
+    DeploymentNode,
+    DeploymentLink,
 }
 
 export const AllDiagramTypes: ElementType[] = [ElementType.ClassDiagram, ElementType.SequenceDiagram];
