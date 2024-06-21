@@ -7,6 +7,12 @@ import {ReactComponent as BoundaryIcon} from "../graphics/boundary.svg";
 import {ReactComponent as ControlIcon} from "../graphics/control.svg";
 import {ReactComponent as EntityIcon} from "../graphics/entity.svg";
 import {ReactComponent as SqsIcon} from "../graphics/aws/sqs.svg";
+import {ReactComponent as KinesisIcon} from "../graphics/aws/kinesis.svg";
+import {ReactComponent as ElbIcon} from "../graphics/aws/elb.svg";
+import {ReactComponent as Route53Icon} from "../graphics/aws/route53.svg";
+import {ReactComponent as CloudFrontIcon} from "../graphics/aws/cloudfront.svg";
+import {ReactComponent as EcsIcon} from "../graphics/aws/ecs.svg";
+import {ReactComponent as DynamoDBIcon} from "../graphics/aws/dynamodb.svg";
 import Konva from "konva";
 import {Shape} from "konva/lib/Shape";
 import React from "react";
@@ -23,7 +29,13 @@ export enum PredefinedSvg {
     Interface,
     Note,
     Lifeline,
-    SQS
+    SQS,
+    Kinesis,
+    ELB,
+    Route53,
+    CloudFront,
+    ECS,
+    DynamoDB,
 }
 
 export const iconRegistry: Record<PredefinedSvg, React.FunctionComponent<React.SVGProps<SVGSVGElement>>> = {
@@ -39,7 +51,13 @@ export const iconRegistry: Record<PredefinedSvg, React.FunctionComponent<React.S
     [PredefinedSvg.Interface]: InterfaceIcon,
     [PredefinedSvg.Note]: NoteIcon,
     [PredefinedSvg.Lifeline]: LifelineIcon,
-    [PredefinedSvg.SQS]: SqsIcon
+    [PredefinedSvg.SQS]: SqsIcon,
+    [PredefinedSvg.Kinesis]: KinesisIcon,
+    [PredefinedSvg.ELB]: ElbIcon,
+    [PredefinedSvg.Route53]: Route53Icon,
+    [PredefinedSvg.CloudFront]: CloudFrontIcon,
+    [PredefinedSvg.ECS]: EcsIcon,
+    [PredefinedSvg.DynamoDB]: DynamoDBIcon,
 };
 export type CustomDraw  = (context: Context, shape: Shape<ShapeConfig>) => void
 

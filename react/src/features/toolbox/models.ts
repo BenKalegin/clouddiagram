@@ -27,6 +27,12 @@ export const interactionFragment = 'interaction:fragment';
 export const interactionEndpoint = 'interaction:endpoint';
 
 export const deploymentSqs = 'deployment:aws:sqs';
+export const deploymentKinesis = 'deployment:aws:kinesis';
+export const deploymentElb = 'deployment:aws:elb';
+export const deploymentRoute53 = 'deployment:aws:route53';
+export const deploymentCloudFront = 'deployment:aws:cloudfront';
+export const deploymentEcs = 'deployment:aws:ecs';
+export const deploymentDynamoDb = 'deployment:aws:dynamodb';
 
 const items: GalleryItem[] = [
     {key: classClass, name: 'Class', icon: PredefinedSvg.Class},
@@ -43,6 +49,12 @@ const items: GalleryItem[] = [
     {key: interactionEntity, name: 'Entity', icon: PredefinedSvg.Entity},
     {key: commonNote, name: 'Note', icon: PredefinedSvg.Note},
     {key: deploymentSqs, name: 'SQS', icon: PredefinedSvg.SQS},
+    {key: deploymentKinesis, name: 'Kinesis', icon: PredefinedSvg.Kinesis},
+    {key: deploymentElb, name: 'ELB', icon: PredefinedSvg.ELB},
+    {key: deploymentRoute53, name: 'Route 53', icon: PredefinedSvg.Route53},
+    {key: deploymentCloudFront, name: 'Cloud Front', icon: PredefinedSvg.CloudFront},
+    {key: deploymentEcs, name: 'ECS', icon: PredefinedSvg.ECS},
+    {key: deploymentDynamoDb, name: 'DynamoDB', icon: PredefinedSvg.DynamoDB},
 ]
 
 
