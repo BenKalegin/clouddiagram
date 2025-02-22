@@ -354,5 +354,5 @@ export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format:
 export const diagramEditors: Record<any, DiagramEditor> = {
     [ElementType.ClassDiagram]: classDiagramEditor,
     [ElementType.DeploymentDiagram]: deploymentDiagramEditor,
-    [ElementType.SequenceDiagram]: sequenceDiagramEditor
+    [ElementType.SequenceDiagram]: sequenceDiagramEditor,
 };

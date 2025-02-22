@@ -8,7 +8,7 @@ import {EmptyDiagramHint} from "../diagramEditor/EmptyDiagramHint";
 import {Note} from "../commonComponents/Note";
 import {deploymentDiagramSelector} from "./deploymentDaigramModel";
 
-export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
+export const DeploymentDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
     const diagram = useRecoilValue(deploymentDiagramSelector(diagramId))
 
     const nodeIds = Object.keys(diagram.nodes);
