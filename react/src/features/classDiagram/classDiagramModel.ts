@@ -1,10 +1,6 @@
-import {Bounds, Coordinate} from "../../common/model";
+import {Bounds} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {
-    defaultNoteHeight,
-    defaultNoteStyle,
-    defaultNoteWidth,
-    defaultShapeStyle,
     DiagramElement,
     ElementRef,
     ElementType,
@@ -25,7 +21,6 @@ import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {Command} from "../propertiesEditor/PropertiesEditor";
 import produce, {Draft} from "immer";
-import {NoteState} from "../commonComponents/commonComponentsModel";
 import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
 
 export type NodePlacement = {
@@ -148,59 +143,6 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
         // svgPath: PathGenerators.Smooth(link, [p1, p2], p1, p2).path
         svgPath: PathGenerators.Straight([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
     };
-}
-
-export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name: string, elementType: ElementType ): ElementRef {
-
-    if (elementType === ElementType.ClassNode) {
-        const defaultWidth = 100;
-        const defaultHeight = 80;
-        const diagramId = get(activeDiagramIdAtom);
-        const node: NodeState = {
-            type: ElementType.ClassNode,
-            id: generateId(),
-            text: name,
-            ports: [],
-            shapeStyle: defaultShapeStyle
-        };
-
-        const placement: NodePlacement = {
-            bounds: {
-                x: droppedAt.x - defaultWidth / 2,
-                y: droppedAt.y,
-                width: defaultWidth,
-                height: defaultHeight
-            }
-        }
-
-        set(elementsAtom(node.id), node)
-        const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-        const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [node.id]: placement}};
-        set(elementsAtom(diagramId), updatedDiagram)
-        return node
-    }
-    else if (elementType === ElementType.Note)
-    {
-        const diagramId = get(activeDiagramIdAtom);
-        const note: NoteState = {
-            type: ElementType.Note,
-            id: generateId(),
-            text: name,
-            shapeStyle: defaultNoteStyle,
-            bounds: {
-                x: droppedAt.x - defaultNoteWidth / 2,
-                y: droppedAt.y,
-                width: defaultNoteWidth,
-                height: defaultNoteHeight
-            }
-        };
-
-        const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-        const updatedDiagram = {...diagram, notes: {...diagram.notes, [note.id]: note}};
-        set(elementsAtom(diagramId), updatedDiagram)
-        return note
-    }
-    throw new Error("Unknown element type: " + elementType);
 }
 
 export function nodePropertiesDialog(get: Get, set: Set, elementId: string, dialogResult: DialogOperation) {

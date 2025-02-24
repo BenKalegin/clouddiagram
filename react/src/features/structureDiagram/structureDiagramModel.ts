@@ -1,12 +1,21 @@
 import {Get, Set} from "../diagramEditor/diagramEditorSlice";
-import {ElementRef, ElementType} from "../../package/packageModel";
+import {
+    CustomShape,
+    defaultNoteHeight,
+    defaultNoteStyle,
+    defaultNoteWidth, defaultShapeStyle,
+    ElementRef,
+    ElementType, NodeState, PictureLayout
+} from "../../package/packageModel";
 import {Bounds, Coordinate} from "../../common/model";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
-import {elementsAtom, Linking, linkingAtom, snapGridSizeAtom} from "../diagramEditor/diagramEditorModel";
+import {elementsAtom, generateId, Linking, linkingAtom, snapGridSizeAtom} from "../diagramEditor/diagramEditorModel";
 import produce, {Draft} from "immer";
 import {snapToGrid} from "../../common/Geometry/snap";
 import {StructureDiagramState} from "./structureDiagramState";
-import {addNewElementAt, autoConnectNodes} from "../classDiagram/classDiagramModel";
+import {autoConnectNodes, ClassDiagramState, NodePlacement} from "../classDiagram/classDiagramModel";
+import {NoteState} from "../commonComponents/commonComponentsModel";
+import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 
 export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
@@ -62,10 +71,70 @@ export function resizeElement(get: Get, set: Set, element: ElementRef, suggested
 export function addNodeAndConnect(get: Get, set: Set, name: string) {
     const linking = get(linkingAtom) as Linking;
     const pos = linking.diagramPos
-    const node = addNewElementAt(get, set, pos, name, ElementType.ClassNode);
+    const node = addNewElementAt(get, set, pos, name, {type: ElementType.ClassNode});
     autoConnectNodes(get, set, linking.sourceElement, node as ElementRef);
-    set(linkingAtom, {...linking, showLinkToNewDialog: false } )
+    set(linkingAtom, {...linking, showLinkToNewDialog: false})
 }
 
 
+export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name: string, elementType: TypeAndSubType): ElementRef {
+    if (elementType.type === ElementType.Note) {
+        const diagramId = get(activeDiagramIdAtom);
+        const note: NoteState = {
+            type: ElementType.Note,
+            id: generateId(),
+            text: name,
+            shapeStyle: defaultNoteStyle,
+            bounds: {
+                x: droppedAt.x - defaultNoteWidth / 2,
+                y: droppedAt.y,
+                width: defaultNoteWidth,
+                height: defaultNoteHeight
+            }
+        };
+
+        const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+        const updatedDiagram = {...diagram, notes: {...diagram.notes, [note.id]: note}};
+        set(elementsAtom(diagramId), updatedDiagram)
+        return note
+    }
+
+    if (elementType.type === ElementType.ClassNode || elementType.type === ElementType.DeploymentNode) {
+        const defaultWidth = 100;
+        const defaultHeight = 80;
+        const diagramId = get(activeDiagramIdAtom);
+        const customShape : CustomShape | undefined  = elementType.subType?
+        {
+            layout: PictureLayout.Top,
+            pictureId: elementType.subType,
+        }
+        : undefined;
+
+        const node: NodeState = {
+            type: elementType.type,
+            id: generateId(),
+            text: name,
+            ports: [],
+            shapeStyle: defaultShapeStyle,
+            customShape: customShape,
+        };
+
+        const placement: NodePlacement = {
+            bounds: {
+                x: droppedAt.x - defaultWidth / 2,
+                y: droppedAt.y,
+                width: defaultWidth,
+                height: defaultHeight
+            }
+        }
+
+        set(elementsAtom(node.id), node)
+        const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+        const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [node.id]: placement}};
+        set(elementsAtom(diagramId), updatedDiagram)
+        return node
+    }
+
+    throw new Error("Unknown element type: " + elementType);
+}
 

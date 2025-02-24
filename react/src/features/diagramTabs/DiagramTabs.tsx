@@ -122,6 +122,7 @@ export const DiagramTabs = () => {
                             <Bridge>
                                 <AppLayoutContext.Provider value={value}>
                                     {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
+                                    {diagramKind === ElementType.DeploymentDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
                                     {diagramKind === ElementType.SequenceDiagram && <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
                                 </AppLayoutContext.Provider>
                             </Bridge>

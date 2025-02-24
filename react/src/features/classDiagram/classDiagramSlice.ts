@@ -1,12 +1,11 @@
 import {
-    dropFromPaletteAction, elementCommandAction,
+    elementCommandAction,
     elementPropertyChangedAction,
     Get,
     propertiesDialogAction,
     Set
 } from "../diagramEditor/diagramEditorSlice";
 import {
-    addNewElementAt,
     handleClassCommand,
     handleClassElementPropertyChanged,
     nodePropertiesDialog
@@ -16,9 +15,7 @@ import {StructureDiagramEditor} from "../structureDiagram/structureDiagramEditor
 
 class ClassDiagramEditor extends StructureDiagramEditor {
     handleAction(action: Action, get: Get, set: Set): void {
-        if (dropFromPaletteAction.match(action)) {
-            addNewElementAt(get, set, action.payload.droppedAt, action.payload.name, action.payload.kind.type);
-        }else if(propertiesDialogAction.match(action)) {
+        if(propertiesDialogAction.match(action)) {
             const {elementId, dialogResult} = action.payload;
             nodePropertiesDialog(get, set, elementId, dialogResult);
         }else if (elementPropertyChangedAction.match(action)) {

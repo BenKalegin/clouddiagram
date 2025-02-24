@@ -11,17 +11,21 @@ import {
     SequenceDiagramState
 } from "./sequenceDiagram/sequenceDiagramModel";
 import {
-    defaultLineStyle, defaultNoteStyle,
+    CustomShape,
+    defaultLineStyle,
+    defaultNoteStyle,
     defaultShapeStyle,
     DiagramElement,
     ElementType,
     Id,
     LinkState,
-    NodeState,
+    NodeState, PictureLayout,
     PortAlignment,
     PortState,
 } from "../package/packageModel";
 import {NoteState} from "./commonComponents/commonComponentsModel";
+import {DeploymentDiagramState} from "./deploymentDiagram/deploymentDaigramModel";
+import {PredefinedSvg} from "./graphics/graphicsReader";
 
 
 export const elements: {[id: Id]: DiagramElement } = {
@@ -195,7 +199,97 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         notes: {[note1.id]: note1},
     };
 };
+export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentDiagramState => {
+    const node1Id = "node1";
+    const customShape : CustomShape = {
+        layout: PictureLayout.Top,
+        pictureId: PredefinedSvg.SQS
+    }
 
+    const node1: NodeState = {
+        type: ElementType.DeploymentNode,
+        customShape: customShape,
+        id: node1Id,
+        ports: [],
+        text: "Server",
+        shapeStyle: defaultShapeStyle
+    };
+    elements[node1.id] = node1;
+
+    const node1Placement: NodePlacement = {
+        bounds: {
+            y: 50,
+            x: 50,
+            width: 100,
+            height: 80
+        }
+    }
+
+    const nodeId2 = "node2";
+    const node2: NodeState = {
+        type: ElementType.DeploymentNode,
+        id: nodeId2,
+        ports: [],
+        text: "Database",
+        shapeStyle: defaultShapeStyle
+    };
+    elements[node2.id] = node2;
+
+    const node2Placement: NodePlacement = {
+        bounds: {
+            y: 300,
+            x: 300,
+            width: 100,
+            height: 80
+        }
+    }
+
+    const nodePlacements: { [id: Id]: NodePlacement } = {
+        [node1.id]: node1Placement,
+        [node2.id]: node2Placement
+    }
+
+    const link1: LinkState = {
+        id: "link1",
+        type: ElementType.DeploymentLink,
+        port1: node1.id,
+        port2: node2.id,
+    };
+
+    elements[link1.id] = link1;
+
+    const Link1Placement: LinkPlacement = {
+        //cornerStyle: CornerStyle.Straight
+    }
+
+    const linkPlacements: { [id: Id]: LinkPlacement } = {
+        [link1.id]: Link1Placement
+    }
+
+    const note1: NoteState = {
+        type: ElementType.Note,
+        id: 'note1',
+        text: 'This is how we connect Server to Database',
+        bounds: {
+            x: 300,
+            y: 120,
+            width: 160,
+            height: 60
+        },
+        shapeStyle: defaultNoteStyle
+    }
+
+    return {
+        id: id,
+        title: title,
+        selectedElements: [],
+        type: ElementType.DeploymentDiagram,
+        nodes: nodePlacements,
+        ports: {},
+        links: {}, //ilinkPlacements,
+        notes: {[note1.id]: note1},
+    };
+};
 export const getSequenceDemoDiagram = (): SequenceDiagramState => {
     const lifeline1Id = 'line1';
     const activation1: ActivationState = {
@@ -317,13 +411,15 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
 }
 
 const demoDiagram1 = getClassDemoDiagram( "class-d-1", "Demo Class Diagram 1")
+const demoDiagram2 = getDeploymentDemoDiagram("deployment-d-1", "Demo Deployment Diagram 1");
 const demoDiagram3 = getSequenceDemoDiagram()
 
 elements[demoDiagram1.id] = demoDiagram1;
+elements[demoDiagram2.id] = demoDiagram2;
 elements[demoDiagram3.id] = demoDiagram3;
 
 export const demoActiveDiagramId = demoDiagram1.id;
-export const demoOpenDiagramIds = [demoDiagram1.id, demoDiagram3.id];
+export const demoOpenDiagramIds = [demoDiagram1.id, demoDiagram2.id, demoDiagram3.id];
 
 
 

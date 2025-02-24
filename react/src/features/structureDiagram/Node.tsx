@@ -1,5 +1,5 @@
 import React, {FC} from "react";
-import {Rect, Text} from "react-konva";
+import {Group, Rect, Shape, Text} from "react-konva";
 import {Port} from "../classDiagram/Port";
 import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "../classDiagram/DrawingLink";
@@ -13,6 +13,7 @@ import {
 } from "../diagramEditor/diagramEditorModel";
 import {ElementType, NodeState} from "../../package/packageModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
+import {getCustomDrawById, iconRegistry} from "../graphics/graphicsReader";
 
 export interface NodeProps {
     nodeId: NodeId
@@ -54,6 +55,9 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
         bounds: placement.bounds,
     });
 
+    const Icon = node.customShape !== undefined ? iconRegistry[node.customShape.pictureId] : undefined;
+
+
     return (
         <React.Fragment>
             <Rect
@@ -71,6 +75,8 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                 shadowOffset={{x: 2, y: 2}}
                 shadowOpacity={0.4}
             />
+            {Icon && <Icon />}
+
             {isSelected && (
                 <Scaffold
                     element={{id: nodeId, type: ElementType.ClassNode}}
