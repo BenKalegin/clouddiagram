@@ -200,7 +200,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
     };
 };
 export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentDiagramState => {
-    const node1Id = "node1";
+    const node1Id = "node21";
     const customShape : CustomShape = {
         layout: PictureLayout.Top,
         pictureId: PredefinedSvg.SQS
@@ -225,7 +225,7 @@ export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentD
         }
     }
 
-    const nodeId2 = "node2";
+    const nodeId2 = "node22";
     const node2: NodeState = {
         type: ElementType.DeploymentNode,
         id: nodeId2,
@@ -249,21 +249,21 @@ export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentD
         [node2.id]: node2Placement
     }
 
-    const link1: LinkState = {
-        id: "link1",
-        type: ElementType.DeploymentLink,
-        port1: node1.id,
-        port2: node2.id,
-    };
+    // const link1: LinkState = {
+    //     id: "link1",
+    //     type: ElementType.DeploymentLink,
+    //     port1: node1.id,
+    //     port2: node2.id,
+    // };
 
-    elements[link1.id] = link1;
+    // elements[link1.id] = link1;
 
     const Link1Placement: LinkPlacement = {
         //cornerStyle: CornerStyle.Straight
     }
 
     const linkPlacements: { [id: Id]: LinkPlacement } = {
-        [link1.id]: Link1Placement
+        // [link1.id]: Link1Placement
     }
 
     const note1: NoteState = {

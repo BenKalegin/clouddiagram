@@ -96,6 +96,9 @@ export function findPortAtPos(get: Get, pos: Coordinate, diagramId: string, tole
 }
 
 const renderPort = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): PortRender => {
+    if (!nodePlacement || !portPlacement) {
+        throw new Error('Node placement or port placement is undefined. ');
+    }
     return {
         bounds: portBounds(nodePlacement, port, portPlacement)
     }
@@ -107,6 +110,9 @@ export const portRenderSelector = selectorFamily<PortRender, { portId: Id, nodeI
         const nodePlacement = get(nodePlacementSelector({nodeId, diagramId}));
         const port = get(portSelector(portId));
         const portPlacement = get(portPlacementSelector({portId, diagramId}));
+        if (!nodePlacement || !port || !portPlacement) {
+            throw new Error(`Node placement, port, or port placement is undefined for node ${nodeId} and port ${portId}`);
+        }
         return renderPort(nodePlacement.bounds, port, portPlacement);
     }
 })

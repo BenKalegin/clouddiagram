@@ -1,26 +1,21 @@
 import React, {FC} from "react";
-import {Group, Rect, Shape, Text} from "react-konva";
+import {Rect, Shape, Text, Image} from "react-konva";
 import {Port} from "../classDiagram/Port";
 import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "../classDiagram/DrawingLink";
 import {classDiagramSelector, NodeId, NodePlacement} from "../classDiagram/classDiagramModel";
 import {DefaultValue, selectorFamily, useRecoilValue} from "recoil";
-import {
-    DiagramId,
-    elementsAtom,
-    linkingAtom,
-    selectedRefsSelector
-} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, elementsAtom, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType, NodeState} from "../../package/packageModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
-import {getCustomDrawById, iconRegistry} from "../graphics/graphicsReader";
+import {getCustomDrawById, PredefinedSvg} from "../graphics/graphicsReader";
 
 export interface NodeProps {
     nodeId: NodeId
     diagramId: DiagramId
 }
 
-export const nodePlacement = selectorFamily<NodePlacement, {nodeId: NodeId, diagramId: DiagramId}>({
+export const nodePlacement = selectorFamily<NodePlacement, { nodeId: NodeId, diagramId: DiagramId }>({
     key: 'placements',
     get: ({nodeId, diagramId}) => ({get}) => {
         const diagram = get(classDiagramSelector(diagramId))
@@ -55,9 +50,6 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
         bounds: placement.bounds,
     });
 
-    const Icon = node.customShape !== undefined ? iconRegistry[node.customShape.pictureId] : undefined;
-
-
     return (
         <React.Fragment>
             <Rect
@@ -75,7 +67,20 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                 shadowOffset={{x: 2, y: 2}}
                 shadowOpacity={0.4}
             />
-            {Icon && <Icon />}
+
+            {node.customShape?.pictureId &&
+                <Shape
+                    {...eventHandlers}
+                    sceneFunc={getCustomDrawById(node.customShape.pictureId)}
+                    fill={node.shapeStyle.fillColor}
+                    stroke={node.shapeStyle.strokeColor}
+                    strokeWidth={1}
+                    x={placement.bounds.x}
+                    y={placement.bounds.y}
+                    width={32}
+                    height={32}
+                />
+            }
 
             {isSelected && (
                 <Scaffold

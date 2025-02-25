@@ -2,9 +2,18 @@ import React, {ReactNode} from "react";
 import {
     classClass,
     classInterface,
-    commonNote, deploymentSqs,
-    GalleryItem, interactionActor,
-    interactionBoundary, interactionControl, interactionEntity,
+    commonNote,
+    deploymentCloudFront,
+    deploymentDynamoDb,
+    deploymentEcs,
+    deploymentElb,
+    deploymentKinesis, deploymentRoute53,
+    deploymentSqs,
+    GalleryItem,
+    interactionActor,
+    interactionBoundary,
+    interactionControl,
+    interactionEntity,
     interactionLifeline
 } from "../toolbox/models";
 import {dropFromPaletteAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
@@ -37,6 +46,19 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
 
         case deploymentSqs:
             return { type: ElementType.DeploymentNode, subType: PredefinedSvg.SQS }
+        case deploymentKinesis:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Kinesis }
+        case deploymentElb:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.ELB }
+        case deploymentEcs:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.ECS }
+        case deploymentDynamoDb:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.DynamoDB }
+        case deploymentCloudFront:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.CloudFront }
+        case deploymentRoute53:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Route53 }
+
 
         default:
             throw new Error("Unknown gallery type: " + galleryType);

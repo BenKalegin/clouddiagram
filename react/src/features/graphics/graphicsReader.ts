@@ -16,6 +16,7 @@ import {ReactComponent as DynamoDBIcon} from "../graphics/aws/dynamodb.svg";
 import Konva from "konva";
 import {Shape} from "konva/lib/Shape";
 import React from "react";
+import ReactDOMServer from 'react-dom/server';
 import ShapeConfig = Konva.ShapeConfig;
 import Context = Konva.Context;
 
@@ -59,7 +60,7 @@ export const iconRegistry: Record<PredefinedSvg, React.FunctionComponent<React.S
     [PredefinedSvg.ECS]: EcsIcon,
     [PredefinedSvg.DynamoDB]: DynamoDBIcon,
 };
-export type CustomDraw  = (context: Context, shape: Shape<ShapeConfig>) => void
+export type CustomDraw = (context: Context, shape: Shape<ShapeConfig>) => void
 
 
 function drawBoundary(context: Context, shape: Shape<ShapeConfig>): void {
@@ -111,9 +112,23 @@ function drawActor(context: Context, shape: Shape<ShapeConfig>): void {
     context.fillStrokeShape(shape);
 }
 
+function createDrawSvgWithId(id: PredefinedSvg): CustomDraw {
+    return (context: Context, shape: Shape<ShapeConfig>): void => {
+        const Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>> = iconRegistry[id];
+        const svgString = ReactDOMServer.renderToStaticMarkup(React.createElement(Icon));
+        const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
+
+        const img = new Image();
+        img.src = svgDataUrl;
+
+        img.onload = () => {
+            context.drawImage(img, shape.x(), shape.y(), shape.width(), shape.height());
+        };
+    };
+}
 
 
-export function getCustomDrawById(id: PredefinedSvg) : CustomDraw {
+export function getCustomDrawById(id: PredefinedSvg): CustomDraw {
     switch (id) {
         case PredefinedSvg.Actor:
             return drawActor;
@@ -124,6 +139,6 @@ export function getCustomDrawById(id: PredefinedSvg) : CustomDraw {
         case PredefinedSvg.Entity:
             return drawEntity;
         default:
-            throw new Error("No custom draw for id: " + id);
+            return createDrawSvgWithId(id);
     }
 }
