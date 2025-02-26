@@ -1,5 +1,5 @@
 import {
-    DiagramEditor, dropFromPaletteAction,
+    DiagramEditor, dropFromPaletteAction, elementCommandAction,
     elementMoveAction, elementResizeAction,
     Get, Set
 } from "../diagramEditor/diagramEditorSlice";
@@ -24,7 +24,13 @@ import {
     PortPlacement, portPlacementSelector,
     PortRender, portSelector, renderLink
 } from "../classDiagram/classDiagramModel";
-import {addNewElementAt, addNodeAndConnect, moveElement, resizeElement} from "./structureDiagramModel";
+import {
+    addNewElementAt,
+    addNodeAndConnect,
+    handleStructureElementCommand,
+    moveElement,
+    resizeElement
+} from "./structureDiagramModel";
 import {selector, selectorFamily} from "recoil";
 
 export class StructureDiagramEditor implements DiagramEditor {
@@ -37,6 +43,9 @@ export class StructureDiagramEditor implements DiagramEditor {
             resizeElement(get, set, element, suggestedBounds);
         } else if (dropFromPaletteAction.match(action)) {
             addNewElementAt(get, set, action.payload.droppedAt, action.payload.name, action.payload.kind);
+        } else if(elementCommandAction.match(action)) {
+            const {elements, command} = action.payload;
+            handleStructureElementCommand(get, set, elements, command)
         }
     }
 

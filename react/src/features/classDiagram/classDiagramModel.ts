@@ -1,7 +1,6 @@
 import {Bounds} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {
-    DiagramElement,
     ElementRef,
     ElementType,
     Id,
@@ -14,12 +13,10 @@ import {selectorFamily} from "recoil";
 import {
     DiagramId,
     elementsAtom,
-    emptyElementSentinel,
     generateId
 } from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
-import {Command} from "../propertiesEditor/PropertiesEditor";
 import produce, {Draft} from "immer";
 import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
 
@@ -251,46 +248,6 @@ export function handleClassElementPropertyChanged(get: Get, set: Set, elements: 
     });
 }
 
-function deleteClassElement(diagram: Draft<ClassDiagramState>, element: ElementRef,
-                            getElement: (id: Id) => DiagramElement,
-                            setElement: (id: Id, element: DiagramElement) => void) {
-    switch(element.type) {
-        case ElementType.ClassNode:
-            const node = getElement(element.id) as NodeState;
-            node.ports.forEach(portId => {
-                const port = getElement(portId) as PortState;
-                port.links.forEach(linkId => {
-                    delete diagram.links[linkId];
-                    setElement(linkId, emptyElementSentinel);
-                })
-                delete diagram.ports[portId];
-                setElement(portId, emptyElementSentinel);
-            })
 
-            delete diagram.nodes[element.id];
-
-            setElement(element.id, emptyElementSentinel);
-            break;
-    }
-    diagram.selectedElements = diagram.selectedElements.filter(e => e.id !== element.id);
-}
-
-export function handleClassCommand(get: Get, set: Set, elements: ElementRef[], command: Command) {
-    const diagramId = get(activeDiagramIdAtom)
-    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-    const getElement = (id: Id) => get(elementsAtom(id));
-    const setElement = (id: Id, element: DiagramElement) => set(elementsAtom(id), element);
-
-    const update = produce(diagram, (draft: Draft<ClassDiagramState>) => {
-        switch (command) {
-            case Command.Delete:
-                elements.forEach(element => {
-                    deleteClassElement(draft, element, getElement, setElement);
-                });
-                break;
-        }
-    })
-    set(elementsAtom(diagramId), update);
-}
 
 

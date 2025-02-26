@@ -3,19 +3,27 @@ import {
     CustomShape,
     defaultNoteHeight,
     defaultNoteStyle,
-    defaultNoteWidth, defaultShapeStyle,
+    defaultNoteWidth, defaultShapeStyle, DiagramElement,
     ElementRef,
-    ElementType, NodeState, PictureLayout
+    ElementType, Id, NodeState, PictureLayout, PortState
 } from "../../package/packageModel";
 import {Bounds, Coordinate} from "../../common/model";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
-import {elementsAtom, generateId, Linking, linkingAtom, snapGridSizeAtom} from "../diagramEditor/diagramEditorModel";
+import {
+    elementsAtom,
+    emptyElementSentinel,
+    generateId,
+    Linking,
+    linkingAtom,
+    snapGridSizeAtom
+} from "../diagramEditor/diagramEditorModel";
 import produce, {Draft} from "immer";
 import {snapToGrid} from "../../common/Geometry/snap";
 import {StructureDiagramState} from "./structureDiagramState";
 import {autoConnectNodes, ClassDiagramState, NodePlacement} from "../classDiagram/classDiagramModel";
 import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
+import {Command} from "../propertiesEditor/PropertiesEditor";
 
 export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
@@ -138,3 +146,44 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
     throw new Error("Unknown element type: " + elementType);
 }
 
+function deleteSelectedElement(diagram: Draft<StructureDiagramState>, element: ElementRef,
+                               getElement: (id: Id) => DiagramElement,
+                               setElement: (id: Id, element: DiagramElement) => void) {
+    switch(element.type) {
+        case ElementType.ClassNode:
+            const node = getElement(element.id) as NodeState;
+            node.ports.forEach(portId => {
+                const port = getElement(portId) as PortState;
+                port.links.forEach(linkId => {
+                    delete diagram.links[linkId];
+                    setElement(linkId, emptyElementSentinel);
+                })
+                delete diagram.ports[portId];
+                setElement(portId, emptyElementSentinel);
+            })
+
+            delete diagram.nodes[element.id];
+
+            setElement(element.id, emptyElementSentinel);
+            break;
+    }
+    diagram.selectedElements = diagram.selectedElements.filter(e => e.id !== element.id);
+}
+
+export function handleStructureElementCommand(get: Get, set: Set, elements: ElementRef[], command: Command) {
+    const diagramId = get(activeDiagramIdAtom)
+    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+    const getElement = (id: Id) => get(elementsAtom(id));
+    const setElement = (id: Id, element: DiagramElement) => set(elementsAtom(id), element);
+
+    const update = produce(diagram, (draft: Draft<StructureDiagramState>) => {
+        switch (command) {
+            case Command.Delete:
+                elements.forEach(element => {
+                    deleteSelectedElement(draft, element, getElement, setElement);
+                });
+                break;
+        }
+    })
+    set(elementsAtom(diagramId), update);
+}

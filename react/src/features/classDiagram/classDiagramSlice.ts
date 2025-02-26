@@ -1,12 +1,10 @@
 import {
-    elementCommandAction,
     elementPropertyChangedAction,
     Get,
     propertiesDialogAction,
     Set
 } from "../diagramEditor/diagramEditorSlice";
 import {
-    handleClassCommand,
     handleClassElementPropertyChanged,
     nodePropertiesDialog
 } from "./classDiagramModel";
@@ -21,9 +19,6 @@ class ClassDiagramEditor extends StructureDiagramEditor {
         }else if (elementPropertyChangedAction.match(action)) {
             const {elements, propertyName, value} = action.payload;
             handleClassElementPropertyChanged(get, set, elements, propertyName, value);
-        }else if(elementCommandAction.match(action)) {
-            const {elements, command} = action.payload;
-        handleClassCommand(get, set, elements, command)
         }else {
             super.handleAction(action, get, set);
         }
