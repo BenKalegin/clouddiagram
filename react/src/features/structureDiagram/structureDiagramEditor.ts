@@ -1,6 +1,6 @@
 import {
     DiagramEditor, dropFromPaletteAction, elementCommandAction,
-    elementMoveAction, elementResizeAction,
+    elementMoveAction, elementPropertyChangedAction, elementResizeAction,
     Get, Set
 } from "../diagramEditor/diagramEditorSlice";
 import {Action} from "@reduxjs/toolkit";
@@ -27,7 +27,7 @@ import {
 import {
     addNewElementAt,
     addNodeAndConnect,
-    handleStructureElementCommand,
+    handleStructureElementCommand, handleStructureElementPropertyChanged,
     moveElement,
     resizeElement
 } from "./structureDiagramModel";
@@ -46,6 +46,9 @@ export class StructureDiagramEditor implements DiagramEditor {
         } else if(elementCommandAction.match(action)) {
             const {elements, command} = action.payload;
             handleStructureElementCommand(get, set, elements, command)
+        }else if (elementPropertyChangedAction.match(action)) {
+            const {elements, propertyName, value} = action.payload;
+            handleStructureElementPropertyChanged(get, set, elements, propertyName, value);
         }
     }
 

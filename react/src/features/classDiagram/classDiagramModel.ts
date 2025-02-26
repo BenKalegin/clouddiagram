@@ -17,7 +17,6 @@ import {
 } from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
-import produce, {Draft} from "immer";
 import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
 
 export type NodePlacement = {
@@ -142,7 +141,7 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
     };
 }
 
-export function nodePropertiesDialog(get: Get, set: Set, elementId: string, dialogResult: DialogOperation) {
+export function nodePropertiesDialog(get: Get, set: Set, dialogResult: DialogOperation) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
     let modalDialog: ClassDiagramModalDialog | undefined;
@@ -161,7 +160,7 @@ export function nodePropertiesDialog(get: Get, set: Set, elementId: string, dial
     set(elementsAtom(diagramId), updatedDiagram);
 }
 
-function addNewPort(get: Get, set: Set, node: NodeState) {
+function addNewPort(_get: Get, set: Set, node: NodeState) {
     const result: PortState = {
         nodeId: node.id,
         type: ElementType.ClassPort,
@@ -221,31 +220,6 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
     };
 
     set(elementsAtom(diagramId), updatedDiagram);
-}
-
-
-export function handleClassElementPropertyChanged(get: Get, set: Set, elements: ElementRef[], propertyName: string, value: any) {
-    const diagramId = get(activeDiagramIdAtom)
-    const originalDiagram = get(elementsAtom(diagramId)) as ClassDiagramState;
-
-    elements.forEach(element => {
-        switch (element.type) {
-            case ElementType.ClassNode:
-                const node = get(elementsAtom(element.id)) as NodeState;
-                const update = produce(node, (draft: Draft<NodeState>) => {
-                    const object: any = draft;
-                    object[propertyName] = value
-                })
-                set(elementsAtom(element.id), update);
-                break;
-            case ElementType.Note:
-                const diagramUpdate = produce(originalDiagram, (diagram: Draft<ClassDiagramState>) => {
-                    const object: any = diagram.notes[element.id];
-                    object[propertyName] = value
-                })
-                set(elementsAtom(diagramId), diagramUpdate);
-        }
-    });
 }
 
 

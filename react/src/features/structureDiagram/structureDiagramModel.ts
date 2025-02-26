@@ -187,3 +187,27 @@ export function handleStructureElementCommand(get: Get, set: Set, elements: Elem
     })
     set(elementsAtom(diagramId), update);
 }
+
+export function handleStructureElementPropertyChanged(get: Get, set: Set, elements: ElementRef[], propertyName: string, value: any) {
+    const diagramId = get(activeDiagramIdAtom)
+    const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+
+    elements.forEach(element => {
+        switch (element.type) {
+            case ElementType.ClassNode:
+                const node = get(elementsAtom(element.id)) as NodeState;
+                const update = produce(node, (draft: Draft<NodeState>) => {
+                    const object: any = draft;
+                    object[propertyName] = value
+                })
+                set(elementsAtom(element.id), update);
+                break;
+            case ElementType.Note:
+                const diagramUpdate = produce(originalDiagram, (diagram: Draft<ClassDiagramState>) => {
+                    const object: any = diagram.notes[element.id];
+                    object[propertyName] = value
+                })
+                set(elementsAtom(diagramId), diagramUpdate);
+        }
+    });
+}
