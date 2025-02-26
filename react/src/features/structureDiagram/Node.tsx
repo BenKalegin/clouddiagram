@@ -8,7 +8,8 @@ import {DefaultValue, selectorFamily, useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType, NodeState} from "../../package/packageModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
-import {getCustomDrawById, PredefinedSvg} from "../graphics/graphicsReader";
+import useImage from 'use-image';
+import sqsIcon from "../graphics/aws/sqs.svg"; // Import as URL
 
 export interface NodeProps {
     nodeId: NodeId
@@ -50,6 +51,8 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
         bounds: placement.bounds,
     });
 
+    const [image] = useImage(sqsIcon);
+
     return (
         <React.Fragment>
             <Rect
@@ -68,19 +71,16 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                 shadowOpacity={0.4}
             />
 
-            {node.customShape?.pictureId &&
-                <Shape
+            {node.customShape?.pictureId && (
+                <Image
                     {...eventHandlers}
-                    sceneFunc={getCustomDrawById(node.customShape.pictureId)}
-                    fill={node.shapeStyle.fillColor}
-                    stroke={node.shapeStyle.strokeColor}
-                    strokeWidth={1}
+                    image={image}
                     x={placement.bounds.x}
                     y={placement.bounds.y}
                     width={32}
                     height={32}
                 />
-            }
+            )}
 
             {isSelected && (
                 <Scaffold
