@@ -1,22 +1,20 @@
-import {ReactComponent as ClassIcon} from "../graphics/class.svg";
-import {ReactComponent as InterfaceIcon} from "../graphics/interface.svg";
-import {ReactComponent as ActorIcon} from "../graphics/actor.svg";
-import {ReactComponent as LifelineIcon} from "../graphics/lifeline.svg";
-import {ReactComponent as NoteIcon} from "../graphics/note.svg";
-import {ReactComponent as BoundaryIcon} from "../graphics/boundary.svg";
-import {ReactComponent as ControlIcon} from "../graphics/control.svg";
-import {ReactComponent as EntityIcon} from "../graphics/entity.svg";
-import {ReactComponent as SqsIcon} from "../graphics/aws/sqs.svg";
-import {ReactComponent as KinesisIcon} from "../graphics/aws/kinesis.svg";
-import {ReactComponent as ElbIcon} from "../graphics/aws/elb.svg";
-import {ReactComponent as Route53Icon} from "../graphics/aws/route53.svg";
-import {ReactComponent as CloudFrontIcon} from "../graphics/aws/cloudfront.svg";
-import {ReactComponent as EcsIcon} from "../graphics/aws/ecs.svg";
-import {ReactComponent as DynamoDBIcon} from "../graphics/aws/dynamodb.svg";
+import ClassIcon from "../graphics/class.svg";
+import InterfaceIcon from "../graphics/interface.svg";
+import ActorIcon from "../graphics/actor.svg";
+import LifelineIcon from "../graphics/lifeline.svg";
+import NoteIcon from "../graphics/note.svg";
+import BoundaryIcon from "../graphics/boundary.svg";
+import ControlIcon from "../graphics/control.svg";
+import EntityIcon from "../graphics/entity.svg";
+import SqsIcon from "../graphics/aws/sqs.svg";
+import KinesisIcon from "../graphics/aws/kinesis.svg";
+import ElbIcon from "../graphics/aws/elb.svg";
+import Route53Icon from "../graphics/aws/route53.svg";
+import CloudFrontIcon from "../graphics/aws/cloudfront.svg";
+import EcsIcon from "../graphics/aws/ecs.svg";
+import DynamoDBIcon from "../graphics/aws/dynamodb.svg";
 import Konva from "konva";
 import {Shape} from "konva/lib/Shape";
-import React from "react";
-import ReactDOMServer from 'react-dom/server';
 import ShapeConfig = Konva.ShapeConfig;
 import Context = Konva.Context;
 
@@ -39,7 +37,7 @@ export enum PredefinedSvg {
     DynamoDB,
 }
 
-export const iconRegistry: Record<PredefinedSvg, React.FunctionComponent<React.SVGProps<SVGSVGElement>>> = {
+export const iconRegistry: Record<PredefinedSvg, string> = {
     [PredefinedSvg.Actor]: ActorIcon,
     [PredefinedSvg.Boundary]: BoundaryIcon,
     [PredefinedSvg.Control]: ControlIcon,
@@ -112,23 +110,8 @@ function drawActor(context: Context, shape: Shape<ShapeConfig>): void {
     context.fillStrokeShape(shape);
 }
 
-function createDrawSvgWithId(id: PredefinedSvg): CustomDraw {
-    return (context: Context, shape: Shape<ShapeConfig>): void => {
-        const Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>> = iconRegistry[id];
-        const svgString = ReactDOMServer.renderToStaticMarkup(React.createElement(Icon));
-        const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
-
-        const img = new Image();
-        img.src = svgDataUrl;
-
-        img.onload = () => {
-            context.drawImage(img, shape.x(), shape.y(), shape.width(), shape.height());
-        };
-    };
-}
-
-
-export function getCustomDrawById(id: PredefinedSvg): CustomDraw {
+// TODO move this code to separate SVGs
+export function getLifelineCustomDrawById(id: PredefinedSvg): CustomDraw {
     switch (id) {
         case PredefinedSvg.Actor:
             return drawActor;
@@ -139,6 +122,6 @@ export function getCustomDrawById(id: PredefinedSvg): CustomDraw {
         case PredefinedSvg.Entity:
             return drawEntity;
         default:
-            return createDrawSvgWithId(id);
+            throw new Error("Unknown id: " + id);
     }
 }

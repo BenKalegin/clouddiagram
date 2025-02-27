@@ -20,7 +20,7 @@ export const Toolbox = () => {
     };
 
     function getItem(item: GalleryItem) {
-        const Icon = item.icon !== undefined ? iconRegistry[item.icon] : undefined;
+        const iconUrl = item.icon !== undefined ? iconRegistry[item.icon] : undefined;
         return <ListItemButton
             key={item.key}
             onDragStart={(e) => {
@@ -31,7 +31,7 @@ export const Toolbox = () => {
             draggable={true}
         >
             <ListItemIcon sx={{minWidth: 36}}>
-                {Icon && <Icon />}
+                {iconUrl && <img src={iconUrl} alt="" style={{ width: 24, height: 24 }} />}
             </ListItemIcon>
             <ListItemText
                 primary={item.name}

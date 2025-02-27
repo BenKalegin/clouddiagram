@@ -8,7 +8,7 @@ import {useRecoilValue} from "recoil";
 import {DiagramId, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType} from "../../package/packageModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
-import {getCustomDrawById} from "../graphics/graphicsReader";
+import {getLifelineCustomDrawById} from "../graphics/graphicsReader";
 
 export interface LifelineProps {
     lifelineId: LifelineId
@@ -77,7 +77,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             />
             <Shape
                 {...eventHandlers}
-                sceneFunc={getCustomDrawById(lifeline.customShape?.pictureId!)}
+                sceneFunc={getLifelineCustomDrawById(lifeline.customShape?.pictureId!)}
                 fill={lifeline.shapeStyle.fillColor}
                 stroke={lifeline.shapeStyle.strokeColor}
                 strokeWidth={1}

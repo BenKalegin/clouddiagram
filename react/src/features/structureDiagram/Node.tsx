@@ -1,5 +1,5 @@
 import React, {FC} from "react";
-import {Rect, Shape, Text, Image} from "react-konva";
+import {Rect, Text, Image} from "react-konva";
 import {Port} from "../classDiagram/Port";
 import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "../classDiagram/DrawingLink";
@@ -9,7 +9,7 @@ import {DiagramId, elementsAtom, linkingAtom, selectedRefsSelector} from "../dia
 import {ElementType, NodeState} from "../../package/packageModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
 import useImage from 'use-image';
-import sqsIcon from "../graphics/aws/sqs.svg"; // Import as URL
+import {iconRegistry} from "../graphics/graphicsReader";
 
 export interface NodeProps {
     nodeId: NodeId
@@ -51,7 +51,9 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
         bounds: placement.bounds,
     });
 
-    const [image] = useImage(sqsIcon);
+    const shapeId = node.customShape?.pictureId;
+    const iconUrl = shapeId !== undefined ? iconRegistry[shapeId] : undefined;
+    const [image] = useImage(iconUrl || '');
 
     return (
         <React.Fragment>
