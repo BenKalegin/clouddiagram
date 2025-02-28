@@ -57,35 +57,23 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const iconUrl = shapeId !== undefined ? iconRegistry[shapeId] : undefined
     const layout = node.customShape?.layout ?? PictureLayout.NoIconRect
     const [image] = useImage(iconUrl || '');
+    const contentComponents = {
+        [PictureLayout.TopLeftCorner]: NodeContentTopLeftIcon,
+        [PictureLayout.NoIconRect]: NodeContentNoIconRect,
+        [PictureLayout.FullIconTextBelow]: NodeContentFullIconTextBelow,
+    };
+    const Component = contentComponents[layout as keyof typeof contentComponents];
 
+    let shadowEnabled = nodeId === linkingTarget?.id || nodeId === linkingSource;
     return (
         <React.Fragment>
-            {layout === PictureLayout.TopLeftCorner &&(
-                <NodeContentTopLeftIcon
+            {Component && (
+                <Component
                     node={node}
                     image={image}
                     placement={placement}
                     eventHandlers={eventHandlers}
-                    shadowEnabled={nodeId === linkingTarget?.id || nodeId === linkingSource}
-                />
-            )}
-
-            {layout === PictureLayout.NoIconRect &&(
-                <NodeContentNoIconRect
-                    node={node}
-                    placement={placement}
-                    eventHandlers={eventHandlers}
-                    shadowEnabled={nodeId === linkingTarget?.id || nodeId === linkingSource}
-                />
-            )}
-
-            {layout === PictureLayout.FullIconTextBelow &&(
-                <NodeContentFullIconTextBelow
-                    node={node}
-                    image={image}
-                    placement={placement}
-                    eventHandlers={eventHandlers}
-                    shadowEnabled={nodeId === linkingTarget?.id || nodeId === linkingSource}
+                    shadowEnabled={shadowEnabled}
                 />
             )}
 
