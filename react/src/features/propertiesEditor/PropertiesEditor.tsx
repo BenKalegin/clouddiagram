@@ -14,6 +14,7 @@ export enum PropertyType {
     String,
     Boolean,
     ColorSchema,
+    ShapeLayout,
     LineStyle,
 }
 
@@ -41,16 +42,17 @@ interface CommandDefinition {
 
 // TODO split by features
 const textProp = {name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false};
-const shapeStyleProp = {name: "shapeStyle", label: "Shape Style", type: PropertyType.ColorSchema, supportMultiEdit: true}
+const colorSchemaProp = {name: "colorSchema", label: "Color Schema", type: PropertyType.ColorSchema, supportMultiEdit: true}
+const shapeLayoutProp = {name: "shapeLayout", label: "Shape Layout", type: PropertyType.ShapeLayout, supportMultiEdit: true}
 const lineStyleProp = {name: "lineStyle", label: "Line Style", type: PropertyType.LineStyle, supportMultiEdit: true}
 
 
 function getPropertyList(type: ElementType): PropertyDefinition[] {
     switch (type) {
         case ElementType.ClassNode:
-            return [textProp, shapeStyleProp];
+            return [textProp, colorSchemaProp, shapeLayoutProp];
         case ElementType.SequenceLifeLine:
-            return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}, shapeStyleProp];
+            return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}, colorSchemaProp];
         case ElementType.SequenceMessage:
             return [
                 textProp, lineStyleProp,
@@ -58,7 +60,7 @@ function getPropertyList(type: ElementType): PropertyDefinition[] {
                 {name: "isAsync", label: "Is Asynchronous", type: PropertyType.Boolean, supportMultiEdit: false},
             ];
         case ElementType.Note:
-            return [textProp, shapeStyleProp];
+            return [textProp, colorSchemaProp];
         default:
             return [];
     }
