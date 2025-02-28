@@ -3,14 +3,14 @@ import React from "react";
 import {useRecoilValue} from "recoil";
 import {NodeId, PortId, portSelector} from "./classDiagramModel";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
-import {ShapeStyle} from "../../package/packageModel";
+import {ColorSchema} from "../../package/packageModel";
 import {portRenderSelector} from "../structureDiagram/structureDiagramEditor";
 
 export interface PortProps {
     portId: PortId
     nodeId: NodeId
     diagramId: DiagramId
-    shapeStyle: ShapeStyle
+    shapeStyle: ColorSchema
 }
 export const Port = ({diagramId, nodeId, portId, shapeStyle}: PortProps) => {
     const port = useRecoilValue(portSelector(portId))

@@ -12,7 +12,7 @@ import {
     Id,
     LineStyle,
     PictureLayout,
-    ShapeStyle
+    ColorSchema
 } from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom,} from "../diagramEditor/diagramEditorModel";
@@ -68,7 +68,7 @@ export interface LifelineState extends DiagramElement {
     activations: ActivationId[]
     placement: LifelinePlacement;
     title: string;
-    shapeStyle: ShapeStyle
+    shapeStyle: ColorSchema
 }
 
 export interface MessageRender extends ConnectorRender {

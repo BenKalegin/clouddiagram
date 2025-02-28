@@ -64,7 +64,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     };
     const Component = contentComponents[layout as keyof typeof contentComponents];
 
-    let shadowEnabled = nodeId === linkingTarget?.id || nodeId === linkingSource;
+    const shadowEnabled = nodeId === linkingTarget?.id || nodeId === linkingSource;
     return (
         <React.Fragment>
             {Component && (

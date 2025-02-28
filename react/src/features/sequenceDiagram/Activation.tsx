@@ -2,12 +2,12 @@ import {Rect} from "react-konva";
 import {useRecoilValue} from "recoil";
 import {ActivationId, activationRenderSelector} from "./sequenceDiagramModel";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
-import {ShapeStyle} from "../../package/packageModel";
+import {ColorSchema} from "../../package/packageModel";
 
 export interface ActivationProps {
     activationId: ActivationId
     diagramId: DiagramId
-    shapeStyle: ShapeStyle
+    shapeStyle: ColorSchema
 }
 
 export const Activation = ({activationId, diagramId, shapeStyle}: ActivationProps) => {

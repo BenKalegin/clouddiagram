@@ -1,6 +1,6 @@
 import {
-    ShapeStyle,
-    shapeStyleList
+    ColorSchema,
+    colorSchemaList
 } from "../../package/packageModel";
 import React, {useState} from "react";
 import {
@@ -13,7 +13,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
 import {PropAndKind} from "./PropertiesEditor";
 
-const ShapeStyleIcon: React.FC<ShapeStyle> = (props:ShapeStyle) => {
+const ColorSchemaIcon: React.FC<ColorSchema> = (props:ColorSchema) => {
     return (
         <SvgIcon>
             <svg viewBox="0 0 100 80">
@@ -32,20 +32,20 @@ const ShapeStyleIcon: React.FC<ShapeStyle> = (props:ShapeStyle) => {
         </SvgIcon>
     );
 }
-interface ShapeStylePropertyEditorProps{
+interface ColorSchemaPropertyEditorProps{
     propAndKind: PropAndKind
-    value: ShapeStyle
+    value: ColorSchema
     updateProps: (value: any) => void
 }
 
-export const ShapeStylePropertyEditor: React.FC<ShapeStylePropertyEditorProps> = (props: ShapeStylePropertyEditorProps ) => {
+export const ColorSchemaPropertyEditor: React.FC<ColorSchemaPropertyEditorProps> = (props: ColorSchemaPropertyEditorProps ) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const handleClose = () => {
         setAnchorEl(null);
     };
 
-    const handleItemClick = (shapeStyle: ShapeStyle) => {
-        props.updateProps(shapeStyle);
+    const handleItemClick = (colorSchema: ColorSchema) => {
+        props.updateProps(colorSchema);
         handleClose();
     };
 
@@ -65,7 +65,7 @@ export const ShapeStylePropertyEditor: React.FC<ShapeStylePropertyEditorProps> =
                             }}
                             onClick={handleOpenMenu}
                         >
-                            <ShapeStyleIcon {...props.value} />
+                            <ColorSchemaIcon {...props.value} />
                             <ArrowDropDownIcon/>
                         </IconButton>
                     </ButtonGroup>
@@ -76,12 +76,12 @@ export const ShapeStylePropertyEditor: React.FC<ShapeStylePropertyEditorProps> =
                         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                         open={popupOpen}
                     >
-                        {shapeStyleList.map((shapeStyle, i) => (
+                        {colorSchemaList.map((colorSchema, i) => (
                             <MenuItem
                                 key={i}
                                 sx={{height: "24"}}
-                                onClick={() => handleItemClick(shapeStyle)}>
-                                <ShapeStyleIcon {...shapeStyle} />
+                                onClick={() => handleItemClick(colorSchema)}>
+                                <ColorSchemaIcon {...colorSchema} />
                             </MenuItem>
                             ))
                         }

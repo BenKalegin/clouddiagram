@@ -3,17 +3,17 @@ import List from "@mui/material/List";
 import React from "react";
 import {useRecoilValue} from "recoil";
 import {selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
-import {ElementType, LineStyle, ShapeStyle} from "../../package/packageModel";
+import {ElementType, LineStyle, ColorSchema} from "../../package/packageModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {elementCommandAction, elementPropertyChangedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
-import {ShapeStylePropertyEditor} from "./ShapeStylePropertyEditor";
+import {ColorSchemaPropertyEditor} from "./ColorSchemaPropertyEditor";
 import {LineStylePropertyEditor} from "./LineStylePropertyEditor";
 
 
 export enum PropertyType {
     String,
     Boolean,
-    ShapeStyle,
+    ColorSchema,
     LineStyle,
 }
 
@@ -41,7 +41,7 @@ interface CommandDefinition {
 
 // TODO split by features
 const textProp = {name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false};
-const shapeStyleProp = {name: "shapeStyle", label: "Shape Style", type: PropertyType.ShapeStyle, supportMultiEdit: true}
+const shapeStyleProp = {name: "shapeStyle", label: "Shape Style", type: PropertyType.ColorSchema, supportMultiEdit: true}
 const lineStyleProp = {name: "lineStyle", label: "Line Style", type: PropertyType.LineStyle, supportMultiEdit: true}
 
 
@@ -154,7 +154,7 @@ export const PropertiesEditor = () => {
             <Box display="flex" flexDirection="column" p={2} key={i}>
                 {p.prop.type === PropertyType.String && StringPropertyEditor(p, value as string, updateProps)}
                 {p.prop.type === PropertyType.Boolean && BooleanPropertyEditor(p, value as boolean, updateProps)}
-                {p.prop.type === PropertyType.ShapeStyle && <ShapeStylePropertyEditor propAndKind={p} value = {value as ShapeStyle} updateProps={updateProps}/>}
+                {p.prop.type === PropertyType.ColorSchema && <ColorSchemaPropertyEditor propAndKind={p} value = {value as ColorSchema} updateProps={updateProps}/>}
                 {p.prop.type === PropertyType.LineStyle && <LineStylePropertyEditor propAndKind={p} value = {value as LineStyle} updateProps={updateProps}/>}
             </Box>
 
