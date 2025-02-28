@@ -220,7 +220,7 @@ export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coo
             case ElementType.SequenceLifeLine:
                 const customShape : CustomShape | undefined  = kind.subType?
                 {
-                    layout: PictureLayout.Top,
+                    layout: PictureLayout.FullIconTextBelow,
                     pictureId: kind.subType,
                 }
                 : undefined;

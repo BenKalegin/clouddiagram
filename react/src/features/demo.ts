@@ -202,7 +202,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
 export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentDiagramState => {
     const node1Id = "node21";
     const customShape : CustomShape = {
-        layout: PictureLayout.Top,
+        layout: PictureLayout.TopLeftCorner,
         pictureId: PredefinedSvg.SQS
     }
 

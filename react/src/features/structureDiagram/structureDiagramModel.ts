@@ -113,7 +113,7 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
         const diagramId = get(activeDiagramIdAtom);
         const customShape : CustomShape | undefined  = elementType.subType?
         {
-            layout: PictureLayout.Top,
+            layout: PictureLayout.FullIconTextBelow,
             pictureId: elementType.subType,
         }
         : undefined;

@@ -18,7 +18,6 @@ export enum ElementType {
     DeploymentLink,
 }
 
-export const AllDiagramTypes: ElementType[] = [ElementType.ClassDiagram, ElementType.SequenceDiagram];
 export interface ElementRef {
     id: Id;
     type: ElementType
@@ -36,11 +35,15 @@ export interface LineStyle {
 }
 
 export enum PictureLayout {
+    NoIconRect,
+    TopLeftCorner,
+    TopRightCorner,
+    LeftHalf,
+    RightHalf,
+    FullIconTextBelow,
     Stretch,
     StretchKeepRatio,
     Center,
-    TopLeftCorner,
-    Top
 }
 
 

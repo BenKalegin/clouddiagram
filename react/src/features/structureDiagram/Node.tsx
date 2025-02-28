@@ -1,15 +1,17 @@
 import React, {FC} from "react";
-import {Rect, Text, Image} from "react-konva";
 import {Port} from "../classDiagram/Port";
 import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "../classDiagram/DrawingLink";
 import {classDiagramSelector, NodeId, NodePlacement} from "../classDiagram/classDiagramModel";
 import {DefaultValue, selectorFamily, useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
-import {ElementType, NodeState} from "../../package/packageModel";
+import {ElementType, NodeState, PictureLayout} from "../../package/packageModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
-import useImage from 'use-image';
+import {NodeContentTopLeftIcon} from "./NodeContentTopLeftIcon";
 import {iconRegistry} from "../graphics/graphicsReader";
+import useImage from "use-image";
+import {NodeContentFullIconTextBelow} from "./NodeContentFullIconTextBelow";
+import {NodeContentNoIconRect} from "./NodeContentNoIconRect";
 
 export interface NodeProps {
     nodeId: NodeId
@@ -51,36 +53,39 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
         bounds: placement.bounds,
     });
 
-    const shapeId = node.customShape?.pictureId;
-    const iconUrl = shapeId !== undefined ? iconRegistry[shapeId] : undefined;
+    const shapeId = node.customShape?.pictureId
+    const iconUrl = shapeId !== undefined ? iconRegistry[shapeId] : undefined
+    const layout = node.customShape?.layout ?? PictureLayout.NoIconRect
     const [image] = useImage(iconUrl || '');
 
     return (
         <React.Fragment>
-            <Rect
-                {...eventHandlers}
-                fill={node.shapeStyle.fillColor}
-                stroke={node.shapeStyle.strokeColor}
-                {...placement.bounds}
-                cornerRadius={10}
-                cursor={"crosshair"}
-                //draggable
-                draggable={true}
-                shadowEnabled={nodeId === linkingTarget?.id || nodeId === linkingSource}
-                shadowColor={'black'}
-                shadowBlur={3}
-                shadowOffset={{x: 2, y: 2}}
-                shadowOpacity={0.4}
-            />
-
-            {node.customShape?.pictureId && (
-                <Image
-                    {...eventHandlers}
+            {layout === PictureLayout.TopLeftCorner &&(
+                <NodeContentTopLeftIcon
+                    node={node}
                     image={image}
-                    x={placement.bounds.x}
-                    y={placement.bounds.y}
-                    width={32}
-                    height={32}
+                    placement={placement}
+                    eventHandlers={eventHandlers}
+                    shadowEnabled={nodeId === linkingTarget?.id || nodeId === linkingSource}
+                />
+            )}
+
+            {layout === PictureLayout.NoIconRect &&(
+                <NodeContentNoIconRect
+                    node={node}
+                    placement={placement}
+                    eventHandlers={eventHandlers}
+                    shadowEnabled={nodeId === linkingTarget?.id || nodeId === linkingSource}
+                />
+            )}
+
+            {layout === PictureLayout.FullIconTextBelow &&(
+                <NodeContentFullIconTextBelow
+                    node={node}
+                    image={image}
+                    placement={placement}
+                    eventHandlers={eventHandlers}
+                    shadowEnabled={nodeId === linkingTarget?.id || nodeId === linkingSource}
                 />
             )}
 
@@ -93,16 +98,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     linkingDrawing={<DrawingLink/>}
                 />
             )}
-            <Text
-                {...placement.bounds}
-                fontSize={14}
-                align={"center"}
-                verticalAlign={"middle"}
-                text={node.text}
-                draggable={false}
-                listening={false}
-                preventDefault={true}
-            />
+
             {node.ports.map((port, index) =>
                 <Port
                     key={index}
@@ -112,7 +108,6 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     shapeStyle={node.shapeStyle}
                 />
             )}
-
         </React.Fragment>
     );
 }
