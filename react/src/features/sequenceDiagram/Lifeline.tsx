@@ -39,8 +39,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
         return <>
             <Rect
                 {...eventHandlers}
-                fill={lifeline.shapeStyle.fillColor}
-                stroke={lifeline.shapeStyle.strokeColor}
+                fill={lifeline.colorSchema.fillColor}
+                stroke={lifeline.colorSchema.strokeColor}
                 strokeWidth={1}
                 x={placement.headBounds.x}
                 y={placement.headBounds.y}
@@ -78,8 +78,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             <Shape
                 {...eventHandlers}
                 sceneFunc={getLifelineCustomDrawById(lifeline.customShape?.pictureId!)}
-                fill={lifeline.shapeStyle.fillColor}
-                stroke={lifeline.shapeStyle.strokeColor}
+                fill={lifeline.colorSchema.fillColor}
+                stroke={lifeline.colorSchema.strokeColor}
                 strokeWidth={1}
                 x={placement.headBounds.x}
                 y={placement.headBounds.y}
@@ -111,7 +111,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
         {!lifeline.customShape && DefaultHead()}
         {lifeline.customShape && CustomHead()}
         <Line
-            stroke={lifeline.shapeStyle.strokeColor}
+            stroke={lifeline.colorSchema.strokeColor}
             strokeWidth={2}
             dash={[5, 3]}
 
@@ -124,7 +124,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 key={i}
                 activationId={activation}
                 diagramId={diagramId}
-                shapeStyle={lifeline.shapeStyle}
+                colorSchema={lifeline.colorSchema}
             />
         )
         }

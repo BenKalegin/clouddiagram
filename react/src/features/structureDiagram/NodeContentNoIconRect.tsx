@@ -14,8 +14,8 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
         <>
             <Rect
                 {...eventHandlers}
-                fill={node.shapeStyle.fillColor}
-                stroke={node.shapeStyle.strokeColor}
+                fill={node.colorSchema.fillColor}
+                stroke={node.colorSchema.strokeColor}
                 {...placement.bounds}
                 cornerRadius={4}
                 cursor={"crosshair"}

@@ -33,8 +33,8 @@ export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId
             <Shape
                 x={note.bounds.x}
                 y={note.bounds.y}
-                fill={note.shapeStyle.fillColor}
-                stroke={note.shapeStyle.strokeColor}
+                fill={note.colorSchema.fillColor}
+                stroke={note.colorSchema.strokeColor}
                 strokeWidth={1}
 
                 sceneFunc={(context, shape) => {

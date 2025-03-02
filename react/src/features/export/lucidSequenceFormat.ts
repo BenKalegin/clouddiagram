@@ -7,7 +7,7 @@ import {
     SequenceDiagramState
 } from "../sequenceDiagram/sequenceDiagramModel";
 import {Diagram} from "../../common/model";
-import {defaultShapeStyle, ElementType} from "../../package/packageModel";
+import {defaultColorSchema, ElementType} from "../../package/packageModel";
 
 function arrow(message: MessageState) {
     if (message.isReturn)
@@ -72,7 +72,7 @@ export function importSequenceDiagramFromLucid(markup: string): Diagram {
                         width: lifelineDefaultWidth
                     }
                 } as LifelinePlacement,
-                shapeStyle: defaultShapeStyle,
+                colorSchema: defaultColorSchema,
                 title: "",
                 type: ElementType.SequenceLifeLine
 

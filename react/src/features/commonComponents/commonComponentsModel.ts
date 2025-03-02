@@ -1,14 +1,13 @@
-import {DiagramElement, Id, ColorSchema} from "../../package/packageModel";
+import {DiagramElement, Id, ColorSchema, HasColorSchema} from "../../package/packageModel";
 import {selectorFamily} from "recoil";
 import {Bounds, Diagram} from "../../common/model";
 import {DiagramId, elementsAtom} from "../diagramEditor/diagramEditorModel";
 
 export type NoteId = Id
 
-export interface NoteState extends DiagramElement {
+export interface NoteState extends DiagramElement, HasColorSchema {
     text: string
     bounds: Bounds
-    shapeStyle: ColorSchema
 }
 
 export const noteSelector = selectorFamily<NoteState, {noteId: NoteId, diagramId: DiagramId}> ({

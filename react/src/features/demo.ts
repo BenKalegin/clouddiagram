@@ -14,7 +14,7 @@ import {
     CustomShape,
     defaultLineStyle,
     defaultNoteStyle,
-    defaultShapeStyle,
+    defaultColorSchema,
     DiagramElement,
     ElementType,
     Id,
@@ -91,7 +91,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
             port13.id
         ],
         text: "Alice",
-        shapeStyle: defaultShapeStyle
+        colorSchema: defaultColorSchema
     };
     elements[node1.id] = node1;
 
@@ -135,7 +135,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
             port2.id,
         ],
         text: "Bob",
-        shapeStyle: defaultShapeStyle
+        colorSchema: defaultColorSchema
     };
     elements[node2.id] = node2;
 
@@ -184,7 +184,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
             width: 160,
             height: 60
         },
-        shapeStyle: defaultNoteStyle
+        colorSchema: defaultNoteStyle
     }
 
     return {
@@ -212,7 +212,7 @@ export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentD
         id: node1Id,
         ports: [],
         text: "Server",
-        shapeStyle: defaultShapeStyle
+        colorSchema: defaultColorSchema
     };
     elements[node1.id] = node1;
 
@@ -231,7 +231,7 @@ export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentD
         id: nodeId2,
         ports: [],
         text: "Database",
-        shapeStyle: defaultShapeStyle
+        colorSchema: defaultColorSchema
     };
     elements[node2.id] = node2;
 
@@ -276,7 +276,7 @@ export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentD
             width: 160,
             height: 60
         },
-        shapeStyle: defaultNoteStyle
+        colorSchema: defaultNoteStyle
     }
 
     return {
@@ -319,7 +319,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         id: lifeline1Id,
         title: 'Alice',
         activations: [activation1.id],
-        shapeStyle: defaultShapeStyle
+        colorSchema: defaultColorSchema
     }
 
     const lifeline2Id = 'line2';
@@ -349,7 +349,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
         title: 'Bob',
         activations: [activation2.id],
         placement: lifeline2Placement,
-        shapeStyle: defaultShapeStyle
+        colorSchema: defaultColorSchema
     }
 
     const lifelines: { [id: Id]: LifelineState } = {
@@ -393,7 +393,7 @@ export const getSequenceDemoDiagram = (): SequenceDiagramState => {
             width: 160,
             height: 60
         },
-        shapeStyle: defaultNoteStyle
+        colorSchema: defaultNoteStyle
     }
     const notes: { [id: Id]: NoteState } = {
         [note1.id]: note1

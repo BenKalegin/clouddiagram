@@ -10,9 +10,9 @@ export interface PortProps {
     portId: PortId
     nodeId: NodeId
     diagramId: DiagramId
-    shapeStyle: ColorSchema
+    colorSchema: ColorSchema
 }
-export const Port = ({diagramId, nodeId, portId, shapeStyle}: PortProps) => {
+export const Port = ({diagramId, nodeId, portId, colorSchema}: PortProps) => {
     const port = useRecoilValue(portSelector(portId))
     const render = useRecoilValue(portRenderSelector({portId, nodeId, diagramId}))
     const linking = useRecoilValue(linkingAtom)
@@ -24,8 +24,8 @@ export const Port = ({diagramId, nodeId, portId, shapeStyle}: PortProps) => {
             x={render.bounds.x + render.bounds.width / 2}
             y={render.bounds.y + render.bounds.height / 2}
             radius={port.latitude / 2}
-            stroke={shapeStyle.strokeColor}
-            fill={portId === linkingTarget?.id || portId === linkingSource ? shapeStyle.strokeColor: shapeStyle.fillColor}
+            stroke={colorSchema.strokeColor}
+            fill={portId === linkingTarget?.id || portId === linkingSource ? colorSchema.strokeColor: colorSchema.fillColor}
         />
     )
 }

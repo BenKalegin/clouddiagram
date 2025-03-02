@@ -5,14 +5,14 @@ import {
     defaultNoteHeight,
     defaultNoteStyle,
     defaultNoteWidth,
-    defaultShapeStyle,
+    defaultColorSchema,
     DiagramElement,
     ElementRef,
     ElementType,
     Id,
     LineStyle,
     PictureLayout,
-    ColorSchema
+    ColorSchema, HasColorSchema
 } from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom,} from "../diagramEditor/diagramEditorModel";
@@ -64,11 +64,10 @@ export interface LifelinePlacement{
     lifelineEnd: number;
 }
 
-export interface LifelineState extends DiagramElement {
+export interface LifelineState extends DiagramElement, HasColorSchema {
     activations: ActivationId[]
     placement: LifelinePlacement;
     title: string;
-    shapeStyle: ColorSchema
 }
 
 export interface MessageRender extends ConnectorRender {
@@ -240,7 +239,7 @@ export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coo
                         lifelineEnd: 100
                     },
                     activations: [],
-                    shapeStyle: defaultShapeStyle
+                    colorSchema: defaultColorSchema
                 };
 
                 diagram.lifelines[newLifeline.id] = newLifeline;
@@ -251,7 +250,7 @@ export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coo
                     type: ElementType.Note,
                     id: generateId(),
                     text: name,
-                    shapeStyle: defaultNoteStyle,
+                    colorSchema: defaultNoteStyle,
                     bounds: {
                         x: droppedAt.x - defaultNoteWidth / 2,
                         y: droppedAt.y,
@@ -458,7 +457,7 @@ export function createLifelineAndConnectTo(get: Get, set: Set, name: string) {
                 lifelineStart: 0,
                 lifelineEnd: Math.max(lifelineDefaultHeight, diagramPos.y - lifelineHeadY - 2),
             },
-            shapeStyle: defaultShapeStyle
+            colorSchema: defaultColorSchema
         }
 
         produce(targetLifeline,lifelineDraft => {

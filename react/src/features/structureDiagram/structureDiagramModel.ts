@@ -3,7 +3,7 @@ import {
     CustomShape,
     defaultNoteHeight,
     defaultNoteStyle,
-    defaultNoteWidth, defaultShapeStyle, DiagramElement,
+    defaultNoteWidth, defaultColorSchema, DiagramElement,
     ElementRef,
     ElementType, Id, NodeState, PictureLayout, PortState
 } from "../../package/packageModel";
@@ -92,7 +92,7 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
             type: ElementType.Note,
             id: generateId(),
             text: name,
-            shapeStyle: defaultNoteStyle,
+            colorSchema: defaultNoteStyle,
             bounds: {
                 x: droppedAt.x - defaultNoteWidth / 2,
                 y: droppedAt.y,
@@ -123,7 +123,7 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
             id: generateId(),
             text: name,
             ports: [],
-            shapeStyle: defaultShapeStyle,
+            colorSchema: defaultColorSchema,
             customShape: customShape,
         };
 

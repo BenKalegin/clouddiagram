@@ -7,10 +7,10 @@ import {ColorSchema} from "../../package/packageModel";
 export interface ActivationProps {
     activationId: ActivationId
     diagramId: DiagramId
-    shapeStyle: ColorSchema
+    colorSchema: ColorSchema
 }
 
-export const Activation = ({activationId, diagramId, shapeStyle}: ActivationProps) => {
+export const Activation = ({activationId, diagramId, colorSchema}: ActivationProps) => {
 
     const render = useRecoilValue(activationRenderSelector({activationId, diagramId}))
     const linking = useRecoilValue(linkingAtom)
@@ -18,8 +18,8 @@ export const Activation = ({activationId, diagramId, shapeStyle}: ActivationProp
     const linkingSource = linking?.sourceElement;
     return (
         <Rect
-            fill={shapeStyle.fillColor}
-            stroke={shapeStyle.strokeColor}
+            fill={colorSchema.fillColor}
+            stroke={colorSchema.strokeColor}
             strokeWidth={1}
             shadowEnabled={activationId === linkingTarget?.id || activationId === linkingSource}
             shadowColor={'black'}

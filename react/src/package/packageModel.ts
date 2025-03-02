@@ -90,10 +90,12 @@ export interface PortState extends DiagramElement {
     nodeId: NodeId
     links: Id[]
 }
+export interface HasColorSchema {
+    colorSchema: ColorSchema
+}
 
-export interface NodeState extends DiagramElement {
+export interface NodeState extends DiagramElement, HasColorSchema {
     text: string;
-    shapeStyle: ColorSchema
     ports: Id[];
 }
 
@@ -113,24 +115,24 @@ const leafStrokeColor = "#9EBD5D";
 const leafFillColor = "#F4F7EC";
 
 const steelStrokeColor = "#AEBFD1"; // darker "lightsteelblue",
-const steelFillColor = "#F0F5FF"; // "lightsteelblue" + 20% ligghter
+const steelFillColor = "#F0F5FF"; // "lightsteelblue" + 20% lighter
 
-export const defaultShapeStyle: ColorSchema = {
+export const defaultColorSchema: ColorSchema = {
     strokeColor: khakiStrokeColor, // "peru"
     fillColor: khakiFillColor
 }
 
-const pinkShapeStyle: ColorSchema = {
+const pinkColorSchema: ColorSchema = {
     strokeColor: pinkStrokeColor,
     fillColor: pinkFillColor
 }
 
-const leafShapeStyle: ColorSchema = {
+const leafColorSchema: ColorSchema = {
     strokeColor: leafStrokeColor,
     fillColor: leafFillColor
 }
 
-const steelShapeStyle: ColorSchema = {
+const steelColorSchema: ColorSchema = {
     strokeColor: steelStrokeColor,
     fillColor: steelFillColor
 }
@@ -146,10 +148,10 @@ export const defaultNoteHeight = 70;
 
 
 export const colorSchemaList: ColorSchema[] = [
-    defaultShapeStyle,
-    pinkShapeStyle,
-    leafShapeStyle,
-    steelShapeStyle
+    defaultColorSchema,
+    pinkColorSchema,
+    leafColorSchema,
+    steelColorSchema
 ]
 
 export const defaultLineStyle: LineStyle = {
