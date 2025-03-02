@@ -37,12 +37,7 @@ export interface LineStyle {
 export enum PictureLayout {
     NoIconRect,
     TopLeftCorner,
-    TopRightCorner,
-    LeftHalf,
-    RightHalf,
     FullIconTextBelow,
-    Stretch,
-    StretchKeepRatio,
     Center,
 }
 

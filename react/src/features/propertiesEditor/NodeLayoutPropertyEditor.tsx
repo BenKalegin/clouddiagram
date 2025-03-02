@@ -1,6 +1,6 @@
 import {
-    ColorSchema,
-    colorSchemaList
+    CustomShape,
+    PictureLayout
 } from "../../package/packageModel";
 import React, {useState} from "react";
 import {
@@ -12,30 +12,57 @@ import {
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
 import {PropAndKind} from "./PropertiesEditor";
+import {enumKeys} from "../../common/EnumUtils";
 
-const NodeLayoutIcon: React.FC<ColorSchema> = (props:ColorSchema) => {
+const NodeLayoutIcon: React.FC<{ layout: PictureLayout }> = ({ layout }) => {
+    let svgContent;
+
+    switch (layout) {
+        case PictureLayout.NoIconRect:
+            svgContent =
+                <>
+                    <rect height="100%" width="100%" fill={"none"} stroke={"black"} strokeWidth={2}/>
+                    <text x="80" y="60" textAnchor="middle" fill="black">Caption</text>
+                </>
+            break;
+        case PictureLayout.TopLeftCorner:
+            svgContent = (
+                <>
+                    <rect height="100%" width="100%" fill={"none"} stroke={"black"} strokeWidth={2}/>
+                    <circle cx="20%" cy="20%" r="10%" fill="black"/>
+                </>
+            );
+            break;
+        case PictureLayout.FullIconTextBelow:
+            svgContent = (
+                <>
+                    <circle cx="50%" cy="50%" r="40%" fill="black"/>
+                    <text x="50%" y="90%" textAnchor="middle" fill="black">Caption</text>
+                </>
+            );
+            break;
+        case PictureLayout.Center:
+            svgContent = (
+                <>
+                    <rect height="100%" width="100%" fill={"none"} stroke={"black"} strokeWidth={2}/>
+                    <circle cx="50%" cy="50%" r="40%" fill="black"/>
+                </>
+            )
+    }
+
+
     return (
-        <SvgIcon>
-            <svg viewBox="0 0 100 80">
-                <rect
-                    rx="15"
-                    ry="15"
-                    y="10"
-                    x="10"
-                    height="60"
-                    width="80"
-                    fill={props.fillColor}
-                    stroke={props.strokeColor}
-                    strokeWidth={2}
-                />
-            </svg>
-        </SvgIcon>
-    );
-}
+                <SvgIcon>
+                    <svg viewBox="0 0 300 200">
+                {svgContent}
+                    </svg>
+                </SvgIcon>
+            );
+    }
 interface NodeLayoutPropertyEditorProps{
-    propAndKind: PropAndKind
-    value: ColorSchema
-    updateProps: (value: any) => void
+    propAndKind: PropAndKind;
+    value: CustomShape;
+    updateProps: (value: CustomShape) => void;
 }
 
 export const NodeLayoutPropertyEditor: React.FC<NodeLayoutPropertyEditorProps> = (props: NodeLayoutPropertyEditorProps ) => {
@@ -44,8 +71,9 @@ export const NodeLayoutPropertyEditor: React.FC<NodeLayoutPropertyEditorProps> =
         setAnchorEl(null);
     };
 
-    const handleItemClick = (colorSchema: ColorSchema) => {
-        props.updateProps(colorSchema);
+    const handleItemClick = (layout: PictureLayout) => {
+        const updateShape = {...props.value, layout: layout};
+        props.updateProps(updateShape);
         handleClose();
     };
 
@@ -55,42 +83,41 @@ export const NodeLayoutPropertyEditor: React.FC<NodeLayoutPropertyEditorProps> =
 
     const popupOpen = Boolean(anchorEl);
     return (
-            <FormControlLabel control={
-                <>
-                    <ButtonGroup variant="text" aria-label="split button">
-                        <IconButton
-                            aria-label="change color"
-                            sx={{
-                                borderRadius: "10%"
-                            }}
-                            onClick={handleOpenMenu}
-                        >
-                            <NodeLayoutIcon {...props.value} />
-                            <ArrowDropDownIcon/>
-                        </IconButton>
-                    </ButtonGroup>
-                    <Menu
-                        onClose={handleClose}
-                        anchorEl={anchorEl}
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                        open={popupOpen}
+        <FormControlLabel control={
+            <>
+                <ButtonGroup variant="text" aria-label="split button">
+                    <IconButton
+                        aria-label="change color"
+                        sx={{
+                            borderRadius: "10%"
+                        }}
+                        onClick={handleOpenMenu}
                     >
-                        {colorSchemaList.map((colorSchema, i) => (
-                            <MenuItem
-                                key={i}
-                                sx={{height: "24"}}
-                                onClick={() => handleItemClick(colorSchema)}>
-                                <NodeLayoutIcon {...colorSchema} />
-                            </MenuItem>
-                            ))
-                        }
-                    </Menu>
-                </>
-            }
-             label={props.propAndKind.prop.label}
-            />
-
+                        <NodeLayoutIcon layout={props.value?.layout} />
+                        <ArrowDropDownIcon/>
+                    </IconButton>
+                </ButtonGroup>
+                <Menu
+                    onClose={handleClose}
+                    anchorEl={anchorEl}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                    open={popupOpen}
+                >
+                    {enumKeys(PictureLayout).map((layoutKey, i) => (
+                        <MenuItem
+                            key={i}
+                            sx={{height: "48px"}}
+                            onClick={() => handleItemClick(PictureLayout[layoutKey as keyof typeof PictureLayout])}
+                        >
+                            <NodeLayoutIcon layout={PictureLayout[layoutKey as keyof typeof PictureLayout]} />
+                        </MenuItem>
+                    ))}
+                </Menu>
+            </>
+        }
+         label={props.propAndKind.prop.label}
+        />
     );
 }
 
