@@ -10,9 +10,11 @@ import SqsIcon from "../graphics/aws/sqs.svg";
 import KinesisIcon from "../graphics/aws/kinesis.svg";
 import ElbIcon from "../graphics/aws/elb.svg";
 import Route53Icon from "../graphics/aws/route53.svg";
+import S3Icon from "../graphics/aws/s3.svg";
 import CloudFrontIcon from "../graphics/aws/cloudfront.svg";
 import EcsIcon from "../graphics/aws/ecs.svg";
 import DynamoDBIcon from "../graphics/aws/dynamodb.svg";
+import LambdaIcon from "../graphics/aws/lambda.svg";
 import Konva from "konva";
 import {Shape} from "konva/lib/Shape";
 import ShapeConfig = Konva.ShapeConfig;
@@ -35,6 +37,8 @@ export enum PredefinedSvg {
     CloudFront,
     ECS,
     DynamoDB,
+    S3,
+    Lambda,
 }
 
 export const iconRegistry: Record<PredefinedSvg, string> = {
@@ -54,9 +58,11 @@ export const iconRegistry: Record<PredefinedSvg, string> = {
     [PredefinedSvg.Kinesis]: KinesisIcon,
     [PredefinedSvg.ELB]: ElbIcon,
     [PredefinedSvg.Route53]: Route53Icon,
+    [PredefinedSvg.S3]: S3Icon,
     [PredefinedSvg.CloudFront]: CloudFrontIcon,
     [PredefinedSvg.ECS]: EcsIcon,
     [PredefinedSvg.DynamoDB]: DynamoDBIcon,
+    [PredefinedSvg.Lambda]: LambdaIcon,
 };
 export type CustomDraw = (context: Context, shape: Shape<ShapeConfig>) => void
 

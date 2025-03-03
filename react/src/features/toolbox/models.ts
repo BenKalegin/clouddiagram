@@ -33,6 +33,8 @@ export const deploymentRoute53 = 'deployment:aws:route53';
 export const deploymentCloudFront = 'deployment:aws:cloudfront';
 export const deploymentEcs = 'deployment:aws:ecs';
 export const deploymentDynamoDb = 'deployment:aws:dynamodb';
+export const deploymentS3 = 'deployment:aws:s3';
+export const deploymentLambda = 'deployment:aws:lambda';
 
 const items: GalleryItem[] = [
     {key: classClass, name: 'Class', icon: PredefinedSvg.Class},
@@ -55,6 +57,8 @@ const items: GalleryItem[] = [
     {key: deploymentCloudFront, name: 'Cloud Front', icon: PredefinedSvg.CloudFront},
     {key: deploymentEcs, name: 'ECS', icon: PredefinedSvg.ECS},
     {key: deploymentDynamoDb, name: 'DynamoDB', icon: PredefinedSvg.DynamoDB},
+    {key: deploymentS3, name: 'S3', icon: PredefinedSvg.S3},
+    {key: deploymentLambda, name: 'Lambda', icon: PredefinedSvg.Lambda},
 ]
 
 

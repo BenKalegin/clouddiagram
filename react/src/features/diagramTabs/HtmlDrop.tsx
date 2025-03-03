@@ -7,7 +7,7 @@ import {
     deploymentDynamoDb,
     deploymentEcs,
     deploymentElb,
-    deploymentKinesis, deploymentRoute53,
+    deploymentKinesis, deploymentLambda, deploymentRoute53, deploymentS3,
     deploymentSqs,
     GalleryItem,
     interactionActor,
@@ -58,6 +58,10 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
             return { type: ElementType.DeploymentNode, subType: PredefinedSvg.CloudFront }
         case deploymentRoute53:
             return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Route53 }
+        case deploymentS3:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.S3 }
+        case deploymentLambda:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Lambda }
 
 
         default:
