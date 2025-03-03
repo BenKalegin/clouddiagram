@@ -22,21 +22,23 @@ const NodeLayoutIcon: React.FC<{ layout: PictureLayout }> = ({ layout }) => {
             svgContent =
                 <>
                     <rect height="100%" width="100%" fill={"none"} stroke={"black"} strokeWidth={2}/>
-                    <text x="80" y="60" textAnchor="middle" fill="black">Caption</text>
+                    <text x="50%" y="50%" textAnchor="middle" fill="black">Caption</text>
                 </>
             break;
         case PictureLayout.TopLeftCorner:
             svgContent = (
                 <>
                     <rect height="100%" width="100%" fill={"none"} stroke={"black"} strokeWidth={2}/>
-                    <circle cx="20%" cy="20%" r="10%" fill="black"/>
+                    <rect width="25%" height="30%" fill="black"/>
+                    <circle cx="12%" cy="13%" r="9%" fill="white"/>
+                    <text x="35%" y="15%" textAnchor="left" fill="black">Caption</text>
                 </>
             );
             break;
         case PictureLayout.FullIconTextBelow:
             svgContent = (
                 <>
-                    <circle cx="50%" cy="50%" r="40%" fill="black"/>
+                    <circle cx="50%" cy="40%" r="30%" fill="black"/>
                     <text x="50%" y="90%" textAnchor="middle" fill="black">Caption</text>
                 </>
             );
@@ -46,6 +48,7 @@ const NodeLayoutIcon: React.FC<{ layout: PictureLayout }> = ({ layout }) => {
                 <>
                     <rect height="100%" width="100%" fill={"none"} stroke={"black"} strokeWidth={2}/>
                     <circle cx="50%" cy="50%" r="40%" fill="black"/>
+                    <text x="50%" y="50%" textAnchor="middle" fill="white">Caption</text>
                 </>
             )
     }
