@@ -1,12 +1,11 @@
 import React, {FC} from "react";
-import {Image, Rect, Text} from "react-konva";
+import {Image, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
 
 export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
       node,
       placement,
       eventHandlers,
-      shadowEnabled,
       image
   }) => {
 

@@ -1,13 +1,12 @@
 import React, {FC} from "react";
-import {Image, Rect, Text} from "react-konva";
+import {Rect, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
 
 export const NodeContentNoIconRect: FC<NodeContentProps> = ({
       node,
       placement,
       eventHandlers,
-      shadowEnabled,
-      image
+      shadowEnabled
   }) => {
 
     return (

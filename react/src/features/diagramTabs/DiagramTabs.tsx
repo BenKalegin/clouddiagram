@@ -11,10 +11,15 @@ import {
     diagramKindSelector,
     exportingAtom,
     importingAtom,
-    linkingAtom
+    linkingAtom, selectedRefsSelector
 } from "../diagramEditor/diagramEditorModel";
 import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
-import {addDiagramTabAction, elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {
+    addDiagramTabAction,
+    elementCommandAction,
+    elementSelectedAction,
+    useDispatch
+} from "../diagramEditor/diagramEditorSlice";
 import Konva from "konva";
 import {Stage} from 'react-konva';
 import {AppLayoutContext} from "../../app/AppModel";
@@ -23,6 +28,9 @@ import MenuItem from '@mui/material/MenuItem';
 import {PlainTab, TabHeight} from "./DiagramTab";
 import {ExportDialog} from "../dialogs/ExportDialog";
 import {ImportDialog} from "../dialogs/ImportDialog";
+import {DeploymentDiagramEditor} from "../deploymentDiagram/DeploymentDiagramEditor";
+import {useHotkeys} from "react-hotkeys-hook";
+import {Command} from "../propertiesEditor/PropertiesEditor";
 
 export const activeDiagramIdAtom = atom<Id>({
     key: 'activeDiagramId',
@@ -88,6 +96,17 @@ export const DiagramTabs = () => {
         }
     }
 
+    const selectedElements = useRecoilValue(selectedRefsSelector(activeDiagramId))
+    useHotkeys('delete, backspace', (event) => {
+        event.preventDefault();
+
+        // Dispatch an action to delete selected elements
+        dispatch(elementCommandAction({
+            command: Command.Delete,
+            elements: selectedElements
+        }));
+    });
+
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setActiveDiagramId(openDiagramIds[newValue]);
     }
@@ -122,7 +141,7 @@ export const DiagramTabs = () => {
                             <Bridge>
                                 <AppLayoutContext.Provider value={value}>
                                     {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
-                                    {diagramKind === ElementType.DeploymentDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
+                                    {diagramKind === ElementType.DeploymentDiagram && <DeploymentDiagramEditor diagramId={activeDiagramId!}/>}
                                     {diagramKind === ElementType.SequenceDiagram && <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
                                 </AppLayoutContext.Provider>
                             </Bridge>

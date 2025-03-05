@@ -12,7 +12,7 @@ import {
     Id,
     LineStyle,
     PictureLayout,
-    ColorSchema, HasColorSchema
+    HasColorSchema
 } from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
 import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom,} from "../diagramEditor/diagramEditorModel";
