@@ -97,12 +97,33 @@ export const DiagramTabs = () => {
     }
 
     const selectedElements = useRecoilValue(selectedRefsSelector(activeDiagramId))
-    useHotkeys('delete, backspace', (event) => {
+    useHotkeys('delete, backspace, left, right, up, down', (event) => {
         event.preventDefault();
 
-        // Dispatch an action to delete selected elements
+        let command;
+        switch (event.key) {
+            case 'Delete':
+            case 'Backspace':
+                command = Command.Delete;
+                break;
+            case 'ArrowLeft':
+                command = Command.SelectNextLeft;
+                break;
+            case 'ArrowRight':
+                command = Command.SelectNextRight;
+                break;
+            case 'ArrowUp':
+                command = Command.SelectNextUp;
+                break;
+            case 'ArrowDown':
+                command = Command.SelectNextDown;
+                break;
+            default:
+                return;
+        }
+
         dispatch(elementCommandAction({
-            command: Command.Delete,
+            command,
             elements: selectedElements
         }));
     });

@@ -39,6 +39,10 @@ export enum Command {
     Delete = "delete",
     AddReturnMessage = "add-return-message",
     ReverseMessage = "reverse-message",
+    SelectNextLeft = "select-next-left",
+    SelectNextRight = "select-next-right",
+    SelectNextUp = "select-next-up",
+    SelectNextDown = "select-next-down",
 }
 
 interface CommandDefinition {

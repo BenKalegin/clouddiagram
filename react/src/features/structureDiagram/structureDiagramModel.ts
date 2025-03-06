@@ -1,11 +1,17 @@
 import {Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {
     CustomShape,
+    defaultColorSchema,
     defaultNoteHeight,
     defaultNoteStyle,
-    defaultNoteWidth, defaultColorSchema, DiagramElement,
+    defaultNoteWidth,
+    DiagramElement,
     ElementRef,
-    ElementType, Id, NodeState, PictureLayout, PortState
+    ElementType,
+    Id,
+    NodeState,
+    PictureLayout,
+    PortState
 } from "../../package/packageModel";
 import {Bounds, Coordinate} from "../../common/model";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
@@ -170,6 +176,48 @@ function deleteSelectedElement(diagram: Draft<StructureDiagramState>, element: E
     diagram.selectedElements = diagram.selectedElements.filter(e => e.id !== element.id);
 }
 
+
+export enum SelectDirection {
+    North,
+    South,
+    East,
+    West
+}
+
+function selectNextNode(elements: ElementRef[], draft: Draft<StructureDiagramState>, direction: SelectDirection) {
+    function calculateDistance(thisPlacement: NodePlacement, otherPlacement: NodePlacement) {
+        switch (direction) {
+            case SelectDirection.East:
+                return (thisPlacement.bounds.x - otherPlacement.bounds.x) * 1000 + Math.abs(thisPlacement.bounds.y - otherPlacement.bounds.y);
+            case SelectDirection.West:
+                return (otherPlacement.bounds.x - thisPlacement.bounds.x) * 1000 + Math.abs(thisPlacement.bounds.y - otherPlacement.bounds.y);
+            case SelectDirection.North:
+                return (thisPlacement.bounds.y - otherPlacement.bounds.y) * 1000 + Math.abs(thisPlacement.bounds.x - otherPlacement.bounds.x);
+            case SelectDirection.South:
+                return (otherPlacement.bounds.y - thisPlacement.bounds.y) * 1000 + Math.abs(thisPlacement.bounds.x - otherPlacement.bounds.x);
+        }
+    }
+
+    if (elements.length === 1 && elements[0].type === ElementType.ClassNode) {
+        const nodePlacement = draft.nodes[elements[0].id];
+        let closestElement: ElementRef | undefined = undefined;
+        let closestDistance = Number.MAX_VALUE;
+        Object.entries(draft.nodes).forEach(([id, placement]) => {
+            if (id !== elements[0].id) {
+                const distance = calculateDistance(nodePlacement, placement);
+                if (distance > 0 && distance < closestDistance) {
+                    closestElement = {id: id, type: ElementType.ClassNode}
+                    closestDistance = distance;
+                }
+            }
+        })
+        if (closestElement) {
+            draft.selectedElements = [closestElement];
+        }
+    }
+}
+
+
 export function handleStructureElementCommand(get: Get, set: Set, elements: ElementRef[], command: Command) {
     const diagramId = get(activeDiagramIdAtom)
     const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
@@ -183,6 +231,19 @@ export function handleStructureElementCommand(get: Get, set: Set, elements: Elem
                     deleteSelectedElement(draft, element, getElement, setElement);
                 });
                 break;
+            case Command.SelectNextLeft:
+                selectNextNode(elements, draft, SelectDirection.East);
+                break;
+            case Command.SelectNextRight:
+                selectNextNode(elements, draft, SelectDirection.West);
+                break;
+            case Command.SelectNextUp:
+                selectNextNode(elements, draft, SelectDirection.North);
+                break;
+            case Command.SelectNextDown:
+                selectNextNode(elements, draft, SelectDirection.South);
+                break;
+
         }
     })
     set(elementsAtom(diagramId), update);
