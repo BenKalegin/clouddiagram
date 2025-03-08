@@ -19,6 +19,7 @@
     "react-draggable": "^4.4.5",
     "react-hotkeys-hook": "^4.6.1",
     "react-konva": "18.2.0",
+    "react-konva-to-svg": "^1.0.2",
     "react-scripts": "5.0.1",
     "recoil": "^0.7.7",
     "recoil-toolkit": "^0.3.0",

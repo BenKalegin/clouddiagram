@@ -128,7 +128,7 @@ export const DiagramTabs = () => {
         }));
     });
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    const handleTabChange = (_unused: React.SyntheticEvent, newValue: number) => {
         setActiveDiagramId(openDiagramIds[newValue]);
     }
 

@@ -11,6 +11,7 @@ import {
 import React from "react";
 import {useRecoilValue} from "recoil";
 import {elementsAtom, exportingAtom, ExportPhase} from "../diagramEditor/diagramEditorModel";
+import {useState, useEffect} from "react";
 import {exportDiagramTabAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {exportDiagramAs, exportFormats, ExportImportFormat} from "../export/exportFormats";
 import {CodeMemo} from "../commonControls/CodeMemo";
@@ -24,12 +25,31 @@ export const ExportDialog = ({diagramKind, getStage}: {diagramKind: ElementType,
     const dispatch = useDispatch();
     const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
     const diagram = useRecoilValue(elementsAtom(activeDiagramId)) as Diagram;
+    const [exportedContent, setExportedContent] = useState("");
 
     function toggleHideDialog(item: ExportImportFormat | undefined) {
         dispatch(exportDiagramTabAction({exportState: item === undefined ? ExportPhase.cancel : ExportPhase.selected, format: item}));
     }
 
-    const stage = getStage()
+    const stage = getStage();
+
+    useEffect(() => {
+        const fetchExportedContent = async () => {
+            if (stage && exporting?.format) {
+                try {
+                    const content = await exportDiagramAs(diagram, exporting.format, stage);
+                    setExportedContent(content);
+                } catch (error) {
+                    console.error("Error exporting diagram:", error);
+                    setExportedContent("Error exporting diagram");
+                }
+            } else {
+                setExportedContent("");
+            }
+        };
+
+        fetchExportedContent();
+    }, [diagram, exporting?.format, stage]);
 
     return (
         <Dialog
@@ -56,7 +76,7 @@ export const ExportDialog = ({diagramKind, getStage}: {diagramKind: ElementType,
                             <CodeMemo
                                 label="Exported code"
                                 placeholder="Exported code"
-                                value={ stage && exporting?.format ? exportDiagramAs(diagram, exporting.format, stage ) : "" }
+                                value={exportedContent}
                                 //readOnly={true}
                                 minRows={20}
                             />
