@@ -38,6 +38,13 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     function DefaultHead() {
         return <>
             <Rect
+                x={placement.headBounds.x + 2}
+                y={placement.headBounds.y + 2}
+                width={placement.headBounds.width}
+                height={placement.headBounds.height}
+                fill="darkgray"
+            />
+            <Rect
                 {...eventHandlers}
                 fill={lifeline.colorSchema.fillColor}
                 stroke={lifeline.colorSchema.strokeColor}
@@ -46,10 +53,6 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 y={placement.headBounds.y}
                 width={placement.headBounds.width}
                 height={placement.headBounds.height}
-                shadowColor={'black'}
-                shadowBlur={3}
-                shadowOffset={{x: 2, y: 2}}
-                shadowOpacity={0.4}
                 draggable={true}
             />
             <Text
@@ -78,6 +81,17 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             <Shape
                 {...eventHandlers}
                 sceneFunc={getLifelineCustomDrawById(lifeline.customShape?.pictureId!)}
+                fill="darkgray"
+                stroke="darkgray"
+                strokeWidth={1}
+                x={placement.headBounds.x + 2}
+                y={placement.headBounds.y + 2}
+                width={placement.headBounds.width}
+                height={placement.headBounds.height - 16}
+            />
+            <Shape
+                {...eventHandlers}
+                sceneFunc={getLifelineCustomDrawById(lifeline.customShape?.pictureId!)}
                 fill={lifeline.colorSchema.fillColor}
                 stroke={lifeline.colorSchema.strokeColor}
                 strokeWidth={1}
@@ -85,10 +99,6 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 y={placement.headBounds.y}
                 width={placement.headBounds.width}
                 height={placement.headBounds.height - 16}
-                shadowColor={'black'}
-                shadowBlur={3}
-                shadowOffset={{x: 2, y: 2}}
-                shadowOpacity={0.4}
                 draggable={true}
             />
             <Text

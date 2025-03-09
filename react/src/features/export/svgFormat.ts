@@ -6,7 +6,7 @@ import { exportStageSVG } from "react-konva-to-svg";
 export function exportAsSvg(baseDiagram: Diagram, stage: Stage): Promise<string> {
     const result = exportStageSVG(stage, false, {
                 onBefore: ([stage, layer]) => {
-                        // Perform actions before export
+                        // disable shadows
                 },
                 onAfter: ([stage, layer]) => {
                         // Perform actions after export
