@@ -35,6 +35,13 @@ export const deploymentEcs = 'deployment:aws:ecs';
 export const deploymentDynamoDb = 'deployment:aws:dynamodb';
 export const deploymentS3 = 'deployment:aws:s3';
 export const deploymentLambda = 'deployment:aws:lambda';
+export const deploymentUsers = 'deployment:aws:users';
+export const deploymentClient = 'deployment:aws:client';
+export const deploymentWaf = 'deployment:aws:waf';
+export const deploymentS3Bucket = `deployment:aws:s3bucket`;
+export const deploymentCognito = `deployment:aws:cognito`;
+export const deploymentApiGateway = `deployment:aws:apigateway`;
+
 
 const items: GalleryItem[] = [
     {key: classClass, name: 'Class', icon: PredefinedSvg.Class},
@@ -59,6 +66,12 @@ const items: GalleryItem[] = [
     {key: deploymentDynamoDb, name: 'DynamoDB', icon: PredefinedSvg.DynamoDB},
     {key: deploymentS3, name: 'S3', icon: PredefinedSvg.S3},
     {key: deploymentLambda, name: 'Lambda', icon: PredefinedSvg.Lambda},
+    {key: deploymentUsers, name: 'Users', icon: PredefinedSvg.Users},
+    {key: deploymentClient, name: 'Client', icon: PredefinedSvg.Client},
+    {key: deploymentWaf, name: 'WAF', icon: PredefinedSvg.WAF},
+    {key: deploymentS3Bucket, name: 'S3 Bucket', icon: PredefinedSvg.S3Bucket},
+    {key: deploymentCognito, name: 'Cognito', icon: PredefinedSvg.Cognito},
+    {key: deploymentApiGateway, name: 'API Gateway', icon: PredefinedSvg.ApiGateway},
 ]
 
 

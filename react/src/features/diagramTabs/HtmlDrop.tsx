@@ -2,13 +2,13 @@ import React, {ReactNode} from "react";
 import {
     classClass,
     classInterface,
-    commonNote,
-    deploymentCloudFront,
+    commonNote, deploymentApiGateway, deploymentClient,
+    deploymentCloudFront, deploymentCognito,
     deploymentDynamoDb,
     deploymentEcs,
     deploymentElb,
-    deploymentKinesis, deploymentLambda, deploymentRoute53, deploymentS3,
-    deploymentSqs,
+    deploymentKinesis, deploymentLambda, deploymentRoute53, deploymentS3, deploymentS3Bucket,
+    deploymentSqs, deploymentUsers, deploymentWaf,
     GalleryItem,
     interactionActor,
     interactionBoundary,
@@ -62,6 +62,18 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
             return { type: ElementType.DeploymentNode, subType: PredefinedSvg.S3 }
         case deploymentLambda:
             return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Lambda }
+        case deploymentUsers:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Users }
+        case deploymentClient:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Client }
+        case deploymentWaf:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.WAF }
+        case deploymentS3Bucket:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.S3Bucket }
+        case deploymentCognito:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Cognito }
+        case deploymentApiGateway:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.ApiGateway }
 
 
         default:

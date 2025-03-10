@@ -15,6 +15,12 @@ import CloudFrontIcon from "../graphics/aws/cloudfront.svg";
 import EcsIcon from "../graphics/aws/ecs.svg";
 import DynamoDBIcon from "../graphics/aws/dynamodb.svg";
 import LambdaIcon from "../graphics/aws/lambda.svg";
+import UsersIcon from "../graphics/aws/users.svg";
+import ClientIcon from "../graphics/aws/client.svg";
+import WafIcon from "../graphics/aws/waf.svg";
+import S3Bucket from "../graphics/aws/s3bucket.svg";
+import Cognito from "../graphics/aws/cognito.svg";
+import ApiGateway from "../graphics/aws/apigateway.svg";
 import Konva from "konva";
 import {Shape} from "konva/lib/Shape";
 import ShapeConfig = Konva.ShapeConfig;
@@ -39,6 +45,12 @@ export enum PredefinedSvg {
     DynamoDB,
     S3,
     Lambda,
+    Users,
+    Client,
+    WAF,
+    S3Bucket,
+    Cognito,
+    ApiGateway,
 }
 
 export const iconRegistry: Record<PredefinedSvg, string> = {
@@ -63,6 +75,12 @@ export const iconRegistry: Record<PredefinedSvg, string> = {
     [PredefinedSvg.ECS]: EcsIcon,
     [PredefinedSvg.DynamoDB]: DynamoDBIcon,
     [PredefinedSvg.Lambda]: LambdaIcon,
+    [PredefinedSvg.Users]: UsersIcon,
+    [PredefinedSvg.Client]: ClientIcon,
+    [PredefinedSvg.WAF]: WafIcon,
+    [PredefinedSvg.S3Bucket]: S3Bucket,
+    [PredefinedSvg.Cognito]: Cognito,
+    [PredefinedSvg.ApiGateway]: ApiGateway,
 };
 export type CustomDraw = (context: Context, shape: Shape<ShapeConfig>) => void
 
