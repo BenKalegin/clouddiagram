@@ -2,7 +2,7 @@ import React, {FC} from "react";
 import {Port} from "../classDiagram/Port";
 import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "../classDiagram/DrawingLink";
-import {classDiagramSelector, NodeId, NodePlacement} from "../classDiagram/classDiagramModel";
+import {classDiagramSelector} from "../classDiagram/classDiagramModel";
 import {DefaultValue, selectorFamily, useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType, NodeState, PictureLayout} from "../../package/packageModel";
@@ -12,6 +12,7 @@ import {iconRegistry} from "../graphics/graphicsReader";
 import useImage from "use-image";
 import {NodeContentFullIconTextBelow} from "./NodeContentFullIconTextBelow";
 import {NodeContentNoIconRect} from "./NodeContentNoIconRect";
+import {NodeId, NodePlacement} from "./structureDiagramState";
 
 export interface NodeProps {
     nodeId: NodeId

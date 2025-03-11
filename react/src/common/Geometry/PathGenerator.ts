@@ -1,7 +1,7 @@
 import {BezierSpline} from "./BezierSpline";
 import {Bounds, center, Coordinate} from "../model";
 import {PortAlignment, PortState} from "../../package/packageModel";
-import {PortPlacement} from "../../features/classDiagram/classDiagramModel";
+import {PortPlacement} from "../../features/structureDiagram/structureDiagramState";
 
 export class PathGeneratorResult {
     constructor(public path: string[], public sourceMarkerAngle?: number, public sourceMarkerPosition?: Coordinate,

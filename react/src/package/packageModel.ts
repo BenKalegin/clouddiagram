@@ -1,5 +1,5 @@
-import {NodeId} from "../features/classDiagram/classDiagramModel";
 import {PredefinedSvg} from "../features/graphics/graphicsReader";
+import {NodeId} from "../features/structureDiagram/structureDiagramState";
 
 export type Id = string;
 export enum ElementType {

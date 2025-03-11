@@ -17,12 +17,13 @@ import {
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {snapToBounds} from "../../common/Geometry/snap";
 import {DiagramId, elementsAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
-import {StructureDiagramState} from "./structureDiagramState";
+import {LinkId, LinkRender, PortPlacement, PortRender, StructureDiagramState} from "./structureDiagramState";
 import {
-    autoConnectNodes, LinkId, LinkRender, nodePlacementSelector,
+    autoConnectNodes,
+    nodePlacementSelector,
     portBounds,
-    PortPlacement, portPlacementSelector,
-    PortRender, portSelector, renderLink
+    portPlacementSelector,
+    portSelector, renderLink
 } from "../classDiagram/classDiagramModel";
 import {
     addNewElementAt,

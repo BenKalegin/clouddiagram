@@ -1,6 +1,6 @@
 import {NodeState} from "../../package/packageModel";
-import {NodePlacement} from "../classDiagram/classDiagramModel";
 import {NodeEventHandlers} from "../diagramEditor/commonHandlers";
+import {NodePlacement} from "./structureDiagramState";
 
 export interface NodeContentProps {
     node: NodeState,

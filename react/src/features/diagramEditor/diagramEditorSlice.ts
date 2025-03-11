@@ -16,13 +16,13 @@ import {Action, createAction} from "@reduxjs/toolkit";
 import {sequenceDiagramEditor} from "../sequenceDiagram/sequenceDiagramSlice";
 import Konva from "konva";
 import {Command} from "../propertiesEditor/PropertiesEditor";
-import {ClassDiagramState} from "../classDiagram/classDiagramModel";
 import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 import KonvaEventObject = Konva.KonvaEventObject;
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {ExportImportFormat} from "../export/exportFormats";
 import {DeploymentDiagramState} from "../deploymentDiagram/deploymentDaigramModel";
 import {deploymentDiagramEditor} from "../deploymentDiagram/deploymentDiagramSlice";
+import {ClassDiagramState} from "../structureDiagram/structureDiagramState";
 
 export enum ElementMoveResizePhase {
     start  = "start",

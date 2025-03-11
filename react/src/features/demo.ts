@@ -1,4 +1,10 @@
-import {ClassDiagramState, LinkPlacement, NodePlacement, PortPlacement} from "./classDiagram/classDiagramModel";
+import {
+    ClassDiagramState,
+    defaultLinkPlacement,
+    LinkPlacement,
+    NodePlacement,
+    PortPlacement
+} from "./structureDiagram/structureDiagramState";
 import {zeroBounds} from "../common/model";
 import {
     ActivationState,
@@ -164,9 +170,7 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
     port11.links.push(link1.id);
     port2.links.push(link1.id);
 
-    const Link1Placement: LinkPlacement = {
-        //cornerStyle: CornerStyle.Straight
-    }
+    const Link1Placement: LinkPlacement = {...defaultLinkPlacement};
 
     const linkPlacements: { [id: Id]: LinkPlacement } = {
         [link1.id]: Link1Placement
@@ -258,9 +262,7 @@ export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentD
 
     // elements[link1.id] = link1;
 
-    const Link1Placement: LinkPlacement = {
-        //cornerStyle: CornerStyle.Straight
-    }
+    const Link1Placement: LinkPlacement = {...defaultLinkPlacement}
 
     const linkPlacements: { [id: Id]: LinkPlacement } = {
         // [link1.id]: Link1Placement

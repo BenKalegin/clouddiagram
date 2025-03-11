@@ -1,10 +1,11 @@
 import {Circle} from "react-konva";
 import React from "react";
 import {useRecoilValue} from "recoil";
-import {NodeId, PortId, portSelector} from "./classDiagramModel";
+import {portSelector} from "./classDiagramModel";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {ColorSchema} from "../../package/packageModel";
 import {portRenderSelector} from "../structureDiagram/structureDiagramEditor";
+import {NodeId, PortId} from "../structureDiagram/structureDiagramState";
 
 export interface PortProps {
     portId: PortId

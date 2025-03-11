@@ -10,8 +10,7 @@ import {
     ElementType,
     Id,
     NodeState,
-    PictureLayout,
-    PortState
+    PictureLayout, PortState
 } from "../../package/packageModel";
 import {Bounds, Coordinate} from "../../common/model";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
@@ -25,8 +24,8 @@ import {
 } from "../diagramEditor/diagramEditorModel";
 import produce, {Draft} from "immer";
 import {snapToGrid} from "../../common/Geometry/snap";
-import {StructureDiagramState} from "./structureDiagramState";
-import {autoConnectNodes, ClassDiagramState, NodePlacement} from "../classDiagram/classDiagramModel";
+import {NodePlacement, StructureDiagramState} from "./structureDiagramState";
+import {autoConnectNodes} from "../classDiagram/classDiagramModel";
 import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {Command} from "../propertiesEditor/PropertiesEditor";
@@ -107,7 +106,7 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
             }
         };
 
-        const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+        const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
         const updatedDiagram = {...diagram, notes: {...diagram.notes, [note.id]: note}};
         set(elementsAtom(diagramId), updatedDiagram)
         return note
@@ -225,7 +224,7 @@ function selectNextNode(elements: ElementRef[], draft: Draft<StructureDiagramSta
 
 export function handleStructureElementCommand(get: Get, set: Set, elements: ElementRef[], command: Command) {
     const diagramId = get(activeDiagramIdAtom)
-    const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
+    const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
     const getElement = (id: Id) => get(elementsAtom(id));
     const setElement = (id: Id, element: DiagramElement) => set(elementsAtom(id), element);
 
@@ -269,7 +268,7 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
                 set(elementsAtom(element.id), update);
                 break;
             case ElementType.Note:
-                const diagramUpdate = produce(originalDiagram, (diagram: Draft<ClassDiagramState>) => {
+                const diagramUpdate = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
                     const object: any = diagram.notes[element.id];
                     object[propertyName] = value
                 })

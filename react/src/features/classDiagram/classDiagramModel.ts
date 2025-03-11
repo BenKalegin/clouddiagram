@@ -1,64 +1,21 @@
 import {Bounds} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
-import {
-    ElementRef,
-    ElementType,
-    Id,
-    LinkState,
-    NodeState,
-    PortAlignment,
-    PortState
-} from "../../package/packageModel";
+import {ElementRef, ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../../package/packageModel";
 import {selectorFamily} from "recoil";
-import {
-    DiagramId,
-    elementsAtom,
-    generateId
-} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
-import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
-
-export type NodePlacement = {
-    bounds: Bounds
-}
-
-export interface PortPlacement {
-    alignment: PortAlignment;
-    /**
-     * Percentage of edge wide where the port center is located, counting from left or top
-     * For example, 50 for the top oriented is the center of the top edge
-     */
-    edgePosRatio: number
-}
-
-// export enum CornerStyle {
-//     Straight = "straight"
-// }
-
-export interface LinkPlacement {
-    //cornerStyle: CornerStyle;
-}
-
-export interface LinkRender {
-    svgPath: string[];
-}
-
-export type PortRender = {
-    bounds: Bounds
-}
-
-export enum ClassDiagramModalDialog {
-    nodeProperties = "props"
-}
-
-export interface ClassDiagramState extends StructureDiagramState {
-    modalDialog: ClassDiagramModalDialog | undefined
-}
-
-export type NodeId = Id;
-export type PortId = Id;
-export type LinkId = Id;
+import {
+    ClassDiagramModalDialog,
+    ClassDiagramState, CornerStyle,
+    LinkPlacement,
+    LinkRender,
+    LinkStyle,
+    NodeId,
+    NodePlacement,
+    PortId,
+    PortPlacement
+} from "../structureDiagram/structureDiagramState";
 
 
 export const portBounds = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): Bounds => {
@@ -145,7 +102,7 @@ export function nodePropertiesDialog(get: Get, set: Set, dialogResult: DialogOpe
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as ClassDiagramState;
     let modalDialog: ClassDiagramModalDialog | undefined;
-    switch(dialogResult) {
+    switch (dialogResult) {
         case DialogOperation.save:
             modalDialog = undefined;
             break;
@@ -192,7 +149,7 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
     } else if (target.type === ElementType.ClassPort) {
         port2 = get(elementsAtom(target.id)) as PortState;
         placement2 = diagram.ports[port2.id]
-    }else
+    } else
         throw new Error("Invalid target type " + target.type);
 
 
@@ -208,11 +165,15 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
     set(elementsAtom(port1.id), {...port1, links: [...port1.links, linkId]} as PortState);
     set(elementsAtom(port2.id), {...port2, links: [...port2.links, linkId]} as PortState);
 
-    const linkPlacement: LinkPlacement = {};
+    const linkPlacement: LinkPlacement = {
+        linkStyle: LinkStyle.Direct,
+        cornerStyle: CornerStyle.Straight
+    };
 
     const updatedDiagram = {
         ...diagram,
-        ports: {...diagram.ports,
+        ports: {
+            ...diagram.ports,
             [port1.id]: placement1,
             [port2.id]: placement2
         },
