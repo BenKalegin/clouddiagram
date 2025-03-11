@@ -156,6 +156,11 @@ function deleteSelectedElement(diagram: Draft<StructureDiagramState>, element: E
                                getElement: (id: Id) => DiagramElement,
                                setElement: (id: Id, element: DiagramElement) => void) {
     switch(element.type) {
+        case ElementType.Note:
+            delete diagram.notes[element.id];
+            setElement(element.id, emptyElementSentinel);
+            break;
+
         case ElementType.ClassNode:
             const node = getElement(element.id) as NodeState;
             node.ports.forEach(portId => {

@@ -1,21 +1,28 @@
 import {Bounds, Coordinate, Diagram, withinBounds, withinXBounds, withinYBounds, zeroBounds} from "../../common/model";
 import {
     CustomShape,
+    defaultColorSchema,
     defaultLineStyle,
     defaultNoteHeight,
     defaultNoteStyle,
     defaultNoteWidth,
-    defaultColorSchema,
     DiagramElement,
     ElementRef,
     ElementType,
+    HasColorSchema,
     Id,
     LineStyle,
-    PictureLayout,
-    HasColorSchema
+    PictureLayout
 } from "../../package/packageModel";
 import {DefaultValue, selector, selectorFamily} from "recoil";
-import {ConnectorRender, DiagramId, elementsAtom, generateId, linkingAtom,} from "../diagramEditor/diagramEditorModel";
+import {
+    ConnectorRender,
+    DiagramId,
+    elementsAtom,
+    emptyElementSentinel,
+    generateId,
+    linkingAtom,
+} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import produce, {Draft} from 'immer';
@@ -630,7 +637,7 @@ function reverseMessage(draft: Draft<SequenceDiagramState>, messageId: MessageId
     message.activation2 = swap;
 }
 
-function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: ElementRef) {
+function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: ElementRef, getElement: (id: Id) => DiagramElement, setElement: (id: Id, element: DiagramElement) => void) {
     function deleteActivation(activationId: ActivationId) {
         const activation = diagram.activations[activationId];
         const lifeline = diagram.lifelines[activation.lifelineId];
@@ -652,6 +659,11 @@ function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: El
             const lifeline = diagram.lifelines[element.id];
             lifeline.activations.forEach(activationId => deleteActivation(activationId));
             delete diagram.lifelines[element.id];
+            break;
+
+        case ElementType.Note:
+            delete diagram.notes[element.id];
+            setElement(element.id, emptyElementSentinel);
             break;
     }
     diagram.selectedElements = diagram.selectedElements.filter(e => e.id !== element.id);
@@ -680,6 +692,8 @@ function addReturnMessage(diagram: Draft<SequenceDiagramState>, id: Id) {
 export function handleSequenceCommand(get: Get, set: Set, elements: ElementRef[], command: Command) {
     const diagramId = get(activeDiagramIdAtom)
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
+    const getElement = (id: Id) => get(elementsAtom(id));
+    const setElement = (id: Id, element: DiagramElement) => set(elementsAtom(id), element);
 
     const update = produce(diagram, (draft: Draft<SequenceDiagramState>) => {
         switch (command) {
@@ -695,7 +709,7 @@ export function handleSequenceCommand(get: Get, set: Set, elements: ElementRef[]
 
             case Command.Delete:
                 elements.forEach(element => {
-                    deleteSequenceElement(draft, element);
+                    deleteSequenceElement(draft, element, getElement, setElement);
                 });
                 break;
         }

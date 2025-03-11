@@ -82,6 +82,8 @@ type CommandAndKind = {kind: ElementType, command: CommandDefinition}
 const deleteCommand = {label: "Delete", kind: Command.Delete, supportMultiEdit: true};
 function getActionList(type: ElementType): CommandDefinition[] {
     switch (type) {
+        case ElementType.Note:
+            return [deleteCommand];
         case ElementType.ClassNode:
             return [deleteCommand];
         case ElementType.SequenceLifeLine:
