@@ -46,7 +46,6 @@ export function exportSequenceDiagramAsPlantUml(baseDiagram: Diagram): string {
             return acc;
         }, {} as Record<ActivationId, string>);
 
-    console.log(lifelineAliases);
     Object.values(lifelines)
         .sort((a, b) => a.placement.headBounds.x - b.placement.headBounds.x)
         .forEach(lifeline =>
