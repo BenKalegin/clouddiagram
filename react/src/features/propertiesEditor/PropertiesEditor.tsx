@@ -3,18 +3,13 @@ import List from "@mui/material/List";
 import React from "react";
 import {useRecoilValue} from "recoil";
 import {selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
-import {
-    ElementType,
-    LineStyle,
-    ColorSchema,
-    HasColorSchema,
-    CustomShape
-} from "../../package/packageModel";
+import {ColorSchema, CustomShape, ElementType, HasColorSchema, LineStyle} from "../../package/packageModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {elementCommandAction, elementPropertyChangedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ColorSchemaPropertyEditor} from "./ColorSchemaPropertyEditor";
 import {LineStylePropertyEditor} from "./LineStylePropertyEditor";
 import {NodeLayoutPropertyEditor} from "./NodeLayoutPropertyEditor";
+import {LinkStylePropertyEditor} from "./LinkStylePropertyEditor";
 
 
 export enum PropertyType {
@@ -23,6 +18,7 @@ export enum PropertyType {
     ColorSchema,
     ShapeLayout,
     LineStyle,
+    LinkStyle,
 }
 
 export type PropAndKind = {kind: ElementType, prop: PropertyDefinition}
@@ -56,12 +52,15 @@ const textProp : PropertyDefinition = {name: "text", label: "Text", type: Proper
 const colorSchemaProp : PropertyDefinition = {name: "colorSchema" as keyof HasColorSchema, label: "Color Schema", type: PropertyType.ColorSchema, supportMultiEdit: true}
 const shapeLayoutProp : PropertyDefinition = {name: "customShape", label: "Shape Layout", type: PropertyType.ShapeLayout, supportMultiEdit: true}
 const lineStyleProp: PropertyDefinition = {name: "lineStyle", label: "Line Style", type: PropertyType.LineStyle, supportMultiEdit: true}
+const linkStyleProp: PropertyDefinition = {name: "linkStyle", label: "Link Style", type: PropertyType.LinkStyle, supportMultiEdit: true}
 
 
 function getPropertyList(type: ElementType): PropertyDefinition[] {
     switch (type) {
         case ElementType.ClassNode:
             return [textProp, colorSchemaProp, shapeLayoutProp];
+        case ElementType.ClassLink:
+            return [textProp, colorSchemaProp, linkStyleProp];
         case ElementType.SequenceLifeLine:
             return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}, colorSchemaProp];
         case ElementType.SequenceMessage:
@@ -172,6 +171,7 @@ export const PropertiesEditor = () => {
                 {p.prop.type === PropertyType.ColorSchema && <ColorSchemaPropertyEditor propAndKind={p} value = {value as ColorSchema} updateProps={updateProps}/>}
                 {p.prop.type === PropertyType.ShapeLayout && <NodeLayoutPropertyEditor propAndKind={p} value = {value as CustomShape} updateProps={updateProps}/>}
                 {p.prop.type === PropertyType.LineStyle && <LineStylePropertyEditor propAndKind={p} value = {value as LineStyle} updateProps={updateProps}/>}
+                {p.prop.type === PropertyType.LinkStyle && <LinkStylePropertyEditor propAndKind={p} value = {value as LineStyle} updateProps={updateProps}/>}
             </Box>
 
         );

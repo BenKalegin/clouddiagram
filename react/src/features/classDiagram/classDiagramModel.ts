@@ -1,16 +1,24 @@
 import {Bounds} from "../../common/model";
 import {PathGenerators} from "../../common/Geometry/PathGenerator";
-import {ElementRef, ElementType, Id, LinkState, NodeState, PortAlignment, PortState} from "../../package/packageModel";
+import {
+    defaultColorSchema, defaultCornerStyle, defaultLinkStyle,
+    ElementRef,
+    ElementType,
+    Id,
+    LinkState,
+    NodeState,
+    PortAlignment,
+    PortState
+} from "../../package/packageModel";
 import {selectorFamily} from "recoil";
 import {DiagramId, elementsAtom, generateId} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {
     ClassDiagramModalDialog,
-    ClassDiagramState, CornerStyle,
+    ClassDiagramState,
     LinkPlacement,
     LinkRender,
-    LinkStyle,
     NodeId,
     NodePlacement,
     PortId,
@@ -158,7 +166,10 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
         id: linkId,
         type: ElementType.ClassLink,
         port1: port1.id,
-        port2: port2.id
+        port2: port2.id,
+        colorSchema: defaultColorSchema,
+        linkStyle: defaultLinkStyle,
+        cornerStyle: defaultCornerStyle
     }
     set(elementsAtom(linkId), link);
 
@@ -166,8 +177,6 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
     set(elementsAtom(port2.id), {...port2, links: [...port2.links, linkId]} as PortState);
 
     const linkPlacement: LinkPlacement = {
-        linkStyle: LinkStyle.Direct,
-        cornerStyle: CornerStyle.Straight
     };
 
     const updatedDiagram = {

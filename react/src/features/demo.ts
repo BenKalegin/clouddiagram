@@ -27,7 +27,7 @@ import {
     LinkState,
     NodeState, PictureLayout,
     PortAlignment,
-    PortState,
+    PortState, defaultCornerStyle, defaultLinkStyle,
 } from "../package/packageModel";
 import {NoteState} from "./commonComponents/commonComponentsModel";
 import {DeploymentDiagramState} from "./deploymentDiagram/deploymentDaigramModel";
@@ -164,6 +164,9 @@ export const getClassDemoDiagram = (id: string, title: string): ClassDiagramStat
         type: ElementType.ClassLink,
         port1: port11.id,
         port2: port2.id,
+        colorSchema: defaultColorSchema,
+        linkStyle: defaultLinkStyle,
+        cornerStyle: defaultCornerStyle
     };
 
     elements[link1.id] = link1;

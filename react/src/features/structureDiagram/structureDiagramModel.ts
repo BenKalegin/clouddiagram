@@ -8,7 +8,7 @@ import {
     DiagramElement,
     ElementRef,
     ElementType,
-    Id,
+    Id, LinkState,
     NodeState,
     PictureLayout, PortState
 } from "../../package/packageModel";
@@ -259,7 +259,7 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
 
     elements.forEach(element => {
         switch (element.type) {
-            case ElementType.ClassNode:
+            case ElementType.ClassNode: {
                 const node = get(elementsAtom(element.id)) as NodeState;
                 const update = produce(node, (draft: Draft<NodeState>) => {
                     const object: any = draft;
@@ -267,6 +267,16 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
                 })
                 set(elementsAtom(element.id), update);
                 break;
+            }
+            case ElementType.ClassLink: {
+                const link = get(elementsAtom(element.id)) as LinkState;
+                const update = produce(link, (draft: Draft<LinkState>) => {
+                    const object: any = draft;
+                    object[propertyName] = value
+                })
+                set(elementsAtom(element.id), update);
+                break;
+            }
             case ElementType.Note:
                 const diagramUpdate = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
                     const object: any = diagram.notes[element.id];
