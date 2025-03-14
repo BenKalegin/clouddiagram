@@ -3,7 +3,7 @@ import List from "@mui/material/List";
 import React from "react";
 import {useRecoilValue} from "recoil";
 import {selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
-import {ColorSchema, CustomShape, ElementType, HasColorSchema, LineStyle} from "../../package/packageModel";
+import {ColorSchema, CustomShape, ElementType, HasColorSchema, LineStyle, ConnectionStyle} from "../../package/packageModel";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {elementCommandAction, elementPropertyChangedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ColorSchemaPropertyEditor} from "./ColorSchemaPropertyEditor";
@@ -131,7 +131,6 @@ export const PropertiesEditor = () => {
         else {
             return undefined
         }
-
     }
 
     function StringPropertyEditor(p: PropAndKind, value: string, updateProps: (value: any) => void) {
@@ -171,7 +170,7 @@ export const PropertiesEditor = () => {
                 {p.prop.type === PropertyType.ColorSchema && <ColorSchemaPropertyEditor propAndKind={p} value = {value as ColorSchema} updateProps={updateProps}/>}
                 {p.prop.type === PropertyType.ShapeLayout && <NodeLayoutPropertyEditor propAndKind={p} value = {value as CustomShape} updateProps={updateProps}/>}
                 {p.prop.type === PropertyType.LineStyle && <LineStylePropertyEditor propAndKind={p} value = {value as LineStyle} updateProps={updateProps}/>}
-                {p.prop.type === PropertyType.LinkStyle && <LinkStylePropertyEditor propAndKind={p} value = {value as LineStyle} updateProps={updateProps}/>}
+                {p.prop.type === PropertyType.LinkStyle && <LinkStylePropertyEditor propAndKind={p} value = {value as ConnectionStyle} updateProps={updateProps}/>}
             </Box>
 
         );

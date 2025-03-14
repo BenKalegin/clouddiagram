@@ -1,6 +1,5 @@
 import {
-    ColorSchema,
-    colorSchemaList
+    ConnectionStyle
 } from "../../package/packageModel";
 import React, {useState} from "react";
 import {
@@ -12,40 +11,56 @@ import {
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
 import {PropAndKind} from "./PropertiesEditor";
+import {enumKeys} from "../../common/EnumUtils";
 
-const ColorSchemaIcon: React.FC<ColorSchema> = (props:ColorSchema) => {
+const LinkStyleIcon: React.FC<{ linkStyle: ConnectionStyle }> = ({ linkStyle }) => {
+    let path;
+
+    switch (linkStyle) {
+        case ConnectionStyle.Direct:
+            path = <path d="M10 40 L90 40 M80 30 L90 40 L80 50" stroke="currentColor" fill="none" strokeWidth="4" />;
+            break;
+        case ConnectionStyle.AutoRouting:
+            path = <path d="M10 40 L50 40 L50 20 L90 20 M80 10 L90 20 L80 30" stroke="currentColor" fill="none" strokeWidth="4" />;
+            break;
+        case ConnectionStyle.CustomLine:
+            path = <path d="M10 40 L30 20 L70 60 L90 40 M80 30 L90 40 L80 50" stroke="currentColor" fill="none" strokeWidth="4" />;
+            break;
+        case ConnectionStyle.Bezier:
+            path = <path d="M10 40 Q50 10, 90 40 M80 30 L90 40 L80 50" stroke="currentColor" fill="none" strokeWidth="4" />;
+            break;
+        case ConnectionStyle.OrthogonalSquare:
+            path = <path d="M10 40 L50 40 L50 20 L90 20 M80 10 L90 20 L80 30" stroke="currentColor" fill="none" strokeWidth="4" strokeLinejoin="miter" />;
+            break;
+        case ConnectionStyle.OrthogonalRounded:
+            path = <path d="M10 40 L50 40 L50 20 L90 20 M80 10 L90 20 L80 30" stroke="currentColor" fill="none" strokeWidth="4" strokeLinejoin="round" />;
+            break;
+        default:
+            path = <path d="M10 40 L90 40 M80 30 L90 40 L80 50" stroke="currentColor" fill="none" strokeWidth="4" />;
+    }
+
     return (
         <SvgIcon>
             <svg viewBox="0 0 100 80">
-                <rect
-                    rx="15"
-                    ry="15"
-                    y="10"
-                    x="10"
-                    height="60"
-                    width="80"
-                    fill={props.fillColor}
-                    stroke={props.strokeColor}
-                    strokeWidth={2}
-                />
+                {path}
             </svg>
         </SvgIcon>
     );
 }
-interface ColorSchemaPropertyEditorProps{
+interface LinkStylePropertyEditorProps{
     propAndKind: PropAndKind
-    value: ColorSchema
+    value: ConnectionStyle
     updateProps: (value: any) => void
 }
 
-export const LinkStylePropertyEditor: React.FC<ColorSchemaPropertyEditorProps> = (props: ColorSchemaPropertyEditorProps ) => {
+export const LinkStylePropertyEditor: React.FC<LinkStylePropertyEditorProps> = (props: LinkStylePropertyEditorProps ) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const handleClose = () => {
         setAnchorEl(null);
     };
 
-    const handleItemClick = (colorSchema: ColorSchema) => {
-        props.updateProps(colorSchema);
+    const handleItemClick = (style: ConnectionStyle) => {
+        props.updateProps(style);
         handleClose();
     };
 
@@ -65,7 +80,7 @@ export const LinkStylePropertyEditor: React.FC<ColorSchemaPropertyEditorProps> =
                             }}
                             onClick={handleOpenMenu}
                         >
-                            <ColorSchemaIcon {...props.value} />
+                            <LinkStyleIcon linkStyle={props.value} />
                             <ArrowDropDownIcon/>
                         </IconButton>
                     </ButtonGroup>
@@ -76,12 +91,13 @@ export const LinkStylePropertyEditor: React.FC<ColorSchemaPropertyEditorProps> =
                         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                         open={popupOpen}
                     >
-                        {colorSchemaList.map((colorSchema, i) => (
+                        {enumKeys(ConnectionStyle).map((styleKey) => (
                             <MenuItem
-                                key={i}
-                                sx={{height: "24"}}
-                                onClick={() => handleItemClick(colorSchema)}>
-                                <ColorSchemaIcon {...colorSchema} />
+                                key={styleKey}
+                                sx={{height: "40px"}}
+                                onClick={() => handleItemClick(ConnectionStyle[styleKey])}>
+                                <LinkStyleIcon linkStyle={ConnectionStyle[styleKey]} />
+                                <span style={{marginLeft: 10}}>{styleKey}</span>
                             </MenuItem>
                             ))
                         }

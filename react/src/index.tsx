@@ -4,18 +4,24 @@ import {App} from "./app/App";
 import {createRoot} from "react-dom/client";
 import '@fontsource/roboto/400.css';
 import {RecoilRoot} from "recoil";
+import {DevSupport} from "@react-buddy/ide-toolbox";
+import {ComponentPreviews, useInitial} from "./dev";
 
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
 root.render(
-        <React.StrictMode>
-            <RecoilRoot>
-                {/*<RecoilDevTools forceSerialize={false} />*/}
+    <React.StrictMode>
+        <RecoilRoot>
+            {/*<RecoilDevTools forceSerialize={false} />*/}
+            <DevSupport ComponentPreviews={ComponentPreviews}
+                        useInitialHook={useInitial}
+            >
                 <App/>
-            </RecoilRoot>
-        </React.StrictMode>
+            </DevSupport>
+        </RecoilRoot>
+    </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

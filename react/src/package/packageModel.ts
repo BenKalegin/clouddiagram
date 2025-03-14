@@ -28,6 +28,7 @@ export interface ColorSchema {
     fillColor: string;
 }
 
+// for sequence diagram messages
 export interface LineStyle {
     strokeColor: string;
     fillColor: string;
@@ -94,7 +95,7 @@ export interface NodeState extends DiagramElement, HasColorSchema {
     ports: Id[];
 }
 
-export enum LinkStyle {
+export enum ConnectionStyle {
     /**
      * A straight line drawn directly from the source element to the target element.
      * No intermediate waypoints are added automatically; it’s the simplest style.
@@ -156,7 +157,7 @@ export enum LinkStyle {
      */
     OrthogonalRounded = "orthogonalRounded",
 }
-export const defaultLinkStyle: LinkStyle = LinkStyle.Direct;
+export const defaultLinkStyle: ConnectionStyle = ConnectionStyle.Direct;
 
 export enum CornerStyle {
     Straight = "straight"
@@ -248,7 +249,7 @@ export interface LinkState extends DiagramElement, HasColorSchema {
     port1: Id;
     port2: Id;
 
-    linkStyle: LinkStyle;
+    linkStyle: ConnectionStyle;
     cornerStyle: CornerStyle;
 }
 

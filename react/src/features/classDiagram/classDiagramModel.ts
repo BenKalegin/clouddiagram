@@ -5,7 +5,7 @@ import {
     ElementRef,
     ElementType,
     Id,
-    LinkState,
+    LinkState, ConnectionStyle,
     NodeState,
     PortAlignment,
     PortState
@@ -98,8 +98,14 @@ export const portPlacementSelector = selectorFamily<PortPlacement, { portId: Id,
 
 
 export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
-                           targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement): LinkRender => {
+                           targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, linkStyle: ConnectionStyle): LinkRender => {
 
+    switch (linkStyle) {
+        case ConnectionStyle.Direct:
+            return {
+                svgPath: PathGenerators.Straight([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+            }
+    }
     return {
         // svgPath: PathGenerators.Smooth(link, [p1, p2], p1, p2).path
         svgPath: PathGenerators.Straight([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path

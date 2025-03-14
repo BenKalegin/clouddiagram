@@ -1,11 +1,17 @@
 import {
-    DiagramEditor, dropFromPaletteAction, elementCommandAction,
-    elementMoveAction, elementPropertyChangedAction, elementResizeAction,
-    Get, Set
+    DiagramEditor,
+    dropFromPaletteAction,
+    elementCommandAction,
+    elementMoveAction,
+    elementPropertyChangedAction,
+    elementResizeAction,
+    Get,
+    Set
 } from "../diagramEditor/diagramEditorSlice";
 import {Action} from "@reduxjs/toolkit";
 import {Bounds, Coordinate, withinBounds} from "../../common/model";
 import {
+    ConnectionStyle,
     DiagramElement,
     ElementRef,
     ElementType,
@@ -23,12 +29,14 @@ import {
     nodePlacementSelector,
     portBounds,
     portPlacementSelector,
-    portSelector, renderLink
+    portSelector,
+    renderLink
 } from "../classDiagram/classDiagramModel";
 import {
     addNewElementAt,
     addNodeAndConnect,
-    handleStructureElementCommand, handleStructureElementPropertyChanged,
+    handleStructureElementCommand,
+    handleStructureElementPropertyChanged,
     moveElement,
     resizeElement
 } from "./structureDiagramModel";
@@ -153,7 +161,7 @@ export const linkRenderSelector = selectorFamily<LinkRender, { linkId: LinkId, d
         const targetRender = get(portRenderSelector({portId: link.port2, nodeId: port2.nodeId, diagramId}));
         const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId}));
         const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId}));
-        return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement);
+        return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement, link.linkStyle);
     }
 })
 
@@ -202,7 +210,7 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
         const port2Render = renderPort({x: linking.diagramPos.x, y: linking.diagramPos.y, width: 0, height: 0},
             port2, port2Placement);
 
-        return renderLink(port1, port1Render.bounds, port1Placement, port2, port2Render.bounds, port2Placement);
+        return renderLink(port1, port1Render.bounds, port1Placement, port2, port2Render.bounds, port2Placement, ConnectionStyle.Direct);
     }
 })
 
