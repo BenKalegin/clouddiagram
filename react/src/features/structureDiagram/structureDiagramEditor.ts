@@ -11,7 +11,7 @@ import {
 import {Action} from "@reduxjs/toolkit";
 import {Bounds, Coordinate, withinBounds} from "../../common/model";
 import {
-    ConnectionStyle,
+    RouteStyle,
     DiagramElement,
     ElementRef,
     ElementType,
@@ -210,7 +210,7 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
         const port2Render = renderPort({x: linking.diagramPos.x, y: linking.diagramPos.y, width: 0, height: 0},
             port2, port2Placement);
 
-        return renderLink(port1, port1Render.bounds, port1Placement, port2, port2Render.bounds, port2Placement, ConnectionStyle.Direct);
+        return renderLink(port1, port1Render.bounds, port1Placement, port2, port2Render.bounds, port2Placement, RouteStyle.Direct);
     }
 })
 

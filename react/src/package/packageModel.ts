@@ -95,7 +95,7 @@ export interface NodeState extends DiagramElement, HasColorSchema {
     ports: Id[];
 }
 
-export enum ConnectionStyle {
+export enum RouteStyle {
     /**
      * A straight line drawn directly from the source element to the target element.
      * No intermediate waypoints are added automatically; it’s the simplest style.
@@ -157,7 +157,7 @@ export enum ConnectionStyle {
      */
     OrthogonalRounded = "orthogonalRounded",
 }
-export const defaultLinkStyle: ConnectionStyle = ConnectionStyle.Direct;
+export const defaultLinkStyle: RouteStyle = RouteStyle.Direct;
 
 export enum CornerStyle {
     Straight = "straight"
@@ -249,7 +249,7 @@ export interface LinkState extends DiagramElement, HasColorSchema {
     port1: Id;
     port2: Id;
 
-    linkStyle: ConnectionStyle;
+    linkStyle: RouteStyle;
     cornerStyle: CornerStyle;
 }
 
