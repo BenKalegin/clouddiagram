@@ -98,26 +98,29 @@ export class PathGenerators {
     }
 
 
-    public static Smooth = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+    public static Bezier = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
                             target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
         route = PathGenerators.ConcatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
 
-        if (route.length > 2)
+        if (route.length > 2) {
             return PathGenerators.CurveThroughPoints(route);
+        }
 
         route = PathGenerators.GetRouteWithCurvePoints(route, source, sourcePlacement, target, targetPlacement);
         let sourceAngle: number | undefined;
         let targetAngle: number | undefined;
 
-        //if (link.port1.marker)
         const markerWidth1 = /*link.port1.longitude*/ 0;
         sourceAngle = PathGenerators.SourceMarkerAdjustment(route, markerWidth1);
 
-        //if (link.port2.marker)
         const markerWidth2 = /*link.port2.longitude*/ 0;
         targetAngle = PathGenerators.TargetMarkerAdjustment(route, markerWidth2);
 
-        const path = `M ${route[0].x} ${route[0].y} L ${route[1].x} ${route[1].y} L ${route[2].x} ${route[2].y} L ${route[3].x} ${route[3].y}`
+        const path = `
+          M ${route[0].x} ${route[0].y}
+          C ${route[1].x} ${route[1].y}, ${route[2].x} ${route[2].y}, ${route[3].x} ${route[3].y}
+          C ${route[2].x} ${route[2].y}, ${route[1].x} ${route[1].y}, ${route[0].x} ${route[0].y} Z
+        `;
         return new PathGeneratorResult([path], sourceAngle, route[0], targetAngle, route[route.length - 1]);
     }
 
@@ -136,7 +139,7 @@ export class PathGenerators {
     }
 
     public static LateralHorizontal = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
-                            target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+                                       target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
         route = PathGenerators.ConcatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
         route = PathGenerators.GetRouteWithCurvePoints(route, source, sourcePlacement, target, targetPlacement);
         let sourceAngle: number | undefined;
@@ -149,8 +152,7 @@ export class PathGenerators {
         targetAngle = PathGenerators.TargetMarkerAdjustment(route, target.longitude / 2);
 
         const paths = new Array<string>(route.length - 1);
-        for (let i = 0; i < route.length - 1; i++)
-        {
+        for (let i = 0; i < route.length - 1; i++) {
             paths[i] = `M ${route[i].x} ${route[i].y} L ${route[i + 1].x} ${route[i + 1].y}`
         }
 

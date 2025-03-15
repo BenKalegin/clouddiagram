@@ -107,7 +107,7 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
             }
         case RouteStyle.Bezier:
             return {
-                svgPath: PathGenerators.Smooth([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+                svgPath: PathGenerators.Bezier([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
             }
         case RouteStyle.LateralHorizontal:
             return {
