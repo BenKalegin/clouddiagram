@@ -6,12 +6,14 @@ import {exportAsPng} from "./pngFormat";
 import Konva from "konva";
 import Stage = Konva.Stage;
 import {exportAsSvg} from "./svgFormat";
+import {exportAsCloudDiagram, importCloudDiagram} from "./CloudDiagramFormat";
 
 export enum ExportImportFormat {
     PlantUmlSequenceDiagram = "plantuml_sequence",
     LucidChartSequenceDiagram = "lucid_sequence",
     Png = "png",
     Svg = "svg",
+    CloudDiagram = "cd",
 }
 
 
@@ -46,6 +48,13 @@ const formatRegistry: exportRegistryEntry[] = [
         format: ExportImportFormat.Svg,
         name: "SVG file",
         exportFunction: exportAsSvg,
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram]
+    },
+    {
+        format: ExportImportFormat.CloudDiagram,
+        name: "CloudDiagram file",
+        exportFunction: async (diagram: Diagram, stage: Stage) => exportAsCloudDiagram(diagram, stage),
+        importFunction: importCloudDiagram,
         supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram]
     },
 ];

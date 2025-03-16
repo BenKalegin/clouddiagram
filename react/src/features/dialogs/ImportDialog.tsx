@@ -27,6 +27,7 @@ export const ImportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
     const dispatch = useDispatch();
     const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
     const diagram = useRecoilValue(elementsAtom(activeDiagramId)) as Diagram;
+    const [importedCode, setImportedCode] = React.useState("");
 
     function toggleHideDialog(format: ExportImportFormat | undefined) {
         dispatch(importDiagramTabAction({importState: format === undefined ? ImportPhase.cancel : ImportPhase.selected, format}));
@@ -58,8 +59,8 @@ export const ImportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
                             <CodeMemo
                                 label="Imported code"
                                 placeholder="Copy and paste diagram code here"
-                                value={ "" }
-                                //readOnly={true}
+                                value={importedCode}
+                                onChange={(event) => setImportedCode(event.target.value)}
                                 minRows={20}
                             />
                         </Grid>
