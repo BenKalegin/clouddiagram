@@ -113,6 +113,10 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
             return {
                 svgPath: PathGenerators.LateralHorizontal([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
             }
+        case RouteStyle.LateralVertical:
+            return {
+                svgPath: PathGenerators.LateralVertical([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+            }
 
     }
     return {

@@ -103,7 +103,8 @@ export enum RouteStyle {
     Direct  = "direct",
 
     /**
-     * The connector automatically routes itself around elements to avoid overlaps, typically in an orthogonal (right-angle) manner.
+     * The connector automatically routes itself around elements to avoid overlaps,
+     * typically in an orthogonal (right-angle) manner.
      * If you move shapes around, the connector re-adjusts to maintain clarity.
      */
     AutoRouting = "autoRouting",
@@ -128,14 +129,16 @@ export enum RouteStyle {
     TreeStyleVertical = "treeStyleVertical",
 
     /**
-     * A tree layout displayed horizontally, with parent nodes on the left and child nodes branching out to the right (or vice versa).
+     * A tree layout displayed horizontally, with parent nodes on the left and child nodes branching out to the right
+     * (or vice versa).
      * Useful for organizational or hierarchical diagrams that flow horizontally.
      */
     TreeStyleHorizontal = "treeStyleHorizontal",
 
     /**
      * A variation on tree-style or hierarchical connections, but specifically oriented vertically.
-     * The exact visual layout can depend on how EA interprets the relationship among elements (often used for mind-map style layouts or structured grouping).
+     * The exact visual layout can depend on how EA interprets the relationship among elements
+     * (often used for mind-map style layouts or structured grouping).
      */
     LateralVertical = "lateralVertical",
 

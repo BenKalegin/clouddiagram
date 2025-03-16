@@ -18,7 +18,7 @@ const LinkStyleIcon: React.FC<{ linkStyle: RouteStyle }> = ({ linkStyle }) => {
 
     switch (linkStyle) {
         case RouteStyle.Direct:
-            path = <path d="M10 40 L90 40 M80 30 L90 40 L80 50" stroke="currentColor" fill="none" strokeWidth="4" />;
+            path = <path d="M10 60 L90 20 M80 20 L90 20 L80 30" stroke="currentColor" fill="none" strokeWidth="4" />;
             break;
         case RouteStyle.AutoRouting:
             path = <path d="M10 40 L50 40 L50 20 L90 20 M80 10 L90 20 L80 30" stroke="currentColor" fill="none" strokeWidth="4" />;
