@@ -2,14 +2,14 @@ import {Node} from "../structureDiagram/Node";
 import React from "react";
 import {Layer} from 'react-konva';
 import {Link} from "../structureDiagram/Link";
-import {classDiagramSelector} from "./classDiagramModel";
 import {useRecoilValue} from "recoil";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
 import {EmptyDiagramHint} from "../diagramEditor/EmptyDiagramHint";
 import {Note} from "../commonComponents/Note";
+import {structureDiagramSelector} from "../structureDiagram/structureDiagramModel";
 
 export const ClassDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
-    const diagram = useRecoilValue(classDiagramSelector(diagramId))
+    const diagram = useRecoilValue(structureDiagramSelector(diagramId))
 
     const nodeIds = Object.keys(diagram.nodes);
     const notes = Object.values(diagram.notes);

@@ -3,11 +3,9 @@ import {
     propertiesDialogAction,
     Set
 } from "../diagramEditor/diagramEditorSlice";
-import {
-    nodePropertiesDialog
-} from "./classDiagramModel";
 import {Action} from "@reduxjs/toolkit";
 import {StructureDiagramEditor} from "../structureDiagram/structureDiagramEditor";
+import {nodePropertiesDialog} from "../structureDiagram/structureDiagramModel";
 
 class ClassDiagramEditor extends StructureDiagramEditor {
     handleAction(action: Action, get: Get, set: Set): void {

@@ -1,20 +1,27 @@
-import {Get, Set} from "../diagramEditor/diagramEditorSlice";
+import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {
     CustomShape,
     defaultColorSchema,
+    defaultCornerStyle,
+    defaultLinkStyle,
     defaultNoteHeight,
     defaultNoteStyle,
     defaultNoteWidth,
     DiagramElement,
     ElementRef,
     ElementType,
-    Id, LinkState,
+    Id,
+    LinkState,
     NodeState,
-    PictureLayout, PortState
+    PictureLayout,
+    PortAlignment,
+    PortState,
+    RouteStyle
 } from "../../package/packageModel";
 import {Bounds, Coordinate} from "../../common/model";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
 import {
+    DiagramId,
     elementsAtom,
     emptyElementSentinel,
     generateId,
@@ -24,11 +31,21 @@ import {
 } from "../diagramEditor/diagramEditorModel";
 import produce, {Draft} from "immer";
 import {snapToGrid} from "../../common/Geometry/snap";
-import {NodePlacement, StructureDiagramState} from "./structureDiagramState";
-import {autoConnectNodes} from "../classDiagram/classDiagramModel";
+import {
+    ClassDiagramModalDialog,
+    LinkPlacement,
+    LinkRender,
+    NodeId,
+    NodePlacement,
+    PortId,
+    PortPlacement,
+    StructureDiagramState
+} from "./structureDiagramState";
 import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {Command} from "../propertiesEditor/PropertiesEditor";
+import {PathGenerators} from "../../common/Geometry/PathGenerator";
+import {selectorFamily} from "recoil";
 
 export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
@@ -79,6 +96,100 @@ export function resizeElement(get: Get, set: Set, element: ElementRef, suggested
         }
     })
     set(elementsAtom(diagramId), update)
+}
+
+export const structureDiagramSelector = selectorFamily<StructureDiagramState, DiagramId>({
+    key: 'structureDiagram',
+    get: (id) => ({get}) => {
+        return get(elementsAtom(id)) as StructureDiagramState;
+    },
+    set: (id) => ({set}, newValue) => {
+        set(elementsAtom(id), newValue);
+    }
+})
+export const nodePlacementSelector = selectorFamily<NodePlacement, { nodeId: NodeId, diagramId: DiagramId }>({
+    key: 'nodePlacement',
+    get: ({nodeId, diagramId}) => ({get}) => {
+        const diagram = get(structureDiagramSelector(diagramId));
+        return diagram.nodes[nodeId];
+    }
+})
+export const portPlacementSelector = selectorFamily<PortPlacement, { portId: Id, diagramId: Id }>({
+    key: 'portPlacement',
+    get: ({portId, diagramId}) => ({get}) => {
+        const diagram = get(structureDiagramSelector(diagramId));
+        return diagram.ports[portId];
+    }
+})
+
+export function nodePropertiesDialog(get: Get, set: Set, dialogResult: DialogOperation) {
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    let modalDialog: ClassDiagramModalDialog | undefined;
+    switch (dialogResult) {
+        case DialogOperation.save:
+            modalDialog = undefined;
+            break;
+        case DialogOperation.cancel:
+            modalDialog = undefined;
+            break;
+        case DialogOperation.open:
+            modalDialog = ClassDiagramModalDialog.nodeProperties;
+            break;
+    }
+    const updatedDiagram = {...diagram, modalDialog: modalDialog};
+    set(elementsAtom(diagramId), updatedDiagram);
+}
+
+export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: ElementRef) {
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+
+    const sourceNode = get(elementsAtom(sourceId)) as NodeState;
+    const port1 = addNewPort(get, set, sourceNode);
+    const placement1: PortPlacement = {alignment: PortAlignment.Right, edgePosRatio: 50};
+
+    let port2: PortState;
+    let placement2: PortPlacement;
+    if (target.type === ElementType.ClassNode) {
+        const targetNode = get(elementsAtom(target.id)) as NodeState;
+        port2 = addNewPort(get, set, targetNode);
+        placement2 = {alignment: PortAlignment.Left, edgePosRatio: 50};
+    } else if (target.type === ElementType.ClassPort) {
+        port2 = get(elementsAtom(target.id)) as PortState;
+        placement2 = diagram.ports[port2.id]
+    } else
+        throw new Error("Invalid target type " + target.type);
+
+
+    const linkId = generateId()
+    const link: LinkState = {
+        id: linkId,
+        type: ElementType.ClassLink,
+        port1: port1.id,
+        port2: port2.id,
+        colorSchema: defaultColorSchema,
+        linkStyle: defaultLinkStyle,
+        cornerStyle: defaultCornerStyle
+    }
+    set(elementsAtom(linkId), link);
+
+    set(elementsAtom(port1.id), {...port1, links: [...port1.links, linkId]} as PortState);
+    set(elementsAtom(port2.id), {...port2, links: [...port2.links, linkId]} as PortState);
+
+    const linkPlacement: LinkPlacement = {};
+
+    const updatedDiagram = {
+        ...diagram,
+        ports: {
+            ...diagram.ports,
+            [port1.id]: placement1,
+            [port2.id]: placement2
+        },
+        links: {...diagram.links, [linkId]: linkPlacement}
+    };
+
+    set(elementsAtom(diagramId), updatedDiagram);
 }
 
 export function addNodeAndConnect(get: Get, set: Set, name: string) {
@@ -285,4 +396,90 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
                 set(elementsAtom(diagramId), diagramUpdate);
         }
     });
+}
+
+export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+                           targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, linkStyle: RouteStyle): LinkRender => {
+
+    switch (linkStyle) {
+        case RouteStyle.Direct:
+            return {
+                svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+            }
+        case RouteStyle.Bezier:
+            return {
+                svgPath: PathGenerators.Bezier([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+            }
+        case RouteStyle.LateralHorizontal:
+            return {
+                svgPath: PathGenerators.LateralHorizontal([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+            }
+        case RouteStyle.LateralVertical:
+            return {
+                svgPath: PathGenerators.LateralVertical([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+            }
+
+    }
+    return {
+        // svgPath: PathGenerators.Smooth(link, [p1, p2], p1, p2).path
+        svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+    };
+}
+
+export function addNewPort(_get: Get, set: Set, node: NodeState) {
+    const result: PortState = {
+        nodeId: node.id,
+        type: ElementType.ClassPort,
+        id: generateId(),
+        depthRatio: 50,
+        latitude: 8,
+        longitude: 8,
+        links: []
+    }
+    set(elementsAtom(result.id), result);
+    set(elementsAtom(node.id), {...node, ports: [...node.ports, result.id]} as NodeState);
+    return result
+}
+
+export const portSelector = selectorFamily<PortState, PortId>({
+    key: 'port',
+    get: (portId) => ({get}) => {
+        return get(elementsAtom(portId)) as PortState;
+    }
+})
+export const portBounds = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): Bounds => {
+
+    switch (portPlacement.alignment) {
+        case PortAlignment.Top:
+            return {
+                x: nodePlacement.x + nodePlacement.width * portPlacement.edgePosRatio / 100 - port.latitude / 2,
+                y: nodePlacement.y - port.longitude * (100 - port.depthRatio) / 100,
+                width: port.latitude,
+                height: port.longitude
+            }
+
+        case PortAlignment.Bottom:
+            return {
+                x: nodePlacement.x + nodePlacement.width * portPlacement.edgePosRatio / 100 - port.latitude / 2,
+                y: nodePlacement.y + nodePlacement.height - port.longitude * port.depthRatio / 100,
+                width: port.latitude,
+                height: port.longitude
+            }
+        case PortAlignment.Left:
+            return {
+                x: nodePlacement.x - port.longitude * (100 - port.depthRatio) / 100,
+                y: nodePlacement.y + nodePlacement.height * portPlacement.edgePosRatio / 100 - port.latitude / 2,
+                width: port.latitude,
+                height: port.longitude
+            }
+        case PortAlignment.Right:
+            return {
+                x: nodePlacement.x + nodePlacement.width - port.longitude * port.depthRatio / 100,
+                y: nodePlacement.y + nodePlacement.height * portPlacement.edgePosRatio / 100 - port.latitude / 2,
+                width: port.latitude,
+                height: port.longitude
+            };
+        default:
+            throw new Error("Unknown port alignment:" + portPlacement.alignment);
+    }
 }

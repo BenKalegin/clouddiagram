@@ -1,5 +1,5 @@
 import {
-    ClassDiagramState,
+    StructureDiagramState,
     defaultLinkPlacement,
     LinkPlacement,
     NodePlacement,
@@ -37,7 +37,7 @@ import {PredefinedSvg} from "./graphics/graphicsReader";
 export const elements: {[id: Id]: DiagramElement } = {
 }
 
-export const getClassDemoDiagram = (id: string, title: string): ClassDiagramState => {
+export const getClassDemoDiagram = (id: string, title: string): StructureDiagramState => {
     const node1Id = "node1";
     const port11: PortState = {
         type: ElementType.ClassPort,
@@ -291,8 +291,9 @@ export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentD
         type: ElementType.DeploymentDiagram,
         nodes: nodePlacements,
         ports: {},
-        links: {}, //ilinkPlacements,
+        links: {},
         notes: {[note1.id]: note1},
+        modalDialog: undefined,
     };
 };
 export const getSequenceDemoDiagram = (): SequenceDiagramState => {

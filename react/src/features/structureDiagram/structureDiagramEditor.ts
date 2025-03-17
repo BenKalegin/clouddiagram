@@ -25,19 +25,11 @@ import {snapToBounds} from "../../common/Geometry/snap";
 import {DiagramId, elementsAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {LinkId, LinkRender, PortPlacement, PortRender, StructureDiagramState} from "./structureDiagramState";
 import {
-    autoConnectNodes,
-    nodePlacementSelector,
-    portBounds,
-    portPlacementSelector,
-    portSelector,
-    renderLink
-} from "../classDiagram/classDiagramModel";
-import {
     addNewElementAt,
-    addNodeAndConnect,
+    addNodeAndConnect, autoConnectNodes,
     handleStructureElementCommand,
     handleStructureElementPropertyChanged,
-    moveElement,
+    moveElement, nodePlacementSelector, portBounds, portPlacementSelector, portSelector, renderLink,
     resizeElement
 } from "./structureDiagramModel";
 import {selector, selectorFamily} from "recoil";

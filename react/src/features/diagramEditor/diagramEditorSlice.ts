@@ -22,7 +22,7 @@ import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {ExportImportFormat} from "../export/exportFormats";
 import {DeploymentDiagramState} from "../deploymentDiagram/deploymentDaigramModel";
 import {deploymentDiagramEditor} from "../deploymentDiagram/deploymentDiagramSlice";
-import {ClassDiagramState} from "../structureDiagram/structureDiagramState";
+import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -273,7 +273,7 @@ function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
                 links: {},
                 notes: {}
 
-            } as ClassDiagramState;
+            } as StructureDiagramState;
             break;
 
         case ElementType.DeploymentDiagram:

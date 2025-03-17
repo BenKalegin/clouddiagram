@@ -37,10 +37,6 @@ export enum ClassDiagramModalDialog {
     nodeProperties = "props"
 }
 
-export interface ClassDiagramState extends StructureDiagramState {
-    modalDialog: ClassDiagramModalDialog | undefined
-}
-
 export type NodeId = Id;
 export type PortId = Id;
 export type LinkId = Id;
@@ -50,4 +46,5 @@ export interface StructureDiagramState extends Diagram {
     nodes: { [id: NodeId]: NodePlacement };
     ports: { [id: PortId]: PortPlacement };
     links: { [id: LinkId]: LinkPlacement };
+    modalDialog: ClassDiagramModalDialog | undefined
 }

@@ -1,8 +1,7 @@
 import React, {FC} from "react";
-import {Port} from "../classDiagram/Port";
+import {Port} from "./Port";
 import {Scaffold} from "../scaffold/Scaffold";
-import {DrawingLink} from "../classDiagram/DrawingLink";
-import {classDiagramSelector} from "../classDiagram/classDiagramModel";
+import {DrawingLink} from "./DrawingLink";
 import {DefaultValue, selectorFamily, useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType, NodeState, PictureLayout} from "../../package/packageModel";
@@ -13,6 +12,7 @@ import useImage from "use-image";
 import {NodeContentFullIconTextBelow} from "./NodeContentFullIconTextBelow";
 import {NodeContentNoIconRect} from "./NodeContentNoIconRect";
 import {NodeId, NodePlacement} from "./structureDiagramState";
+import {structureDiagramSelector} from "./structureDiagramModel";
 
 export interface NodeProps {
     nodeId: NodeId
@@ -22,13 +22,13 @@ export interface NodeProps {
 export const nodePlacement = selectorFamily<NodePlacement, { nodeId: NodeId, diagramId: DiagramId }>({
     key: 'placements',
     get: ({nodeId, diagramId}) => ({get}) => {
-        const diagram = get(classDiagramSelector(diagramId))
+        const diagram = get(structureDiagramSelector(diagramId))
         return diagram.nodes[nodeId]
     },
     set: ({nodeId, diagramId}) => ({set, get}, newValue) => {
-        const diagram = get(classDiagramSelector(diagramId))
+        const diagram = get(structureDiagramSelector(diagramId))
         if (!(newValue instanceof DefaultValue)) {
-            set(classDiagramSelector(diagramId), {...diagram, nodes: {...diagram.nodes, [nodeId]: newValue}})
+            set(structureDiagramSelector(diagramId), {...diagram, nodes: {...diagram.nodes, [nodeId]: newValue}})
         }
     }
 })
