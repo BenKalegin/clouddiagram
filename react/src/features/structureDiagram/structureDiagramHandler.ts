@@ -1,5 +1,5 @@
 import {
-    DiagramEditor,
+    DiagramHandler,
     dropFromPaletteAction,
     elementCommandAction,
     elementMoveAction,
@@ -34,7 +34,7 @@ import {
 } from "./structureDiagramModel";
 import {selector, selectorFamily} from "recoil";
 
-export class StructureDiagramEditor implements DiagramEditor {
+export class StructureDiagramHandler implements DiagramHandler {
     handleAction(action: Action, get: Get, set: Set): void {
         if (elementMoveAction.match(action)) {
             const {element, currentPointerPos, startNodePos, startPointerPos} = action.payload;

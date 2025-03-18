@@ -1,7 +1,7 @@
 import {Path} from "react-konva";
 import React from "react";
 import {useRecoilValue} from "recoil";
-import {drawingLinkRenderSelector} from "./structureDiagramEditor";
+import {drawingLinkRenderSelector} from "./structureDiagramHandler";
 
 export const DrawingLink = () => {
 

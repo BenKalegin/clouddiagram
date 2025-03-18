@@ -4,10 +4,10 @@ import {
     Set
 } from "../diagramEditor/diagramEditorSlice";
 import {Action} from "@reduxjs/toolkit";
-import {StructureDiagramEditor} from "../structureDiagram/structureDiagramEditor";
+import {StructureDiagramHandler} from "../structureDiagram/structureDiagramHandler";
 import {nodePropertiesDialog} from "../structureDiagram/structureDiagramModel";
 
-class ClassDiagramEditor extends StructureDiagramEditor {
+class ClassDiagramHandler extends StructureDiagramHandler {
     handleAction(action: Action, get: Get, set: Set): void {
         if(propertiesDialogAction.match(action)) {
             const {dialogResult} = action.payload;
@@ -18,5 +18,5 @@ class ClassDiagramEditor extends StructureDiagramEditor {
     }
 }
 
-export const classDiagramEditor = new ClassDiagramEditor();
+export const classDiagramEditor = new ClassDiagramHandler();
 

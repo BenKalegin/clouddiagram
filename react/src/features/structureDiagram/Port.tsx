@@ -3,7 +3,7 @@ import React from "react";
 import {useRecoilValue} from "recoil";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {ColorSchema} from "../../package/packageModel";
-import {portRenderSelector} from "./structureDiagramEditor";
+import {portRenderSelector} from "./structureDiagramHandler";
 import {NodeId, PortId} from "./structureDiagramState";
 import {portSelector} from "./structureDiagramModel";
 

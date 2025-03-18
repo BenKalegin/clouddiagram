@@ -1,6 +1,6 @@
 import {Action} from "@reduxjs/toolkit";
 import {
-    DiagramEditor,
+    DiagramHandler,
     dropFromPaletteAction, elementCommandAction,
     elementMoveAction,
     elementPropertyChangedAction,
@@ -24,7 +24,7 @@ import {snapToBounds} from "../../common/Geometry/snap";
 import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
 
 
-class SequenceDiagramEditor implements DiagramEditor {
+class SequenceDiagramHandler implements DiagramHandler {
     handleAction(action: Action, get: Get, set: Set): void {
         if (dropFromPaletteAction.match(action)) {
             const {name, droppedAt, kind} = action.payload;
@@ -77,5 +77,5 @@ class SequenceDiagramEditor implements DiagramEditor {
     }
 }
 
-export const sequenceDiagramEditor = new SequenceDiagramEditor();
+export const sequenceDiagramEditor = new SequenceDiagramHandler();
 

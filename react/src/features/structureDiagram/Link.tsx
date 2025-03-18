@@ -1,8 +1,8 @@
 import React from "react";
-import {Group, Path, Text} from "react-konva";
+import {Group, Path} from "react-konva";
 import {useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
-import {linkRenderSelector} from "./structureDiagramEditor";
+import {linkRenderSelector} from "./structureDiagramHandler";
 import {LinkId} from "./structureDiagramState";
 import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ElementRef, ElementType, LinkState} from "../../package/packageModel";

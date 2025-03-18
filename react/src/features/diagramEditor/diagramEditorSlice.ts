@@ -123,7 +123,7 @@ export const importDiagramTabAction = createAction<{
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 
-export interface DiagramEditor {
+export interface DiagramHandler {
     handleAction(action: Action, get: Get, set: Set) : void
     snapToElements(get: Get, diagramPos: Coordinate): [Coordinate, DiagramElement] | undefined
 
@@ -351,7 +351,7 @@ export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format:
 
 
 
-export const diagramEditors: Record<any, DiagramEditor> = {
+export const diagramEditors: Record<any, DiagramHandler> = {
     [ElementType.ClassDiagram]: classDiagramEditor,
     [ElementType.DeploymentDiagram]: deploymentDiagramEditor,
     [ElementType.SequenceDiagram]: sequenceDiagramEditor,
