@@ -1,6 +1,6 @@
 import {BezierSpline} from "./BezierSpline";
 import {Bounds, center, Coordinate} from "../model";
-import {PortAlignment, PortState} from "../../package/packageModel";
+import {MarkerStyle, PortAlignment, PortState} from "../../package/packageModel";
 import {PortPlacement} from "../../features/structureDiagram/structureDiagramState";
 
 export type PathGeneratorResult = {
@@ -123,14 +123,28 @@ export class PathGenerators {
     }
 
     public static Direct = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
-                            target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+                            target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, markerStyle1: MarkerStyle, markerStyle2: MarkerStyle) => {
         route = PathGenerators.ConcatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
 
         const sourceAngle = PathGenerators.SourceMarkerAdjustment(route, source.longitude / 2);
         const targetAngle = PathGenerators.TargetMarkerAdjustment(route, target.longitude / 2);
 
         const path = `M ${route[0].x} ${route[0].y} L ${route[route.length - 1].x} ${route[route.length - 1].y}`;
-        return [path];
+        const result = new Array<string>();
+        if (markerStyle1 === MarkerStyle.Arrow) {
+            const arrow = `M ${route[0].x} ${route[0].y} L ${route[0].x + 10 * Math.cos(sourceAngle)} ${route[0].y + 10 * Math.sin(sourceAngle)}`;
+            result.push(arrow);
+        }
+
+        result.push(path);
+
+        if(markerStyle2 === MarkerStyle.Arrow) {
+            const arrow = `M ${route[route.length - 1].x} ${route[route.length - 1].y} L ${route[route.length - 1].x + 10 * Math.cos(targetAngle)} ${route[route.length - 1].y + 10 * Math.sin(targetAngle)}`;
+            result.push(arrow);
+        }
+
+        console.log(targetAngle);
+        return result;
     }
 
     public static LateralHorizontal = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,

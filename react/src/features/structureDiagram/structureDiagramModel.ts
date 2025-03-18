@@ -402,12 +402,12 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
 }
 
 export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
-                           targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, linkStyle: RouteStyle): LinkRender => {
+                           targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, linkStyle: RouteStyle, markerStyle1: MarkerStyle, markerStyle2: MarkerStyle): LinkRender => {
 
     switch (linkStyle) {
         case RouteStyle.Direct:
             return {
-                svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement)
+                svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, markerStyle1, markerStyle2)
             }
         case RouteStyle.Bezier:
             return {
@@ -422,7 +422,7 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
             }
     }
     return {
-        svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement)
+        svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, markerStyle1, markerStyle2)
     };
 }
 

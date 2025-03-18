@@ -169,7 +169,7 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         port1: port11.id,
         port2: port2.id,
         markerStyle1: MarkerStyle.None,
-        markerStyle2: MarkerStyle.None,
+        markerStyle2: MarkerStyle.Arrow,
         colorSchema: defaultColorSchema,
         linkStyle: defaultLinkStyle,
         cornerStyle: defaultCornerStyle
