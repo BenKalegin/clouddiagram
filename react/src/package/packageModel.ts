@@ -160,6 +160,16 @@ export enum RouteStyle {
      */
     OrthogonalRounded = "orthogonalRounded",
 }
+
+export enum MarkerStyle {
+    None = "none",
+    Arrow = "arrow",
+    Triangle = "triangle",
+    Diamond = "diamond",
+    Circle = "circle",
+    Square = "square",
+}
+
 export const defaultLinkStyle: RouteStyle = RouteStyle.Direct;
 
 export enum CornerStyle {
@@ -251,6 +261,9 @@ export const lineStyleList: LineStyle[] = [
 export interface LinkState extends DiagramElement, HasColorSchema {
     port1: Id;
     port2: Id;
+
+    markerStyle1: MarkerStyle;
+    markerStyle2: MarkerStyle;
 
     linkStyle: RouteStyle;
     cornerStyle: CornerStyle;

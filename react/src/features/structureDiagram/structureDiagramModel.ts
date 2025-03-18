@@ -12,6 +12,7 @@ import {
     ElementType,
     Id,
     LinkState,
+    MarkerStyle,
     NodeState,
     PictureLayout,
     PortAlignment,
@@ -168,6 +169,8 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
         type: ElementType.ClassLink,
         port1: port1.id,
         port2: port2.id,
+        markerStyle1: MarkerStyle.None,
+        markerStyle2: MarkerStyle.Arrow,
         colorSchema: defaultColorSchema,
         linkStyle: defaultLinkStyle,
         cornerStyle: defaultCornerStyle
@@ -404,25 +407,22 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
     switch (linkStyle) {
         case RouteStyle.Direct:
             return {
-                svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+                svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement)
             }
         case RouteStyle.Bezier:
             return {
-                svgPath: PathGenerators.Bezier([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+                svgPath: PathGenerators.Bezier([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement)
             }
         case RouteStyle.LateralHorizontal:
             return {
-                svgPath: PathGenerators.LateralHorizontal([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
-            }
+                svgPath: PathGenerators.LateralHorizontal([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement)          }
         case RouteStyle.LateralVertical:
             return {
-                svgPath: PathGenerators.LateralVertical([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+                svgPath: PathGenerators.LateralVertical([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement)
             }
-
     }
     return {
-        // svgPath: PathGenerators.Smooth(link, [p1, p2], p1, p2).path
-        svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement).path
+        svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement)
     };
 }
 

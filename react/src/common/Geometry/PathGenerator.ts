@@ -3,10 +3,12 @@ import {Bounds, center, Coordinate} from "../model";
 import {PortAlignment, PortState} from "../../package/packageModel";
 import {PortPlacement} from "../../features/structureDiagram/structureDiagramState";
 
-export class PathGeneratorResult {
-    constructor(public path: string[], public sourceMarkerAngle?: number, public sourceMarkerPosition?: Coordinate,
-                public targetMarkerAngle?: number, public targetMarkerPosition?: Coordinate) {
-    }
+export type PathGeneratorResult = {
+    path: string[];
+    sourceMarkerAngle?: number;
+    sourceMarkerPosition?: Coordinate;
+    targetMarkerAngle?: number;
+    targetMarkerPosition?: Coordinate;
 }
 
 export class PathGenerators {
@@ -47,7 +49,13 @@ export class PathGenerators {
         // Todo: adjust marker positions based on closest control points
         const sourceAngle = PathGenerators.SourceMarkerAdjustment(route, 0); //if (link.port2.marker)
         const targetAngle = PathGenerators.TargetMarkerAdjustment(route, 0);
-        return new PathGeneratorResult(paths, sourceAngle, route[0], targetAngle, route[route.length - 1])
+        return {
+            path: paths,
+            sourceMarkerAngle: sourceAngle,
+            sourceMarkerPosition: route[0],
+            targetMarkerAngle: targetAngle,
+            targetMarkerPosition: route[route.length - 1]
+        } as PathGeneratorResult;
     }
 
     static GetCurvePoint = (pX: number, pY: number, cX: number, cY: number, alignment?: PortAlignment): Coordinate => {
@@ -98,7 +106,7 @@ export class PathGenerators {
         route = PathGenerators.ConcatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
 
         if (route.length > 2) {
-            return PathGenerators.CurveThroughPoints(route);
+            return PathGenerators.CurveThroughPoints(route).path
         }
 
         route = PathGenerators.GetRouteWithCurvePoints(route, source, sourcePlacement, target, targetPlacement);
@@ -111,7 +119,7 @@ export class PathGenerators {
           M ${route[0].x} ${route[0].y}
           C ${route[1].x} ${route[1].y}, ${route[2].x} ${route[2].y}, ${route[3].x} ${route[3].y}
           C ${route[2].x} ${route[2].y}, ${route[1].x} ${route[1].y}, ${route[0].x} ${route[0].y} Z`;
-        return new PathGeneratorResult([path], sourceAngle, route[0], targetAngle, route[route.length - 1]);
+        return [path]
     }
 
     public static Direct = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
@@ -120,8 +128,9 @@ export class PathGenerators {
 
         const sourceAngle = PathGenerators.SourceMarkerAdjustment(route, source.longitude / 2);
         const targetAngle = PathGenerators.TargetMarkerAdjustment(route, target.longitude / 2);
+
         const path = `M ${route[0].x} ${route[0].y} L ${route[route.length - 1].x} ${route[route.length - 1].y}`;
-        return new PathGeneratorResult([path], sourceAngle, route[0], targetAngle, route[route.length - 1]);
+        return [path];
     }
 
     public static LateralHorizontal = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
@@ -142,7 +151,7 @@ export class PathGenerators {
             paths[i] = `M ${route[i].x} ${route[i].y} L ${route[i + 1].x} ${route[i + 1].y}`;
         }
 
-        return new PathGeneratorResult(paths, sourceAngle, route[0], targetAngle, route[route.length - 1]);
+        return paths
     }
 
     public static LateralVertical = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
@@ -164,6 +173,6 @@ export class PathGenerators {
             paths[i] = `M ${route[i].x} ${route[i].y} L ${route[i + 1].x} ${route[i + 1].y}`;
         }
 
-        return new PathGeneratorResult(paths, sourceAngle, route[0], targetAngle, route[route.length - 1]);
+        return paths
     }
 }

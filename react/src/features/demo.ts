@@ -1,9 +1,9 @@
 import {
-    StructureDiagramState,
     defaultLinkPlacement,
     LinkPlacement,
     NodePlacement,
-    PortPlacement
+    PortPlacement,
+    StructureDiagramState
 } from "./structureDiagram/structureDiagramState";
 import {zeroBounds} from "../common/model";
 import {
@@ -18,16 +18,20 @@ import {
 } from "./sequenceDiagram/sequenceDiagramModel";
 import {
     CustomShape,
-    defaultLineStyle,
-    defaultNoteStyle,
     defaultColorSchema,
+    defaultCornerStyle,
+    defaultLineStyle,
+    defaultLinkStyle,
+    defaultNoteStyle,
     DiagramElement,
     ElementType,
     Id,
     LinkState,
-    NodeState, PictureLayout,
+    MarkerStyle,
+    NodeState,
+    PictureLayout,
     PortAlignment,
-    PortState, defaultCornerStyle, defaultLinkStyle,
+    PortState,
 } from "../package/packageModel";
 import {NoteState} from "./commonComponents/commonComponentsModel";
 import {DeploymentDiagramState} from "./deploymentDiagram/deploymentDaigramModel";
@@ -164,6 +168,8 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         type: ElementType.ClassLink,
         port1: port11.id,
         port2: port2.id,
+        markerStyle1: MarkerStyle.None,
+        markerStyle2: MarkerStyle.None,
         colorSchema: defaultColorSchema,
         linkStyle: defaultLinkStyle,
         cornerStyle: defaultCornerStyle
@@ -254,21 +260,6 @@ export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentD
     const nodePlacements: { [id: Id]: NodePlacement } = {
         [node1.id]: node1Placement,
         [node2.id]: node2Placement
-    }
-
-    // const link1: LinkState = {
-    //     id: "link1",
-    //     type: ElementType.DeploymentLink,
-    //     port1: node1.id,
-    //     port2: node2.id,
-    // };
-
-    // elements[link1.id] = link1;
-
-    const Link1Placement: LinkPlacement = {...defaultLinkPlacement}
-
-    const linkPlacements: { [id: Id]: LinkPlacement } = {
-        // [link1.id]: Link1Placement
     }
 
     const note1: NoteState = {
