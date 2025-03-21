@@ -168,7 +168,7 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         type: ElementType.ClassLink,
         port1: port11.id,
         port2: port2.id,
-        markerStyle1: MarkerStyle.None,
+        markerStyle1: MarkerStyle.Arrow,
         markerStyle2: MarkerStyle.Arrow,
         colorSchema: defaultColorSchema,
         linkStyle: defaultLinkStyle,

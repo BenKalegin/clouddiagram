@@ -11,33 +11,66 @@ export type PathGeneratorResult = {
     targetMarkerPosition?: Coordinate;
 }
 
+function drawArrowTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number): string {
+    const PI2 = Math.PI * 2;
+
+    // Normalize angle to 0-2π range
+    const radians = (sourceAngle + PI2) % PI2;
+
+    // Calculate the two points that form the arrow
+    const leftPoint = {
+        x: pointTo.x + size.x * Math.cos(radians + Math.PI * 0.85),
+        y: pointTo.y + size.y * Math.sin(radians + Math.PI * 0.85)
+    };
+
+    const rightPoint = {
+        x: pointTo.x + size.x * Math.cos(radians - Math.PI * 0.85),
+        y: pointTo.y + size.y * Math.sin(radians - Math.PI * 0.85)
+    };
+
+    return `M ${pointTo.x} ${pointTo.y} 
+            L ${leftPoint.x} ${leftPoint.y}
+            M ${pointTo.x} ${pointTo.y}
+            L ${rightPoint.x} ${rightPoint.y}`;
+}
+
+const calculateStartAndEndAngles = (route: Coordinate[]) => {
+    return {
+        startAngle: Math.atan2(route[0].y - route[1].y, route[0].x - route[1].x),
+        endAngle: Math.atan2(route[route.length - 1].y - route[route.length - 2].y, route[route.length - 1].x - route[route.length - 2].x)
+    }
+}
+
+const adjustRouteToFitMarkers = (route: Coordinate[],
+                                 markerWidth1: number, markerWidth2: number,
+                                 angle1: number, angle2: number): Coordinate[] => {
+
+    // For source, we want to move away from the second point
+    // For target, we want to move toward the second-to-last point
+    const newRoute = [...route];
+    newRoute[0] = {
+        x: route[0].x - markerWidth1 * Math.cos(angle1),
+        y: route[0].y - markerWidth1 * Math.sin(angle1)
+    };
+
+    newRoute[newRoute.length - 1] = {
+        x: route[route.length - 1].x - markerWidth2 * Math.cos(angle2),
+        y: route[route.length - 1].y - markerWidth2 * Math.sin(angle2)
+    };
+    return newRoute;
+}
+
+function concatRouteAndSourceAndTarget(route: Coordinate[], sourcePlacement: Bounds,
+    targetPlacement: Bounds): Coordinate[] {
+    return [center(sourcePlacement), ...route, center(targetPlacement)];
+}
+
+
 export class PathGenerators {
     private static _margin = 25;
 
-    static SourceMarkerAdjustment = (route: Coordinate[], markerWidth: number) => {
-        const angleInRadians = Math.atan2(route[1].y - route[0].y, route[1].x - route[0].x) + Math.PI;
-        const xChange = markerWidth * Math.cos(angleInRadians);
-        const yChange = markerWidth * Math.sin(angleInRadians);
-        route[0] = {x: route[0].x - xChange, y: route[0].y - yChange};
-        return angleInRadians * 180 / Math.PI;
-    }
-
-    static TargetMarkerAdjustment = (route: Coordinate[], markerWidth: number) => {
-        const angleInRadians = Math.atan2(route[route.length - 1].y - route[route.length - 2].y, route[route.length - 1].x - route[route.length - 2].x)
-        const xChange = markerWidth * Math.cos(angleInRadians);
-        const yChange = markerWidth * Math.sin(angleInRadians);
-        route[route.length - 1] = {x: route[route.length - 1].x - xChange, y: route[route.length - 1].y - yChange}
-        return angleInRadians * 180 / Math.PI;
-    }
-
-    static ConcatRouteAndSourceAndTarget(route: Coordinate[], sourcePlacement: Bounds,
-                                         targetPlacement: Bounds): Coordinate[] {
-        return [center(sourcePlacement), ...route, center(targetPlacement)];
-    }
-
     static CurveThroughPoints = (route: Coordinate[]) => {
 
-        // if (link.port1.marker)
         const {firstControlPoints, secondControlPoints} = BezierSpline.GetCurveControlPoints(route)
         const paths = new Array<string>(firstControlPoints.length);
 
@@ -46,14 +79,12 @@ export class PathGenerators {
             const cp2 = secondControlPoints[i]
             paths[i] = `M ${route[i].x} ${route[i].y} C ${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${route[i + 1].x} ${route[i + 1].y}`
         }
-        // Todo: adjust marker positions based on closest control points
-        const sourceAngle = PathGenerators.SourceMarkerAdjustment(route, 0); //if (link.port2.marker)
-        const targetAngle = PathGenerators.TargetMarkerAdjustment(route, 0);
+        const { startAngle, endAngle } = calculateStartAndEndAngles(route);
         return {
             path: paths,
-            sourceMarkerAngle: sourceAngle,
+            sourceMarkerAngle: startAngle,
             sourceMarkerPosition: route[0],
-            targetMarkerAngle: targetAngle,
+            targetMarkerAngle: endAngle,
             targetMarkerPosition: route[route.length - 1]
         } as PathGeneratorResult;
     }
@@ -103,7 +134,7 @@ export class PathGenerators {
 
     public static Bezier = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
                             target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
-        route = PathGenerators.ConcatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
+        route = concatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
 
         if (route.length > 2) {
             return PathGenerators.CurveThroughPoints(route).path
@@ -111,10 +142,6 @@ export class PathGenerators {
 
         route = PathGenerators.GetRouteWithCurvePoints(route, source, sourcePlacement, target, targetPlacement);
 
-        const markerWidth1 = source.longitude;
-        const sourceAngle = PathGenerators.SourceMarkerAdjustment(route, markerWidth1);
-        const markerWidth2 = target.longitude;
-        const targetAngle = PathGenerators.TargetMarkerAdjustment(route, markerWidth2);
         const path = `
           M ${route[0].x} ${route[0].y}
           C ${route[1].x} ${route[1].y}, ${route[2].x} ${route[2].y}, ${route[3].x} ${route[3].y}
@@ -124,32 +151,33 @@ export class PathGenerators {
 
     public static Direct = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
                             target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, markerStyle1: MarkerStyle, markerStyle2: MarkerStyle) => {
-        route = PathGenerators.ConcatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
+        route = concatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
 
-        const sourceAngle = PathGenerators.SourceMarkerAdjustment(route, source.longitude / 2);
-        const targetAngle = PathGenerators.TargetMarkerAdjustment(route, target.longitude / 2);
+        const {startAngle, endAngle} = calculateStartAndEndAngles(route);
+        route = adjustRouteToFitMarkers(route, source.longitude / 2, target.longitude / 2, startAngle, endAngle);
 
         const path = `M ${route[0].x} ${route[0].y} L ${route[route.length - 1].x} ${route[route.length - 1].y}`;
         const result = new Array<string>();
+        const tipSize = {x: 10, y: 8};
         if (markerStyle1 === MarkerStyle.Arrow) {
-            const arrow = `M ${route[0].x} ${route[0].y} L ${route[0].x + 10 * Math.cos(sourceAngle)} ${route[0].y + 10 * Math.sin(sourceAngle)}`;
+            const arrow = drawArrowTip(route[0], tipSize,  startAngle);
             result.push(arrow);
         }
 
         result.push(path);
 
         if(markerStyle2 === MarkerStyle.Arrow) {
-            const arrow = `M ${route[route.length - 1].x} ${route[route.length - 1].y} L ${route[route.length - 1].x + 10 * Math.cos(targetAngle)} ${route[route.length - 1].y + 10 * Math.sin(targetAngle)}`;
+            const arrow = drawArrowTip(route[route.length-1], tipSize, endAngle);
             result.push(arrow);
         }
 
-        console.log(targetAngle);
+
         return result;
     }
 
     public static LateralHorizontal = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
                                        target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
-        route = PathGenerators.ConcatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
+        route = concatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
 
         if (Math.abs(route[0].x - route[1].x) < PathGenerators._margin * 2 &&
             Math.abs(route[0].y - route[1].y) < PathGenerators._margin * 2) {
@@ -158,8 +186,6 @@ export class PathGenerators {
 
         route = PathGenerators.GetRouteWithCurvePoints(route, source, sourcePlacement, target, targetPlacement);
 
-        const sourceAngle = PathGenerators.SourceMarkerAdjustment(route, source.longitude / 2);
-        const targetAngle = PathGenerators.TargetMarkerAdjustment(route, target.longitude / 2);
         const paths = new Array<string>(route.length - 1);
         for (let i = 0; i < route.length - 1; i++) {
             paths[i] = `M ${route[i].x} ${route[i].y} L ${route[i + 1].x} ${route[i + 1].y}`;
@@ -170,18 +196,15 @@ export class PathGenerators {
 
     public static LateralVertical = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
                                      target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
-        route = PathGenerators.ConcatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
+        route = concatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
 
         // Handle close nodes differently
         if (Math.abs(route[0].x - route[1].x) < PathGenerators._margin * 2 &&
             Math.abs(route[0].y - route[1].y) < PathGenerators._margin * 2) {
-            return PathGenerators.Bezier([], source, sourceBounds, sourcePlacement, target, targetBounds, targetPlacement);
         }
 
         route = PathGenerators.GetRouteWithCurvePoints(route, source, sourcePlacement, target, targetPlacement);
 
-        const sourceAngle = PathGenerators.SourceMarkerAdjustment(route, source.longitude / 2);
-        const targetAngle = PathGenerators.TargetMarkerAdjustment(route, target.longitude / 2);
         const paths = new Array<string>(route.length - 1);
         for (let i = 0; i < route.length - 1; i++) {
             paths[i] = `M ${route[i].x} ${route[i].y} L ${route[i + 1].x} ${route[i + 1].y}`;
