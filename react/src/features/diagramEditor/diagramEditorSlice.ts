@@ -118,6 +118,7 @@ export const exportDiagramTabAction = createAction<{
 export const importDiagramTabAction = createAction<{
     importState: ImportPhase
     format?: ExportImportFormat
+    importedCode?: string
 }>('tabs/importDiagramTab');
 
 export type Get = (<T>(a: RecoilValue<T>) => T)
@@ -165,8 +166,8 @@ function handleAction(action: Action, get: Get, set: Set) {
         const { exportState, format } = action.payload ;
         exportDiagramTab(get, set, exportState, format);
     }else if (importDiagramTabAction.match(action)) {
-        const { importState, format } = action.payload ;
-        importDiagramTab(get, set, importState, format);
+        const { importState, format, importedCode } = action.payload ;
+        importDiagramTab(get, set, importState, format, importedCode);
     }
     else
         diagramEditors[diagramKind].handleAction(action, get, set);
@@ -333,7 +334,7 @@ export function exportDiagramTab(get: Get, set: Set, exportState: ExportPhase, f
     }
 }
 
-export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format: ExportImportFormat | undefined) {
+export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format: ExportImportFormat | undefined, code: String | undefined) {
 
     switch (phase) {
         case ImportPhase.start:

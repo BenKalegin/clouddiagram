@@ -25,7 +25,6 @@ export enum ExportPhase {
     start,
     selected,
     exporting,
-    done,
     cancel
 }
 
@@ -33,7 +32,6 @@ export enum ImportPhase {
     start,
     selected,
     importing,
-    done,
     cancel
 }
 export interface Exporting {

@@ -18,7 +18,7 @@ export const EmptyDiagramHint = () => {
             draggable={false}
             listening={true}
             preventDefault={true}
-            onClick={() => dispatch(importDiagramTabAction({importState: ImportPhase.start}))}
+            onClick={() => dispatch(importDiagramTabAction({importState: ImportPhase.start, format: undefined}))}
         />
     )
 };
