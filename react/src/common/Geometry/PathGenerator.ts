@@ -1,6 +1,6 @@
 import {BezierSpline} from "./BezierSpline";
 import {Bounds, center, Coordinate} from "../model";
-import {TipStyle, PortAlignment, PortState} from "../../package/packageModel";
+import {PortAlignment, PortState, TipStyle} from "../../package/packageModel";
 import {PortPlacement} from "../../features/structureDiagram/structureDiagramState";
 
 export type PathGeneratorResult = {
@@ -12,7 +12,6 @@ export type PathGeneratorResult = {
 }
 
 function drawTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number, tipStyle: TipStyle): string {
-
     switch (tipStyle) {
         case TipStyle.Arrow:
             return drawArrowTip(pointTo, size, sourceAngle);
@@ -203,16 +202,15 @@ export class PathGenerators {
         const path = `M ${route[0].x} ${route[0].y} L ${route[route.length - 1].x} ${route[route.length - 1].y}`;
         const result = new Array<string>();
         const tipSize = {x: 10, y: 8};
-        if (tipStyle1 === TipStyle.Arrow) {
-            const arrow = drawTip(route[0], tipSize,  startAngle, tipStyle1);
-            result.push(arrow);
+
+        if (tipStyle1 !== TipStyle.None) {
+            result.push(drawTip(route[0], tipSize, startAngle, tipStyle1));
         }
 
         result.push(path);
 
-        if(tipStyle2 === TipStyle.Arrow) {
-            const arrow = drawTip(route[route.length - 1], tipSize, endAngle, tipStyle2);
-            result.push(arrow);
+        if(tipStyle2 !== TipStyle.None) {
+            result.push(drawTip(route[route.length - 1], tipSize, endAngle, tipStyle2));
         }
 
 
