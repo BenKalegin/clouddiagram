@@ -161,7 +161,7 @@ export enum RouteStyle {
     OrthogonalRounded = "orthogonalRounded",
 }
 
-export enum MarkerStyle {
+export enum TipStyle {
     None = "none",
     Arrow = "arrow",
     Triangle = "triangle",
@@ -262,8 +262,8 @@ export interface LinkState extends DiagramElement, HasColorSchema {
     port1: Id;
     port2: Id;
 
-    markerStyle1: MarkerStyle;
-    markerStyle2: MarkerStyle;
+    tipStyle1: TipStyle;
+    tipStyle2: TipStyle;
 
     linkStyle: RouteStyle;
     cornerStyle: CornerStyle;

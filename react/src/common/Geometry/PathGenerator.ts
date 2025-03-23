@@ -1,6 +1,6 @@
 import {BezierSpline} from "./BezierSpline";
 import {Bounds, center, Coordinate} from "../model";
-import {MarkerStyle, PortAlignment, PortState} from "../../package/packageModel";
+import {TipStyle, PortAlignment, PortState} from "../../package/packageModel";
 import {PortPlacement} from "../../features/structureDiagram/structureDiagramState";
 
 export type PathGeneratorResult = {
@@ -9,6 +9,19 @@ export type PathGeneratorResult = {
     sourceMarkerPosition?: Coordinate;
     targetMarkerAngle?: number;
     targetMarkerPosition?: Coordinate;
+}
+
+function drawTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number, tipStyle: TipStyle): string {
+
+    switch (tipStyle) {
+        case TipStyle.Arrow:
+            return drawArrowTip(pointTo, size, sourceAngle);
+
+        case TipStyle.Triangle:
+            return drawTriangleTip(pointTo, size, sourceAngle);
+        default:
+            return "";
+    }
 }
 
 function drawArrowTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number): string {
@@ -33,6 +46,37 @@ function drawArrowTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number
             M ${pointTo.x} ${pointTo.y}
             L ${rightPoint.x} ${rightPoint.y}`;
 }
+
+
+function drawTriangleTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number): string {
+    const PI2 = Math.PI * 2;
+
+    // Normalize angle to 0-2π range
+    const radians = (sourceAngle + PI2) % PI2;
+
+    // Calculate the points that form the triangle
+    const backPoint = {
+        x: pointTo.x + size.x * 1.5 * Math.cos(radians),
+        y: pointTo.y + size.y * 1.5 * Math.sin(radians)
+    };
+
+    const leftPoint = {
+        x: pointTo.x + size.x * Math.cos(radians + Math.PI * 0.85),
+        y: pointTo.y + size.y * Math.sin(radians + Math.PI * 0.85)
+    };
+
+    const rightPoint = {
+        x: pointTo.x + size.x * Math.cos(radians - Math.PI * 0.85),
+        y: pointTo.y + size.y * Math.sin(radians - Math.PI * 0.85)
+    };
+
+    return `M ${pointTo.x} ${pointTo.y}
+            L ${leftPoint.x} ${leftPoint.y + 10}
+            L ${backPoint.x} ${backPoint.y}
+            L ${rightPoint.x} ${rightPoint.y - 10}
+            L ${pointTo.x} ${pointTo.y} Z`;
+}
+
 
 const calculateStartAndEndAngles = (route: Coordinate[]) => {
     return {
@@ -150,7 +194,7 @@ export class PathGenerators {
     }
 
     public static Direct = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
-                            target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, markerStyle1: MarkerStyle, markerStyle2: MarkerStyle) => {
+                            target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, tipStyle1: TipStyle, tipStyle2: TipStyle) => {
         route = concatRouteAndSourceAndTarget(route, sourceBounds, targetBounds);
 
         const {startAngle, endAngle} = calculateStartAndEndAngles(route);
@@ -159,15 +203,15 @@ export class PathGenerators {
         const path = `M ${route[0].x} ${route[0].y} L ${route[route.length - 1].x} ${route[route.length - 1].y}`;
         const result = new Array<string>();
         const tipSize = {x: 10, y: 8};
-        if (markerStyle1 === MarkerStyle.Arrow) {
-            const arrow = drawArrowTip(route[0], tipSize,  startAngle);
+        if (tipStyle1 === TipStyle.Arrow) {
+            const arrow = drawTip(route[0], tipSize,  startAngle, tipStyle1);
             result.push(arrow);
         }
 
         result.push(path);
 
-        if(markerStyle2 === MarkerStyle.Arrow) {
-            const arrow = drawArrowTip(route[route.length-1], tipSize, endAngle);
+        if(tipStyle2 === TipStyle.Arrow) {
+            const arrow = drawTip(route[route.length - 1], tipSize, endAngle, tipStyle2);
             result.push(arrow);
         }
 

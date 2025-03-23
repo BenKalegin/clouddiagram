@@ -12,7 +12,7 @@ import {
     ElementType,
     Id,
     LinkState,
-    MarkerStyle,
+    TipStyle,
     NodeState,
     PictureLayout,
     PortAlignment,
@@ -169,8 +169,8 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
         type: ElementType.ClassLink,
         port1: port1.id,
         port2: port2.id,
-        markerStyle1: MarkerStyle.None,
-        markerStyle2: MarkerStyle.Arrow,
+        tipStyle1: TipStyle.None,
+        tipStyle2: TipStyle.Arrow,
         colorSchema: defaultColorSchema,
         linkStyle: defaultLinkStyle,
         cornerStyle: defaultCornerStyle
@@ -402,12 +402,12 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
 }
 
 export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
-                           targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, linkStyle: RouteStyle, markerStyle1: MarkerStyle, markerStyle2: MarkerStyle): LinkRender => {
+                           targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, linkStyle: RouteStyle, tipStyle1: TipStyle, tipStyle2: TipStyle): LinkRender => {
 
     switch (linkStyle) {
         case RouteStyle.Direct:
             return {
-                svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, markerStyle1, markerStyle2)
+                svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, tipStyle1, tipStyle2)
             }
         case RouteStyle.Bezier:
             return {
@@ -422,7 +422,7 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
             }
     }
     return {
-        svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, markerStyle1, markerStyle2)
+        svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, tipStyle1, tipStyle2)
     };
 }
 

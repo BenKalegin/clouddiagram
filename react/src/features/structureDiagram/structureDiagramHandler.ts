@@ -16,7 +16,7 @@ import {
     ElementType,
     Id,
     LinkState,
-    MarkerStyle,
+    TipStyle,
     PortAlignment,
     PortState,
     RouteStyle
@@ -160,7 +160,7 @@ export const linkRenderSelector = selectorFamily<LinkRender, { linkId: LinkId, d
         const targetRender = get(portRenderSelector({portId: link.port2, nodeId: port2.nodeId, diagramId}));
         const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId}));
         const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId}));
-        return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement, link.linkStyle, link.markerStyle1, link.markerStyle2);
+        return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement, link.linkStyle, link.tipStyle1, link.tipStyle2);
     }
 })
 
@@ -210,7 +210,7 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
             port2, port2Placement);
 
         return renderLink(port1, port1Render.bounds, port1Placement, port2, port2Render.bounds, port2Placement, RouteStyle.Direct,
-            MarkerStyle.None, MarkerStyle.None);
+            TipStyle.None, TipStyle.None);
     }
 })
 
