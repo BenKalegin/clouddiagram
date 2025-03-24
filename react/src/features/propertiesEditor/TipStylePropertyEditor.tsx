@@ -1,5 +1,5 @@
 import {
-    RouteStyle, TipStyle
+    TipStyle
 } from "../../package/packageModel";
 import React, {useState} from "react";
 import {

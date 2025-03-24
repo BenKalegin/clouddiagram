@@ -18,6 +18,9 @@ function drawTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number, tip
 
         case TipStyle.Triangle:
             return drawTriangleTip(pointTo, size, sourceAngle);
+
+        case TipStyle.Diamond:
+            return drawDiamondTip(pointTo, size, sourceAngle);
         default:
             return "";
     }
@@ -25,19 +28,21 @@ function drawTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number, tip
 
 function drawArrowTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number): string {
     const PI2 = Math.PI * 2;
+    // Angle offset for tip sides (determines tip width)
+    const TIP_ANGLE_OFFSET = Math.PI * 0.85; // ~153 degrees
 
     // Normalize angle to 0-2π range
     const radians = (sourceAngle + PI2) % PI2;
 
     // Calculate the two points that form the arrow
     const leftPoint = {
-        x: pointTo.x + size.x * Math.cos(radians + Math.PI * 0.85),
-        y: pointTo.y + size.y * Math.sin(radians + Math.PI * 0.85)
+        x: pointTo.x + size.x * Math.cos(radians + TIP_ANGLE_OFFSET),
+        y: pointTo.y + size.y * Math.sin(radians + TIP_ANGLE_OFFSET)
     };
 
     const rightPoint = {
-        x: pointTo.x + size.x * Math.cos(radians - Math.PI * 0.85),
-        y: pointTo.y + size.y * Math.sin(radians - Math.PI * 0.85)
+        x: pointTo.x + size.x * Math.cos(radians - TIP_ANGLE_OFFSET),
+        y: pointTo.y + size.y * Math.sin(radians - TIP_ANGLE_OFFSET)
     };
 
     return `M ${pointTo.x} ${pointTo.y} 
@@ -47,32 +52,62 @@ function drawArrowTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number
 }
 
 
+function drawDiamondTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number): string {
+    const PI2 = Math.PI * 2;
+    // Angle offset for the side points of the diamond
+    const SIDE_ANGLE_OFFSET = Math.PI * 0.75; // ~153 degrees
+    // Distance for the center point of the diamond
+    const CENTER_DISTANCE = Math.sqrt(size.x * size.x + size.y * size.y);
+
+    // Normalize angle to 0-2π range
+    const radians = (sourceAngle + PI2) % PI2;
+
+    // Calculate the center point of the diamond
+    const centerPoint = {
+        x: pointTo.x - CENTER_DISTANCE * Math.cos(radians),
+        y: pointTo.y - CENTER_DISTANCE * Math.sin(radians)
+    };
+
+    // Calculate the side points of the diamond
+    const leftPoint = {
+        x: pointTo.x + size.x * Math.cos(radians + SIDE_ANGLE_OFFSET),
+        y: pointTo.y + size.y * Math.sin(radians + SIDE_ANGLE_OFFSET)
+    };
+
+    const rightPoint = {
+        x: pointTo.x + size.x * Math.cos(radians - SIDE_ANGLE_OFFSET),
+        y: pointTo.y + size.y * Math.sin(radians - SIDE_ANGLE_OFFSET)
+    };
+
+    return `M ${pointTo.x} ${pointTo.y}
+            L ${leftPoint.x} ${leftPoint.y}
+            L ${centerPoint.x} ${centerPoint.y}
+            L ${rightPoint.x} ${rightPoint.y}
+            L ${pointTo.x} ${pointTo.y} Z`;
+}
+
 function drawTriangleTip(pointTo: Coordinate, size: Coordinate, sourceAngle: number): string {
     const PI2 = Math.PI * 2;
+    // Angle offset for tip sides (determines tip width)
+    const TIP_ANGLE_OFFSET = Math.PI * 0.85; // ~153 degrees
 
     // Normalize angle to 0-2π range
     const radians = (sourceAngle + PI2) % PI2;
 
     // Calculate the points that form the triangle
-    const backPoint = {
-        x: pointTo.x + size.x * 1.5 * Math.cos(radians),
-        y: pointTo.y + size.y * 1.5 * Math.sin(radians)
-    };
-
     const leftPoint = {
-        x: pointTo.x + size.x * Math.cos(radians + Math.PI * 0.85),
-        y: pointTo.y + size.y * Math.sin(radians + Math.PI * 0.85)
+        x: pointTo.x + size.x * Math.cos(radians + TIP_ANGLE_OFFSET),
+        y: pointTo.y + size.y * Math.sin(radians + TIP_ANGLE_OFFSET)
     };
 
     const rightPoint = {
-        x: pointTo.x + size.x * Math.cos(radians - Math.PI * 0.85),
-        y: pointTo.y + size.y * Math.sin(radians - Math.PI * 0.85)
+        x: pointTo.x + size.x * Math.cos(radians - TIP_ANGLE_OFFSET),
+        y: pointTo.y + size.y * Math.sin(radians - TIP_ANGLE_OFFSET)
     };
 
     return `M ${pointTo.x} ${pointTo.y}
-            L ${leftPoint.x} ${leftPoint.y + 10}
-            L ${backPoint.x} ${backPoint.y}
-            L ${rightPoint.x} ${rightPoint.y - 10}
+            L ${leftPoint.x} ${leftPoint.y}
+            L ${rightPoint.x} ${rightPoint.y}
             L ${pointTo.x} ${pointTo.y} Z`;
 }
 
