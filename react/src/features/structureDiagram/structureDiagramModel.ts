@@ -404,7 +404,7 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
 export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
                            targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, linkStyle: RouteStyle, tipStyle1: TipStyle, tipStyle2: TipStyle): LinkRender => {
     return {
-        svgPath: generatePath([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, linkStyle, tipStyle1, tipStyle2)
+        svgPath: generatePath(sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, linkStyle, tipStyle1, tipStyle2)
     }
 }
 
