@@ -45,8 +45,8 @@ import {
 import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {Command} from "../propertiesEditor/PropertiesEditor";
-import {PathGenerators} from "../../common/Geometry/PathGenerator";
 import {selectorFamily} from "recoil";
+import {generatePath} from "../../common/Geometry/PathGenerator";
 
 export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
@@ -230,12 +230,12 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
         const defaultWidth = 100;
         const defaultHeight = 80;
         const diagramId = get(activeDiagramIdAtom);
-        const customShape : CustomShape | undefined  = elementType.subType?
-        {
-            layout: PictureLayout.FullIconTextBelow,
-            pictureId: elementType.subType,
-        }
-        : undefined;
+        const customShape: CustomShape | undefined = elementType.subType ?
+            {
+                layout: PictureLayout.FullIconTextBelow,
+                pictureId: elementType.subType,
+            }
+            : undefined;
 
         const node: NodeState = {
             type: elementType.type,
@@ -268,7 +268,7 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
 function deleteSelectedElement(diagram: Draft<StructureDiagramState>, element: ElementRef,
                                getElement: (id: Id) => DiagramElement,
                                setElement: (id: Id, element: DiagramElement) => void) {
-    switch(element.type) {
+    switch (element.type) {
         case ElementType.Note:
             delete diagram.notes[element.id];
             setElement(element.id, emptyElementSentinel);
@@ -403,27 +403,9 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
 
 export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
                            targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, linkStyle: RouteStyle, tipStyle1: TipStyle, tipStyle2: TipStyle): LinkRender => {
-
-    switch (linkStyle) {
-        case RouteStyle.Direct:
-            return {
-                svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, tipStyle1, tipStyle2)
-            }
-        case RouteStyle.Bezier:
-            return {
-                svgPath: PathGenerators.Bezier([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement)
-            }
-        case RouteStyle.LateralHorizontal:
-            return {
-                svgPath: PathGenerators.LateralHorizontal([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement)          }
-        case RouteStyle.LateralVertical:
-            return {
-                svgPath: PathGenerators.LateralVertical([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement)
-            }
-    }
     return {
-        svgPath: PathGenerators.Direct([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, tipStyle1, tipStyle2)
-    };
+        svgPath: generatePath([], sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, linkStyle, tipStyle1, tipStyle2)
+    }
 }
 
 export function addNewPort(_get: Get, set: Set, node: NodeState) {
