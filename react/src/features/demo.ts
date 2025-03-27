@@ -27,11 +27,12 @@ import {
     ElementType,
     Id,
     LinkState,
-    TipStyle,
     NodeState,
     PictureLayout,
     PortAlignment,
     PortState,
+    RouteStyle,
+    TipStyle,
 } from "../package/packageModel";
 import {NoteState} from "./commonComponents/commonComponentsModel";
 import {DeploymentDiagramState} from "./deploymentDiagram/deploymentDaigramModel";
@@ -131,13 +132,6 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         edgePosRatio: 50,
     }
 
-    const portPlacements:  {[id: Id]: PortPlacement} = {
-        [port11.id]: port11Placement,
-        [port12.id]: port12Placement,
-        [port13.id]: port13Placement,
-        [port2.id]: port2Placement
-    }
-
     const node2: NodeState = {
         type: ElementType.ClassNode,
         id: nodeId2,
@@ -158,10 +152,61 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         }
     }
 
+    const node3Id = "node3";
+
+    const port31: PortState = {
+        type: ElementType.ClassPort,
+        id: "port31",
+        depthRatio: 50,
+        latitude: 8,
+        longitude: 8,
+        nodeId: node3Id,
+        links: []
+    }
+
+    const node3: NodeState = {
+        type: ElementType.ClassNode,
+        id: node3Id,
+        ports: [port31.id],
+        text: "Charlie",
+        colorSchema: defaultColorSchema
+    }
+
+    elements[node3.id] = node3;
+
+    const node3Placement: NodePlacement = {
+        bounds: {
+            y: 400,
+            x: 150,
+            width: 100,
+            height: 80
+        }
+    }
+
     const nodePlacements: { [id: Id]: NodePlacement } = {
         [node1.id]: node1Placement,
-        [node2.id]: node2Placement
+        [node2.id]: node2Placement,
+        [node3.id]: node3Placement
     }
+
+
+
+    elements[port31.id] = port31;
+
+    const port31Placement: PortPlacement = {
+        alignment: PortAlignment.Top,
+        edgePosRatio: 50,
+    }
+
+    const portPlacements:  {[id: Id]: PortPlacement} = {
+        [port11.id]: port11Placement,
+        [port12.id]: port12Placement,
+        [port13.id]: port13Placement,
+        [port2.id]: port2Placement,
+        [port31.id]: port31Placement
+    }
+
+
 
     const link1: LinkState = {
         id: "link1",
@@ -171,7 +216,7 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         tipStyle1: TipStyle.Arrow,
         tipStyle2: TipStyle.Arrow,
         colorSchema: defaultColorSchema,
-        linkStyle: defaultLinkStyle,
+        RouteStyle: defaultLinkStyle,
         cornerStyle: defaultCornerStyle
     };
 
@@ -179,10 +224,28 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
     port11.links.push(link1.id);
     port2.links.push(link1.id);
 
+    const link13: LinkState = {
+        id: "link13",
+        type: ElementType.ClassLink,
+        port1: port13.id,
+        port2: port31.id,
+        tipStyle1: TipStyle.Diamond,
+        tipStyle2: TipStyle.Diamond,
+        colorSchema: defaultColorSchema,
+        RouteStyle: RouteStyle.Bezier,
+        cornerStyle: defaultCornerStyle
+    };
+
+    elements[link13.id] = link13;
+    port31.links.push(link13.id);
+    port12.links.push(link13.id);
+
+
     const Link1Placement: LinkPlacement = {...defaultLinkPlacement};
 
     const linkPlacements: { [id: Id]: LinkPlacement } = {
-        [link1.id]: Link1Placement
+        [link1.id]: Link1Placement,
+        [link13.id]: Link1Placement
     }
 
 

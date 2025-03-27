@@ -130,8 +130,12 @@ export const portRenderSelector = selectorFamily<PortRender, { portId: Id, nodeI
         const nodePlacement = get(nodePlacementSelector({nodeId, diagramId}));
         const port = get(portSelector(portId));
         const portPlacement = get(portPlacementSelector({portId, diagramId}));
-        if (!nodePlacement || !port || !portPlacement) {
-            throw new Error(`Node placement, port, or port placement is undefined for node ${nodeId} and port ${portId}`);
+        if (!nodePlacement) {
+            throw new Error(`Node placement is undefined for node ${nodeId}`);
+        } else if (!port) {
+            throw new Error(`Port is undefined for port ${portId}`);
+        } else if (!portPlacement) {
+            throw new Error(`Port placement is undefined for port ${portId} on node ${nodeId}`);
         }
         return renderPort(nodePlacement.bounds, port, portPlacement);
     }
@@ -160,7 +164,7 @@ export const linkRenderSelector = selectorFamily<LinkRender, { linkId: LinkId, d
         const targetRender = get(portRenderSelector({portId: link.port2, nodeId: port2.nodeId, diagramId}));
         const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId}));
         const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId}));
-        return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement, link.linkStyle, link.tipStyle1, link.tipStyle2);
+        return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement, link.RouteStyle, link.tipStyle1, link.tipStyle2);
     }
 })
 

@@ -172,7 +172,7 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
         tipStyle1: TipStyle.None,
         tipStyle2: TipStyle.Arrow,
         colorSchema: defaultColorSchema,
-        linkStyle: defaultLinkStyle,
+        RouteStyle: defaultLinkStyle,
         cornerStyle: defaultCornerStyle
     }
     set(elementsAtom(linkId), link);
