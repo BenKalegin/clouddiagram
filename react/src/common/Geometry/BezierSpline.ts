@@ -115,15 +115,17 @@
 import {Coordinate} from "../model";
 
 export class BezierSpline {
-    /// <summary>
-    /// Get open-ended Bezier Spline Control Points.
-    /// </summary>
-    /// <param name="knots">Input Knot Bezier spline points.</param>
-    /// <param name="firstControlPoints">Output First Control points array of knots.Length - 1 length.</param>
-    /// <param name="secondControlPoints">Output Second Control points array of knots.Length - 1 length.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="knots"/> parameter must be not null.</exception>
-    /// <exception cref="ArgumentException"><paramref name="knots"/> array must containg at least two points.</exception>
-    public static GetCurveControlPoints = (knots: Coordinate[]) => {
+    /**
+     * Gets open-ended Bezier Spline Control Points.
+     * Calculates the control points needed to create a smooth Bezier spline through given knot points.
+     * These control points ensure continuous first and second derivatives at junction points,
+     * resulting in a visually smooth curve that passes through all knot points.
+     *
+     * @param {Coordinate[]} knots - Input Bezier spline knot points
+     * @returns Object containing arrays of firstControlPoints and secondControlPoints, each of length (knots.length - 1)
+     * @throws {Error} If knots parameter is null or contains fewer than 2 points
+     */
+    public static GetCurveControlPoints(knots: Coordinate[]) {
         if (knots == null)
             throw new Error("Missing knots arguments.");
         const n = knots.length - 1;
@@ -176,8 +178,8 @@ export class BezierSpline {
             else
                 secondControlPoints[i] = {x: (knots[n].x + x[n - 1]) / 2, y: (knots[n].y + y[n - 1]) / 2}
         }
-        return { firstControlPoints, secondControlPoints };
-    };
+        return {firstControlPoints, secondControlPoints};
+    }
 
     /// <summary>
     /// Solves a tridiagonal system for one of coordinates (x or y) of first Bezier control points.
