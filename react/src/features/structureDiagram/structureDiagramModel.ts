@@ -3,7 +3,7 @@ import {
     CustomShape,
     defaultColorSchema,
     defaultCornerStyle,
-    defaultLinkStyle,
+    defaultRouteStyle,
     defaultNoteHeight,
     defaultNoteStyle,
     defaultNoteWidth,
@@ -172,7 +172,7 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
         tipStyle1: TipStyle.None,
         tipStyle2: TipStyle.Arrow,
         colorSchema: defaultColorSchema,
-        RouteStyle: defaultLinkStyle,
+        RouteStyle: defaultRouteStyle,
         cornerStyle: defaultCornerStyle
     }
     set(elementsAtom(linkId), link);

@@ -170,7 +170,7 @@ export enum TipStyle {
     Square = "square",
 }
 
-export const defaultLinkStyle: RouteStyle = RouteStyle.Direct;
+export const defaultRouteStyle: RouteStyle = RouteStyle.Direct;
 
 export enum CornerStyle {
     Straight = "straight"

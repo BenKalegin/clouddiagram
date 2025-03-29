@@ -21,7 +21,7 @@ import {
     defaultColorSchema,
     defaultCornerStyle,
     defaultLineStyle,
-    defaultLinkStyle,
+    defaultRouteStyle,
     defaultNoteStyle,
     DiagramElement,
     ElementType,
@@ -216,7 +216,7 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         tipStyle1: TipStyle.Arrow,
         tipStyle2: TipStyle.Arrow,
         colorSchema: defaultColorSchema,
-        RouteStyle: defaultLinkStyle,
+        RouteStyle: defaultRouteStyle,
         cornerStyle: defaultCornerStyle
     };
 
