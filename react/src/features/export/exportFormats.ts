@@ -17,7 +17,7 @@ export enum ExportImportFormat {
 }
 
 
-interface exportRegistryEntry {
+interface ExportRegistryEntry {
     format: ExportImportFormat;
     name: string;
     supportedDiagram: ElementType[];
@@ -25,7 +25,7 @@ interface exportRegistryEntry {
     importFunction?: (diagram: Diagram, content: string) => void;
 }
 
-const formatRegistry: exportRegistryEntry[] = [
+export const formatRegistry: ExportRegistryEntry[] = [
     {
         format: ExportImportFormat.PlantUmlSequenceDiagram,
         name: "PlantUML",
@@ -58,6 +58,7 @@ const formatRegistry: exportRegistryEntry[] = [
         supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram]
     },
 ];
+
 export function exportFormats(diagramType: ElementType): [ExportImportFormat, string][] {
     return formatRegistry
         .filter(e => e.supportedDiagram.includes(diagramType) && e.exportFunction)
