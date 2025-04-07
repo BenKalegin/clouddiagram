@@ -19,7 +19,7 @@ import {Command} from "../propertiesEditor/PropertiesEditor";
 import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 import KonvaEventObject = Konva.KonvaEventObject;
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
-import {ExportImportFormat, formatRegistry, importDiagramAs} from "../export/exportFormats";
+import {ExportImportFormat, importDiagramAs} from "../export/exportFormats";
 import {DeploymentDiagramState} from "../deploymentDiagram/deploymentDaigramModel";
 import {deploymentDiagramEditor} from "../deploymentDiagram/deploymentDiagramSlice";
 import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
@@ -347,81 +347,13 @@ export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format:
 
         case ImportPhase.importing:
             if (format && code) {
-                try {
-                    // Create a new diagram
-                    const newDiagramId = generateId();
-                    const openDiagramIds = get(openDiagramIdsAtom);
-                    
-                    // Get the diagram kind from the format
-                    const formatEntry = formatRegistry.find((e: {format: ExportImportFormat}) => e.format === format);
-                    if (!formatEntry) {
-                        throw new Error(`Unsupported import format: ${format}`);
-                    }
-                    
-                    // Create placeholder diagram of the right type
-                    let diagram: Diagram;
-                    const diagramType = formatEntry.supportedDiagram[0];  // Use the first supported type
-                    
-                    switch (diagramType) {
-                        case ElementType.ClassDiagram:
-                            diagram = {
-                                id: newDiagramId,
-                                type: ElementType.ClassDiagram,
-                                title: "Imported Class Diagram",
-                                nodes: {},
-                                ports: {},
-                                links: {},
-                                notes: {}
-                            } as StructureDiagramState;
-                            break;
-                            
-                        case ElementType.DeploymentDiagram:
-                            diagram = {
-                                id: newDiagramId,
-                                type: ElementType.DeploymentDiagram,
-                                title: "Imported Deployment Diagram",
-                                nodes: {},
-                                ports: {},
-                                links: {},
-                                notes: {}
-                            } as DeploymentDiagramState;
-                            break;
-                            
-                        case ElementType.SequenceDiagram:
-                            diagram = {
-                                id: newDiagramId,
-                                type: ElementType.SequenceDiagram,
-                                title: "Imported Sequence Diagram",
-                                lifelines: {},
-                                messages: {},
-                                activations: {},
-                                notes: {}
-                            } as SequenceDiagramState;
-                            break;
-                            
-                        default:
-                            throw new Error(`Unsupported diagram type: ${diagramType}`);
-                    }
-                    
-                    // Import the diagram content using the appropriate import function
-                    importDiagramAs(diagram, format, code);
-                    
-                    // Add the diagram to the state
-                    set(elementsAtom(newDiagramId), diagram);
-                    set(openDiagramIdsAtom, [...openDiagramIds, newDiagramId]);
-                    set(activeDiagramIdAtom, newDiagramId);
-                    
-                    // Close the import dialog
-                    set(importingAtom, undefined);
-                    
-                } catch (error) {
-                    console.error("Import failed:", error);
-                    // You might want to show an error message to the user here
-                    set(importingAtom, undefined);
-                }
-            } else {
-                set(importingAtom, undefined);
+                const diagramId = get(activeDiagramIdAtom);
+                const originalDiagram = get(elementsAtom(diagramId)) as Diagram;
+                const imported = importDiagramAs(originalDiagram, format, code);
+                set(elementsAtom(diagramId), imported);
             }
+
+            set(importingAtom, undefined);
             break;
 
         case ImportPhase.cancel:

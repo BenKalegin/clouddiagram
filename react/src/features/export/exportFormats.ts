@@ -22,7 +22,7 @@ interface ExportRegistryEntry {
     name: string;
     supportedDiagram: ElementType[];
     exportFunction?: (diagram: Diagram, stage: Stage) => Promise<string>;
-    importFunction?: (diagram: Diagram, content: string) => void;
+    importFunction?: (diagram: Diagram, content: string) => Diagram;
 }
 
 export const formatRegistry: ExportRegistryEntry[] = [
@@ -78,7 +78,7 @@ export async function exportDiagramAs(diagram: Diagram, kind: ExportImportFormat
     return await entry.exportFunction!(diagram, stage);
 }
 
-export function importDiagramAs(diagram: Diagram, kind: ExportImportFormat, content: string): void {
+export function importDiagramAs(diagram: Diagram, kind: ExportImportFormat, content: string): Diagram {
     const entry = formatRegistry.find(e => e.format === kind);
     if (!entry)
         throw new Error("Unknown export kind " + kind);

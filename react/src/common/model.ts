@@ -34,14 +34,6 @@ export const withinYBounds = (bounds: Bounds, y: number, tolerance: number): boo
 export const withinXBounds = (bounds: Bounds, x: number, tolerance: number): boolean =>
     bounds.x - tolerance <= x &&
     bounds.x + bounds.width + tolerance >= x
-export function shift(bounds: Bounds, dx: number, dy: number): Bounds {
-    return {
-        x: bounds.x + dx,
-        y: bounds.y + dy,
-        width: bounds.width,
-        height: bounds.height
-    };
-}
 
 export const minus = (coordinate: Coordinate, delta: Coordinate): Coordinate => ({
     x: coordinate.x - delta.x,
