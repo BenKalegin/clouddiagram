@@ -6,8 +6,6 @@ import '@fontsource/roboto/400.css';
 import {RecoilRoot} from "recoil";
 import {DevSupport} from "@react-buddy/ide-toolbox";
 import {ComponentPreviews, useInitial} from "./dev";
-import { ThemeProviderWrapper } from './app/ThemeContext';
-
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
@@ -16,13 +14,11 @@ root.render(
     <React.StrictMode>
         <RecoilRoot>
             {/*<RecoilDevTools forceSerialize={false} />*/}
-            <ThemeProviderWrapper>
-                <DevSupport ComponentPreviews={ComponentPreviews}
-                            useInitialHook={useInitial}
-                >
-                    <App/>
-                </DevSupport>
-            </ThemeProviderWrapper>
+            <DevSupport ComponentPreviews={ComponentPreviews}
+                        useInitialHook={useInitial}
+            >
+                <App/>
+            </DevSupport>
         </RecoilRoot>
     </React.StrictMode>
 );

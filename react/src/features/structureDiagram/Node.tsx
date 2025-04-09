@@ -63,6 +63,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
         [PictureLayout.NoIconRect]: NodeContentNoIconRect,
         [PictureLayout.FullIconTextBelow]: NodeContentFullIconTextBelow,
     };
+
     const Component = contentComponents[layout as keyof typeof contentComponents];
 
     const shadowEnabled = nodeId === linkingTarget?.id || nodeId === linkingSource;

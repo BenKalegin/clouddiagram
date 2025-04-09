@@ -2,14 +2,24 @@ import React from 'react';
 import './App.css';
 import {Toolbox} from "../features/toolbox/Toolbox";
 import {DiagramTabs} from "../features/diagramTabs/DiagramTabs";
-import {AppBar, Box, CssBaseline, Divider, IconButton, Stack, styled, Toolbar, Typography, useTheme} from "@mui/material";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import {
+    AppBar,
+    Box,
+    createTheme,
+    CssBaseline,
+    Divider,
+    IconButton,
+    Stack,
+    styled,
+    ThemeProvider,
+    Toolbar,
+    Typography,
+} from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import {RightDrawer} from "./RightDrawer";
-import {AppLayout, AppLayoutContext, defaultAppLayout} from "./AppModel";
-import { useTheme as useCustomTheme } from './ThemeContext';
+import {AppLayoutContext, defaultAppLayout} from "./AppModel";
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open"})<
     {
@@ -34,17 +44,46 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open"})<
 }));
 
 export const App = () => {
-    const theme = useTheme();
-    const { toggleTheme, isDarkMode } = useCustomTheme();
     const [appLayout, setAppLayout] = React.useState(defaultAppLayout);
 
     const handleDrawerOpen = () => {
-        const newLayout: AppLayout = {...appLayout, propsPaneOpen: true};
-        setAppLayout(newLayout);
+        setAppLayout({...appLayout, propsPaneOpen: true});
     };
+
+    const handleToggleTheme = ()=> {
+        setAppLayout({...appLayout, darkMode: !appLayout.darkMode});
+    }
+// Create theme based on darkMode flag
+const darkTheme = createTheme({
+    palette: {
+        mode: 'dark',
+        primary: {
+            main: '#90caf9',
+        },
+        secondary: {
+            main: '#f48fb1',
+        },
+    },
+});
+
+const lightTheme = createTheme({
+    palette: {
+        mode: 'light',
+        primary: {
+            main: '#1976d2',
+        },
+        secondary: {
+            main: '#e91e63',
+        },
+    },
+});
+
+// Select theme based on darkMode flag
+const theme = appLayout.darkMode ? darkTheme : lightTheme;
 
     return (
         <AppLayoutContext.Provider value={{appLayout, setAppLayout}}>
+        <ThemeProvider theme={theme}>
             <Box sx={{display: "flex"}}>
                 <CssBaseline/>
                 <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
@@ -53,8 +92,8 @@ export const App = () => {
                             Cloud Diagram
                         </Typography>
                         <Stack direction="row" spacing={1}>
-                            <IconButton onClick={toggleTheme} color="inherit">
-                                {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+                            <IconButton onClick={handleToggleTheme} color="inherit">
+                                {appLayout.darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
                             </IconButton>
                             <IconButton
                                 color="inherit"
@@ -62,11 +101,7 @@ export const App = () => {
                                 edge="end"
                                 sx={{ borderRadius: "50%" }}
                             >
-                                {theme.direction === "rtl" ? (
-                                    <ChevronLeftIcon/>
-                                ) : (
-                                    <ChevronRightIcon/>
-                                )}
+                                <ChevronRightIcon/>
                             </IconButton>
                         </Stack>
                     </Toolbar>
@@ -82,6 +117,7 @@ export const App = () => {
                 </Main>
                 <RightDrawer/>
             </Box>
+        </ThemeProvider>
         </AppLayoutContext.Provider>
     );
 };

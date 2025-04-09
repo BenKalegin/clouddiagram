@@ -1,6 +1,8 @@
-import React, {FC} from "react";
+import React, {FC, useContext} from "react";
 import {Rect, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
+import {AppLayoutContext} from "../../app/AppModel";
+import {convertColorForDarkTheme} from "../../common/colors/darktheme";
 
 export const NodeContentNoIconRect: FC<NodeContentProps> = ({
       node,
@@ -9,12 +11,14 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
       shadowEnabled
   }) => {
 
+    const { appLayout } = useContext(AppLayoutContext);
+
     return (
         <>
             <Rect
                 {...eventHandlers}
-                fill={node.colorSchema.fillColor}
-                stroke={node.colorSchema.strokeColor}
+                fill={appLayout.darkMode ? convertColorForDarkTheme(node.colorSchema.fillColor) :  node.colorSchema.fillColor}
+                stroke={appLayout.darkMode ?  convertColorForDarkTheme( node.colorSchema.strokeColor) : node.colorSchema.strokeColor}
                 {...placement.bounds}
                 cornerRadius={4}
                 cursor={"crosshair"}

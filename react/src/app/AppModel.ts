@@ -2,17 +2,19 @@ import React, {createContext} from "react";
 
 
 export interface AppLayout {
-    propsPaneOpen: boolean;
-    propsDrawerWidth: number;
+    propsPaneOpen: boolean
+    propsDrawerWidth: number
+    darkMode: boolean
 }
 
 interface AppLayoutContextType {
     appLayout: AppLayout;
     setAppLayout: React.Dispatch<React.SetStateAction<AppLayout>>;
 }
-export const defaultAppLayout = {
+export const defaultAppLayout : AppLayout = {
     propsPaneOpen: false,
-    propsDrawerWidth: 240
+    propsDrawerWidth: 240,
+    darkMode: false
 };
 
 // browser: browserSlice.reducer,
