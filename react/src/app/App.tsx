@@ -5,7 +5,6 @@ import {DiagramTabs} from "../features/diagramTabs/DiagramTabs";
 import {
     AppBar,
     Box,
-    createTheme,
     CssBaseline,
     Divider,
     IconButton,
@@ -20,6 +19,7 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import {RightDrawer} from "./RightDrawer";
 import {AppLayoutContext, defaultAppLayout} from "./AppModel";
+import {getTheme} from "../common/colors/colorSchemas";
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open"})<
     {
@@ -53,33 +53,9 @@ export const App = () => {
     const handleToggleTheme = ()=> {
         setAppLayout({...appLayout, darkMode: !appLayout.darkMode});
     }
-// Create theme based on darkMode flag
-const darkTheme = createTheme({
-    palette: {
-        mode: 'dark',
-        primary: {
-            main: '#90caf9',
-        },
-        secondary: {
-            main: '#f48fb1',
-        },
-    },
-});
 
-const lightTheme = createTheme({
-    palette: {
-        mode: 'light',
-        primary: {
-            main: '#1976d2',
-        },
-        secondary: {
-            main: '#e91e63',
-        },
-    },
-});
 
-// Select theme based on darkMode flag
-const theme = appLayout.darkMode ? darkTheme : lightTheme;
+const theme = getTheme(appLayout.darkMode);
 
     return (
         <AppLayoutContext.Provider value={{appLayout, setAppLayout}}>

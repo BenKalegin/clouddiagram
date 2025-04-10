@@ -1,3 +1,5 @@
+import {ColorSchema} from "../../package/packageModel";
+
 /**
  * A utility to store RGB components (0-255).
  */
@@ -149,8 +151,9 @@ export function convertColorForDarkTheme(
     // 2) Convert to HSL
     let hsl = rgbToHsl(rgb);
 
-    // 3) Adjust lightness
-    //    If the color is too bright, darken it; if it's too dark, lighten it slightly.
+    hsl.l = 1 - hsl.l; // Invert lightness for dark mode
+
+    // If the color is too bright, darken it; if it's too dark, lighten it slightly.
     if (hsl.l > 0.7) {
         // It's bright, so reduce the lightness
         hsl.l = Math.max(0, hsl.l - darkenLight);
@@ -165,3 +168,25 @@ export function convertColorForDarkTheme(
     // 5) Return as hex (could also return `rgb(...)` string if you prefer)
     return rgbToHex(adjustedRgb);
 }
+
+function invertHexColor(hex: string): string {
+    hex = hex.replace('#', '');
+    if (hex.length === 3) {
+        hex = hex.split('').map(char => char + char).join('');
+    }
+    let invertedColor = (Number(`0x1${hex}`) ^ 0xFFFFFF).toString(16).slice(1).toUpperCase();
+    return `#${invertedColor}`;
+}
+
+export const adjustColorSchemaForTheme = (colorSchema: ColorSchema, darkMode: boolean): ColorSchema => {
+    if (darkMode) {
+        return {
+            ...colorSchema,
+            strokeColor: convertColorForDarkTheme(colorSchema.strokeColor),
+            fillColor: convertColorForDarkTheme(colorSchema.fillColor),
+            textColor: darkMode ? "#FFFFFF" : colorSchema.textColor
+        }
+    }
+    return colorSchema;
+}
+

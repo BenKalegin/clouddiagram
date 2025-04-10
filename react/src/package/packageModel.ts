@@ -1,5 +1,6 @@
 import {PredefinedSvg} from "../features/graphics/graphicsReader";
 import {NodeId} from "../features/structureDiagram/structureDiagramState";
+import {colorSchemaList, defaultColorSchema} from "../common/colors/colorSchemas";
 
 export type Id = string;
 export enum ElementType {
@@ -26,6 +27,7 @@ export interface ElementRef {
 export interface ColorSchema {
     strokeColor: string;
     fillColor: string;
+    textColor?: string;
 }
 
 // for sequence diagram messages
@@ -178,38 +180,6 @@ export enum CornerStyle {
 
 export const defaultCornerStyle: CornerStyle = CornerStyle.Straight;
 
-const khakiStrokeColor = "burlywood";
-const khakiFillColor = "cornsilk";
-
-const pinkStrokeColor = "lightcoral";
-const pinkFillColor = "mistyrose";
-
-const leafStrokeColor = "#9EBD5D";
-const leafFillColor = "#F4F7EC";
-
-const steelStrokeColor = "#AEBFD1"; // darker "lightsteelblue",
-const steelFillColor = "#F0F5FF"; // "lightsteelblue" + 20% lighter
-
-export const defaultColorSchema: ColorSchema = {
-    strokeColor: khakiStrokeColor, // "peru"
-    fillColor: khakiFillColor
-}
-
-const pinkColorSchema: ColorSchema = {
-    strokeColor: pinkStrokeColor,
-    fillColor: pinkFillColor
-}
-
-const leafColorSchema: ColorSchema = {
-    strokeColor: leafStrokeColor,
-    fillColor: leafFillColor
-}
-
-const steelColorSchema: ColorSchema = {
-    strokeColor: steelStrokeColor,
-    fillColor: steelFillColor
-}
-
 export const defaultNoteStyle: ColorSchema = {
     strokeColor: "black",
     fillColor: "white"
@@ -220,43 +190,13 @@ export const defaultNoteHeight = 70;
 
 
 
-export const colorSchemaList: ColorSchema[] = [
-    defaultColorSchema,
-    pinkColorSchema,
-    leafColorSchema,
-    steelColorSchema
-]
+export const lineStyleList: LineStyle[] =
+    colorSchemaList.map((s) => ({ fillColor: s.fillColor, strokeColor: s.strokeColor, width: 2 } as LineStyle))
 
-export const defaultLineStyle: LineStyle = {
-    width: 2,
-    strokeColor: khakiStrokeColor,
-    fillColor: khakiStrokeColor
-}
 
-const pinkLineStyle: LineStyle = {
-    width: 2,
-    strokeColor: pinkStrokeColor,
-    fillColor: pinkStrokeColor
-}
+export const defaultLineStyle: LineStyle = lineStyleList[0]
 
-const leafLineStyle: LineStyle = {
-    width: 2,
-    strokeColor: leafStrokeColor,
-    fillColor: leafStrokeColor
-}
 
-const steelLineStyle: LineStyle = {
-    width: 2,
-    strokeColor: steelStrokeColor,
-    fillColor: steelStrokeColor
-}
-
-export const lineStyleList: LineStyle[] = [
-    defaultLineStyle,
-    pinkLineStyle,
-    leafLineStyle,
-    steelLineStyle
-]
 
 export interface LinkState extends DiagramElement, HasColorSchema {
     port1: Id;

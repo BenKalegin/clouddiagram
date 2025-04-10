@@ -1,7 +1,6 @@
 import {Bounds, Coordinate, Diagram, withinBounds, withinXBounds, withinYBounds, zeroBounds} from "../../common/model";
 import {
     CustomShape,
-    defaultColorSchema,
     defaultLineStyle,
     defaultNoteHeight,
     defaultNoteStyle,
@@ -29,6 +28,7 @@ import produce, {Draft} from 'immer';
 import {Command} from "../propertiesEditor/PropertiesEditor";
 import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
+import {defaultColorSchema} from "../../common/colors/colorSchemas";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;

@@ -1,6 +1,5 @@
 import {
-    ColorSchema,
-    colorSchemaList
+    ColorSchema
 } from "../../package/packageModel";
 import React, {useState} from "react";
 import {
@@ -12,6 +11,7 @@ import {
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
 import {PropAndKind} from "./PropertiesEditor";
+import {colorSchemaList} from "../../common/colors/colorSchemas";
 
 const ColorSchemaIcon: React.FC<ColorSchema> = (props:ColorSchema) => {
     return (

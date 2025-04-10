@@ -7,7 +7,8 @@ import {
     SequenceDiagramState
 } from "../sequenceDiagram/sequenceDiagramModel";
 import {Diagram} from "../../common/model";
-import {defaultColorSchema, ElementType} from "../../package/packageModel";
+import {ElementType} from "../../package/packageModel";
+import {defaultColorSchema} from "../../common/colors/colorSchemas";
 
 function arrow(message: MessageState) {
     if (message.isReturn)

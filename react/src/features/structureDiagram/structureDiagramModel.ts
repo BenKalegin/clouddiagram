@@ -1,7 +1,6 @@
 import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {
     CustomShape,
-    defaultColorSchema,
     defaultCornerStyle,
     defaultRouteStyle,
     defaultNoteHeight,
@@ -47,6 +46,7 @@ import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {Command} from "../propertiesEditor/PropertiesEditor";
 import {selectorFamily} from "recoil";
 import {generatePath} from "../../common/Geometry/PathGenerator";
+import {defaultColorSchema} from "../../common/colors/colorSchemas";
 
 export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);

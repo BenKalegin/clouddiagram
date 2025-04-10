@@ -2,7 +2,9 @@ import React, {FC, useContext} from "react";
 import {Rect, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
 import {AppLayoutContext} from "../../app/AppModel";
-import {convertColorForDarkTheme} from "../../common/colors/darktheme";
+import {
+    adjustColorSchemaForTheme,
+} from "../../common/colors/colorTransform";
 
 export const NodeContentNoIconRect: FC<NodeContentProps> = ({
       node,
@@ -12,13 +14,14 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
   }) => {
 
     const { appLayout } = useContext(AppLayoutContext);
+    const colorSchema = adjustColorSchemaForTheme(node.colorSchema, appLayout.darkMode);
 
     return (
         <>
             <Rect
                 {...eventHandlers}
-                fill={appLayout.darkMode ? convertColorForDarkTheme(node.colorSchema.fillColor) :  node.colorSchema.fillColor}
-                stroke={appLayout.darkMode ?  convertColorForDarkTheme( node.colorSchema.strokeColor) : node.colorSchema.strokeColor}
+                fill={colorSchema.fillColor}
+                stroke={colorSchema.strokeColor}
                 {...placement.bounds}
                 cornerRadius={4}
                 cursor={"crosshair"}
@@ -32,6 +35,7 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
 
             <Text
                 {...placement.bounds}
+                fill={colorSchema.textColor}
                 fontSize={14}
                 align={"center"}
                 verticalAlign={"middle"}

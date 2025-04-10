@@ -18,7 +18,6 @@ import {
 } from "./sequenceDiagram/sequenceDiagramModel";
 import {
     CustomShape,
-    defaultColorSchema,
     defaultCornerStyle,
     defaultLineStyle,
     defaultRouteStyle,
@@ -37,6 +36,7 @@ import {
 import {NoteState} from "./commonComponents/commonComponentsModel";
 import {DeploymentDiagramState} from "./deploymentDiagram/deploymentDaigramModel";
 import {PredefinedSvg} from "./graphics/graphicsReader";
+import {defaultColorSchema} from "../common/colors/colorSchemas";
 
 
 export const elements: {[id: Id]: DiagramElement } = {
