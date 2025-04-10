@@ -151,9 +151,15 @@ export function convertColorForDarkTheme(
     // 2) Convert to HSL
     let hsl = rgbToHsl(rgb);
 
-    hsl.l = 1 - hsl.l; // Invert lightness for dark mode
+    // hsl.l = 1 - hsl.l; // Invert lightness for dark mode
+    const pivot = 0.5; // central reference
+    const compression = 0.85;
+    hsl.l = hsl.l >= pivot
+        ? pivot - compression * (hsl.l - pivot)
+        : pivot + compression * (pivot - hsl.l);
 
     // If the color is too bright, darken it; if it's too dark, lighten it slightly.
+/*
     if (hsl.l > 0.7) {
         // It's bright, so reduce the lightness
         hsl.l = Math.max(0, hsl.l - darkenLight);
@@ -161,6 +167,7 @@ export function convertColorForDarkTheme(
         // It's quite dark, lighten it a bit
         hsl.l = Math.min(1, hsl.l + lightenDark);
     }
+*/
 
     // 4) Convert back to RGB
     const adjustedRgb = hslToRgb(hsl);
@@ -184,7 +191,7 @@ export const adjustColorSchemaForTheme = (colorSchema: ColorSchema, darkMode: bo
             ...colorSchema,
             strokeColor: convertColorForDarkTheme(colorSchema.strokeColor),
             fillColor: convertColorForDarkTheme(colorSchema.fillColor),
-            textColor: darkMode ? "#FFFFFF" : colorSchema.textColor
+            textColor: darkMode ? "#a9b7c6" : colorSchema.textColor
         }
     }
     return colorSchema;

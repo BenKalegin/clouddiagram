@@ -1,11 +1,13 @@
 import {Circle} from "react-konva";
-import React from "react";
+import React, {useContext} from "react";
 import {useRecoilValue} from "recoil";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {ColorSchema} from "../../package/packageModel";
 import {portRenderSelector} from "./structureDiagramHandler";
 import {NodeId, PortId} from "./structureDiagramState";
 import {portSelector} from "./structureDiagramModel";
+import {AppLayoutContext} from "../../app/AppModel";
+import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 export interface PortProps {
     portId: PortId
@@ -19,6 +21,9 @@ export const Port = ({diagramId, nodeId, portId, colorSchema}: PortProps) => {
     const linking = useRecoilValue(linkingAtom)
     const linkingTarget = linking?.targetElement;
     const linkingSource = linking?.sourceElement;
+
+    const { appLayout } = useContext(AppLayoutContext);
+    colorSchema = adjustColorSchemaForTheme(colorSchema, appLayout.darkMode);
 
     return (
         <Circle
