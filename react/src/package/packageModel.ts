@@ -205,6 +205,6 @@ export interface LinkState extends DiagramElement, HasColorSchema {
     tipStyle1: TipStyle;
     tipStyle2: TipStyle;
 
-    RouteStyle: RouteStyle;
+    routeStyle: RouteStyle;
     cornerStyle: CornerStyle;
 }

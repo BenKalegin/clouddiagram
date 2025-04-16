@@ -216,7 +216,7 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         tipStyle1: TipStyle.Arrow,
         tipStyle2: TipStyle.Arrow,
         colorSchema: defaultColorSchema,
-        RouteStyle: defaultRouteStyle,
+        routeStyle: defaultRouteStyle,
         cornerStyle: defaultCornerStyle
     };
 
@@ -232,7 +232,7 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         tipStyle1: TipStyle.Diamond,
         tipStyle2: TipStyle.Diamond,
         colorSchema: defaultColorSchema,
-        RouteStyle: RouteStyle.Bezier,
+        routeStyle: RouteStyle.Bezier,
         cornerStyle: defaultCornerStyle
     };
 

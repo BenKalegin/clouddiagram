@@ -27,7 +27,7 @@ export enum PropertyType {
     ColorSchema,
     ShapeLayout,
     LineStyle,
-    LinkStyle,
+    RouteStyle,
     TipStyle,
 }
 
@@ -62,7 +62,7 @@ const textProp : PropertyDefinition = {name: "text", label: "Text", type: Proper
 const colorSchemaProp : PropertyDefinition = {name: "colorSchema" as keyof HasColorSchema, label: "Colors", type: PropertyType.ColorSchema, supportMultiEdit: true}
 const shapeLayoutProp : PropertyDefinition = {name: "customShape", label: "Shape Layout", type: PropertyType.ShapeLayout, supportMultiEdit: true}
 const lineStyleProp: PropertyDefinition = {name: "lineStyle", label: "Line Style", type: PropertyType.LineStyle, supportMultiEdit: true}
-const linkStyleProp: PropertyDefinition = {name: "linkStyle", label: "Route", type: PropertyType.LinkStyle, supportMultiEdit: true}
+const linkStyleProp: PropertyDefinition = {name: "routeStyle", label: "Route", type: PropertyType.RouteStyle, supportMultiEdit: true}
 const tipStyleProp1: PropertyDefinition = {name: "tipStyle1", label: "Start tip", type: PropertyType.TipStyle, supportMultiEdit: true}
 const tipStyleProp2: PropertyDefinition = {name: "tipStyle2", label: "End tip", type: PropertyType.TipStyle, supportMultiEdit: true}
 
@@ -182,7 +182,7 @@ export const PropertiesEditor = () => {
                 {p.prop.type === PropertyType.ColorSchema && <ColorSchemaPropertyEditor propAndKind={p} value = {value as ColorSchema} updateProps={updateProps}/>}
                 {p.prop.type === PropertyType.ShapeLayout && <NodeLayoutPropertyEditor propAndKind={p} value = {value as CustomShape} updateProps={updateProps}/>}
                 {p.prop.type === PropertyType.LineStyle && <LineStylePropertyEditor propAndKind={p} value = {value as LineStyle} updateProps={updateProps}/>}
-                {p.prop.type === PropertyType.LinkStyle && <LinkStylePropertyEditor propAndKind={p} value = {value as RouteStyle} updateProps={updateProps}/>}
+                {p.prop.type === PropertyType.RouteStyle && <LinkStylePropertyEditor propAndKind={p} value = {value as RouteStyle} updateProps={updateProps}/>}
                 {p.prop.type === PropertyType.TipStyle && <TipStylePropertyEditor propAndKind={p} value = {value as TipStyle} updateProps={updateProps}/>}
             </Box>
 

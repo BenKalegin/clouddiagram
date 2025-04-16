@@ -164,7 +164,7 @@ export const linkRenderSelector = selectorFamily<LinkRender, { linkId: LinkId, d
         const targetRender = get(portRenderSelector({portId: link.port2, nodeId: port2.nodeId, diagramId}));
         const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId}));
         const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId}));
-        return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement, link.RouteStyle, link.tipStyle1, link.tipStyle2);
+        return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement, link.routeStyle, link.tipStyle1, link.tipStyle2);
     }
 })
 
