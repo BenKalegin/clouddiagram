@@ -53,12 +53,26 @@ const steelColorSchema: ColorSchema = {
     textColor: "#000000"
 }
 
+const darkForest1Colors: ColorSchema = {
+    strokeColor: "#A57777",
+    fillColor: "#EAD3D3",
+    textColor: "#000000"
+}
+
+const darkForest2Colors: ColorSchema = {
+    strokeColor: "#82a3b7", // 10% brighter version of #6B8EA4
+    fillColor: "#bcd9ef",   // 10% brighter version of #A4C8E1
+    textColor: "#000000"
+}
+
 
 export const colorSchemaList: ColorSchema[] = [
     defaultColorSchema,
     pinkColorSchema,
     leafColorSchema,
-    steelColorSchema
+    steelColorSchema,
+    darkForest1Colors,
+    darkForest2Colors
 ]
 
 
