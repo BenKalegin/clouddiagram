@@ -9,7 +9,6 @@ import {
 export const NodeContentNoIconRect: FC<NodeContentProps> = ({
       node,
       placement,
-      eventHandlers,
       shadowEnabled
   }) => {
 
@@ -19,18 +18,16 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
     return (
         <>
             <Rect
-                {...eventHandlers}
                 fill={colorSchema.fillColor}
                 stroke={colorSchema.strokeColor}
                 {...placement.bounds}
                 cornerRadius={4}
-                cursor={"crosshair"}
-                draggable={true}
                 shadowEnabled={shadowEnabled}
                 shadowColor={'black'}
                 shadowBlur={3}
                 shadowOffset={{x: 2, y: 2}}
                 shadowOpacity={0.4}
+                listening={false}  // No longer needs to listen for events
             />
 
             <Text

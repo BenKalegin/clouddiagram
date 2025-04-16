@@ -13,6 +13,8 @@ import {NodeContentFullIconTextBelow} from "./NodeContentFullIconTextBelow";
 import {NodeContentNoIconRect} from "./NodeContentNoIconRect";
 import {NodeId, NodePlacement} from "./structureDiagramState";
 import {structureDiagramSelector} from "./structureDiagramModel";
+import {Background} from "../scaffold/Background";
+import {inflate} from "../../common/model";
 
 export interface NodeProps {
     nodeId: NodeId
@@ -67,8 +69,17 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const Component = contentComponents[layout as keyof typeof contentComponents];
 
     const shadowEnabled = nodeId === linkingTarget?.id || nodeId === linkingSource;
+    const inflatedBounds = inflate(placement.bounds, 12, 12);
+
     return (
         <React.Fragment>
+            {/* Always render the Background for dragging */}
+            <Background
+                origin={element}
+                backgroundBounds={inflatedBounds}
+                nodeBounds={placement.bounds}
+            />
+
             {Component && (
                 <Component
                     node={node}
@@ -81,11 +92,12 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
 
             {isSelected && (
                 <Scaffold
-                    element={{id: nodeId, type: ElementType.ClassNode}}
+                    element={element}
                     bounds={placement.bounds}
                     isFocused={isFocused}
                     isLinking={linking?.drawing === true}
                     linkingDrawing={<DrawingLink/>}
+                    excludeBackground={true} // Skip background in Scaffold since we're already rendering it
                 />
             )}
 
@@ -101,3 +113,4 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
         </React.Fragment>
     );
 }
+

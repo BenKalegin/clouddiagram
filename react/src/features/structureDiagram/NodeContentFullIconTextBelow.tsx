@@ -5,7 +5,6 @@ import {NodeContentProps} from "./NodeContentProps";
 export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
       node,
       placement,
-      eventHandlers,
       image
   }) => {
 
@@ -16,12 +15,12 @@ export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
         <>
             {node.customShape?.pictureId && (
                 <Image
-                    {...eventHandlers}
                     image={image}
                     x={placement.bounds.x + iconPadding}
                     y={placement.bounds.y}
                     width={iconWidth }
                     height={iconHeight}
+                    listening={false}  // No longer needs to listen for events
                 />
             )}
 

@@ -14,7 +14,8 @@ export interface ScaffoldProps {
     element: ElementRef;
     excludeDiagonalResize?: boolean;
     excludeVerticalResize?: boolean;
-    linkingDrawing: JSX.Element | undefined
+    linkingDrawing: JSX.Element | undefined;
+    excludeBackground?: boolean;
 }
 
 export const Scaffold = (props: ScaffoldProps) => {
@@ -70,11 +71,13 @@ export const Scaffold = (props: ScaffoldProps) => {
 
     return (
         <>
-            <Background
-                origin={props.element}
-                backgroundBounds={bounds}
-                nodeBounds={props.bounds}
-            />
+            {!props.excludeBackground && (
+                <Background
+                    origin={props.element}
+                    backgroundBounds={bounds}
+                    nodeBounds={props.bounds}
+                />
+            )}
             <ResizeHandles
                 perimeterBounds={bounds}
                 nodeBounds={props.bounds}

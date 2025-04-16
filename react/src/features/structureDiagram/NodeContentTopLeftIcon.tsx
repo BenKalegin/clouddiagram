@@ -5,7 +5,6 @@ import {NodeContentProps} from "./NodeContentProps";
 export const NodeContentTopLeftIcon: FC<NodeContentProps> = ({
       node,
       placement,
-      eventHandlers,
       shadowEnabled,
       image
   }) => {
@@ -13,28 +12,26 @@ export const NodeContentTopLeftIcon: FC<NodeContentProps> = ({
     return (
         <>
             <Rect
-                {...eventHandlers}
                 fill={node.colorSchema.fillColor}
                 stroke={node.colorSchema.strokeColor}
                 {...placement.bounds}
                 cornerRadius={4}
-                cursor={"crosshair"}
-                draggable={true}
                 shadowEnabled={shadowEnabled}
                 shadowColor={'black'}
                 shadowBlur={3}
                 shadowOffset={{x: 2, y: 2}}
                 shadowOpacity={0.4}
+                listening={false}  // No longer needs to listen for events
             />
 
             {node.customShape?.pictureId && (
                 <Image
-                    {...eventHandlers}
                     image={image}
                     x={placement.bounds.x + 4}
                     y={placement.bounds.y  + 4}
                     width={placement.bounds.height / 3}
                     height={placement.bounds.height / 3}
+                    listening={false}  // No longer needs to listen for events
                 />
             )}
 
