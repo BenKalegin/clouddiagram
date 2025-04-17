@@ -1,12 +1,20 @@
-import React, {FC, useContext} from "react";
+import React, {FC, useContext, useMemo} from "react";
 import {Image, Rect, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
 import {AppLayoutContext} from "../../app/AppModel";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
-const getTopLeftPixelColor = (image: HTMLImageElement | undefined): { color: string | null, hasTopLeftPixel: boolean } => {
-    // todo can we obtain it from svg earlier?
+// Add a WeakMap to cache results by image instance
+const pixelColorCache = new WeakMap<HTMLImageElement, { color: string | null, hasTopLeftPixel: boolean }>();
+
+const getDominantColorAndEitherTopLeftPixelVisible = (image: HTMLImageElement | undefined): { color: string | null, hasTopLeftPixel: boolean } => {
     if (!image) return { color: null, hasTopLeftPixel: false };
+
+    // Check if result is already cached
+    if (pixelColorCache.has(image)) {
+        return pixelColorCache.get(image)!;
+    }
+
     try {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d', { willReadFrequently: true });
@@ -14,8 +22,10 @@ const getTopLeftPixelColor = (image: HTMLImageElement | undefined): { color: str
 
         canvas.width = 1;
         canvas.height = 1;
+        // zoom icon to 1x1 canvas to get dominant color
         context.drawImage(image, 0, 0, image.width, image.height, 0, 0, 1, 1);
 
+        // draw only the top-left pixel
         const pixelData = context.getImageData(0, 0, 1, 1).data;
         // If pixel has some opacity, use it
         if (pixelData[3] > 10) {
@@ -28,14 +38,20 @@ const getTopLeftPixelColor = (image: HTMLImageElement | undefined): { color: str
             context.drawImage(image, 0, 0, 1, 1, 0, 0, 1, 1);
             const pixelData2 = context.getImageData(0, 0, 1, 1).data;
 
-            return {
+            const result = {
                 color: color,
                 hasTopLeftPixel: pixelData2[3] > 10
             };
+
+            // Cache the result
+            pixelColorCache.set(image, result);
+            return result;
         }
 
         // If all pixels are transparent, return null
-        return { color: null, hasTopLeftPixel: false };
+        const result = { color: null, hasTopLeftPixel: false };
+        pixelColorCache.set(image, result);
+        return result;
     } catch (e) {
         console.error('Error getting pixel color:', e);
         return { color: null, hasTopLeftPixel: false };
@@ -52,8 +68,9 @@ export const NodeContentTopLeftIcon: FC<NodeContentProps> = ({
     const { appLayout } = useContext(AppLayoutContext);
     const colorSchema = adjustColorSchemaForTheme(node.colorSchema, appLayout.darkMode);
 
-    const { color: borderColor, hasTopLeftPixel} = getTopLeftPixelColor(image);
-    const finalBorderColor = borderColor || node.colorSchema.strokeColor;
+    const { color: borderColor, hasTopLeftPixel } = useMemo(() =>
+      getDominantColorAndEitherTopLeftPixelVisible(image), [image]);
+    const finalBorderColor = borderColor || colorSchema.strokeColor;
     return (
         <>
             <Rect
