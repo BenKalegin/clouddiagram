@@ -1,6 +1,5 @@
 import React, {useEffect} from "react";
 import {Bounds, inflate} from "../../common/model";
-import {Background} from "./Background";
 import {ResizeHandles} from "./ResizeHandle";
 import {FocusFrame} from "./FocusFrame";
 import {ContextButtons} from "./ContextButtons";
@@ -15,7 +14,6 @@ export interface ScaffoldProps {
     excludeDiagonalResize?: boolean;
     excludeVerticalResize?: boolean;
     linkingDrawing: JSX.Element | undefined;
-    excludeBackground?: boolean;
 }
 
 export const Scaffold = (props: ScaffoldProps) => {
@@ -71,13 +69,6 @@ export const Scaffold = (props: ScaffoldProps) => {
 
     return (
         <>
-            {!props.excludeBackground && (
-                <Background
-                    origin={props.element}
-                    backgroundBounds={bounds}
-                    nodeBounds={props.bounds}
-                />
-            )}
             <ResizeHandles
                 perimeterBounds={bounds}
                 nodeBounds={props.bounds}

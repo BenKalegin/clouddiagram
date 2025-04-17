@@ -5,7 +5,6 @@ import {DrawingLink} from "./DrawingLink";
 import {DefaultValue, selectorFamily, useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType, NodeState, PictureLayout} from "../../package/packageModel";
-import {useCustomDispatch} from "../diagramEditor/commonHandlers";
 import {NodeContentTopLeftIcon} from "./NodeContentTopLeftIcon";
 import {iconRegistry} from "../graphics/graphicsReader";
 import useImage from "use-image";
@@ -48,14 +47,6 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const linkingSource = linking?.sourceElement;
     const element = {id: nodeId, type: ElementType.ClassNode};
 
-    const eventHandlers = useCustomDispatch({
-        onClick: true,
-        onDrag: true,
-        element: element,
-        diagramId: diagramId,
-        bounds: placement.bounds,
-    });
-
     const shapeId = node.customShape?.pictureId
     const iconUrl = shapeId !== undefined ? iconRegistry[shapeId] : undefined
     const layout = node.customShape?.layout ?? PictureLayout.NoIconRect
@@ -78,6 +69,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                 origin={element}
                 backgroundBounds={inflatedBounds}
                 nodeBounds={placement.bounds}
+                diagramId={diagramId}
             />
 
             {Component && (
@@ -85,7 +77,6 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     node={node}
                     image={image}
                     placement={placement}
-                    eventHandlers={eventHandlers}
                     shadowEnabled={shadowEnabled}
                 />
             )}
@@ -97,7 +88,6 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     isFocused={isFocused}
                     isLinking={linking?.drawing === true}
                     linkingDrawing={<DrawingLink/>}
-                    excludeBackground={true} // Skip background in Scaffold since we're already rendering it
                 />
             )}
 

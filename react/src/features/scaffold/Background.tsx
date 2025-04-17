@@ -4,11 +4,13 @@ import {Rect} from "react-konva";
 import {ElementRef} from "../../package/packageModel";
 import {AppLayout, AppLayoutContext} from "../../app/AppModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
+import {DiagramId} from "../diagramEditor/diagramEditorModel";
 
 export interface BackgroundProps {
     backgroundBounds: Bounds;
     nodeBounds: Bounds;
     origin: ElementRef
+    diagramId: DiagramId
 }
 
 export const Background = (props: BackgroundProps) => {
@@ -19,13 +21,20 @@ export const Background = (props: BackgroundProps) => {
     };
 
     const eventHandlers = useCustomDispatch({
-        onClick: false,
+        onClick: true,
         onDrag: true,
         element: props.origin,
-        diagramId: "",
+        diagramId: props.diagramId,
         bounds: props.nodeBounds
     });
 
+    const originalOnClick = eventHandlers.onClick;
+    eventHandlers.onClick = (evt) => {
+        if (originalOnClick) {
+            originalOnClick(evt);
+        }
+        handleDrawerClose();
+    };
 
     return (
         <Rect
@@ -35,7 +44,7 @@ export const Background = (props: BackgroundProps) => {
             stroke={""}
             strokeWidth={0}
             draggable={true}
-            onClick={handleDrawerClose}
+            listening={true}
             onDblClick={handleDrawerClose}
         />
     );

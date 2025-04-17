@@ -28,8 +28,6 @@ export interface DragBoundFunc{
     dragBoundFunc?: (this: Node, pos: Vector2d) => Vector2d;
 }
 
-export type NodeEventHandlers = Partial<KonvaNodeEvents> & DragBoundFunc;
-
 export const useCustomDispatch = ({
     element,
     bounds,

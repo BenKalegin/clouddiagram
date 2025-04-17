@@ -27,6 +27,7 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
                 shadowBlur={3}
                 shadowOffset={{x: 2, y: 2}}
                 shadowOpacity={0.4}
+                draggable={false}
                 listening={false}  // No longer needs to listen for events
             />
 
