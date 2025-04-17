@@ -248,9 +248,10 @@ function handleElementSelection(get: Get, set: Set, idAndKind: ElementRef | unde
             selection = [idAndKind]
         } else {
             if (!diagram.selectedElements.map(ik => ik.id).includes(idAndKind.id)) {
-                selection.push(idAndKind)
-            } else
-                selection = selection.filter(e => e !== idAndKind)
+                selection = [...selection, idAndKind];
+            } else {
+                selection = selection.filter(e => e.id !== idAndKind.id);
+            }
         }
 
         const updatedDiagram = {...diagram, selectedElements: selection}

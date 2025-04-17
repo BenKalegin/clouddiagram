@@ -33,7 +33,8 @@ export const Background = (props: BackgroundProps) => {
         if (originalOnClick) {
             originalOnClick(evt);
         }
-        handleDrawerClose();
+        if (!evt.evt.shiftKey && !evt.evt.ctrlKey)
+            handleDrawerClose();
     };
 
     return (

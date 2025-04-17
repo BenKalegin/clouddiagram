@@ -370,10 +370,10 @@ export function handleStructureElementCommand(get: Get, set: Set, elements: Elem
 export function handleStructureElementPropertyChanged(get: Get, set: Set, elements: ElementRef[], propertyName: string, value: any) {
     const diagramId = get(activeDiagramIdAtom)
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
-
     elements.forEach(element => {
         switch (element.type) {
-            case ElementType.ClassNode: {
+            case ElementType.ClassNode:
+            case ElementType.DeploymentNode: {
                 const node = get(elementsAtom(element.id)) as NodeState;
                 const update = produce(node, (draft: Draft<NodeState>) => {
                     const object: any = draft;
@@ -382,7 +382,8 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
                 set(elementsAtom(element.id), update);
                 break;
             }
-            case ElementType.ClassLink: {
+            case ElementType.ClassLink:
+            case ElementType.DeploymentLink: {
                 const link = get(elementsAtom(element.id)) as LinkState;
                 const update = produce(link, (draft: Draft<LinkState>) => {
                     const object: any = draft;

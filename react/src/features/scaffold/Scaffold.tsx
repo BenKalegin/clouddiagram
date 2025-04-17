@@ -69,15 +69,16 @@ export const Scaffold = (props: ScaffoldProps) => {
 
     return (
         <>
-            <ResizeHandles
+            {props.isFocused && <ResizeHandles
                 perimeterBounds={bounds}
                 nodeBounds={props.bounds}
                 element={props.element}
                 excludeDiagonal={props.excludeDiagonalResize}
                 excludeVertical={props.excludeVerticalResize}
-            />
-            {props.isFocused && <FocusFrame bounds={bounds} />}
-            {props.isFocused && !props.isLinking && <ContextButtons placement={buttonsPosition} elementId={props.element.id}/>}
+            />}
+            <FocusFrame bounds={bounds}/>
+            {props.isFocused && !props.isLinking &&
+                <ContextButtons placement={buttonsPosition} elementId={props.element.id}/>}
             {props.isFocused && props.isLinking && props.linkingDrawing}
         </>
     )
