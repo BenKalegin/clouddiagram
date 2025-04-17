@@ -1,6 +1,8 @@
-import React, {FC} from "react";
+import React, {FC, useContext} from "react";
 import {Image, Rect, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
+import {AppLayoutContext} from "../../app/AppModel";
+import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 export const NodeContentTopLeftIcon: FC<NodeContentProps> = ({
       node,
@@ -8,6 +10,9 @@ export const NodeContentTopLeftIcon: FC<NodeContentProps> = ({
       shadowEnabled,
       image
   }) => {
+
+    const { appLayout } = useContext(AppLayoutContext);
+    const colorSchema = adjustColorSchemaForTheme(node.colorSchema, appLayout.darkMode);
 
     return (
         <>
@@ -38,6 +43,7 @@ export const NodeContentTopLeftIcon: FC<NodeContentProps> = ({
             <Text
                 {...placement.bounds}
                 fontSize={14}
+                fill={colorSchema.textColor}
                 align={"center"}
                 verticalAlign={"middle"}
                 text={node.text}

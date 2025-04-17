@@ -1,12 +1,17 @@
-import React, {FC} from "react";
+import React, {FC, useContext} from "react";
 import {Image, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
+import {AppLayoutContext} from "../../app/AppModel";
+import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
       node,
       placement,
       image
   }) => {
+
+    const { appLayout } = useContext(AppLayoutContext);
+    const colorSchema = adjustColorSchemaForTheme(node.colorSchema, appLayout.darkMode);
 
     const iconWidth = placement.bounds.width;
     const iconPadding = 0;
@@ -27,6 +32,7 @@ export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
             <Text
                 {...placement.bounds}
                 fontSize={14}
+                fill={colorSchema.textColor}
                 align={"center"}
                 verticalAlign={"center"}
                 text={node.text}
