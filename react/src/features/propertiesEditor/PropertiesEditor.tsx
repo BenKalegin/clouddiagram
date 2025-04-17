@@ -96,6 +96,9 @@ function getActionList(type: ElementType): CommandDefinition[] {
         case ElementType.Note:
             return [deleteCommand];
         case ElementType.ClassNode:
+        case ElementType.DeploymentNode:
+        case ElementType.ClassLink:
+        case ElementType.DeploymentLink:
             return [deleteCommand];
         case ElementType.SequenceLifeLine:
             return [deleteCommand];

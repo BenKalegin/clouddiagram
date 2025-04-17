@@ -276,6 +276,7 @@ function deleteSelectedElement(diagram: Draft<StructureDiagramState>, element: E
             break;
 
         case ElementType.ClassNode:
+        case ElementType.DeploymentNode:
             const node = getElement(element.id) as NodeState;
             node.ports.forEach(portId => {
                 const port = getElement(portId) as PortState;
@@ -289,6 +290,18 @@ function deleteSelectedElement(diagram: Draft<StructureDiagramState>, element: E
 
             delete diagram.nodes[element.id];
 
+            setElement(element.id, emptyElementSentinel);
+            break;
+        case ElementType.ClassLink:
+        case ElementType.DeploymentLink:
+            const link = getElement(element.id) as LinkState;
+            const port1 = getElement(link.port1) as PortState;
+            const port2 = getElement(link.port2) as PortState;
+
+            setElement(link.port1, { ...port1, links: port1.links.filter(l => l !== element.id) } as PortState);
+            setElement(link.port2, { ...port2, links: port2.links.filter(l => l !== element.id) } as PortState);
+
+            delete diagram.links[element.id];
             setElement(element.id, emptyElementSentinel);
             break;
     }
