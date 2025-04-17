@@ -2,21 +2,21 @@ import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {
     CustomShape,
     defaultCornerStyle,
-    defaultRouteStyle,
     defaultNoteHeight,
     defaultNoteStyle,
     defaultNoteWidth,
+    defaultRouteStyle,
     DiagramElement,
     ElementRef,
     ElementType,
     Id,
     LinkState,
-    TipStyle,
     NodeState,
     PictureLayout,
     PortAlignment,
     PortState,
-    RouteStyle
+    RouteStyle,
+    TipStyle
 } from "../../package/packageModel";
 import {Bounds, Coordinate} from "../../common/model";
 import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
@@ -47,6 +47,7 @@ import {Command} from "../propertiesEditor/PropertiesEditor";
 import {selectorFamily} from "recoil";
 import {generatePath} from "../../common/Geometry/PathGenerator";
 import {defaultColorSchema} from "../../common/colors/colorSchemas";
+import {PredefinedSvg} from "../graphics/graphicsReader";
 
 export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
@@ -375,7 +376,8 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
             case ElementType.ClassNode:
             case ElementType.DeploymentNode: {
                 const node = get(elementsAtom(element.id)) as NodeState;
-                const update = produce(node, (draft: Draft<NodeState>) => {
+                const update: NodeState = (propertyName === "customShape") ? {...node, customShape: {...value, pictureId: node.customShape?.pictureId}}
+                : produce(node, (draft: Draft<NodeState>) => {
                     const object: any = draft;
                     object[propertyName] = value
                 })
