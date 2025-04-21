@@ -1,4 +1,4 @@
-import {DialogOperation, Get, Set} from "../diagramEditor/diagramEditorSlice";
+import {Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {
     CustomShape,
     defaultCornerStyle,
@@ -32,7 +32,6 @@ import {
 import produce, {Draft} from "immer";
 import {snapToGrid} from "../../common/Geometry/snap";
 import {
-    ClassDiagramModalDialog,
     LinkPlacement,
     LinkRender,
     NodeId,
@@ -123,25 +122,6 @@ export const portPlacementSelector = selectorFamily<PortPlacement, { portId: Id,
         return diagram.ports[portId];
     }
 })
-
-export function nodePropertiesDialog(get: Get, set: Set, dialogResult: DialogOperation) {
-    const diagramId = get(activeDiagramIdAtom);
-    const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
-    let modalDialog: ClassDiagramModalDialog | undefined;
-    switch (dialogResult) {
-        case DialogOperation.save:
-            modalDialog = undefined;
-            break;
-        case DialogOperation.cancel:
-            modalDialog = undefined;
-            break;
-        case DialogOperation.open:
-            modalDialog = ClassDiagramModalDialog.nodeProperties;
-            break;
-    }
-    const updatedDiagram = {...diagram, modalDialog: modalDialog};
-    set(elementsAtom(diagramId), updatedDiagram);
-}
 
 export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: ElementRef) {
     const diagramId = get(activeDiagramIdAtom);

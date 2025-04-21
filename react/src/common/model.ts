@@ -21,6 +21,13 @@ export const inflate = (bounds: Bounds, dx: number, dy: number): Bounds => ({
     height: bounds.height + dy * 2
 });
 
+export const rightOf = (bounds: Bounds, width: number): Bounds => ({
+    x: bounds.x + bounds.width,
+    y: bounds.y,
+    width: width,
+    height: bounds.height
+})
+
 export const withinBounds = (bounds: Bounds, pos: Coordinate, tolerance: number): boolean =>
     bounds.x - tolerance <= pos.x &&
     bounds.x + bounds.width + tolerance >= pos.x &&

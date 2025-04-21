@@ -5,6 +5,7 @@ import {FocusFrame} from "./FocusFrame";
 import {ContextButtons} from "./ContextButtons";
 import {ElementRef} from "../../package/packageModel";
 import {linkingAction, LinkingPhase, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {PopupContextPane} from "./PopupContext";
 
 export interface ScaffoldProps {
     bounds: Bounds;
@@ -17,6 +18,7 @@ export interface ScaffoldProps {
 }
 
 export const Scaffold = (props: ScaffoldProps) => {
+    const [showPopupContext, setShowPopupContext] = React.useState(false);
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -77,9 +79,14 @@ export const Scaffold = (props: ScaffoldProps) => {
                 excludeVertical={props.excludeVerticalResize}
             />}
             <FocusFrame bounds={bounds}/>
-            {props.isFocused && !props.isLinking &&
-                <ContextButtons placement={buttonsPosition} elementId={props.element.id}/>}
+            {props.isFocused && !props.isLinking && !showPopupContext &&
+                <ContextButtons
+                    placement={buttonsPosition}
+                    elementId={props.element.id}
+                    setShowPopupContext={setShowPopupContext}
+                />}
             {props.isFocused && props.isLinking && props.linkingDrawing}
+            {props.isFocused && showPopupContext && <PopupContextPane bounds={bounds} element={props.element}/>}
         </>
     )
 }

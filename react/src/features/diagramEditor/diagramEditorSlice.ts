@@ -49,16 +49,6 @@ export const dropFromPaletteAction = createAction<{
     kind: TypeAndSubType
 }>("editor/dropFromPalette");
 
-export enum DialogOperation {
-    open = "open",
-    save = "save",
-    cancel = "cancel",
-}
-export const propertiesDialogAction = createAction<{
-    elementId: Id
-    dialogResult: DialogOperation
-}>("editor/showProperties");
-
 export enum LinkingPhase {
     start  = "start",
     draw   = "draw",

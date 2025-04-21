@@ -90,17 +90,20 @@ export const NodeContentTopLeftIcon: FC<NodeContentProps> = ({
                     image={image}
                     x={placement.bounds.x + (hasTopLeftPixel ? 0 : 2)}
                     y={placement.bounds.y + (hasTopLeftPixel ? 0 : 2)}
-                    width={placement.bounds.height / 3}
-                    height={placement.bounds.height / 3}
+                    width={32}
+                    height={32}
                     listening={false}
                 />
             )}
 
             <Text
-                {...placement.bounds}
+                x={placement.bounds.x + 32 + 4} // Right of icon with padding
+                y={placement.bounds.y}
+                width={placement.bounds.width - 32 - 4}
+                height={32}
                 fontSize={14}
                 fill={colorSchema.textColor}
-                align={"center"}
+                align={"left"}
                 verticalAlign={"middle"}
                 text={node.text}
                 draggable={false}
