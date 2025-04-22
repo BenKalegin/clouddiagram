@@ -117,6 +117,9 @@ export const showContextAction = createAction<{
     diagramPos: Coordinate
 }>("editor/showContext");
 
+export const hideContextAction = createAction<{
+}>("editor/hideContext");
+
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 
@@ -161,13 +164,15 @@ function handleAction(action: Action, get: Get, set: Set) {
         closeDiagramTab(get, set);
     }else if (exportDiagramTabAction.match(action)) {
         const { exportState, format } = action.payload ;
-        exportDiagramTab(get, set, exportState, format);
+        exportDiagramTab(set, exportState, format);
     }else if (importDiagramTabAction.match(action)) {
         const { importState, format, importedCode } = action.payload ;
         importDiagramTab(get, set, importState, format, importedCode);
     }else if(showContextAction.match(action)) {
         const {elementId, mousePos, diagramPos} = action.payload;
-        showContext(get, set, elementId, mousePos, diagramPos);
+        showContext(set, elementId, mousePos, diagramPos);
+    }else if(hideContextAction.match(action)) {
+        hideContext(set);
     }
     else
         diagramEditors[diagramKind].handleAction(action, get, set);
@@ -319,7 +324,7 @@ function closeDiagramTab(get: Get, set: Set) {
     set(activeDiagramIdAtom, openDiagramIds.length === 0 ? "" : openDiagramIds[-1])
 }
 
-export function exportDiagramTab(get: Get, set: Set, exportState: ExportPhase, format: ExportImportFormat | undefined) {
+export function exportDiagramTab(set: Set, exportState: ExportPhase, format: ExportImportFormat | undefined) {
 
     switch (exportState) {
         case ExportPhase.start:
@@ -363,7 +368,7 @@ export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format:
     }
 }
 
-function showContext(get: Get, set: Set, elementId: string, mousePos: Coordinate, diagramPos: Coordinate) {
+function showContext(set: Set, elementId: string, mousePos: Coordinate, diagramPos: Coordinate) {
     set(showContextAtom, {
         elementId,
         mousePos,
@@ -371,6 +376,9 @@ function showContext(get: Get, set: Set, elementId: string, mousePos: Coordinate
     })
 }
 
+function hideContext(set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
+    set(showContextAtom, undefined)
+}
 
 
 export const diagramEditors: Record<any, DiagramHandler> = {

@@ -17,7 +17,7 @@ import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
 import {
     addDiagramTabAction,
     elementCommandAction,
-    elementSelectedAction,
+    elementSelectedAction, hideContextAction,
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
 import Konva from "konva";
@@ -96,6 +96,9 @@ export const DiagramTabs = () => {
                 dispatch(elementSelectedAction({element: undefined, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
             }
         }
+
+        if(showingContext)
+            dispatch(hideContextAction({}))
     }
 
     const selectedElements = useRecoilValue(selectedRefsSelector(activeDiagramId))

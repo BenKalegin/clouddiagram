@@ -1,8 +1,7 @@
 import {Bounds} from "../../common/model";
-import React, {useContext} from "react";
+import React from "react";
 import {Rect} from "react-konva";
 import {ElementRef} from "../../package/packageModel";
-import {AppLayout, AppLayoutContext} from "../../app/AppModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
 
@@ -14,11 +13,6 @@ export interface BackgroundProps {
 }
 
 export const Background = (props: BackgroundProps) => {
-    const {appLayout, setAppLayout} = useContext(AppLayoutContext);
-    const handleDrawerClose = () => {
-        const newLayout: AppLayout = {...appLayout, propsPaneOpen: !appLayout.propsPaneOpen};
-        setAppLayout(newLayout);
-    };
 
     const eventHandlers = useCustomDispatch({
         onClick: true,
@@ -33,8 +27,6 @@ export const Background = (props: BackgroundProps) => {
         if (originalOnClick) {
             originalOnClick(evt);
         }
-        if (!evt.evt.shiftKey && !evt.evt.ctrlKey)
-            handleDrawerClose();
     };
 
     return (
@@ -46,7 +38,6 @@ export const Background = (props: BackgroundProps) => {
             strokeWidth={0}
             draggable={true}
             listening={true}
-            onDblClick={handleDrawerClose}
         />
     );
 };
