@@ -33,10 +33,6 @@ export type PortRender = {
     bounds: Bounds
 }
 
-export enum ClassDiagramModalDialog {
-    nodeProperties = "props"
-}
-
 export type NodeId = Id;
 export type PortId = Id;
 export type LinkId = Id;
@@ -46,5 +42,4 @@ export interface StructureDiagramState extends Diagram {
     nodes: { [id: NodeId]: NodePlacement };
     ports: { [id: PortId]: PortPlacement };
     links: { [id: LinkId]: LinkPlacement };
-    modalDialog: ClassDiagramModalDialog | undefined
 }

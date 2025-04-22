@@ -6,12 +6,11 @@ import {Id} from "../../package/packageModel";
 import {
     linkingAction,
     LinkingPhase,
-    screenToCanvas,
+    screenToCanvas, showContextAction,
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
 import KonvaEventObject = Konva.KonvaEventObject;
 import {AppLayoutContext} from "../../app/AppModel";
-import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 interface ContextButtonProps {
     svgPath: string
@@ -62,7 +61,6 @@ export const ContextButton = (props: ContextButtonProps) => {
 interface ContextButtonsProps {
     placement: Coordinate
     elementId: Id
-    setShowPopupContext: (show: boolean) => void
 }
 
 export const ContextButtons = (props: ContextButtonsProps) => {
@@ -89,8 +87,14 @@ export const ContextButtons = (props: ContextButtonsProps) => {
             <ContextButton
                 svgPath={"M19.43 12.98c.04-.32.07-.66.07-1s-.03-.68-.07-1l-2.11-.45a5.84 5.84 0 0 0-.42-1.03l1.2-1.67a8.07 8.07 0 0 0-1.92-1.92l-1.67 1.2c-.33-.17-.68-.31-1.03-.42L12.98 4.5a8.07 8.07 0 0 0-2 0l-.45 2.11c-.35.11-.7.25-1.03.42l-1.67-1.2a8.07 8.07 0 0 0-1.92 1.92l1.2 1.67c-.17.33-.31.68-.42 1.03L4.57 11c-.04.32-.07.66-.07 1s.03.68.07 1l2.11.45c.11.35.25.7.42 1.03l-1.2 1.67a8.07 8.07 0 0 0 1.92 1.92l1.67-1.2c.33.17.68.31 1.03.42l.45 2.11c.32.04.66.07 1 .07s.68-.03 1-.07l.45-2.11c.35-.11.7-.25 1.03-.42l1.67 1.2a8.07 8.07 0 0 0 1.92-1.92l-1.2-1.67c.17-.33.31-.68.42-1.03l2.11-.45zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"}
                 placement={{x: x, y: y + 20, width: 16, height: 16}}
-                onMouseDown={(mousePos, diagramPos, shiftKey, ctrlKey) => {
-                    props.setShowPopupContext(true);
+                onMouseDown={(mousePos, diagramPos) => {
+                    dispatch(showContextAction(
+                        {
+                            elementId: props.elementId,
+                            mousePos: mousePos,
+                            diagramPos: diagramPos,
+                        }
+                    ));
                 }}
             />
         </>

@@ -11,7 +11,7 @@ import {
     diagramKindSelector,
     exportingAtom,
     importingAtom,
-    linkingAtom, selectedRefsSelector
+    linkingAtom, selectedRefsSelector, showContextAtom
 } from "../diagramEditor/diagramEditorModel";
 import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
 import {
@@ -31,6 +31,7 @@ import {ImportDialog} from "../dialogs/ImportDialog";
 import {DeploymentDiagramEditor} from "../deploymentDiagram/DeploymentDiagramEditor";
 import {useHotkeys} from "react-hotkeys-hook";
 import {Command} from "../propertiesEditor/PropertiesEditor";
+import {ContextPopup} from "../dialogs/ContextPopup";
 
 export const activeDiagramIdAtom = atom<Id>({
     key: 'activeDiagramId',
@@ -82,6 +83,7 @@ export const DiagramTabs = () => {
     const linking = useRecoilValue(linkingAtom)
     const exporting = useRecoilValue(exportingAtom)
     const importing = useRecoilValue(importingAtom)
+    const showingContext = useRecoilValue(showContextAtom)
 
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
     const dispatch = useDispatch()
@@ -174,6 +176,7 @@ export const DiagramTabs = () => {
             {linking && linking.showLinkToNewDialog && <LinkToNewDialog/>}
             {exporting &&  <ExportDialog diagramKind={diagramKind} getStage={() => stageRef.current}/>}
             {importing &&  <ImportDialog diagramKind={diagramKind} />}
+            {showingContext && <ContextPopup  {...showingContext} />}
 
 
         </Stack>

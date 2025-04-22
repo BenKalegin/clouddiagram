@@ -271,7 +271,6 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         nodes: nodePlacements,
         ports: portPlacements,
         links: linkPlacements,
-        modalDialog: undefined,
         notes: {[note1.id]: note1},
     };
 };
@@ -347,7 +346,6 @@ export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentD
         ports: {},
         links: {},
         notes: {[note1.id]: note1},
-        modalDialog: undefined,
     };
 };
 export const getSequenceDemoDiagram = (): SequenceDiagramState => {

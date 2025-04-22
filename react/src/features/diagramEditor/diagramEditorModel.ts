@@ -44,6 +44,12 @@ export interface Importing {
     format?: ExportImportFormat
 }
 
+export interface ContextPopupProps {
+    elementId: Id
+    mousePos: Coordinate
+    diagramPos: Coordinate
+}
+
 export const emptyElementSentinel: DiagramElement = {id: "", type: ElementType.ClassNode};
 
 export const elementsAtom = atomFamily<DiagramElement, Id>({
@@ -97,6 +103,11 @@ export const exportingAtom = atom<Exporting | undefined>({
 
 export const importingAtom = atom<Importing | undefined>({
     key: 'importing',
+    default: undefined
+})
+
+export const showContextAtom = atom< ContextPopupProps | undefined>({
+    key: 'contextPopup',
     default: undefined
 })
 

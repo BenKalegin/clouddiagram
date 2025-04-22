@@ -5,7 +5,7 @@ import {
     ExportPhase,
     generateId, Importing, importingAtom, ImportPhase,
     Linking,
-    linkingAtom,
+    linkingAtom, showContextAtom,
     snapGridSizeAtom
 } from "./diagramEditorModel";
 import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
@@ -111,6 +111,12 @@ export const importDiagramTabAction = createAction<{
     importedCode?: string
 }>('tabs/importDiagramTab');
 
+export const showContextAction = createAction<{
+    elementId: Id
+    mousePos: Coordinate
+    diagramPos: Coordinate
+}>("editor/showContext");
+
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 
@@ -133,6 +139,7 @@ export function useDispatch() {
         []
     )
 }
+
 function handleAction(action: Action, get: Get, set: Set) {
     const activeDiagramId = get(activeDiagramIdAtom);
     const diagramKind = get(elementsAtom(activeDiagramId)).type;
@@ -158,6 +165,9 @@ function handleAction(action: Action, get: Get, set: Set) {
     }else if (importDiagramTabAction.match(action)) {
         const { importState, format, importedCode } = action.payload ;
         importDiagramTab(get, set, importState, format, importedCode);
+    }else if(showContextAction.match(action)) {
+        const {elementId, mousePos, diagramPos} = action.payload;
+        showContext(get, set, elementId, mousePos, diagramPos);
     }
     else
         diagramEditors[diagramKind].handleAction(action, get, set);
@@ -351,6 +361,14 @@ export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format:
             set(importingAtom, undefined);
             break;
     }
+}
+
+function showContext(get: Get, set: Set, elementId: string, mousePos: Coordinate, diagramPos: Coordinate) {
+    set(showContextAtom, {
+        elementId,
+        mousePos,
+        diagramPos
+    })
 }
 
 
