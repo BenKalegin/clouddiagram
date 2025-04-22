@@ -1,16 +1,29 @@
 import {ContextPopupProps} from "../diagramEditor/diagramEditorModel";
 import {PropertiesEditor} from "../propertiesEditor/PropertiesEditor";
-import {useRef} from "react";
+import {Popover} from "@mui/material";
+import {hideContextAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 
 export const ContextPopup = (props: ContextPopupProps) => {
-    const popupRef = useRef<HTMLDivElement>(null);
+    const dispatch = useDispatch()
 
+    // Using the mouse position as the anchor point
     return (
-        <div
-            ref={popupRef}
-            style={{position: "absolute", left: props.mousePos.x - 10, top: props.mousePos.y - 16, color: "gray"}}
+        <Popover
+            open={true}
+            anchorReference="anchorPosition"
+            anchorPosition={{
+                left: props.mousePos.x,
+                top: props.mousePos.y
+            }}
+            transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+            }}
+            onClose={(event) => {
+                dispatch(hideContextAction({}))
+            }}
         >
             <PropertiesEditor/>
-        </div>
+        </Popover>
     )
 }
