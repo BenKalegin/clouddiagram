@@ -3,6 +3,7 @@ import {Image, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
 import {AppLayoutContext} from "../../app/AppModel";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
+import {Bounds} from "../../common/model";
 
 export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
       node,
@@ -13,18 +14,36 @@ export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
     const { appLayout } = useContext(AppLayoutContext);
     const colorSchema = adjustColorSchemaForTheme(node.colorSchema, appLayout.darkMode);
 
-    const iconWidth = placement.bounds.width;
-    const iconPadding = 0;
-    const iconHeight = placement.bounds.height;
+    let imageBounds: Bounds = placement.bounds
+    if (image) {
+        if (image) {
+            const aspectRatio = image.width / image.height;
+            const maxWidth = placement.bounds.width;
+            const maxHeight = placement.bounds.height// - 14; // Reserve space for text (fontSize: 14)
+
+            if (maxWidth / aspectRatio <= maxHeight) {
+                imageBounds = {
+                    x: placement.bounds.x,
+                    y: placement.bounds.y,
+                    width: maxWidth,
+                    height: maxWidth / aspectRatio
+                };
+            } else {
+                imageBounds = {
+                    x: placement.bounds.x + (placement.bounds.width - maxHeight * aspectRatio) / 2,
+                    y: placement.bounds.y,
+                    width: maxHeight * aspectRatio,
+                    height: maxHeight
+                };
+            }
+        }
+    }
     return (
         <>
-            {node.customShape?.pictureId && (
+            {image  && (
                 <Image
                     image={image}
-                    x={placement.bounds.x + iconPadding}
-                    y={placement.bounds.y}
-                    width={iconWidth }
-                    height={iconHeight}
+                    {...imageBounds}
                     listening={false}  // No longer needs to listen for events
                 />
             )}
@@ -40,7 +59,7 @@ export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
                 listening={false}
                 preventDefault={true}
                 x={placement.bounds.x}
-                y={placement.bounds.y + iconHeight}
+                y={placement.bounds.y + imageBounds.height}
                 width={placement.bounds.width}
                 //height={textHeight}
             />
