@@ -1,6 +1,6 @@
 import {Group, Line, Rect, Shape, Text} from "react-konva";
 import {LifelineId, lifelinePoints, lifelineSelector} from "./sequenceDiagramModel";
-import React, {FC} from "react";
+import React, {FC, useContext} from "react";
 import {Scaffold} from "../scaffold/Scaffold";
 import {Activation} from "./Activation";
 import {DrawingMessage} from "./DrawingMessage";
@@ -9,6 +9,8 @@ import {DiagramId, linkingAtom, selectedRefsSelector} from "../diagramEditor/dia
 import {ElementType} from "../../package/packageModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
 import {getLifelineCustomDrawById} from "../graphics/graphicsReader";
+import {AppLayoutContext} from "../../app/AppModel";
+import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 export interface LifelineProps {
     lifelineId: LifelineId
@@ -34,6 +36,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
         disableVerticalDrag: true
     });
 
+    const { appLayout } = useContext(AppLayoutContext);
+    const colorSchema = adjustColorSchemaForTheme(lifeline.colorSchema, appLayout.darkMode);
 
     function DefaultHead() {
         return <>
@@ -46,8 +50,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             />
             <Rect
                 {...eventHandlers}
-                fill={lifeline.colorSchema.fillColor}
-                stroke={lifeline.colorSchema.strokeColor}
+                fill={colorSchema.fillColor}
+                stroke={colorSchema.strokeColor}
                 strokeWidth={1}
                 x={placement.headBounds.x}
                 y={placement.headBounds.y}
@@ -61,6 +65,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 align={"center"}
                 verticalAlign={"middle"}
                 text={lifeline.title}
+                fill={colorSchema.textColor}
                 draggable={false}
                 listening={false}
                 preventDefault={true}
@@ -92,8 +97,8 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
             <Shape
                 {...eventHandlers}
                 sceneFunc={getLifelineCustomDrawById(lifeline.customShape?.pictureId!)}
-                fill={lifeline.colorSchema.fillColor}
-                stroke={lifeline.colorSchema.strokeColor}
+                fill={colorSchema.fillColor}
+                stroke={colorSchema.strokeColor}
                 strokeWidth={1}
                 x={placement.headBounds.x}
                 y={placement.headBounds.y}
@@ -110,6 +115,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 align={"center"}
                 verticalAlign={"middle"}
                 text={lifeline.title}
+                fill={colorSchema.textColor}
                 draggable={false}
                 listening={false}
                 preventDefault={true}
