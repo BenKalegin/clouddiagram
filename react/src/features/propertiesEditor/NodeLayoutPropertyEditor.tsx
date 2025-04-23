@@ -2,7 +2,7 @@ import {
     CustomShape,
     PictureLayout
 } from "../../package/packageModel";
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {
     ButtonGroup,
     FormControlLabel,
@@ -13,42 +13,47 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
 import {PropAndKind} from "./PropertiesEditor";
 import {enumKeys} from "../../common/EnumUtils";
+import {AppLayoutContext} from "../../app/AppModel";
 
 const NodeLayoutIcon: React.FC<{ layout: PictureLayout }> = ({ layout }) => {
     let svgContent;
+
+    const { appLayout } = useContext(AppLayoutContext);
+    const isDarkMode = appLayout.darkMode;
+
 
     switch (layout) {
         case PictureLayout.NoIconRect:
             svgContent =
                 <>
-                    <rect height="100%" width="100%" fill={"none"} stroke={"black"} strokeWidth={2}/>
-                    <text x="50%" y="50%" textAnchor="middle" fill="black">Caption</text>
+                    <rect height="100%" width="100%" fill={"none"} stroke={isDarkMode ? "white" : "black"} strokeWidth={2}/>
+                    <text x="50%" y="50%" textAnchor="middle" fill={isDarkMode ? "white" : "black"}>Caption</text>
                 </>
             break;
         case PictureLayout.TopLeftCorner:
             svgContent = (
                 <>
-                    <rect height="100%" width="100%" fill={"none"} stroke={"black"} strokeWidth={2}/>
-                    <rect width="25%" height="30%" fill="black"/>
-                    <circle cx="12%" cy="13%" r="9%" fill="white"/>
-                    <text x="35%" y="15%" textAnchor="left" fill="black">Caption</text>
+                    <rect height="100%" width="100%" fill={"none"} stroke={isDarkMode ? "white" : "black"} strokeWidth={2}/>
+                    <rect width="25%" height="30%" fill={isDarkMode ? "white" : "black"}/>
+                    <circle cx="12%" cy="13%" r="9%" fill={isDarkMode ? "black" : "white"}/>
+                    <text x="35%" y="15%" textAnchor="left" fill={isDarkMode ? "white" : "black"}>Caption</text>
                 </>
             );
             break;
         case PictureLayout.FullIconTextBelow:
             svgContent = (
                 <>
-                    <circle cx="50%" cy="40%" r="30%" fill="black"/>
-                    <text x="50%" y="90%" textAnchor="middle" fill="black">Caption</text>
+                    <circle cx="50%" cy="40%" r="30%" fill={isDarkMode ? "white" : "black"}/>
+                    <text x="50%" y="90%" textAnchor="middle" fill={isDarkMode ? "white" : "black"}>Caption</text>
                 </>
             );
             break;
         case PictureLayout.Center:
             svgContent = (
                 <>
-                    <rect height="100%" width="100%" fill={"none"} stroke={"black"} strokeWidth={2}/>
-                    <circle cx="50%" cy="50%" r="40%" fill="black"/>
-                    <text x="50%" y="50%" textAnchor="middle" fill="white">Caption</text>
+                    <rect height="100%" width="100%" fill={"none"} stroke={isDarkMode ? "white" : "black"} strokeWidth={2}/>
+                    <circle cx="50%" cy="50%" r="40%" fill={isDarkMode ? "white" : "black"}/>
+                    <text x="50%" y="50%" textAnchor="middle" fill={isDarkMode ? "black" : "white"}>Caption</text>
                 </>
             )
     }
