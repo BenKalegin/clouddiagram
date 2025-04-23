@@ -1,7 +1,7 @@
 import {
     ColorSchema
 } from "../../package/packageModel";
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {
     ButtonGroup,
     FormControlLabel,
@@ -12,6 +12,8 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
 import {PropAndKind} from "./PropertiesEditor";
 import {colorSchemaList} from "../../common/colors/colorSchemas";
+import {AppLayoutContext} from "../../app/AppModel";
+import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 const ColorSchemaIcon: React.FC<ColorSchema> = (props:ColorSchema) => {
     return (
@@ -53,6 +55,8 @@ export const ColorSchemaPropertyEditor: React.FC<ColorSchemaPropertyEditorProps>
         setAnchorEl(event.currentTarget);
     };
 
+    const { appLayout } = useContext(AppLayoutContext);
+
     const popupOpen = Boolean(anchorEl);
     return (
             <FormControlLabel control={
@@ -65,7 +69,7 @@ export const ColorSchemaPropertyEditor: React.FC<ColorSchemaPropertyEditorProps>
                             }}
                             onClick={handleOpenMenu}
                         >
-                            <ColorSchemaIcon {...props.value} />
+                            <ColorSchemaIcon {...adjustColorSchemaForTheme(props.value, appLayout.darkMode)} />
                             <ArrowDropDownIcon/>
                         </IconButton>
                     </ButtonGroup>
@@ -81,7 +85,7 @@ export const ColorSchemaPropertyEditor: React.FC<ColorSchemaPropertyEditorProps>
                                 key={i}
                                 sx={{height: "24"}}
                                 onClick={() => handleItemClick(colorSchema)}>
-                                <ColorSchemaIcon {...colorSchema} />
+                                <ColorSchemaIcon {...adjustColorSchemaForTheme(colorSchema, appLayout.darkMode)                                                 } />
                             </MenuItem>
                             ))
                         }
