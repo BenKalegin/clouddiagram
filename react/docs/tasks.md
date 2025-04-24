@@ -58,7 +58,7 @@ This document contains a comprehensive list of improvement tasks for the Cloud D
 - [ ] 35. Add user preferences for diagram defaults
 
 ### Diagram Functionality
-- [ ] 36. Improve auto-routing algorithm for links
+- [X] 36. Improve auto-routing algorithm for links
 - [ ] 37. Add support for custom node shapes and styles
 - [ ] 38. Implement grouping functionality for diagram elements
 - [ ] 39. Add text formatting options for node labels

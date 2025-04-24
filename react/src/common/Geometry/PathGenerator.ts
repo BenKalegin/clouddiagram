@@ -123,25 +123,277 @@ const direct = (route: Coordinate[]) => {
     return result;
 }
 
+/**
+ * Creates a lateral horizontal path between two points
+ * This style is useful for hierarchical diagrams where connections flow horizontally
+ */
 const lateralHorizontal = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
-                                  target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+                          target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
     let result: ConnectorContext = {svg: [], startAngle: 0, endAngle: 0};
+
+    // If nodes are too close, use bezier curve instead
     if (Math.abs(route[0].x - route[1].x) < _margin * 2 &&
         Math.abs(route[0].y - route[1].y) < _margin * 2) {
         return bezier([], source, sourcePlacement, target, targetPlacement);
     }
 
-    route = getRouteWithCurvePoints(route, source, sourcePlacement, target, targetPlacement);
+    // Create lateral horizontal path
+    const start = route[0];
+    const end = route[route.length - 1];
 
-    const paths = new Array<string>(route.length - 1);
-    for (let i = 0; i < route.length - 1; i++) {
-        paths[i] = `M ${route[i].x} ${route[i].y} L ${route[i + 1].x} ${route[i + 1].y}`;
+    // Create waypoints based on port alignments and relative positions
+    const waypoints: Coordinate[] = [];
+    waypoints.push(start);
+
+    // Determine if we're going left to right or right to left
+    const goingRight = end.x > start.x;
+
+    // Add intermediate points based on port alignments and direction
+    switch (sourcePlacement.alignment) {
+        case PortAlignment.Left:
+            if (!goingRight) {
+                // Going left, need extra space
+                waypoints.push({x: Math.min(start.x - _margin * 2, end.x - _margin), y: start.y});
+            }
+            break;
+        case PortAlignment.Right:
+            if (goingRight) {
+                // Going right, add a small extension
+                waypoints.push({x: Math.max(start.x + _margin, end.x - _margin * 2), y: start.y});
+            } else {
+                // Going left, need more space
+                waypoints.push({x: start.x + _margin * 2, y: start.y});
+            }
+            break;
+        case PortAlignment.Top:
+        case PortAlignment.Bottom:
+            // For vertical ports, extend horizontally first
+            const horizontalExtension = goingRight ?
+                Math.max(start.x + _margin, end.x - _margin * 2) :
+                Math.min(start.x - _margin, end.x + _margin * 2);
+            waypoints.push({x: horizontalExtension, y: start.y});
+            break;
+    }
+
+    // Add vertical segment if needed
+    if (Math.abs(waypoints[waypoints.length - 1].y - end.y) > _margin) {
+        // Add a point at the same x as the last point but at the y of the end point
+        waypoints.push({x: waypoints[waypoints.length - 1].x, y: end.y});
+    }
+
+    // Handle target port alignment
+    switch (targetPlacement.alignment) {
+        case PortAlignment.Left:
+            if (goingRight) {
+                // If we're coming from the right, add a point to approach from the left
+                if (waypoints[waypoints.length - 1].x > end.x) {
+                    waypoints.push({x: end.x - _margin, y: end.y});
+                }
+            }
+            break;
+        case PortAlignment.Right:
+            if (!goingRight) {
+                // If we're coming from the left, add a point to approach from the right
+                if (waypoints[waypoints.length - 1].x < end.x) {
+                    waypoints.push({x: end.x + _margin, y: end.y});
+                }
+            }
+            break;
+    }
+
+    // Add final point
+    waypoints.push(end);
+
+    // Create SVG path segments
+    const paths = new Array<string>(waypoints.length - 1);
+    for (let i = 0; i < waypoints.length - 1; i++) {
+        paths[i] = `M ${waypoints[i].x} ${waypoints[i].y} L ${waypoints[i + 1].x} ${waypoints[i + 1].y}`;
     }
 
     result.svg = paths;
-    result.startAngle = Math.atan2(route[0].y - route[1].y, route[0].x - route[1].x);
-    result.endAngle = Math.atan2(route[route.length - 1].y - route[route.length - 2].y,
-                                  route[route.length - 1].x - route[route.length - 2].x);
+    result.startAngle = Math.atan2(waypoints[0].y - waypoints[1].y, waypoints[0].x - waypoints[1].x);
+    result.endAngle = Math.atan2(waypoints[waypoints.length - 1].y - waypoints[waypoints.length - 2].y,
+                                 waypoints[waypoints.length - 1].x - waypoints[waypoints.length - 2].x);
+    return result;
+}
+
+/**
+ * Creates a tree-style horizontal path between two points
+ * This style is useful for hierarchical tree diagrams where connections flow horizontally
+ */
+const treeStyleHorizontal = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+                            target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+    let result: ConnectorContext = {svg: [], startAngle: 0, endAngle: 0};
+
+    // If nodes are too close, use bezier curve instead
+    if (Math.abs(route[0].x - route[1].x) < _margin * 2 &&
+        Math.abs(route[0].y - route[1].y) < _margin * 2) {
+        return bezier([], source, sourcePlacement, target, targetPlacement);
+    }
+
+    // Create tree-style horizontal path
+    const start = route[0];
+    const end = route[route.length - 1];
+
+    // Create waypoints
+    const waypoints: Coordinate[] = [];
+    waypoints.push(start);
+
+    // Calculate midpoint x-coordinate
+    const midX = (start.x + end.x) / 2;
+
+    // Add intermediate points to create a tree-style path
+    waypoints.push({x: midX, y: start.y});
+    waypoints.push({x: midX, y: end.y});
+    waypoints.push(end);
+
+    // Create SVG path segments
+    const paths = new Array<string>(waypoints.length - 1);
+    for (let i = 0; i < waypoints.length - 1; i++) {
+        paths[i] = `M ${waypoints[i].x} ${waypoints[i].y} L ${waypoints[i + 1].x} ${waypoints[i + 1].y}`;
+    }
+
+    result.svg = paths;
+    result.startAngle = Math.atan2(waypoints[0].y - waypoints[1].y, waypoints[0].x - waypoints[1].x);
+    result.endAngle = Math.atan2(waypoints[waypoints.length - 1].y - waypoints[waypoints.length - 2].y,
+                                 waypoints[waypoints.length - 1].x - waypoints[waypoints.length - 2].x);
+    return result;
+}
+
+/**
+ * Creates a lateral vertical path between two points
+ * This style is useful for hierarchical diagrams where connections flow vertically
+ */
+const lateralVertical = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+                        target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+    let result: ConnectorContext = {svg: [], startAngle: 0, endAngle: 0};
+
+    // If nodes are too close, use bezier curve instead
+    if (Math.abs(route[0].x - route[1].x) < _margin * 2 &&
+        Math.abs(route[0].y - route[1].y) < _margin * 2) {
+        return bezier([], source, sourcePlacement, target, targetPlacement);
+    }
+
+    // Create lateral vertical path
+    const start = route[0];
+    const end = route[route.length - 1];
+
+    // Create waypoints based on port alignments and relative positions
+    const waypoints: Coordinate[] = [];
+    waypoints.push(start);
+
+    // Determine if we're going top to bottom or bottom to top
+    const goingDown = end.y > start.y;
+
+    // Add intermediate points based on port alignments and direction
+    switch (sourcePlacement.alignment) {
+        case PortAlignment.Top:
+            if (!goingDown) {
+                // Going up, need extra space
+                waypoints.push({x: start.x, y: Math.min(start.y - _margin * 2, end.y - _margin)});
+            }
+            break;
+        case PortAlignment.Bottom:
+            if (goingDown) {
+                // Going down, add a small extension
+                waypoints.push({x: start.x, y: Math.max(start.y + _margin, end.y - _margin * 2)});
+            } else {
+                // Going up, need more space
+                waypoints.push({x: start.x, y: start.y + _margin * 2});
+            }
+            break;
+        case PortAlignment.Left:
+        case PortAlignment.Right:
+            // For horizontal ports, extend vertically first
+            const verticalExtension = goingDown ?
+                Math.max(start.y + _margin, end.y - _margin * 2) :
+                Math.min(start.y - _margin, end.y + _margin * 2);
+            waypoints.push({x: start.x, y: verticalExtension});
+            break;
+    }
+
+    // Add horizontal segment if needed
+    if (Math.abs(waypoints[waypoints.length - 1].x - end.x) > _margin) {
+        // Add a point at the same y as the last point but at the x of the end point
+        waypoints.push({x: end.x, y: waypoints[waypoints.length - 1].y});
+    }
+
+    // Handle target port alignment
+    switch (targetPlacement.alignment) {
+        case PortAlignment.Top:
+            if (goingDown) {
+                // If we're coming from below, add a point to approach from above
+                if (waypoints[waypoints.length - 1].y > end.y) {
+                    waypoints.push({x: end.x, y: end.y - _margin});
+                }
+            }
+            break;
+        case PortAlignment.Bottom:
+            if (!goingDown) {
+                // If we're coming from above, add a point to approach from below
+                if (waypoints[waypoints.length - 1].y < end.y) {
+                    waypoints.push({x: end.x, y: end.y + _margin});
+                }
+            }
+            break;
+    }
+
+    // Add final point
+    waypoints.push(end);
+
+    // Create SVG path segments
+    const paths = new Array<string>(waypoints.length - 1);
+    for (let i = 0; i < waypoints.length - 1; i++) {
+        paths[i] = `M ${waypoints[i].x} ${waypoints[i].y} L ${waypoints[i + 1].x} ${waypoints[i + 1].y}`;
+    }
+
+    result.svg = paths;
+    result.startAngle = Math.atan2(waypoints[0].y - waypoints[1].y, waypoints[0].x - waypoints[1].x);
+    result.endAngle = Math.atan2(waypoints[waypoints.length - 1].y - waypoints[waypoints.length - 2].y,
+                                 waypoints[waypoints.length - 1].x - waypoints[waypoints.length - 2].x);
+    return result;
+}
+
+/**
+ * Creates a tree-style vertical path between two points
+ * This style is useful for hierarchical tree diagrams where connections flow vertically
+ */
+const treeStyleVertical = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+                          target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+    let result: ConnectorContext = {svg: [], startAngle: 0, endAngle: 0};
+
+    // If nodes are too close, use bezier curve instead
+    if (Math.abs(route[0].x - route[1].x) < _margin * 2 &&
+        Math.abs(route[0].y - route[1].y) < _margin * 2) {
+        return bezier([], source, sourcePlacement, target, targetPlacement);
+    }
+
+    // Create tree-style vertical path
+    const start = route[0];
+    const end = route[route.length - 1];
+
+    // Create waypoints
+    const waypoints: Coordinate[] = [];
+    waypoints.push(start);
+
+    // Calculate midpoint y-coordinate
+    const midY = (start.y + end.y) / 2;
+
+    // Add intermediate points to create a tree-style path
+    waypoints.push({x: start.x, y: midY});
+    waypoints.push({x: end.x, y: midY});
+    waypoints.push(end);
+
+    // Create SVG path segments
+    const paths = new Array<string>(waypoints.length - 1);
+    for (let i = 0; i < waypoints.length - 1; i++) {
+        paths[i] = `M ${waypoints[i].x} ${waypoints[i].y} L ${waypoints[i + 1].x} ${waypoints[i + 1].y}`;
+    }
+
+    result.svg = paths;
+    result.startAngle = Math.atan2(waypoints[0].y - waypoints[1].y, waypoints[0].x - waypoints[1].x);
+    result.endAngle = Math.atan2(waypoints[waypoints.length - 1].y - waypoints[waypoints.length - 2].y,
+                                 waypoints[waypoints.length - 1].x - waypoints[waypoints.length - 2].x);
     return result;
 }
 
@@ -155,9 +407,166 @@ function drawConnector(routeStyle: RouteStyle, route: Coordinate[], source: Port
             return bezier(route, source, sourcePlacement, target, targetPlacement);
         case RouteStyle.LateralHorizontal:
             return lateralHorizontal(route, source, sourceBounds, sourcePlacement, target, targetBounds, targetPlacement);
+        case RouteStyle.LateralVertical:
+            return lateralVertical(route, source, sourceBounds, sourcePlacement, target, targetBounds, targetPlacement);
+        case RouteStyle.TreeStyleHorizontal:
+            return treeStyleHorizontal(route, source, sourceBounds, sourcePlacement, target, targetBounds, targetPlacement);
+        case RouteStyle.TreeStyleVertical:
+            return treeStyleVertical(route, source, sourceBounds, sourcePlacement, target, targetBounds, targetPlacement);
+        case RouteStyle.OrthogonalSquare:
+            return orthogonalSquare(route, source, sourceBounds, sourcePlacement, target, targetBounds, targetPlacement);
+        case RouteStyle.OrthogonalRounded:
+            return orthogonalRounded(route, source, sourceBounds, sourcePlacement, target, targetBounds, targetPlacement);
+        case RouteStyle.AutoRouting:
+            return autoRouting(route, source, sourceBounds, sourcePlacement, target, targetBounds, targetPlacement);
         default:
             return direct(route);
     }
+}
+
+/**
+ * Creates an orthogonal path with square corners between two points
+ */
+const orthogonalSquare = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+                          target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+    let result: ConnectorContext = {svg: [], startAngle: 0, endAngle: 0};
+
+    // If nodes are too close, use bezier curve instead
+    if (Math.abs(route[0].x - route[1].x) < _margin * 2 &&
+        Math.abs(route[0].y - route[1].y) < _margin * 2) {
+        return bezier([], source, sourcePlacement, target, targetPlacement);
+    }
+
+    // Create orthogonal path with square corners
+    const start = route[0];
+    const end = route[route.length - 1];
+    const midX = (start.x + end.x) / 2;
+
+    // Create waypoints based on port alignments
+    const waypoints: Coordinate[] = [];
+    waypoints.push(start);
+
+    // Add intermediate points based on port alignments
+    switch (sourcePlacement.alignment) {
+        case PortAlignment.Top:
+            waypoints.push({x: start.x, y: Math.min(start.y - _margin, end.y)});
+            break;
+        case PortAlignment.Bottom:
+            waypoints.push({x: start.x, y: Math.max(start.y + _margin, end.y)});
+            break;
+        case PortAlignment.Left:
+            waypoints.push({x: Math.min(start.x - _margin, end.x), y: start.y});
+            break;
+        case PortAlignment.Right:
+            waypoints.push({x: Math.max(start.x + _margin, end.x), y: start.y});
+            break;
+    }
+
+    // Add midpoint if needed
+    if (Math.abs(waypoints[waypoints.length - 1].x - end.x) > _margin &&
+        Math.abs(waypoints[waypoints.length - 1].y - end.y) > _margin) {
+        waypoints.push({x: midX, y: waypoints[waypoints.length - 1].y});
+        waypoints.push({x: midX, y: end.y});
+    }
+
+    // Add final point
+    waypoints.push(end);
+
+    // Create SVG path segments
+    const paths = new Array<string>(waypoints.length - 1);
+    for (let i = 0; i < waypoints.length - 1; i++) {
+        paths[i] = `M ${waypoints[i].x} ${waypoints[i].y} L ${waypoints[i + 1].x} ${waypoints[i + 1].y}`;
+    }
+
+    result.svg = paths;
+    result.startAngle = Math.atan2(waypoints[0].y - waypoints[1].y, waypoints[0].x - waypoints[1].x);
+    result.endAngle = Math.atan2(waypoints[waypoints.length - 1].y - waypoints[waypoints.length - 2].y,
+                                 waypoints[waypoints.length - 1].x - waypoints[waypoints.length - 2].x);
+    return result;
+}
+
+/**
+ * Creates an orthogonal path with rounded corners between two points
+ */
+const orthogonalRounded = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+                           target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+    // First get the square orthogonal path
+    const squareResult = orthogonalSquare(route, source, sourceBounds, sourcePlacement, target, targetBounds, targetPlacement);
+
+    // If there are fewer than 3 waypoints, we can't create rounded corners
+    if (squareResult.svg.length < 2) {
+        return squareResult;
+    }
+
+    // Extract waypoints from the square path
+    const waypoints: Coordinate[] = [];
+    for (const path of squareResult.svg) {
+        const match = path.match(/M\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)\s+L\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)/);
+        if (match) {
+            waypoints.push({x: parseFloat(match[1]), y: parseFloat(match[2])});
+            // Only add the end point of the last segment to avoid duplicates
+            if (path === squareResult.svg[squareResult.svg.length - 1]) {
+                waypoints.push({x: parseFloat(match[3]), y: parseFloat(match[4])});
+            }
+        }
+    }
+
+    // Create SVG path with rounded corners
+    const radius = 10; // Corner radius
+    let svgPath = `M ${waypoints[0].x} ${waypoints[0].y}`;
+
+    for (let i = 1; i < waypoints.length - 1; i++) {
+        const prev = waypoints[i - 1];
+        const curr = waypoints[i];
+        const next = waypoints[i + 1];
+
+        // Calculate direction vectors
+        const dx1 = curr.x - prev.x;
+        const dy1 = curr.y - prev.y;
+        const dx2 = next.x - curr.x;
+        const dy2 = next.y - curr.y;
+
+        // Calculate distance to corner
+        const dist1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+        const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+
+        // Calculate corner points
+        const r1 = Math.min(radius, dist1 / 2);
+        const r2 = Math.min(radius, dist2 / 2);
+
+        const p1 = {
+            x: curr.x - dx1 * r1 / dist1,
+            y: curr.y - dy1 * r1 / dist1
+        };
+
+        const p2 = {
+            x: curr.x + dx2 * r2 / dist2,
+            y: curr.y + dy2 * r2 / dist2
+        };
+
+        // Add line to first corner point and quadratic curve for the corner
+        svgPath += ` L ${p1.x} ${p1.y} Q ${curr.x} ${curr.y}, ${p2.x} ${p2.y}`;
+    }
+
+    // Add final line
+    svgPath += ` L ${waypoints[waypoints.length - 1].x} ${waypoints[waypoints.length - 1].y}`;
+
+    // Return result
+    return {
+        svg: [svgPath],
+        startAngle: squareResult.startAngle,
+        endAngle: squareResult.endAngle
+    };
+}
+
+/**
+ * Creates a path that automatically routes around obstacles
+ */
+const autoRouting = (route: Coordinate[], source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
+                     target: PortState, targetBounds: Bounds, targetPlacement: PortPlacement) => {
+    // For now, use orthogonal routing as a base
+    // In a full implementation, this would detect other elements and route around them
+    return orthogonalSquare(route, source, sourceBounds, sourcePlacement, target, targetBounds, targetPlacement);
 }
 
 export const generatePath = (source: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
@@ -183,4 +592,3 @@ export const generatePath = (source: PortState, sourceBounds: Bounds, sourcePlac
     return result;
 
 }
-
