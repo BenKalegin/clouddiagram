@@ -4,16 +4,15 @@ import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
 import {IconButton, Menu, Stack, Tabs} from "@mui/material";
 import {LinkToNewDialog} from "../dialogs/LinkToNewDialog";
-import {atom, useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
-import {ElementType, Id} from "../../package/packageModel";
+import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
+import {ElementType} from "../../package/packageModel";
 import {
-    DiagramId,
     diagramKindSelector,
     exportingAtom,
     importingAtom,
     linkingAtom, selectedRefsSelector, showContextAtom
 } from "../diagramEditor/diagramEditorModel";
-import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
+import {activeDiagramIdAtom, openDiagramIdsAtom} from "./diagramTabsModel";
 import {
     addDiagramTabAction,
     elementCommandAction,
@@ -32,15 +31,6 @@ import {useHotkeys} from "react-hotkeys-hook";
 import {Command} from "../propertiesEditor/PropertiesEditor";
 import {ContextPopup} from "../dialogs/ContextPopup";
 
-export const activeDiagramIdAtom = atom<Id>({
-    key: 'activeDiagramId',
-    default: demoActiveDiagramId
-})
-
-export const openDiagramIdsAtom = atom<DiagramId[]>({
-    key: 'openDiagrams',
-    default: demoOpenDiagramIds
-})
 
 function AddNewTabButton() {
     const dispatch = useDispatch()

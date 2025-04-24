@@ -12,7 +12,7 @@ import {
     RouteStyle,
     TipStyle
 } from "../../package/packageModel";
-import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {elementCommandAction, elementPropertyChangedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ColorSchemaPropertyEditor} from "./ColorSchemaPropertyEditor";
 import {LineStylePropertyEditor} from "./LineStylePropertyEditor";
@@ -206,7 +206,11 @@ export const PropertiesEditor = () => {
     return (
         <>
             <Divider/>
-            {PropertiesSection}
+            {PropertiesSection.map(() => (
+                <div>
+
+                </div>
+            ))}
 
             <Divider/>
             {actionsSection}

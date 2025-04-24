@@ -21,7 +21,7 @@ import {
     PortState,
     RouteStyle
 } from "../../package/packageModel";
-import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {snapToBounds} from "../../common/Geometry/snap";
 import {DiagramId, elementsAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {LinkId, LinkRender, PortPlacement, PortRender, StructureDiagramState} from "./structureDiagramState";
@@ -217,6 +217,3 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
             TipStyle.None, TipStyle.None);
     }
 })
-
-
-

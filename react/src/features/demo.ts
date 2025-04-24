@@ -476,10 +476,6 @@ elements[demoDiagram1.id] = demoDiagram1;
 elements[demoDiagram2.id] = demoDiagram2;
 elements[demoDiagram3.id] = demoDiagram3;
 
-export const demoActiveDiagramId = demoDiagram1.id;
-export const demoOpenDiagramIds = [demoDiagram1.id, demoDiagram2.id, demoDiagram3.id];
-
-
-
-
-
+// Constants moved to demoConstants.ts to avoid circular dependencies
+// export const demoActiveDiagramId = demoDiagram1.id;
+// export const demoOpenDiagramIds = [demoDiagram1.id, demoDiagram2.id, demoDiagram3.id];

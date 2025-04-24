@@ -10,7 +10,7 @@ import {
 } from "./diagramEditorModel";
 import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
-import {activeDiagramIdAtom, openDiagramIdsAtom} from "../diagramTabs/DiagramTabs";
+import {activeDiagramIdAtom, openDiagramIdsAtom} from "../diagramTabs/diagramTabsModel";
 import {classDiagramEditor} from "../classDiagram/classDiagramSlice";
 import {Action, createAction} from "@reduxjs/toolkit";
 import {sequenceDiagramEditor} from "../sequenceDiagram/sequenceDiagramSlice";

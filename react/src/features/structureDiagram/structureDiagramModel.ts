@@ -19,7 +19,7 @@ import {
     TipStyle
 } from "../../package/packageModel";
 import {Bounds, Coordinate} from "../../common/model";
-import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {
     DiagramId,
     elementsAtom,
@@ -46,7 +46,6 @@ import {Command} from "../propertiesEditor/PropertiesEditor";
 import {selectorFamily} from "recoil";
 import {generatePath} from "../../common/Geometry/PathGenerator";
 import {defaultColorSchema} from "../../common/colors/colorSchemas";
-import {PredefinedSvg} from "../graphics/graphicsReader";
 
 export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);

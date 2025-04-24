@@ -17,7 +17,7 @@ import {exportDiagramAs, exportFormats, ExportImportFormat} from "../export/expo
 import {CodeMemo} from "../commonControls/CodeMemo";
 import {ElementType} from "../../package/packageModel";
 import Konva from "konva";
-import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {Diagram} from "../../common/model";
 
 export const ExportDialog = ({diagramKind, getStage}: {diagramKind: ElementType, getStage: () => Konva.Stage | null}) => {

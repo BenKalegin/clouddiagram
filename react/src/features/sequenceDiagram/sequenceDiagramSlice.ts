@@ -19,7 +19,7 @@ import {
     SequenceDiagramState
 } from "./sequenceDiagramModel";
 import {Coordinate, Diagram} from "../../common/model";
-import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {snapToBounds} from "../../common/Geometry/snap";
 import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
 
@@ -78,4 +78,3 @@ class SequenceDiagramHandler implements DiagramHandler {
 }
 
 export const sequenceDiagramEditor = new SequenceDiagramHandler();
-

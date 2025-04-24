@@ -22,7 +22,7 @@ import {
     generateId,
     linkingAtom,
 } from "../diagramEditor/diagramEditorModel";
-import {activeDiagramIdAtom} from "../diagramTabs/DiagramTabs";
+import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
 import produce, {Draft} from 'immer';
 import {Command} from "../propertiesEditor/PropertiesEditor";

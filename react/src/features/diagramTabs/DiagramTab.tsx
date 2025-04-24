@@ -11,7 +11,7 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import MenuItem from "@mui/material/MenuItem";
 import MenuDivider from "@mui/material/Divider";
-import {activeDiagramIdAtom} from "./DiagramTabs";
+import {activeDiagramIdAtom} from "./diagramTabsModel";
 
 export const TabHeight = '48px';
 
