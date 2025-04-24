@@ -28,7 +28,7 @@ This document contains a comprehensive list of improvement tasks for the Cloud D
 ## Code Quality Improvements
 
 ### Testing
-- [ ] 16. Implement unit tests for core functionality
+- [X] 16. Implement unit tests for core functionality
 - [ ] 17. Add integration tests for diagram operations
 - [ ] 18. Set up end-to-end testing for critical user flows
 - [ ] 19. Implement visual regression testing for diagram components
