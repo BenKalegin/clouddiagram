@@ -74,7 +74,11 @@ const theme = getTheme(appLayout.darkMode);
     return (
         <AppLayoutContext.Provider value={{appLayout, setAppLayout}}>
         <ThemeProvider theme={theme}>
-            <Box sx={{display: "flex"}}>
+            <Box sx={{
+                display: "flex",
+                height: "100vh",
+                overflow: "hidden" /* Prevent scrolling at the app level */
+            }}>
                 <CssBaseline/>
                 <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                     <Toolbar sx={{ justifyContent: "space-between" }}>

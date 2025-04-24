@@ -56,6 +56,9 @@ This document contains a comprehensive list of improvement tasks for the Cloud D
 - [ ] 33. Improve accessibility for all interactive components
 - [ ] 34. Enhance touch support for mobile devices
 - [ ] 35. Add user preferences for diagram defaults
+- [X] 31-1. Remove content scrolling under the top bar  
+- [X] 31-2. Add laser pointer functionality like in excalidraw
+- [X] 31-3. Implement diagram scrollbars 
 
 ### Diagram Functionality
 - [X] 36. Improve auto-routing algorithm for links
