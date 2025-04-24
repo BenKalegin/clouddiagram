@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import './App.css';
 import {Toolbox} from "../features/toolbox/Toolbox";
 import {DiagramTabs} from "../features/diagramTabs/DiagramTabs";
@@ -20,6 +20,7 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import {RightDrawer} from "./RightDrawer";
 import {AppLayoutContext, defaultAppLayout} from "./appModel";
 import {getTheme} from "../common/colors/colorSchemas";
+import {useRecoverDiagrams} from "../features/recovery/diagramRecovery";
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open"})<
     {
@@ -45,6 +46,19 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open"})<
 
 export const App = () => {
     const [appLayout, setAppLayout] = React.useState(defaultAppLayout);
+
+    const recoverDiagrams = useRecoverDiagrams();
+
+    // Attempt to recover diagrams on application startup
+    useEffect(() => {
+        recoverDiagrams().then(recovered => {
+            if (recovered) {
+                console.log('Diagrams recovered from persisted state');
+            } else {
+                console.log('No persisted diagrams found, using demo data');
+            }
+        });
+    }, [recoverDiagrams]);
 
     const handleDrawerOpen = () => {
         setAppLayout({...appLayout, propsPaneOpen: true});

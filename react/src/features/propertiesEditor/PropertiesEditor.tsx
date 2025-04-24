@@ -206,11 +206,7 @@ export const PropertiesEditor = () => {
     return (
         <>
             <Divider/>
-            {PropertiesSection.map(() => (
-                <div>
-
-                </div>
-            ))}
+            {PropertiesSection}
 
             <Divider/>
             {actionsSection}

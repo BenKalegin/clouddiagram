@@ -5,6 +5,7 @@ import {elements} from "../demo";
 import {nanoid} from 'nanoid';
 import {diagramEditors} from "./diagramEditorSlice";
 import {ExportImportFormat} from "../export/exportFormats";
+import { localStoragePersistence } from "../../common/persistence/statePersistence";
 
 export interface Linking {
     sourceElement: Id
@@ -51,11 +52,6 @@ export interface ContextPopupProps {
 }
 
 export const emptyElementSentinel: DiagramElement = {id: "", type: ElementType.ClassNode};
-
-export const elementsAtom = atomFamily<DiagramElement, Id>({
-    key: 'elements',
-    default: id => elements[id] ?? emptyElementSentinel
-})
 
 export const diagramTitleSelector = selectorFamily<string | undefined, DiagramId | undefined>({
     key: 'diagram',
@@ -125,6 +121,21 @@ export interface ConnectorRender {
     points: number[];
 }
 
+export const elementsAtom = atomFamily<DiagramElement, Id>({
+    key: 'elements',
+    default: id => elements[id] ?? emptyElementSentinel,
+    effects: id => [
+        localStoragePersistence(`element_${id}`)
+    ]
+});
 
+// Create a new atom to track all element IDs for recovery
+export const elementIdsAtom = atom<Id[]>({
+    key: 'elementIds',
+    default: Object.keys(elements),
+    effects: [
+        localStoragePersistence('elementIds')
+    ]
+});
 
 
