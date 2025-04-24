@@ -213,7 +213,28 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
         const port2Render = renderPort({x: linking.diagramPos.x, y: linking.diagramPos.y, width: 0, height: 0},
             port2, port2Placement);
 
-        return renderLink(port1, port1Render.bounds, port1Placement, port2, port2Render.bounds, port2Placement, RouteStyle.Direct,
+        // Calculate bounds for the drawing link
+        const sourceBounds = port1Render.bounds;
+        const targetBounds = {x: linking.diagramPos.x, y: linking.diagramPos.y, width: 0, height: 0};
+        const minX = Math.min(sourceBounds.x, targetBounds.x);
+        const minY = Math.min(sourceBounds.y, targetBounds.y);
+        const maxX = Math.max(sourceBounds.x + sourceBounds.width, targetBounds.x + targetBounds.width);
+        const maxY = Math.max(sourceBounds.y + sourceBounds.height, targetBounds.y + targetBounds.height);
+
+        // Add some padding to ensure the path is fully contained
+        const padding = 20;
+
+        const linkRender = renderLink(port1, port1Render.bounds, port1Placement, port2, port2Render.bounds, port2Placement, RouteStyle.Direct,
             TipStyle.None, TipStyle.None);
+
+        // Override the bounds with our calculated bounds
+        linkRender.bounds = {
+            x: minX - padding,
+            y: minY - padding,
+            width: maxX - minX + padding * 2,
+            height: maxY - minY + padding * 2
+        };
+
+        return linkRender;
     }
 })

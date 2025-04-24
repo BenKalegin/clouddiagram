@@ -27,6 +27,7 @@ export interface LinkPlacement {
 
 export interface LinkRender {
     svgPath: string[];
+    bounds: Bounds;
 }
 
 export type PortRender = {

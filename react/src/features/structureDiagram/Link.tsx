@@ -8,6 +8,7 @@ import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditor
 import {ElementRef, ElementType, LinkState} from "../../package/packageModel";
 import {AppLayoutContext} from "../../app/appModel";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
+import {VirtualizedItem} from "../../common/components/VirtualizedLayer";
 
 export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}) => {
     const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
@@ -17,23 +18,28 @@ export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}
     const link = useRecoilValue(elementsAtom(linkId)) as LinkState
     const { appLayout } = useContext(AppLayoutContext);
     const colorSchema = adjustColorSchemaForTheme(link.colorSchema, appLayout.darkMode);
+
     return (
-        <Group>
-            {render.svgPath.map((pathData, index) => {
-                return <Path
-                        key={index}
-                        hitStrokeWidth={10}
-                        data={pathData}
-                        fill={colorSchema.fillColor}
-                        strokeWidth={isSelected ? 3 : 1.4}
-                        stroke={colorSchema.strokeColor}
-                        onClick={(e) => {
-                            const element: ElementRef = {id: linkId, type: ElementType.ClassLink}
-                            dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
-                        }}
-                    />;
-                }
-            )}
-        </Group>
+        <VirtualizedItem
+            getBounds={() => render.bounds}
+        >
+            <Group>
+                {render.svgPath.map((pathData, index) => {
+                    return <Path
+                            key={index}
+                            hitStrokeWidth={10}
+                            data={pathData}
+                            fill={colorSchema.fillColor}
+                            strokeWidth={isSelected ? 3 : 1.4}
+                            stroke={colorSchema.strokeColor}
+                            onClick={(e) => {
+                                const element: ElementRef = {id: linkId, type: ElementType.ClassLink}
+                                dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
+                            }}
+                        />;
+                    }
+                )}
+            </Group>
+        </VirtualizedItem>
     );
 }

@@ -398,8 +398,23 @@ export function handleStructureElementPropertyChanged(get: Get, set: Set, elemen
 
 export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
                            targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, linkStyle: RouteStyle, tipStyle1: TipStyle, tipStyle2: TipStyle): LinkRender => {
+    // Calculate bounds that encompass both source and target
+    const minX = Math.min(sourceBounds.x, targetBounds.x);
+    const minY = Math.min(sourceBounds.y, targetBounds.y);
+    const maxX = Math.max(sourceBounds.x + sourceBounds.width, targetBounds.x + targetBounds.width);
+    const maxY = Math.max(sourceBounds.y + sourceBounds.height, targetBounds.y + targetBounds.height);
+
+    // Add some padding to ensure the path is fully contained
+    const padding = 20;
+
     return {
-        svgPath: generatePath(sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, linkStyle, tipStyle1, tipStyle2)
+        svgPath: generatePath(sourcePort, sourceBounds, sourcePlacement, targetPort, targetBounds, targetPlacement, linkStyle, tipStyle1, tipStyle2),
+        bounds: {
+            x: minX - padding,
+            y: minY - padding,
+            width: maxX - minX + padding * 2,
+            height: maxY - minY + padding * 2
+        }
     }
 }
 
