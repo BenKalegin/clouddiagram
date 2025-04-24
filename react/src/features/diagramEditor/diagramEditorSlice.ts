@@ -15,7 +15,6 @@ import {classDiagramEditor} from "../classDiagram/classDiagramSlice";
 import {Action, createAction} from "@reduxjs/toolkit";
 import {sequenceDiagramEditor} from "../sequenceDiagram/sequenceDiagramSlice";
 import Konva from "konva";
-import {Command} from "../propertiesEditor/PropertiesEditor";
 import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 import KonvaEventObject = Konva.KonvaEventObject;
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
@@ -23,6 +22,7 @@ import {ExportImportFormat, importDiagramAs} from "../export/exportFormats";
 import {DeploymentDiagramState} from "../deploymentDiagram/deploymentDaigramModel";
 import {deploymentDiagramEditor} from "../deploymentDiagram/deploymentDiagramSlice";
 import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
+import {Command} from "../propertiesEditor/propertiesEditorModel";
 
 export enum ElementMoveResizePhase {
     start  = "start",

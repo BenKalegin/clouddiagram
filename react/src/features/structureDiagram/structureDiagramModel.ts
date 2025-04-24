@@ -42,7 +42,7 @@ import {
 } from "./structureDiagramState";
 import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
-import {Command} from "../propertiesEditor/PropertiesEditor";
+import {Command} from "../propertiesEditor/propertiesEditorModel";
 import {selectorFamily} from "recoil";
 import {generatePath} from "../../common/Geometry/PathGenerator";
 import {defaultColorSchema} from "../../common/colors/colorSchemas";

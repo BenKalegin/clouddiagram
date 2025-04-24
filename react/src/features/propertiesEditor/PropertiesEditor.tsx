@@ -6,8 +6,6 @@ import {selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/d
 import {
     ColorSchema,
     CustomShape,
-    ElementType,
-    HasColorSchema,
     LineStyle,
     RouteStyle,
     TipStyle
@@ -19,98 +17,13 @@ import {LineStylePropertyEditor} from "./LineStylePropertyEditor";
 import {NodeLayoutPropertyEditor} from "./NodeLayoutPropertyEditor";
 import {LinkStylePropertyEditor} from "./LinkStylePropertyEditor";
 import {TipStylePropertyEditor} from "./TipStylePropertyEditor";
-
-
-export enum PropertyType {
-    String,
-    Boolean,
-    ColorSchema,
-    ShapeLayout,
-    LineStyle,
-    RouteStyle,
-    TipStyle,
-}
-
-export type PropAndKind = {kind: ElementType, prop: PropertyDefinition}
-
-
-interface PropertyDefinition {
-    name: string;
-    label: string;
-    type: PropertyType;
-    supportMultiEdit: boolean;
-}
-
-export enum Command {
-    Delete = "delete",
-    AddReturnMessage = "add-return-message",
-    ReverseMessage = "reverse-message",
-    SelectNextLeft = "select-next-left",
-    SelectNextRight = "select-next-right",
-    SelectNextUp = "select-next-up",
-    SelectNextDown = "select-next-down",
-}
-
-interface CommandDefinition {
-    kind: Command;
-    label: string;
-    supportMultiEdit: boolean;
-}
-
-// TODO split by features
-const textProp : PropertyDefinition = {name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false};
-const colorSchemaProp : PropertyDefinition = {name: "colorSchema" as keyof HasColorSchema, label: "Colors", type: PropertyType.ColorSchema, supportMultiEdit: true}
-const shapeLayoutProp : PropertyDefinition = {name: "customShape", label: "Shape Layout", type: PropertyType.ShapeLayout, supportMultiEdit: true}
-const lineStyleProp: PropertyDefinition = {name: "lineStyle", label: "Line Style", type: PropertyType.LineStyle, supportMultiEdit: true}
-const linkStyleProp: PropertyDefinition = {name: "routeStyle", label: "Route", type: PropertyType.RouteStyle, supportMultiEdit: true}
-const tipStyleProp1: PropertyDefinition = {name: "tipStyle1", label: "Start tip", type: PropertyType.TipStyle, supportMultiEdit: true}
-const tipStyleProp2: PropertyDefinition = {name: "tipStyle2", label: "End tip", type: PropertyType.TipStyle, supportMultiEdit: true}
-
-
-function getPropertyList(type: ElementType): PropertyDefinition[] {
-    switch (type) {
-        case ElementType.ClassNode:
-            return [textProp, colorSchemaProp, shapeLayoutProp];
-        case ElementType.ClassLink:
-            return [textProp, colorSchemaProp, linkStyleProp, tipStyleProp1, tipStyleProp2];
-        case ElementType.SequenceLifeLine:
-            return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}, colorSchemaProp];
-        case ElementType.SequenceMessage:
-            return [
-                textProp, lineStyleProp,
-                {name: "isReturn", label: "Is Return", type: PropertyType.Boolean, supportMultiEdit: false},
-                {name: "isAsync", label: "Is Asynchronous", type: PropertyType.Boolean, supportMultiEdit: false},
-            ];
-        case ElementType.Note:
-            return [textProp, colorSchemaProp];
-        default:
-            return [];
-    }
-}
-
-type CommandAndKind = {kind: ElementType, command: CommandDefinition}
-
-const deleteCommand = {label: "Delete", kind: Command.Delete, supportMultiEdit: true};
-function getActionList(type: ElementType): CommandDefinition[] {
-    switch (type) {
-        case ElementType.Note:
-            return [deleteCommand];
-        case ElementType.ClassNode:
-        case ElementType.DeploymentNode:
-        case ElementType.ClassLink:
-        case ElementType.DeploymentLink:
-            return [deleteCommand];
-        case ElementType.SequenceLifeLine:
-            return [deleteCommand];
-        case ElementType.SequenceMessage:
-            return [deleteCommand,
-                {label: "Add Return Message", kind: Command.AddReturnMessage, supportMultiEdit: false},
-                {label: "Reverse Message", kind: Command.ReverseMessage, supportMultiEdit: false},
-            ];
-        default:
-            return [];
-    }
-}
+import {
+    CommandAndKind,
+    getActionList,
+    getPropertyList,
+    PropAndKind,
+    PropertyType
+} from "./propertiesEditorModel";
 
 
 
@@ -125,11 +38,11 @@ export const PropertiesEditor = () => {
 
     const properties = selectedKinds
         .flatMap(kind => getPropertyList(kind).map<PropAndKind>(prop => ({kind, prop: prop})))
-        .filter(({kind, prop}) => prop.supportMultiEdit || selectedIds.length === 1)
+        .filter(({prop}) => prop.supportMultiEdit || selectedIds.length === 1)
 
     const commands = selectedKinds
         .flatMap(kind => getActionList(kind).map<CommandAndKind>(action => ({kind, command: action})))
-        .filter(({kind, command}) => command.supportMultiEdit || selectedIds.length === 1)
+        .filter(({command}) => command.supportMultiEdit || selectedIds.length === 1)
 
     const getPropertyValue = (property: PropAndKind): any => {
         const {kind, prop} = property;

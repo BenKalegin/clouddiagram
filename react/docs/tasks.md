@@ -6,13 +6,13 @@ This document contains a comprehensive list of improvement tasks for the Cloud D
 
 ### State Management
 - [X] 1. Refactor Recoil state management to use more consistent patterns across the application
-- [ ] 2. Implement proper state persistence to localStorage or IndexedDB for diagram recovery
+- [X] 2. Implement proper state persistence to localStorage or IndexedDB for diagram recovery
 - [ ] 3. Create a centralized error handling mechanism for state operations
 - [ ] 4. Optimize state selectors to reduce unnecessary re-renders
 - [ ] 5. Add comprehensive state validation to prevent invalid states
 
 ### Project Structure
-- [ ] 6. Reorganize feature folders to better separate concerns (e.g., separate view components from state logic)
+- [X] 6. Reorganize feature folders to better separate concerns (e.g., separate view components from state logic)
 - [ ] 7. Create a dedicated services layer for cross-cutting concerns
 - [ ] 8. Implement a proper module system with clear boundaries between features
 - [ ] 9. Move common utilities to a shared utilities directory

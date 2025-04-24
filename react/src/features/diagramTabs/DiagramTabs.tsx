@@ -28,8 +28,8 @@ import {ExportDialog} from "../dialogs/ExportDialog";
 import {ImportDialog} from "../dialogs/ImportDialog";
 import {DeploymentDiagramEditor} from "../deploymentDiagram/DeploymentDiagramEditor";
 import {useHotkeys} from "react-hotkeys-hook";
-import {Command} from "../propertiesEditor/PropertiesEditor";
 import {ContextPopup} from "../dialogs/ContextPopup";
+import {Command} from "../propertiesEditor/propertiesEditorModel";
 
 
 function AddNewTabButton() {
@@ -78,7 +78,7 @@ export const DiagramTabs = () => {
     const dispatch = useDispatch()
     let stageRef: React.RefObject<Konva.Stage> = useRef<Konva.Stage | null>(null);
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
-        // deselect when clicked on empty area
+        // deselect when clicked on an empty area
         const clickedOnEmpty = e.target === e.target.getStage()
         if (clickedOnEmpty) {
             if (clickedOnEmpty) {

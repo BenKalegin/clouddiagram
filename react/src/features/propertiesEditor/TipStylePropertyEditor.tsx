@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
-import {PropAndKind} from "./PropertiesEditor";
+import {PropAndKind} from "./propertiesEditorModel";
 import {enumKeys} from "../../common/EnumUtils";
 
 const TipStyleIcon: React.FC<{ tipStyle: TipStyle }> = ({ tipStyle }) => {
@@ -109,4 +109,3 @@ export const TipStylePropertyEditor: React.FC<TipStylePropertyEditorProps> = (pr
 
     );
 }
-

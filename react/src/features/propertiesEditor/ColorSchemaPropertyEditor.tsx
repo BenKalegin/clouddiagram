@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
-import {PropAndKind} from "./PropertiesEditor";
+import {PropAndKind} from "./propertiesEditorModel";
 import {colorSchemaList} from "../../common/colors/colorSchemas";
 import {AppLayoutContext} from "../../app/appModel";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";

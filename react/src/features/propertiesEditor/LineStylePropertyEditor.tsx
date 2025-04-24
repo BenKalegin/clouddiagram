@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
-import {PropAndKind} from "./PropertiesEditor";
+import {PropAndKind} from "./propertiesEditorModel";
 
 const LineStyleIcon: React.FC<LineStyle> = (props:LineStyle) => {
     return (
@@ -89,4 +89,3 @@ export const LineStylePropertyEditor: React.FC<LineStylePropertyEditorProps> = (
 
     );
 }
-

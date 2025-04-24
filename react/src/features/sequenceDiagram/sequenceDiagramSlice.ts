@@ -31,12 +31,12 @@ class SequenceDiagramHandler implements DiagramHandler {
             handleSequenceDropFromLibrary(get, set, droppedAt, name, kind);
         }
         else if (elementMoveAction.match(action)) {
-            const {currentPointerPos, phase, startNodePos, startPointerPos, element} = action.payload;
-            handleSequenceMoveElement(get, set, phase, element, currentPointerPos, startPointerPos, startNodePos);
+            const {currentPointerPos, startNodePos, startPointerPos, element} = action.payload;
+            handleSequenceMoveElement(get, set, element, currentPointerPos, startPointerPos, startNodePos);
         }
         else if (elementResizeAction.match(action)) {
-            const {phase, element, suggestedBounds} = action.payload;
-            handleSequenceResizeElement(get, set, phase, element, suggestedBounds);
+            const {element, suggestedBounds} = action.payload;
+            handleSequenceResizeElement(get, set, element, suggestedBounds);
         }else if (elementPropertyChangedAction.match(action)) {
             const {elements, propertyName, value} = action.payload;
             handleSequenceElementPropertyChanged(get, set, elements, propertyName, value);

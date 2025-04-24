@@ -23,12 +23,12 @@ import {
     linkingAtom,
 } from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
-import {ElementMoveResizePhase, Get, Set} from "../diagramEditor/diagramEditorSlice";
+import {Get, Set} from "../diagramEditor/diagramEditorSlice";
 import produce, {Draft} from 'immer';
-import {Command} from "../propertiesEditor/PropertiesEditor";
 import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {defaultColorSchema} from "../../common/colors/colorSchemas";
+import {Command} from "../propertiesEditor/propertiesEditorModel";
 
 export const lifelineHeadY = 30;
 export const lifelineDefaultWidth = 100;
@@ -62,11 +62,11 @@ export interface ActivationRender {
 export interface LifelinePlacement{
     headBounds: Bounds;
     /**
-     * Relative position of the start of the lifeline. If 0, it will start right below the head
+     * Relative position of the lifeline start. If 0, it will start right below the head
       */
     lifelineStart: number;
     /**
-     * Relative position of the end of the lifeline. Length of the lifeline will be lifelineEnd - lifelineStart
+     * Relative position of the lifeline end. Length of the lifeline will be lifelineEnd - lifelineStart
      */
     lifelineEnd: number;
 }
@@ -155,7 +155,7 @@ export const renderMessage = (activation1: ActivationRender, activation2: Activa
     }
 }
 
-export function handleSequenceMoveElement(get: Get, set: Set, phase: ElementMoveResizePhase, elementId: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
+export function handleSequenceMoveElement(get: Get, set: Set, elementId: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
 
@@ -194,7 +194,7 @@ export function handleSequenceMoveElement(get: Get, set: Set, phase: ElementMove
 
 }
 
-export function handleSequenceResizeElement(get: Get, set: Set, phase: ElementMoveResizePhase, element: ElementRef, suggestedBounds: Bounds) {
+export function handleSequenceResizeElement(get: Get, set: Set, element: ElementRef, suggestedBounds: Bounds) {
     const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
     const update = produce(originalDiagram, (diagram: Draft<SequenceDiagramState>) => {
@@ -289,7 +289,7 @@ export function lifelinePoints(headBounds: Bounds, lifelineStart: number, lifeli
 }
 
 /**
- * Search for activation at specified X,Y diagram position
+ * Search for activation at the specified X, Y diagram position
  */
 export function findActivationAtPos(get: Get, pos: Coordinate, diagramId: string, tolerance: number) :
     [Id?, Bounds?]  {
@@ -541,7 +541,7 @@ export const sequenceDiagramSelector = selectorFamily<SequenceDiagramState, Diag
         return get(elementsAtom(id)) as SequenceDiagramState;
     },
 
-    set: (id) => ({get, set}, newValue) => {
+    set: (id) => ({set}, newValue) => {
         set(elementsAtom(id), newValue)
     }
 })
@@ -637,7 +637,7 @@ function reverseMessage(draft: Draft<SequenceDiagramState>, messageId: MessageId
     message.activation2 = swap;
 }
 
-function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: ElementRef, getElement: (id: Id) => DiagramElement, setElement: (id: Id, element: DiagramElement) => void) {
+function deleteSequenceElement(diagram: Draft<SequenceDiagramState>, element: ElementRef, _getElement: (id: Id) => DiagramElement, setElement: (id: Id, element: DiagramElement) => void) {
     function deleteActivation(activationId: ActivationId) {
         const activation = diagram.activations[activationId];
         const lifeline = diagram.lifelines[activation.lifelineId];
