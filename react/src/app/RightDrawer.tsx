@@ -3,7 +3,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {PropertiesEditor} from "../features/propertiesEditor/PropertiesEditor";
 import React, {useContext} from "react";
-import {AppLayout, AppLayoutContext} from "./AppModel";
+import {AppLayout, AppLayoutContext} from "./appModel";
 
 const DrawerHeader = styled("div")(({theme}) => ({
     display: "flex",

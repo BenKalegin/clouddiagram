@@ -18,7 +18,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import {RightDrawer} from "./RightDrawer";
-import {AppLayoutContext, defaultAppLayout} from "./AppModel";
+import {AppLayoutContext, defaultAppLayout} from "./appModel";
 import {getTheme} from "../common/colors/colorSchemas";
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open"})<

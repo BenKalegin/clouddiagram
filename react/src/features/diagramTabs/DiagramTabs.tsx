@@ -17,12 +17,11 @@ import {demoActiveDiagramId, demoOpenDiagramIds} from "../demo";
 import {
     addDiagramTabAction,
     elementCommandAction,
-    elementSelectedAction, hideContextAction,
-    useDispatch
+    elementSelectedAction, useDispatch
 } from "../diagramEditor/diagramEditorSlice";
 import Konva from "konva";
 import {Stage} from 'react-konva';
-import {AppLayoutContext} from "../../app/AppModel";
+import {AppLayoutContext} from "../../app/appModel";
 import AddIcon from '@mui/icons-material/Add';
 import MenuItem from '@mui/material/MenuItem';
 import {PlainTab, TabHeight} from "./DiagramTab";

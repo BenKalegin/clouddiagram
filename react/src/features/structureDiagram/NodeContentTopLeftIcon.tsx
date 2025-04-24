@@ -1,7 +1,7 @@
 import React, {FC, useContext, useMemo} from "react";
 import {Image, Rect, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
-import {AppLayoutContext} from "../../app/AppModel";
+import {AppLayoutContext} from "../../app/appModel";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 // Add a WeakMap to cache results by image instance

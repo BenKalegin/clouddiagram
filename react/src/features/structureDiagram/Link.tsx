@@ -6,7 +6,7 @@ import {linkRenderSelector} from "./structureDiagramHandler";
 import {LinkId} from "./structureDiagramState";
 import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ElementRef, ElementType, LinkState} from "../../package/packageModel";
-import {AppLayoutContext} from "../../app/AppModel";
+import {AppLayoutContext} from "../../app/appModel";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}) => {

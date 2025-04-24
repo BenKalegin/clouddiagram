@@ -9,7 +9,7 @@ import {DiagramId, linkingAtom, selectedRefsSelector} from "../diagramEditor/dia
 import {ElementType} from "../../package/packageModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
 import {getLifelineCustomDrawById} from "../graphics/graphicsReader";
-import {AppLayoutContext} from "../../app/AppModel";
+import {AppLayoutContext} from "../../app/appModel";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 export interface LifelineProps {

@@ -12,7 +12,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
 import {PropAndKind} from "./PropertiesEditor";
 import {colorSchemaList} from "../../common/colors/colorSchemas";
-import {AppLayoutContext} from "../../app/AppModel";
+import {AppLayoutContext} from "../../app/appModel";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 const ColorSchemaIcon: React.FC<ColorSchema> = (props:ColorSchema) => {
@@ -97,4 +97,3 @@ export const ColorSchemaPropertyEditor: React.FC<ColorSchemaPropertyEditorProps>
 
     );
 }
-

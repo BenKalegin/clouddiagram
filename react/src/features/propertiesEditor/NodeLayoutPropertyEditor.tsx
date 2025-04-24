@@ -13,7 +13,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
 import {PropAndKind} from "./PropertiesEditor";
 import {enumKeys} from "../../common/EnumUtils";
-import {AppLayoutContext} from "../../app/AppModel";
+import {AppLayoutContext} from "../../app/appModel";
 
 const NodeLayoutIcon: React.FC<{ layout: PictureLayout }> = ({ layout }) => {
     let svgContent;
@@ -128,4 +128,3 @@ export const NodeLayoutPropertyEditor: React.FC<NodeLayoutPropertyEditorProps> =
         />
     );
 }
-
