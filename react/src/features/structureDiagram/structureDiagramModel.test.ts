@@ -1,7 +1,12 @@
 import { portBounds } from './structureDiagramModel';
 import { Bounds } from '../../common/model';
 import { PortAlignment, PortState } from '../../package/packageModel';
-import { PortPlacement } from './structureDiagramState';
+import {PortPlacement} from "./structureDiagramState";
+
+jest.mock("react-konva-to-svg", () => ({
+  exportStageSVG: jest.fn(),
+}));
+
 
 describe('structureDiagramModel', () => {
   describe('portBounds', () => {

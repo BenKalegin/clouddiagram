@@ -176,15 +176,6 @@ export function convertColorForDarkTheme(
     return rgbToHex(adjustedRgb);
 }
 
-function invertHexColor(hex: string): string {
-    hex = hex.replace('#', '');
-    if (hex.length === 3) {
-        hex = hex.split('').map(char => char + char).join('');
-    }
-    let invertedColor = (Number(`0x1${hex}`) ^ 0xFFFFFF).toString(16).slice(1).toUpperCase();
-    return `#${invertedColor}`;
-}
-
 export const adjustColorSchemaForTheme = (colorSchema: ColorSchema, darkMode: boolean): ColorSchema => {
     if (darkMode) {
         return {
