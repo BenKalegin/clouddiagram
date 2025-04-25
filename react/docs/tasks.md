@@ -58,7 +58,11 @@ This document contains a comprehensive list of improvement tasks for the Cloud D
 - [ ] 35. Add user preferences for diagram defaults
 - [X] 31-1. Remove content scrolling under the top bar  
 - [X] 31-2. Add laser pointer functionality like in excalidraw
-- [X] 31-3. Implement diagram scrollbars 
+- [X] 31-3. Implement diagram scrollbars
+- [ ] 31-4. Add a "Select All" feature for easier manipulation of multiple elements
+- [ ] 31-5. Implement a "Find" feature to search for elements within the diagram
+- [ ] 31-6. Add a "Zoom to Fit" feature to adjust the view to fit all elements
+- [X] 31-7. Add panning functionality to allow users to move the view without changing the zoom level
 
 ### Diagram Functionality
 - [X] 36. Improve auto-routing algorithm for links

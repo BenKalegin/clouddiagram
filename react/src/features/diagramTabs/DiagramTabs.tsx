@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useRef, useState, useEffect} from "react";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
@@ -74,9 +74,91 @@ export const DiagramTabs = () => {
     const importing = useRecoilValue(importingAtom)
     const showingContext = useRecoilValue(showContextAtom)
 
+    // State for right-click panning
+    const [isRightMouseDown, setIsRightMouseDown] = useState(false);
+    const [lastPointerPosition, setLastPointerPosition] = useState<{ x: number, y: number } | null>(null);
+    const [stageContainer, setStageContainer] = useState<HTMLDivElement | null>(null);
+
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
     const dispatch = useDispatch()
     let stageRef: React.RefObject<Konva.Stage> = useRef<Konva.Stage | null>(null);
+
+    // Set up event handlers for right-click panning
+    useEffect(() => {
+        if (!stageRef.current) return;
+
+        const stage = stageRef.current;
+        const container = stage.container();
+        setStageContainer(container);
+
+        // Handle right mouse button down
+        const handleMouseDown = (e: MouseEvent) => {
+            // Right mouse button (button === 2)
+            if (e.button === 2) {
+                e.preventDefault();
+                setIsRightMouseDown(true);
+                setLastPointerPosition({
+                    x: e.clientX,
+                    y: e.clientY
+                });
+                // Change cursor to grabbing
+                container.style.cursor = 'grabbing';
+            }
+        };
+
+        // Handle mouse move for panning
+        const handleMouseMove = (e: MouseEvent) => {
+            if (isRightMouseDown && lastPointerPosition) {
+                e.preventDefault();
+                const dx = e.clientX - lastPointerPosition.x;
+                const dy = e.clientY - lastPointerPosition.y;
+
+                const newPos = {
+                    x: stage.x() + dx,
+                    y: stage.y() + dy
+                };
+
+                stage.position(newPos);
+                stage.batchDraw();
+
+                setLastPointerPosition({
+                    x: e.clientX,
+                    y: e.clientY
+                });
+            }
+        };
+
+        // Handle mouse up to stop panning
+        const handleMouseUp = (e: MouseEvent) => {
+            if (e.button === 2) {
+                setIsRightMouseDown(false);
+                setLastPointerPosition(null);
+                // Reset cursor
+                container.style.cursor = 'default';
+            }
+        };
+
+        // Handle context menu to prevent it from showing
+        const handleContextMenu = (e: MouseEvent) => {
+            e.preventDefault();
+        };
+
+        // Add event listeners
+        container.addEventListener('mousedown', handleMouseDown);
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        container.addEventListener('contextmenu', handleContextMenu);
+
+        // Clean up event listeners
+        return () => {
+            container.removeEventListener('mousedown', handleMouseDown);
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+            container.removeEventListener('contextmenu', handleContextMenu);
+        };
+    }, [isRightMouseDown, lastPointerPosition]);
+
+
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on an empty area
         const clickedOnEmpty = e.target === e.target.getStage()
