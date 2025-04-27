@@ -80,6 +80,7 @@ export function resizeElement(get: Get, set: Set, element: ElementRef, suggested
     const update = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
         switch (element.type) {
             case ElementType.ClassNode:
+            case ElementType.DeploymentNode:
                 const bounds = diagram.nodes[element.id].bounds
                 bounds.x = suggestedBounds.x;
                 bounds.y = suggestedBounds.y;
@@ -132,7 +133,7 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
 
     let port2: PortState;
     let placement2: PortPlacement;
-    if (target.type === ElementType.ClassNode) {
+    if (target.type === ElementType.ClassNode || target.type === ElementType.DeploymentNode) {
         const targetNode = get(elementsAtom(target.id)) as NodeState;
         port2 = addNewPort(get, set, targetNode);
         placement2 = {alignment: PortAlignment.Left, edgePosRatio: 50};
