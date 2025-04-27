@@ -21,6 +21,9 @@ import {RightDrawer} from "./RightDrawer";
 import {ThemeService, defaultAppLayout} from "../services/theme/themeService";
 import {getTheme} from "../common/colors/colorSchemas";
 import {RecoveryService} from "../services/recovery/recoveryService";
+import {useRecoverDiagrams} from "../features/recovery/diagramRecovery";
+import {UndoRedoControls} from "../features/diagramEditor/UndoRedoControls";
+import {KeyboardShortcuts} from "../features/diagramEditor/KeyboardShortcuts";
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open"})<
     {
@@ -80,12 +83,14 @@ const theme = getTheme(appLayout.darkMode);
                 overflow: "hidden" /* Prevent scrolling at the app level */
             }}>
                 <CssBaseline/>
+                <KeyboardShortcuts />
                 <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                     <Toolbar sx={{ justifyContent: "space-between" }}>
                         <Typography variant="h6" noWrap component="div">
                             Cloud Diagram
                         </Typography>
                         <Stack direction="row" spacing={1}>
+                            <UndoRedoControls />
                             <IconButton onClick={handleToggleTheme} color="inherit">
                                 {appLayout.darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
                             </IconButton>
