@@ -18,9 +18,9 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import {RightDrawer} from "./RightDrawer";
-import {AppLayoutContext, defaultAppLayout} from "./appModel";
+import {ThemeService, defaultAppLayout} from "../services/theme/themeService";
 import {getTheme} from "../common/colors/colorSchemas";
-import {useRecoverDiagrams} from "../features/recovery/diagramRecovery";
+import {RecoveryService} from "../services/recovery/recoveryService";
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open"})<
     {
@@ -47,7 +47,7 @@ const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open"})<
 export const App = () => {
     const [appLayout, setAppLayout] = React.useState(defaultAppLayout);
 
-    const recoverDiagrams = useRecoverDiagrams();
+    const recoverDiagrams = RecoveryService.useRecoverDiagrams();
 
     // Attempt to recover diagrams on application startup
     useEffect(() => {
@@ -61,18 +61,18 @@ export const App = () => {
     }, [recoverDiagrams]);
 
     const handleDrawerOpen = () => {
-        setAppLayout({...appLayout, propsPaneOpen: true});
+        setAppLayout(ThemeService.togglePropertiesPane(appLayout));
     };
 
     const handleToggleTheme = ()=> {
-        setAppLayout({...appLayout, darkMode: !appLayout.darkMode});
+        setAppLayout(ThemeService.toggleDarkMode(appLayout));
     }
 
 
 const theme = getTheme(appLayout.darkMode);
 
     return (
-        <AppLayoutContext.Provider value={{appLayout, setAppLayout}}>
+        <ThemeService.AppLayoutContext.Provider value={{appLayout, setAppLayout}}>
         <ThemeProvider theme={theme}>
             <Box sx={{
                 display: "flex",
@@ -112,6 +112,6 @@ const theme = getTheme(appLayout.darkMode);
                 <RightDrawer/>
             </Box>
         </ThemeProvider>
-        </AppLayoutContext.Provider>
+        </ThemeService.AppLayoutContext.Provider>
     );
 };

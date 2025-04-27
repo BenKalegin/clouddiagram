@@ -13,7 +13,7 @@ This document contains a comprehensive list of improvement tasks for the Cloud D
 
 ### Project Structure
 - [X] 6. Reorganize feature folders to better separate concerns (e.g., separate view components from state logic)
-- [ ] 7. Create a dedicated services layer for cross-cutting concerns
+- [X] 7. Create a dedicated services layer for cross-cutting concerns
 - [ ] 8. Implement a proper module system with clear boundaries between features
 - [ ] 9. Move common utilities to a shared utilities directory
 - [X] 10. Standardize file naming conventions across the project

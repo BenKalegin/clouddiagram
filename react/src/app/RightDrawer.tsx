@@ -3,7 +3,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {PropertiesEditor} from "../features/propertiesEditor/PropertiesEditor";
 import React, {useContext} from "react";
-import {AppLayout, AppLayoutContext} from "./appModel";
+import {ThemeService} from "../services/theme/themeService";
 
 const DrawerHeader = styled("div")(({theme}) => ({
     display: "flex",
@@ -15,12 +15,11 @@ const DrawerHeader = styled("div")(({theme}) => ({
 }));
 
 export const RightDrawer = () => {
-    const {appLayout, setAppLayout} = useContext(AppLayoutContext);
+    const {appLayout, setAppLayout} = useContext(ThemeService.AppLayoutContext);
     const theme = useTheme();
 
     const handleDrawerClose = () => {
-        const newLayout: AppLayout = {...appLayout, propsPaneOpen: false};
-        setAppLayout(newLayout);
+        setAppLayout(ThemeService.togglePropertiesPane(appLayout));
     };
 
     return <Drawer
