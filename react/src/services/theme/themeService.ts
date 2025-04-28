@@ -7,6 +7,7 @@ export interface AppLayout {
     propsPaneOpen: boolean;
     propsDrawerWidth: number;
     darkMode: boolean;
+    showGrid: boolean;
 }
 
 /**
@@ -23,7 +24,8 @@ interface AppLayoutContextType {
 export const defaultAppLayout: AppLayout = {
     propsPaneOpen: false,
     propsDrawerWidth: 240,
-    darkMode: false
+    darkMode: false,
+    showGrid: true
 };
 
 /**
@@ -72,6 +74,18 @@ export class ThemeService {
         return {
             ...appLayout,
             propsDrawerWidth: width
+        };
+    }
+
+    /**
+     * Toggles grid visibility
+     * @param appLayout The current application layout
+     * @returns The updated application layout with grid visibility toggled
+     */
+    static toggleShowGrid(appLayout: AppLayout): AppLayout {
+        return {
+            ...appLayout,
+            showGrid: !appLayout.showGrid
         };
     }
 }

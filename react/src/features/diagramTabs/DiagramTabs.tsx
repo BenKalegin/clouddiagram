@@ -12,6 +12,7 @@ import {
     importingAtom,
     linkingAtom, selectedRefsSelector, showContextAtom
 } from "../diagramEditor/diagramEditorModel";
+import { ThemeService } from "../../services/theme/themeService";
 import {activeDiagramIdAtom, openDiagramIdsAtom} from "./diagramTabsModel";
 import {
     addDiagramTabAction,
@@ -20,7 +21,7 @@ import {
 } from "../diagramEditor/diagramEditorSlice";
 import Konva from "konva";
 import {Stage} from 'react-konva';
-import {AppLayoutContext} from "../../app/appModel";
+// import {AppLayoutContext} from "../../app/appModel";
 import AddIcon from '@mui/icons-material/Add';
 import MenuItem from '@mui/material/MenuItem';
 import {PlainTab, TabHeight} from "./DiagramTab";
@@ -30,6 +31,7 @@ import {DeploymentDiagramEditor} from "../deploymentDiagram/DeploymentDiagramEdi
 import {useHotkeys} from "react-hotkeys-hook";
 import {ContextPopup} from "../dialogs/ContextPopup";
 import {Command} from "../propertiesEditor/propertiesEditorModel";
+import {GridLayer} from "../../common/components/GridLayer";
 
 
 function AddNewTabButton() {
@@ -77,6 +79,7 @@ export const DiagramTabs = () => {
     // State for right-click panning
     const [isRightMouseDown, setIsRightMouseDown] = useState(false);
     const [lastPointerPosition, setLastPointerPosition] = useState<{ x: number, y: number } | null>(null);
+    const [stageContainer, setStageContainer] = useState<HTMLDivElement | null>(null);
 
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
     const dispatch = useDispatch()
@@ -88,6 +91,7 @@ export const DiagramTabs = () => {
 
         const stage = stageRef.current;
         const container = stage.container();
+        setStageContainer(container);
 
         // Handle right mouse button down
         const handleMouseDown = (e: MouseEvent) => {
@@ -207,7 +211,7 @@ export const DiagramTabs = () => {
 
     return (
         <Stack direction="column" spacing="2">
-            <Stack direction="row" spacing="2">
+            <Stack direction="row" spacing="2" alignItems="center">
                 <Tabs
                     sx={{height: TabHeight, minHeight: TabHeight}}
                     value={openDiagramIds.indexOf(activeDiagramId!)}
@@ -220,26 +224,41 @@ export const DiagramTabs = () => {
                 </Tabs>
                 <AddNewTabButton/>
             </Stack>
-            <div>
+            <div style={{ width: '100%', height: 'calc(100vh - 60px)' }}>
                 <HtmlDrop>
-                    <AppLayoutContext.Consumer>
-                    { value => (
-                        <Stage
-                            width={window.innerWidth}
-                            height={window.innerHeight}
-                            onMouseDown={e => checkDeselect(e)}
-                            ref={stageRef}
-                        >
-                            <Bridge>
-                                <AppLayoutContext.Provider value={value}>
-                                    {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
-                                    {diagramKind === ElementType.DeploymentDiagram && <DeploymentDiagramEditor diagramId={activeDiagramId!}/>}
-                                    {diagramKind === ElementType.SequenceDiagram && <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
-                                </AppLayoutContext.Provider>
-                            </Bridge>
-                        </Stage>
-                    )}
-                    </AppLayoutContext.Consumer>
+                    <div style={{
+                        width: '100%',
+                        height: '100%',
+                        overflow: 'auto',
+                        position: 'relative'
+                    }}>
+                        <ThemeService.AppLayoutContext.Consumer>
+                        { value => (
+                            <Stage
+                                width={window.innerWidth}
+                                height={window.innerHeight}
+                                onMouseDown={e => checkDeselect(e)}
+                                ref={stageRef}
+                            >
+                                {value.appLayout.showGrid && (
+                                    <GridLayer
+                                        key="grid-layer"
+                                        spacing={20}
+                                        dotRadius={1}
+                                        dotColor="#999999"
+                                    />
+                                )}
+                                <Bridge>
+                                    <ThemeService.AppLayoutContext.Provider value={value}>
+                                        {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
+                                        {diagramKind === ElementType.DeploymentDiagram && <DeploymentDiagramEditor diagramId={activeDiagramId!}/>}
+                                        {diagramKind === ElementType.SequenceDiagram && <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
+                                    </ThemeService.AppLayoutContext.Provider>
+                                </Bridge>
+                            </Stage>
+                        )}
+                        </ThemeService.AppLayoutContext.Consumer>
+                    </div>
                 </HtmlDrop>
             </div>
             {linking && linking.showLinkToNewDialog && <LinkToNewDialog/>}

@@ -17,6 +17,8 @@ import {
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import GridOnIcon from '@mui/icons-material/GridOn';
+import GridOffIcon from '@mui/icons-material/GridOff';
 import {RightDrawer} from "./RightDrawer";
 import {ThemeService, defaultAppLayout} from "../services/theme/themeService";
 import {getTheme} from "../common/colors/colorSchemas";
@@ -67,8 +69,12 @@ export const App = () => {
         setAppLayout(ThemeService.togglePropertiesPane(appLayout));
     };
 
-    const handleToggleTheme = ()=> {
+    const handleToggleTheme = () => {
         setAppLayout(ThemeService.toggleDarkMode(appLayout));
+    }
+
+    const handleToggleGrid = () => {
+        setAppLayout(ThemeService.toggleShowGrid(appLayout));
     }
 
 
@@ -93,6 +99,9 @@ const theme = getTheme(appLayout.darkMode);
                             <UndoRedoControls />
                             <IconButton onClick={handleToggleTheme} color="inherit">
                                 {appLayout.darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+                            </IconButton>
+                            <IconButton onClick={handleToggleGrid} color="inherit">
+                                {appLayout.showGrid ? <GridOnIcon /> : <GridOffIcon />}
                             </IconButton>
                             <IconButton
                                 color="inherit"
