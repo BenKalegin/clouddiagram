@@ -48,8 +48,8 @@ import {generatePath} from "../../common/Geometry/PathGenerator";
 import {defaultColorSchema} from "../../common/colors/colorSchemas";
 import {withElementHistory, withHistory} from "../diagramEditor/historySlice";
 
-// Original function wrapped with history tracking
-const moveElementImpl = (get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) => {
+// Original function for element movement
+export const moveElementImpl = (get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) => {
     const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
 
@@ -75,11 +75,11 @@ const moveElementImpl = (get: Get, set: Set, element: ElementRef, currentPointer
     set(elementsAtom(diagramId), update)
 }
 
-// Export the wrapped function
+// Export the wrapped function with history tracking
 export const moveElement = withHistory(moveElementImpl, "Move Element");
 
-// Original function wrapped with history tracking
-const resizeElementImpl = (get: Get, set: Set, element: ElementRef, suggestedBounds: Bounds) => {
+// Original function for element resizing
+export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, suggestedBounds: Bounds) => {
     const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
 
@@ -105,7 +105,7 @@ const resizeElementImpl = (get: Get, set: Set, element: ElementRef, suggestedBou
     set(elementsAtom(diagramId), update)
 }
 
-// Export the wrapped function
+// Export the wrapped function with history tracking
 export const resizeElement = withHistory(resizeElementImpl, "Resize Element");
 
 export const structureDiagramSelector = selectorFamily<StructureDiagramState, DiagramId>({
