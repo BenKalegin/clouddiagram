@@ -77,7 +77,6 @@ export const DiagramTabs = () => {
     // State for right-click panning
     const [isRightMouseDown, setIsRightMouseDown] = useState(false);
     const [lastPointerPosition, setLastPointerPosition] = useState<{ x: number, y: number } | null>(null);
-    const [stageContainer, setStageContainer] = useState<HTMLDivElement | null>(null);
 
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
     const dispatch = useDispatch()
@@ -89,7 +88,6 @@ export const DiagramTabs = () => {
 
         const stage = stageRef.current;
         const container = stage.container();
-        setStageContainer(container);
 
         // Handle right mouse button down
         const handleMouseDown = (e: MouseEvent) => {
