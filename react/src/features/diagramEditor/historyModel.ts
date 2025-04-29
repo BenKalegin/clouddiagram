@@ -34,6 +34,8 @@ export const canUndoSelector = selectorFamily<boolean, DiagramId | undefined>({
   get: (diagramId) => ({ get }) => {
     if (!diagramId) return false;
     const history = get(historyAtom);
+    // Handle the case where history is undefined
+    if (!history) return false;
     return history.past.some(op => op.diagramId === diagramId);
   }
 });
@@ -43,6 +45,8 @@ export const canRedoSelector = selectorFamily<boolean, DiagramId | undefined>({
   get: (diagramId) => ({ get }) => {
     if (!diagramId) return false;
     const history = get(historyAtom);
+    // Handle the case where history is undefined
+    if (!history) return false;
     return history.future.some(op => op.diagramId === diagramId);
   }
 });
@@ -112,6 +116,17 @@ export function addToHistory(
 ): void {
   const history = get(historyAtom);
 
+  // Handle the case where history is undefined (e.g., in tests)
+  if (!history) {
+    // Initialize history with default values and the new operation
+    set(historyAtom, {
+      past: [operation],
+      future: [],
+      maxHistoryLength: 50
+    });
+    return;
+  }
+
   // Add the operation to the past and clear the future
   const newPast = [...history.past, operation];
 
@@ -134,6 +149,11 @@ export function undoOperation(
   diagramId: DiagramId
 ): void {
   const history = get(historyAtom) as HistoryState;
+
+  // Handle the case where history is undefined (e.g., in tests)
+  if (!history) {
+    return; // Nothing to undo if history doesn't exist
+  }
 
   // Find the last operation for this diagram
   const pastIndex = [...history.past].reverse().findIndex(op => op.diagramId === diagramId);
@@ -164,6 +184,11 @@ export function redoOperation(
   diagramId: DiagramId
 ): void {
   const history = get(historyAtom);
+
+  // Handle the case where history is undefined (e.g., in tests)
+  if (!history) {
+    return; // Nothing to redo if history doesn't exist
+  }
 
   // Find the first operation in the future for this diagram
   const futureIndex = history.future.findIndex((op: { diagramId: string; }) => op.diagramId === diagramId);

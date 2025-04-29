@@ -1,0 +1,65 @@
+{
+  "diagramTypes": {
+    "class": "Class Diagram",
+    "deployment": "Deployment Diagram",
+    "sequence": "Sequence Diagram"
+  },
+  "elements": {
+    "class": ["Class", "Interface", "Enum"],
+    "deployment": ["Node", "Component", "Artifact"],
+    "sequence": ["Actor", "Object", "Message"]
+  },
+  "testDiagrams": {
+    "classDiagram": {
+      "name": "Test Class Diagram",
+      "elements": [
+        {
+          "type": "Class",
+          "name": "User",
+          "x": 200,
+          "y": 200
+        },
+        {
+          "type": "Class",
+          "name": "Order",
+          "x": 400,
+          "y": 200
+        }
+      ]
+    },
+    "deploymentDiagram": {
+      "name": "Test Deployment Diagram",
+      "elements": [
+        {
+          "type": "Node",
+          "name": "Web Server",
+          "x": 200,
+          "y": 200
+        },
+        {
+          "type": "Node",
+          "name": "Database Server",
+          "x": 400,
+          "y": 200
+        }
+      ]
+    },
+    "sequenceDiagram": {
+      "name": "Test Sequence Diagram",
+      "elements": [
+        {
+          "type": "Actor",
+          "name": "User",
+          "x": 200,
+          "y": 100
+        },
+        {
+          "type": "Object",
+          "name": "System",
+          "x": 400,
+          "y": 100
+        }
+      ]
+    }
+  }
+}

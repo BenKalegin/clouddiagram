@@ -35,7 +35,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test:e2e": "start-server-and-test start http://localhost:3000 cypress:run"
   },
   "eslintConfig": {
     "extends": [
@@ -59,6 +62,9 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
-    "classnames": "^2.3.1"
+    "classnames": "^2.3.1",
+    "cypress": "^13.6.0",
+    "@cypress/webpack-preprocessor": "^6.0.0",
+    "start-server-and-test": "^2.0.0"
   }
 }

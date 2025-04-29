@@ -13,14 +13,13 @@ export class RecoveryService {
     static useRecoverDiagrams = () => {
         return useRecoilCallback(({ snapshot, set }) => async () => {
             try {
-                // Check if we have persisted state
+                // Check if we have a persisted state
                 const elementIds = await snapshot.getPromise(elementIdsAtom);
                 const activeDiagramId = await snapshot.getPromise(activeDiagramIdAtom);
                 const openDiagramIds = await snapshot.getPromise(openDiagramIdsAtom);
 
-                // If we have persisted state, load all elements
+                // If we have a persisted state, load all elements
                 if (elementIds.length > 0) {
-                    console.log('Recovering diagrams from persisted state...');
 
                     // Load all elements
                     for (const id of elementIds) {
@@ -30,12 +29,11 @@ export class RecoveryService {
                         }
                     }
 
-                    // Ensure active diagram is in open diagrams
+                    // Ensure the active diagram is in open diagrams
                     if (activeDiagramId && !openDiagramIds.includes(activeDiagramId)) {
                         set(openDiagramIdsAtom, [...openDiagramIds, activeDiagramId]);
                     }
 
-                    console.log('Diagrams recovered successfully');
                     return true;
                 }
 

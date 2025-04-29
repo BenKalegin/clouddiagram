@@ -23,7 +23,6 @@ import {RightDrawer} from "./RightDrawer";
 import {ThemeService, defaultAppLayout} from "../services/theme/themeService";
 import {getTheme} from "../common/colors/colorSchemas";
 import {RecoveryService} from "../services/recovery/recoveryService";
-import {useRecoverDiagrams} from "../features/recovery/diagramRecovery";
 import {UndoRedoControls} from "../features/diagramEditor/UndoRedoControls";
 import {KeyboardShortcuts} from "../features/diagramEditor/KeyboardShortcuts";
 
@@ -57,11 +56,6 @@ export const App = () => {
     // Attempt to recover diagrams on application startup
     useEffect(() => {
         recoverDiagrams().then(recovered => {
-            if (recovered) {
-                console.log('Diagrams recovered from persisted state');
-            } else {
-                console.log('No persisted diagrams found, using demo data');
-            }
         });
     }, [recoverDiagrams]);
 
