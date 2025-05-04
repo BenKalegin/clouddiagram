@@ -2,7 +2,7 @@ import React, {useRef, useState, useEffect} from "react";
 import {ClassDiagramEditor} from "../classDiagram/ClassDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {HtmlDrop} from "./HtmlDrop";
-import {IconButton, Menu, Stack, Tabs} from "@mui/material";
+import {IconButton, Menu, Stack, Tabs, Box, Slider, Typography} from "@mui/material";
 import {LinkToNewDialog} from "../dialogs/LinkToNewDialog";
 import {useRecoilBridgeAcrossReactRoots_UNSTABLE, useRecoilState, useRecoilValue} from "recoil";
 import {ElementType} from "../../package/packageModel";
@@ -22,6 +22,9 @@ import Konva from "konva";
 import {Stage} from 'react-konva';
 import {AppLayoutContext} from "../../app/appModel";
 import AddIcon from '@mui/icons-material/Add';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ZoomOutIcon from '@mui/icons-material/ZoomOut';
+import FitScreenIcon from '@mui/icons-material/FitScreen';
 import MenuItem from '@mui/material/MenuItem';
 import {PlainTab, TabHeight} from "./DiagramTab";
 import {ExportDialog} from "../dialogs/ExportDialog";
@@ -79,16 +82,22 @@ export const DiagramTabs = () => {
     const [lastPointerPosition, setLastPointerPosition] = useState<{ x: number, y: number } | null>(null);
     const [stageContainer, setStageContainer] = useState<HTMLDivElement | null>(null);
 
+    // State for zoom controls
+    const [scale, setScale] = useState(1);
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const containerRef = useRef<HTMLDivElement>(null);
+
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
     const dispatch = useDispatch()
     let stageRef: React.RefObject<Konva.Stage> = useRef<Konva.Stage | null>(null);
 
-    // Set up event handlers for right-click panning
+    // Set up event handlers for right-click panning and wheel zooming
     useEffect(() => {
-        if (!stageRef.current) return;
+        if (!stageRef.current || !containerRef.current) return;
 
         const stage = stageRef.current;
         const container = stage.container();
+        const scrollContainer = containerRef.current;
         setStageContainer(container);
 
         // Handle right mouse button down
@@ -120,6 +129,7 @@ export const DiagramTabs = () => {
 
                 stage.position(newPos);
                 stage.batchDraw();
+                setPosition(newPos);
 
                 setLastPointerPosition({
                     x: e.clientX,
@@ -143,11 +153,65 @@ export const DiagramTabs = () => {
             e.preventDefault();
         };
 
+        // Handle wheel event for zooming
+        const handleWheel = (e: WheelEvent) => {
+            // Prevent default scrolling behavior
+            e.preventDefault();
+            e.stopPropagation();
+
+            const oldScale = stage.scaleX();
+
+            // Get pointer position
+            const pointer = stage.getPointerPosition();
+            if (!pointer) return;
+
+            const mousePointTo = {
+                x: (pointer.x - stage.x()) / oldScale,
+                y: (pointer.y - stage.y()) / oldScale,
+            };
+
+            // Calculate new scale
+            // Zoom in: scale up, Zoom out: scale down
+            const direction = e.deltaY > 0 ? -1 : 1;
+            const scaleBy = 1.1;
+            const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+            // Limit scale to reasonable bounds
+            const limitedScale = Math.max(0.1, Math.min(newScale, 5));
+
+            // Set new scale
+            stage.scale({ x: limitedScale, y: limitedScale });
+
+            // Calculate new position
+            const newPos = {
+                x: pointer.x - mousePointTo.x * limitedScale,
+                y: pointer.y - mousePointTo.y * limitedScale,
+            };
+
+            // Set new position
+            stage.position(newPos);
+            stage.batchDraw();
+
+            // Update state
+            setScale(limitedScale);
+            setPosition(newPos);
+        };
+
+        // Prevent wheel events on the scroll container from scrolling
+        const preventWheelScroll = (e: WheelEvent) => {
+            if (e.ctrlKey || e.metaKey) {
+                // Allow pinch-to-zoom on trackpads
+                e.preventDefault();
+            }
+        };
+
         // Add event listeners
         container.addEventListener('mousedown', handleMouseDown);
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
         container.addEventListener('contextmenu', handleContextMenu);
+        container.addEventListener('wheel', handleWheel);
+        scrollContainer.addEventListener('wheel', preventWheelScroll, { passive: false });
 
         // Clean up event listeners
         return () => {
@@ -155,8 +219,10 @@ export const DiagramTabs = () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
             container.removeEventListener('contextmenu', handleContextMenu);
+            container.removeEventListener('wheel', handleWheel);
+            scrollContainer.removeEventListener('wheel', preventWheelScroll);
         };
-    }, [isRightMouseDown, lastPointerPosition]);
+    }, [isRightMouseDown, lastPointerPosition, scale]);
 
 
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -205,6 +271,111 @@ export const DiagramTabs = () => {
         setActiveDiagramId(openDiagramIds[newValue]);
     }
 
+    // Zoom control functions
+    const handleZoomIn = () => {
+        if (!stageRef.current) return;
+
+        const stage = stageRef.current;
+        const oldScale = stage.scaleX();
+        const newScale = Math.min(oldScale * 1.2, 5);
+
+        // Keep the center of the view fixed when zooming
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        const mousePointTo = {
+            x: (centerX - stage.x()) / oldScale,
+            y: (centerY - stage.y()) / oldScale,
+        };
+
+        const newPos = {
+            x: centerX - mousePointTo.x * newScale,
+            y: centerY - mousePointTo.y * newScale,
+        };
+
+        stage.scale({ x: newScale, y: newScale });
+        stage.position(newPos);
+        stage.batchDraw();
+
+        setScale(newScale);
+        setPosition(newPos);
+    };
+
+    const handleZoomOut = () => {
+        if (!stageRef.current) return;
+
+        const stage = stageRef.current;
+        const oldScale = stage.scaleX();
+        const newScale = Math.max(oldScale / 1.2, 0.1);
+
+        // Keep the center of the view fixed when zooming
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        const mousePointTo = {
+            x: (centerX - stage.x()) / oldScale,
+            y: (centerY - stage.y()) / oldScale,
+        };
+
+        const newPos = {
+            x: centerX - mousePointTo.x * newScale,
+            y: centerY - mousePointTo.y * newScale,
+        };
+
+        stage.scale({ x: newScale, y: newScale });
+        stage.position(newPos);
+        stage.batchDraw();
+
+        setScale(newScale);
+        setPosition(newPos);
+    };
+
+    const handleZoomToFit = () => {
+        if (!stageRef.current) return;
+
+        const stage = stageRef.current;
+
+        // Reset to default scale and position
+        const newScale = 1;
+        const newPos = { x: 0, y: 0 };
+
+        stage.scale({ x: newScale, y: newScale });
+        stage.position(newPos);
+        stage.batchDraw();
+
+        setScale(newScale);
+        setPosition(newPos);
+    };
+
+    const handleSliderChange = (_event: Event, newValue: number | number[]) => {
+        if (!stageRef.current || typeof newValue !== 'number') return;
+
+        const stage = stageRef.current;
+        const oldScale = stage.scaleX();
+        const newScale = newValue;
+
+        // Keep the center of the view fixed when zooming
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        const mousePointTo = {
+            x: (centerX - stage.x()) / oldScale,
+            y: (centerY - stage.y()) / oldScale,
+        };
+
+        const newPos = {
+            x: centerX - mousePointTo.x * newScale,
+            y: centerY - mousePointTo.y * newScale,
+        };
+
+        stage.scale({ x: newScale, y: newScale });
+        stage.position(newPos);
+        stage.batchDraw();
+
+        setScale(newScale);
+        setPosition(newPos);
+    };
+
     const Bridge = useRecoilBridgeAcrossReactRoots_UNSTABLE();
 
     return (
@@ -222,15 +393,60 @@ export const DiagramTabs = () => {
                 </Tabs>
                 <AddNewTabButton/>
             </Stack>
-            <div>
+
+            {/* Zoom controls */}
+            <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
+                <IconButton onClick={handleZoomOut} size="small">
+                    <ZoomOutIcon />
+                </IconButton>
+
+                <Slider
+                    value={scale}
+                    min={0.1}
+                    max={5}
+                    step={0.1}
+                    onChange={handleSliderChange}
+                    aria-labelledby="zoom-slider"
+                    sx={{ width: 200 }}
+                />
+
+                <IconButton onClick={handleZoomIn} size="small">
+                    <ZoomInIcon />
+                </IconButton>
+
+                <IconButton onClick={handleZoomToFit} size="small">
+                    <FitScreenIcon />
+                </IconButton>
+
+                <Typography variant="body2">
+                    {Math.round(scale * 100)}%
+                </Typography>
+            </Stack>
+
+            {/* Scrollable container for the stage */}
+            <Box
+                ref={containerRef}
+                sx={{
+                    width: '100%',
+                    height: 'calc(100vh - 150px)',
+                    overflow: 'auto',
+                    border: '1px solid #ddd',
+                    position: 'relative'
+                }}
+            >
                 <HtmlDrop>
                     <AppLayoutContext.Consumer>
                     { value => (
                         <Stage
-                            width={window.innerWidth}
-                            height={window.innerHeight}
+                            width={2000} // Large enough to accommodate most diagrams
+                            height={2000} // Large enough to accommodate most diagrams
                             onMouseDown={e => checkDeselect(e)}
                             ref={stageRef}
+                            scaleX={scale}
+                            scaleY={scale}
+                            x={position.x}
+                            y={position.y}
+                            draggable={false} // Disable built-in dragging as we're using custom panning
                         >
                             <Bridge>
                                 <AppLayoutContext.Provider value={value}>
@@ -243,13 +459,12 @@ export const DiagramTabs = () => {
                     )}
                     </AppLayoutContext.Consumer>
                 </HtmlDrop>
-            </div>
+            </Box>
+
             {linking && linking.showLinkToNewDialog && <LinkToNewDialog/>}
             {exporting &&  <ExportDialog diagramKind={diagramKind} getStage={() => stageRef.current}/>}
             {importing &&  <ImportDialog diagramKind={diagramKind} />}
             {showingContext && <ContextPopup  {...showingContext} />}
-
-
         </Stack>
     )
 }
