@@ -3,13 +3,15 @@ import {
     dropFromPaletteAction,
     elementCommandAction,
     elementMoveAction,
+    ElementMoveResizePhase,
     elementPropertyChangedAction,
     elementResizeAction,
     Get,
     Set
 } from "../diagramEditor/diagramEditorSlice";
+import { addToHistory, createDiagramChangeOperation } from "../diagramEditor/historyModel";
 import {Action} from "@reduxjs/toolkit";
-import {Bounds, Coordinate, withinBounds} from "../../common/model";
+import {Bounds, Coordinate, Diagram, withinBounds} from "../../common/model";
 import {
     DiagramElement,
     ElementRef,
@@ -31,24 +33,110 @@ import {
     autoConnectNodes,
     handleStructureElementCommand,
     handleStructureElementPropertyChanged,
-    moveElement,
+    moveElementImpl,
     nodePlacementSelector,
     portBounds,
     portPlacementSelector,
     portSelector,
     renderLink,
-    resizeElement
+    resizeElementImpl
 } from "./structureDiagramModel";
 import {selector, selectorFamily} from "recoil";
 
 export class StructureDiagramHandler implements DiagramHandler {
+    // Store the original diagram state for undo operations
+    private originalDiagramState: any = null;
+    private startElement: ElementRef | null = null;
+    private startNodePosition: Coordinate | null = null;
+
     handleAction(action: Action, get: Get, set: Set): void {
         if (elementMoveAction.match(action)) {
-            const {element, currentPointerPos, startNodePos, startPointerPos} = action.payload;
-            moveElement(get, set, element, currentPointerPos, startPointerPos, startNodePos);
+            const {element, currentPointerPos, startNodePos, startPointerPos, phase} = action.payload;
+
+            // For the 'start' phase, store the original state but don't create an undo operation yet
+            if (phase === ElementMoveResizePhase.start) {
+                const diagramId = get(activeDiagramIdAtom);
+                this.originalDiagramState = get(elementsAtom(diagramId));
+                this.startElement = element;
+                this.startNodePosition = startNodePos;
+
+                // Just update the position without creating an undo operation
+                moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos);
+            }
+            // For the 'move' phase, just update the position without creating an undo operation
+            else if (phase === ElementMoveResizePhase.move) {
+                moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos);
+            }
+            // For the 'end' phase, create a single undo operation for the entire move
+            else if (phase === ElementMoveResizePhase.end) {
+                // First update the position
+                moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos);
+
+                // Then create an undo operation if we have the original state
+                if (this.originalDiagramState && this.startElement && this.startElement.id === element.id) {
+                    const diagramId = get(activeDiagramIdAtom);
+                    const newDiagramState = get(elementsAtom(diagramId)) as Diagram;
+
+                    // Create and add the undo operation
+                    const historyOperation = createDiagramChangeOperation(
+                        diagramId,
+                        this.originalDiagramState,
+                        newDiagramState,
+                        "Move Element",
+                        set
+                    );
+
+                    addToHistory(get, set, historyOperation);
+
+                    // Reset the stored state
+                    this.originalDiagramState = null;
+                    this.startElement = null;
+                    this.startNodePosition = null;
+                }
+            }
         } else if (elementResizeAction.match(action)) {
-            const {element, suggestedBounds} = action.payload;
-            resizeElement(get, set, element, suggestedBounds);
+            const {element, suggestedBounds, phase} = action.payload;
+
+            // For the 'start' phase, store the original state but don't create an undo operation yet
+            if (phase === ElementMoveResizePhase.start) {
+                const diagramId = get(activeDiagramIdAtom);
+                this.originalDiagramState = get(elementsAtom(diagramId));
+                this.startElement = element;
+
+                // Just update the bounds without creating an undo operation
+                resizeElementImpl(get, set, element, suggestedBounds);
+            }
+            // For the 'move' phase, just update the bounds without creating an undo operation
+            else if (phase === ElementMoveResizePhase.move) {
+                resizeElementImpl(get, set, element, suggestedBounds);
+            }
+            // For the 'end' phase, create a single undo operation for the entire resize
+            else if (phase === ElementMoveResizePhase.end) {
+                // First update the bounds
+                resizeElementImpl(get, set, element, suggestedBounds);
+
+                // Then create an undo operation if we have the original state
+                if (this.originalDiagramState && this.startElement && this.startElement.id === element.id) {
+                    const diagramId = get(activeDiagramIdAtom);
+                    const newDiagramState = get(elementsAtom(diagramId)) as Diagram;
+
+                    // Create and add the undo operation
+                    const historyOperation = createDiagramChangeOperation(
+                        diagramId,
+                        this.originalDiagramState,
+                        newDiagramState,
+                        "Resize Element",
+                        set
+                    );
+
+                    addToHistory(get, set, historyOperation);
+
+                    // Reset the stored state
+                    this.originalDiagramState = null;
+                    this.startElement = null;
+                    this.startNodePosition = null;
+                }
+            }
         } else if (dropFromPaletteAction.match(action)) {
             addNewElementAt(get, set, action.payload.droppedAt, action.payload.name, action.payload.kind);
         } else if(elementCommandAction.match(action)) {

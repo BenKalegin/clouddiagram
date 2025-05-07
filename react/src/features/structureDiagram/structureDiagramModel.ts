@@ -46,8 +46,10 @@ import {Command} from "../propertiesEditor/propertiesEditorModel";
 import {selectorFamily} from "recoil";
 import {generatePath} from "../../common/Geometry/PathGenerator";
 import {defaultColorSchema} from "../../common/colors/colorSchemas";
+import {withElementHistory, withHistory} from "../diagramEditor/historySlice";
 
-export function moveElement(get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) {
+// Original function for element movement
+export const moveElementImpl = (get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) => {
     const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
 
@@ -73,7 +75,11 @@ export function moveElement(get: Get, set: Set, element: ElementRef, currentPoin
     set(elementsAtom(diagramId), update)
 }
 
-export function resizeElement(get: Get, set: Set, element: ElementRef, suggestedBounds: Bounds) {
+// Export the wrapped function with history tracking
+export const moveElement = withHistory(moveElementImpl, "Move Element");
+
+// Original function for element resizing
+export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, suggestedBounds: Bounds) => {
     const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
 
@@ -99,6 +105,9 @@ export function resizeElement(get: Get, set: Set, element: ElementRef, suggested
     set(elementsAtom(diagramId), update)
 }
 
+// Export the wrapped function with history tracking
+export const resizeElement = withHistory(resizeElementImpl, "Resize Element");
+
 export const structureDiagramSelector = selectorFamily<StructureDiagramState, DiagramId>({
     key: 'structureDiagram',
     get: (id) => ({get}) => {
@@ -123,7 +132,8 @@ export const portPlacementSelector = selectorFamily<PortPlacement, { portId: Id,
     }
 })
 
-export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: ElementRef) {
+// Original function wrapped with history tracking
+const autoConnectNodesImpl = (get: Get, set: Set, sourceId: Id, target: ElementRef) => {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
 
@@ -176,7 +186,11 @@ export function autoConnectNodes(get: Get, set: Set, sourceId: Id, target: Eleme
     set(elementsAtom(diagramId), updatedDiagram);
 }
 
-export function addNodeAndConnect(get: Get, set: Set, name: string) {
+// Export the wrapped function
+export const autoConnectNodes = withHistory(autoConnectNodesImpl, "Connect Nodes");
+
+// Original function wrapped with history tracking
+const addNodeAndConnectImpl = (get: Get, set: Set, name: string) => {
     const linking = get(linkingAtom) as Linking;
     const pos = linking.diagramPos
     const node = addNewElementAt(get, set, pos, name, {type: ElementType.ClassNode});
@@ -184,8 +198,12 @@ export function addNodeAndConnect(get: Get, set: Set, name: string) {
     set(linkingAtom, {...linking, showLinkToNewDialog: false})
 }
 
+// Export the wrapped function
+export const addNodeAndConnect = withHistory(addNodeAndConnectImpl, "Add and Connect Node");
 
-export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name: string, elementType: TypeAndSubType): ElementRef {
+
+// Original function wrapped with history tracking
+const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: string, elementType: TypeAndSubType): ElementRef => {
     if (elementType.type === ElementType.Note) {
         const diagramId = get(activeDiagramIdAtom);
         const note: NoteState = {
@@ -245,6 +263,9 @@ export function addNewElementAt(get: Get, set: Set, droppedAt: Coordinate, name:
 
     throw new Error("Unknown element type: " + elementType);
 }
+
+// Export the wrapped function
+export const addNewElementAt = withHistory(addNewElementAtImpl, "Add Element");
 
 function deleteSelectedElement(diagram: Draft<StructureDiagramState>, element: ElementRef,
                                getElement: (id: Id) => DiagramElement,
@@ -330,7 +351,8 @@ function selectNextNode(elements: ElementRef[], draft: Draft<StructureDiagramSta
 }
 
 
-export function handleStructureElementCommand(get: Get, set: Set, elements: ElementRef[], command: Command) {
+// Original function wrapped with history tracking
+const handleStructureElementCommandImpl = (get: Get, set: Set, elements: ElementRef[], command: Command) => {
     const diagramId = get(activeDiagramIdAtom)
     const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
     const getElement = (id: Id) => get(elementsAtom(id));
@@ -361,41 +383,69 @@ export function handleStructureElementCommand(get: Get, set: Set, elements: Elem
     set(elementsAtom(diagramId), update);
 }
 
-export function handleStructureElementPropertyChanged(get: Get, set: Set, elements: ElementRef[], propertyName: string, value: any) {
-    const diagramId = get(activeDiagramIdAtom)
+// Export the wrapped function
+export const handleStructureElementCommand = withHistory(handleStructureElementCommandImpl, "Execute Command");
+
+// Function to handle node property changes (wrapped with element history)
+const handleNodePropertyChangedImpl = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
+    const node = get(elementsAtom(element.id)) as NodeState;
+    const update: NodeState = (propertyName === "customShape")
+        ? {...node, customShape: {...value, pictureId: node.customShape?.pictureId}}
+        : produce(node, (draft: Draft<NodeState>) => {
+            const object: any = draft;
+            object[propertyName] = value
+        });
+    set(elementsAtom(element.id), update);
+};
+
+// Function to handle link property changes (wrapped with element history)
+const handleLinkPropertyChangedImpl = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
+    const link = get(elementsAtom(element.id)) as LinkState;
+    const update = produce(link, (draft: Draft<LinkState>) => {
+        const object: any = draft;
+        object[propertyName] = value
+    });
+    set(elementsAtom(element.id), update);
+};
+
+// Function to handle note property changes (wrapped with diagram history)
+const handleNotePropertyChangedImpl = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
+    const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    const diagramUpdate = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
+        const object: any = diagram.notes[element.id];
+        object[propertyName] = value
+    });
+    set(elementsAtom(diagramId), diagramUpdate);
+};
+
+// Create wrapped versions of the implementation functions
+const handleNodePropertyChanged = (elementId: string) =>
+    withElementHistory(handleNodePropertyChangedImpl, elementId, "Change Node Property");
+
+const handleLinkPropertyChanged = (elementId: string) =>
+    withElementHistory(handleLinkPropertyChangedImpl, elementId, "Change Link Property");
+
+const handleNotePropertyChanged = withHistory(handleNotePropertyChangedImpl, "Change Note Property");
+
+// Main function to handle property changes for any element type
+export const handleStructureElementPropertyChanged = (get: Get, set: Set, elements: ElementRef[], propertyName: string, value: any) => {
     elements.forEach(element => {
         switch (element.type) {
             case ElementType.ClassNode:
-            case ElementType.DeploymentNode: {
-                const node = get(elementsAtom(element.id)) as NodeState;
-                const update: NodeState = (propertyName === "customShape") ? {...node, customShape: {...value, pictureId: node.customShape?.pictureId}}
-                : produce(node, (draft: Draft<NodeState>) => {
-                    const object: any = draft;
-                    object[propertyName] = value
-                })
-                set(elementsAtom(element.id), update);
+            case ElementType.DeploymentNode:
+                handleNodePropertyChanged(element.id)(get, set, element, propertyName, value);
                 break;
-            }
             case ElementType.ClassLink:
-            case ElementType.DeploymentLink: {
-                const link = get(elementsAtom(element.id)) as LinkState;
-                const update = produce(link, (draft: Draft<LinkState>) => {
-                    const object: any = draft;
-                    object[propertyName] = value
-                })
-                set(elementsAtom(element.id), update);
+            case ElementType.DeploymentLink:
+                handleLinkPropertyChanged(element.id)(get, set, element, propertyName, value);
                 break;
-            }
             case ElementType.Note:
-                const diagramUpdate = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
-                    const object: any = diagram.notes[element.id];
-                    object[propertyName] = value
-                })
-                set(elementsAtom(diagramId), diagramUpdate);
+                handleNotePropertyChanged(get, set, element, propertyName, value);
+                break;
         }
     });
-}
+};
 
 export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePlacement: PortPlacement,
                            targetPort: PortState, targetBounds: Bounds, targetPlacement: PortPlacement, linkStyle: RouteStyle, tipStyle1: TipStyle, tipStyle2: TipStyle): LinkRender => {

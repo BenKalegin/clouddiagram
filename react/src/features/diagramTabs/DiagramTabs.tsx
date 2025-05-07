@@ -12,6 +12,7 @@ import {
     importingAtom,
     linkingAtom, selectedRefsSelector, showContextAtom
 } from "../diagramEditor/diagramEditorModel";
+import { ThemeService } from "../../services/theme/themeService";
 import {activeDiagramIdAtom, openDiagramIdsAtom} from "./diagramTabsModel";
 import {
     addDiagramTabAction,
@@ -20,7 +21,6 @@ import {
 } from "../diagramEditor/diagramEditorSlice";
 import Konva from "konva";
 import {Stage} from 'react-konva';
-import {AppLayoutContext} from "../../app/appModel";
 import AddIcon from '@mui/icons-material/Add';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
@@ -33,6 +33,7 @@ import {DeploymentDiagramEditor} from "../deploymentDiagram/DeploymentDiagramEdi
 import {useHotkeys} from "react-hotkeys-hook";
 import {ContextPopup} from "../dialogs/ContextPopup";
 import {Command} from "../propertiesEditor/propertiesEditorModel";
+import {GridLayer} from "../../common/components/GridLayer";
 
 
 function AddNewTabButton() {
@@ -51,6 +52,7 @@ function AddNewTabButton() {
     return (
         <div style={{lineHeight: "3em"}}>
             <IconButton
+                data-testid="add-diagram-button"
                 onClick={handleClick}
                 size="small"
             >
@@ -61,9 +63,9 @@ function AddNewTabButton() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                <MenuItem onClick={() => handleClose(ElementType.ClassDiagram)}>Class Diagram</MenuItem>
-                <MenuItem onClick={() => handleClose(ElementType.DeploymentDiagram)}>Deployment Diagram</MenuItem>
-                <MenuItem onClick={() => handleClose(ElementType.SequenceDiagram)}>Sequence Diagram</MenuItem>
+                <MenuItem data-testid="add-class-diagram" onClick={() => handleClose(ElementType.ClassDiagram)}>Class Diagram</MenuItem>
+                <MenuItem data-testid="add-deployment-diagram" onClick={() => handleClose(ElementType.DeploymentDiagram)}>Deployment Diagram</MenuItem>
+                <MenuItem data-testid="add-sequence-diagram" onClick={() => handleClose(ElementType.SequenceDiagram)}>Sequence Diagram</MenuItem>
             </Menu>
         </div>
     );
@@ -80,7 +82,6 @@ export const DiagramTabs = () => {
     // State for right-click panning
     const [isRightMouseDown, setIsRightMouseDown] = useState(false);
     const [lastPointerPosition, setLastPointerPosition] = useState<{ x: number, y: number } | null>(null);
-    const [stageContainer, setStageContainer] = useState<HTMLDivElement | null>(null);
 
     // State for zoom controls
     const [scale, setScale] = useState(1);
@@ -380,7 +381,7 @@ export const DiagramTabs = () => {
 
     return (
         <Stack direction="column" spacing="2">
-            <Stack direction="row" spacing="2">
+            <Stack direction="row" spacing="2" alignItems="center">
                 <Tabs
                     sx={{height: TabHeight, minHeight: TabHeight}}
                     value={openDiagramIds.indexOf(activeDiagramId!)}

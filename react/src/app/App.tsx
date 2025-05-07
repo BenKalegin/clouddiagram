@@ -17,10 +17,14 @@ import {
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import GridOnIcon from '@mui/icons-material/GridOn';
+import GridOffIcon from '@mui/icons-material/GridOff';
 import {RightDrawer} from "./RightDrawer";
 import {ThemeService, defaultAppLayout} from "../services/theme/themeService";
 import {getTheme} from "../common/colors/colorSchemas";
 import {RecoveryService} from "../services/recovery/recoveryService";
+import {UndoRedoControls} from "../features/diagramEditor/UndoRedoControls";
+import {KeyboardShortcuts} from "../features/diagramEditor/KeyboardShortcuts";
 
 const Main = styled("main", {shouldForwardProp: (prop) => prop !== "open"})<
     {
@@ -52,11 +56,6 @@ export const App = () => {
     // Attempt to recover diagrams on application startup
     useEffect(() => {
         recoverDiagrams().then(recovered => {
-            if (recovered) {
-                console.log('Diagrams recovered from persisted state');
-            } else {
-                console.log('No persisted diagrams found, using demo data');
-            }
         });
     }, [recoverDiagrams]);
 
@@ -64,8 +63,12 @@ export const App = () => {
         setAppLayout(ThemeService.togglePropertiesPane(appLayout));
     };
 
-    const handleToggleTheme = ()=> {
+    const handleToggleTheme = () => {
         setAppLayout(ThemeService.toggleDarkMode(appLayout));
+    }
+
+    const handleToggleGrid = () => {
+        setAppLayout(ThemeService.toggleShowGrid(appLayout));
     }
 
 
@@ -80,14 +83,19 @@ const theme = getTheme(appLayout.darkMode);
                 overflow: "hidden" /* Prevent scrolling at the app level */
             }}>
                 <CssBaseline/>
+                <KeyboardShortcuts />
                 <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                     <Toolbar sx={{ justifyContent: "space-between" }}>
                         <Typography variant="h6" noWrap component="div">
                             Cloud Diagram
                         </Typography>
                         <Stack direction="row" spacing={1}>
+                            <UndoRedoControls />
                             <IconButton onClick={handleToggleTheme} color="inherit">
                                 {appLayout.darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+                            </IconButton>
+                            <IconButton onClick={handleToggleGrid} color="inherit">
+                                {appLayout.showGrid ? <GridOnIcon /> : <GridOffIcon />}
                             </IconButton>
                             <IconButton
                                 color="inherit"

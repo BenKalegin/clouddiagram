@@ -51,7 +51,7 @@ This document contains a comprehensive list of improvement tasks for the Cloud D
 ## Feature Improvements
 
 ### User Experience
-- [ ] 31. Implement undo/redo functionality for all diagram operations
+- [X] 31. Implement undo/redo functionality for all diagram operations
 - [ ] 32. Add keyboard shortcuts for common operations
 - [ ] 33. Improve accessibility for all interactive components
 - [ ] 34. Enhance touch support for mobile devices

@@ -5,6 +5,7 @@ export interface AppLayout {
     propsPaneOpen: boolean
     propsDrawerWidth: number
     darkMode: boolean
+    showGrid: boolean
 }
 
 interface AppLayoutContextType {
@@ -14,7 +15,8 @@ interface AppLayoutContextType {
 export const defaultAppLayout : AppLayout = {
     propsPaneOpen: false,
     propsDrawerWidth: 240,
-    darkMode: false
+    darkMode: false,
+    showGrid: true
 };
 
 // browser: browserSlice.reducer,
