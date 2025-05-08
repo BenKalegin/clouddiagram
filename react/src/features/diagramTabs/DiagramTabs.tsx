@@ -12,7 +12,6 @@ import {
     importingAtom,
     linkingAtom, selectedRefsSelector, showContextAtom
 } from "../diagramEditor/diagramEditorModel";
-import { ThemeService } from "../../services/theme/themeService";
 import {activeDiagramIdAtom, openDiagramIdsAtom} from "./diagramTabsModel";
 import {
     addDiagramTabAction,
@@ -33,7 +32,6 @@ import {DeploymentDiagramEditor} from "../deploymentDiagram/DeploymentDiagramEdi
 import {useHotkeys} from "react-hotkeys-hook";
 import {ContextPopup} from "../dialogs/ContextPopup";
 import {Command} from "../propertiesEditor/propertiesEditorModel";
-import {GridLayer} from "../../common/components/GridLayer";
 import {AppLayoutContext} from "../../app/appModel";
 
 
@@ -88,10 +86,15 @@ export const DiagramTabs = () => {
     const [scale, setScale] = useState(1);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
     const dispatch = useDispatch()
     let stageRef: React.RefObject<Konva.Stage> = useRef<Konva.Stage | null>(null);
+
+    const WIDTH = 3000;
+    const HEIGHT = 3000;
+    const PADDING = 500;
 
     // Set up event handlers for right-click panning and wheel zooming
     useEffect(() => {
@@ -206,6 +209,15 @@ export const DiagramTabs = () => {
             }
         };
 
+        function repositionStage() {
+            const dx = scrollContainer.scrollLeft - PADDING;
+            const dy = scrollContainer.scrollTop - PADDING;
+            if (containerRef.current) {
+                containerRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
+            }
+            setPosition({ x: -dx, y: -dy });
+        }
+
         // Add event listeners
         container.addEventListener('mousedown', handleMouseDown);
         window.addEventListener('mousemove', handleMouseMove);
@@ -213,6 +225,8 @@ export const DiagramTabs = () => {
         container.addEventListener('contextmenu', handleContextMenu);
         container.addEventListener('wheel', handleWheel);
         scrollContainer.addEventListener('wheel', preventWheelScroll, { passive: false });
+        scrollContainer.addEventListener('scroll', repositionStage);
+        repositionStage();
 
         // Clean up event listeners
         return () => {
@@ -222,6 +236,7 @@ export const DiagramTabs = () => {
             container.removeEventListener('contextmenu', handleContextMenu);
             container.removeEventListener('wheel', handleWheel);
             scrollContainer.removeEventListener('wheel', preventWheelScroll);
+            scrollContainer.removeEventListener('scroll', repositionStage);
         };
     }, [isRightMouseDown, lastPointerPosition, scale]);
 
@@ -395,42 +410,54 @@ export const DiagramTabs = () => {
                 <AddNewTabButton/>
             </Stack>
 
-            {/* Scrollable container for the stage */}
             <Box
-                ref={containerRef}
+                ref={scrollContainerRef}
                 sx={{
-                    width: '100%',
+                    width: 'calc(100vw - 240px)',
                     height: 'calc(100vh - 170px)',
                     overflow: 'auto',
-                    border: '1px solid #ddd',
-                    position: 'relative'
+                    margin: '1px',
+                    border: '1px solid grey',
                 }}
             >
-                <HtmlDrop>
-                    <AppLayoutContext.Consumer>
-                    { value => (
-                        <Stage
-                            width={3000} // Large enough to accommodate most diagrams
-                            height={2000} // Large enough to accommodate most diagrams
-                            onMouseDown={e => checkDeselect(e)}
-                            ref={stageRef}
-                            scaleX={scale}
-                            scaleY={scale}
-                            x={position.x}
-                            y={position.y}
-                            draggable={false} // Disable built-in dragging as we're using custom panning
-                        >
-                            <Bridge>
-                                <AppLayoutContext.Provider value={value}>
-                                    {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
-                                    {diagramKind === ElementType.DeploymentDiagram && <DeploymentDiagramEditor diagramId={activeDiagramId!}/>}
-                                    {diagramKind === ElementType.SequenceDiagram && <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
-                                </AppLayoutContext.Provider>
-                            </Bridge>
-                        </Stage>
-                    )}
-                    </AppLayoutContext.Consumer>
-                </HtmlDrop>
+                <div
+                    style={{
+                        width: WIDTH + 'px',
+                        height: HEIGHT + 'px',
+                        overflow: 'hidden',
+                    }}
+                >
+
+                    <div
+                        ref={containerRef}
+                    >
+                        <HtmlDrop>
+                            <AppLayoutContext.Consumer>
+                            { value => (
+                                <Stage
+                                    width={3000} // Large enough to accommodate most diagrams
+                                    height={2000} // Large enough to accommodate most diagrams
+                                    onMouseDown={e => checkDeselect(e)}
+                                    ref={stageRef}
+                                    scaleX={scale}
+                                    scaleY={scale}
+                                    x={position.x}
+                                    y={position.y}
+                                    draggable={false} // Disable built-in dragging as we're using custom panning
+                                >
+                                    <Bridge>
+                                        <AppLayoutContext.Provider value={value}>
+                                            {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId!}/>}
+                                            {diagramKind === ElementType.DeploymentDiagram && <DeploymentDiagramEditor diagramId={activeDiagramId!}/>}
+                                            {diagramKind === ElementType.SequenceDiagram && <SequenceDiagramEditor diagramId={activeDiagramId!}/>}
+                                        </AppLayoutContext.Provider>
+                                    </Bridge>
+                                </Stage>
+                            )}
+                            </AppLayoutContext.Consumer>
+                        </HtmlDrop>
+                    </div>
+            </div>
             </Box>
 
             {/* Zoom controls */}
