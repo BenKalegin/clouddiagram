@@ -385,8 +385,8 @@ export const DiagramTabs = () => {
                     width: 'calc(100vw - 240px)',
                     height: 'calc(100vh - 170px)',
                     overflow: 'auto',
-                    margin: '1px',
-                    border: '1px solid grey',
+                    margin: '0px',
+                    border: '0px solid grey',
                 }}
             >
                 <div
@@ -404,8 +404,8 @@ export const DiagramTabs = () => {
                             <AppLayoutContext.Consumer>
                             { value => (
                                 <Stage
-                                    width={3000} // Large enough to accommodate most diagrams
-                                    height={2000} // Large enough to accommodate most diagrams
+                                    width={scrollContainerRef.current ? scrollContainerRef.current.clientWidth + PADDING * 2 : WIDTH + PADDING * 2}
+                                    height={scrollContainerRef.current ? scrollContainerRef.current.clientHeight + PADDING * 2 : HEIGHT + PADDING * 2}
                                     onMouseDown={e => checkDeselect(e)}
                                     ref={stageRef}
                                     scaleX={scale}
