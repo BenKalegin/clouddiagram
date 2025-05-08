@@ -288,12 +288,11 @@ export const DiagramTabs = () => {
     }
 
     // Zoom control functions
-    const handleZoomIn = () => {
+    const applyZoom = (newScale: number) => {
         if (!stageRef.current) return;
 
         const stage = stageRef.current;
         const oldScale = stage.scaleX();
-        const newScale = Math.min(oldScale * 1.2, 5);
 
         // Keep the center of the view fixed when zooming
         const centerX = window.innerWidth / 2;
@@ -317,43 +316,36 @@ export const DiagramTabs = () => {
         setPosition(newPos);
     };
 
+    const handleZoomIn = () => {
+        const newScale = Math.min(scale * 1.2, 5);
+        applyZoom(newScale);
+    };
+
     const handleZoomOut = () => {
-        if (!stageRef.current) return;
-
-        const stage = stageRef.current;
-        const oldScale = stage.scaleX();
-        const newScale = Math.max(oldScale / 1.2, 0.1);
-
-        // Keep the center of the view fixed when zooming
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-
-        const mousePointTo = {
-            x: (centerX - stage.x()) / oldScale,
-            y: (centerY - stage.y()) / oldScale,
-        };
-
-        const newPos = {
-            x: centerX - mousePointTo.x * newScale,
-            y: centerY - mousePointTo.y * newScale,
-        };
-
-        stage.scale({ x: newScale, y: newScale });
-        stage.position(newPos);
-        stage.batchDraw();
-
-        setScale(newScale);
-        setPosition(newPos);
+        const newScale = Math.max(scale / 1.2, 0.1);
+        applyZoom(newScale);
     };
 
     const handleZoomToFit = () => {
         if (!stageRef.current) return;
 
         const stage = stageRef.current;
+        const container = scrollContainerRef.current;
+        if (!container) return;
 
-        // Reset to default scale and position
-        const newScale = 1;
-        const newPos = { x: 0, y: 0 };
+        // Calculate the scale to fit the content within the visible area
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+
+        const scaleX = containerWidth / WIDTH;
+        const scaleY = containerHeight / HEIGHT;
+        const newScale = Math.min(scaleX, scaleY);
+
+        // Center the content
+        const newPos = {
+            x: (containerWidth - WIDTH * newScale) / 2,
+            y: (containerHeight - HEIGHT * newScale) / 2,
+        };
 
         stage.scale({ x: newScale, y: newScale });
         stage.position(newPos);
@@ -364,32 +356,9 @@ export const DiagramTabs = () => {
     };
 
     const handleSliderChange = (_event: Event, newValue: number | number[]) => {
-        if (!stageRef.current || typeof newValue !== 'number') return;
-
-        const stage = stageRef.current;
-        const oldScale = stage.scaleX();
-        const newScale = newValue;
-
-        // Keep the center of the view fixed when zooming
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-
-        const mousePointTo = {
-            x: (centerX - stage.x()) / oldScale,
-            y: (centerY - stage.y()) / oldScale,
-        };
-
-        const newPos = {
-            x: centerX - mousePointTo.x * newScale,
-            y: centerY - mousePointTo.y * newScale,
-        };
-
-        stage.scale({ x: newScale, y: newScale });
-        stage.position(newPos);
-        stage.batchDraw();
-
-        setScale(newScale);
-        setPosition(newPos);
+        if (typeof newValue === 'number') {
+            applyZoom(newValue);
+        }
     };
 
     const Bridge = useRecoilBridgeAcrossReactRoots_UNSTABLE();
