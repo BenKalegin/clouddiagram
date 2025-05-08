@@ -403,8 +403,6 @@ export const DiagramTabs = () => {
                     height: 'calc(100vh - 170px)',
                     overflow: 'auto',
                     border: '1px solid #ddd',
-                    // flexGrow: 1,
-                    minHeight: 0,
                     position: 'relative'
                 }}
             >
@@ -412,7 +410,7 @@ export const DiagramTabs = () => {
                     <AppLayoutContext.Consumer>
                     { value => (
                         <Stage
-                            width={2000} // Large enough to accommodate most diagrams
+                            width={3000} // Large enough to accommodate most diagrams
                             height={2000} // Large enough to accommodate most diagrams
                             onMouseDown={e => checkDeselect(e)}
                             ref={stageRef}
