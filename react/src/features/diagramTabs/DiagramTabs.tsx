@@ -1,8 +1,7 @@
 import React, { useRef } from "react";
-import { Stack, Tabs, Box, IconButton, Menu } from "@mui/material";
+import { Stack, Tabs, Box } from "@mui/material";
 import { LinkToNewDialog } from "../dialogs/LinkToNewDialog";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { ElementType } from "../../package/packageModel";
 import {
     diagramKindSelector,
     exportingAtom,
@@ -10,10 +9,7 @@ import {
     linkingAtom, showContextAtom
 } from "../diagramEditor/diagramEditorModel";
 import { activeDiagramIdAtom, openDiagramIdsAtom } from "./diagramTabsModel";
-import { addDiagramTabAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
 import Konva from "konva";
-import AddIcon from '@mui/icons-material/Add';
-import MenuItem from '@mui/material/MenuItem';
 import { PlainTab, TabHeight } from "./DiagramTab";
 import { ExportDialog } from "../dialogs/ExportDialog";
 import { ImportDialog } from "../dialogs/ImportDialog";
@@ -23,42 +19,8 @@ import { usePanZoomHandlers } from "./PanZoomHandler";
 import { useKeyboardShortcuts } from "./KeyboardShortcutsHandler";
 import { DiagramStage } from "./DiagramStage";
 import { ZoomControls } from "./ZoomControls";
+import { AddNewTabButton } from "./AddNewTabButton";
 
-
-function AddNewTabButton() {
-    const dispatch = useDispatch()
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = (diagramKind: ElementType) => {
-        setAnchorEl(null);
-        dispatch(addDiagramTabAction({diagramKind}));
-    };
-
-    return (
-        <div style={{lineHeight: "3em"}}>
-            <IconButton
-                data-testid="add-diagram-button"
-                onClick={handleClick}
-                size="small"
-            >
-                <AddIcon fontSize="inherit" />
-            </IconButton>
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-            >
-                <MenuItem data-testid="add-class-diagram" onClick={() => handleClose(ElementType.ClassDiagram)}>Class Diagram</MenuItem>
-                <MenuItem data-testid="add-deployment-diagram" onClick={() => handleClose(ElementType.DeploymentDiagram)}>Deployment Diagram</MenuItem>
-                <MenuItem data-testid="add-sequence-diagram" onClick={() => handleClose(ElementType.SequenceDiagram)}>Sequence Diagram</MenuItem>
-            </Menu>
-        </div>
-    );
-}
 
 export const DiagramTabs = () => {
     const [activeDiagramId, setActiveDiagramId] = useRecoilState(activeDiagramIdAtom);
@@ -123,7 +85,7 @@ export const DiagramTabs = () => {
             </Stack>
             {/*We will use small canvas with the size of the screen*/}
             {/*We will create container with required size (3000x3000), so native scrollbars will be visible*/}
-            {/*When user is trying to scroll, we will apply css transform for the stage container so it will be still in the center of user's screen*/}
+            {/*When the user is trying to scroll, we will apply css transform for the stage container so it will be still in the center of user's screen*/}
             {/*We will move all nodes so it looks like you scroll (by changing stage position)*/}
             <Box
                 ref={scrollContainerRef}
