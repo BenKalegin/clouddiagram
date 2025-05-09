@@ -22,28 +22,39 @@ export const usePanZoomHandlers = ({
     setPosition,
     padding
 }: PanZoomHandlerProps) => {
-    // State for right-click panning
+    // Refs for right-click panning (using refs instead of state for immediate updates)
+    const isRightMouseDownRef = React.useRef(false);
+    const lastPointerPositionRef = React.useRef<{ x: number, y: number } | null>(null);
+
+    // State for right-click panning (for component re-rendering)
     const [isRightMouseDown, setIsRightMouseDown] = React.useState(false);
     const [lastPointerPosition, setLastPointerPosition] = React.useState<{ x: number, y: number } | null>(null);
 
     // Set up event handlers for right-click panning and wheel zooming
     useEffect(() => {
-        if (!stageRef.current || !containerRef.current) return;
+        if (!stageRef.current || !containerRef.current || !scrollContainerRef.current) return;
 
         const stage = stageRef.current;
         const container = stage.container();
-        const scrollContainer = containerRef.current;
+        const scrollContainer = scrollContainerRef.current;
 
         // Handle right mouse button down
         const handleMouseDown = (e: MouseEvent) => {
             // Right mouse button (button === 2)
             if (e.button === 2) {
                 e.preventDefault();
+                // Update both ref and state
+                isRightMouseDownRef.current = true;
                 setIsRightMouseDown(true);
-                setLastPointerPosition({
+
+                const newPosition = {
                     x: e.clientX,
                     y: e.clientY
-                });
+                };
+                // Update both ref and state
+                lastPointerPositionRef.current = newPosition;
+                setLastPointerPosition(newPosition);
+
                 // Change cursor to grabbing
                 container.style.cursor = 'grabbing';
             }
@@ -51,10 +62,11 @@ export const usePanZoomHandlers = ({
 
         // Handle mouse move for panning
         const handleMouseMove = (e: MouseEvent) => {
-            if (isRightMouseDown && lastPointerPosition) {
+            // Use refs for immediate access to current values
+            if (isRightMouseDownRef.current && lastPointerPositionRef.current) {
                 e.preventDefault();
-                const dx = e.clientX - lastPointerPosition.x;
-                const dy = e.clientY - lastPointerPosition.y;
+                const dx = e.clientX - lastPointerPositionRef.current.x;
+                const dy = e.clientY - lastPointerPositionRef.current.y;
 
                 const newPos = {
                     x: stage.x() + dx,
@@ -65,18 +77,26 @@ export const usePanZoomHandlers = ({
                 stage.batchDraw();
                 setPosition(newPos);
 
-                setLastPointerPosition({
+                const newPointerPosition = {
                     x: e.clientX,
                     y: e.clientY
-                });
+                };
+                // Update both ref and state
+                lastPointerPositionRef.current = newPointerPosition;
+                setLastPointerPosition(newPointerPosition);
             }
         };
 
         // Handle mouse up to stop panning
         const handleMouseUp = (e: MouseEvent) => {
             if (e.button === 2) {
+                // Update both ref and state
+                isRightMouseDownRef.current = false;
                 setIsRightMouseDown(false);
+
+                lastPointerPositionRef.current = null;
                 setLastPointerPosition(null);
+
                 // Reset cursor
                 container.style.cursor = 'default';
             }
@@ -141,7 +161,7 @@ export const usePanZoomHandlers = ({
 
         function repositionStage() {
             if (!scrollContainerRef.current) return;
-            
+
             const dx = scrollContainerRef.current.scrollLeft - padding;
             const dy = scrollContainerRef.current.scrollTop - padding;
             if (containerRef.current) {
@@ -174,7 +194,7 @@ export const usePanZoomHandlers = ({
                 scrollContainerRef.current.removeEventListener('scroll', repositionStage);
             }
         };
-    }, [isRightMouseDown, lastPointerPosition, scale, stageRef, containerRef, scrollContainerRef, setPosition, setScale, padding]);
+    }, [scale, stageRef, containerRef, scrollContainerRef, setPosition, setScale, padding]);
 
     return {
         isRightMouseDown,
