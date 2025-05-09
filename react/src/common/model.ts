@@ -52,10 +52,25 @@ export const center = (bounds: Bounds): Coordinate => ({
     y: bounds.y + bounds.height / 2,
 });
 
+export interface DiagramDisplay {
+    width: number
+    height: number
+    scale: number
+    offset: Coordinate
+}
+
+export const defaultDiagramDisplay: DiagramDisplay = {
+    width: 0,
+    height: 0,
+    scale: 1,
+    offset: zeroCoordinate
+}
+
 export interface Diagram extends DiagramElement{
     title?: string
     selectedElements: ElementRef[]
     notes: {[id: NoteId]: NoteState}
+    display: DiagramDisplay
 }
 
 

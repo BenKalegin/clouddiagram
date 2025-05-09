@@ -6,7 +6,7 @@ import {
     MessageState,
     SequenceDiagramState
 } from "../sequenceDiagram/sequenceDiagramModel";
-import {Diagram} from "../../common/model";
+import {defaultDiagramDisplay, Diagram} from "../../common/model";
 import {ElementType} from "../../package/packageModel";
 import {defaultColorSchema} from "../../common/colors/colorSchemas";
 
@@ -106,6 +106,7 @@ export function importSequenceDiagramFromLucid(markup: string): Diagram {
     return {
         id: "", notes: {}, selectedElements: [],
         title: "new diagram",
-        type: ElementType.SequenceDiagram
+        type: ElementType.SequenceDiagram,
+        display: defaultDiagramDisplay,
     }
 }

@@ -5,7 +5,7 @@ import {
     PortPlacement,
     StructureDiagramState
 } from "./structureDiagram/structureDiagramState";
-import {zeroBounds} from "../common/model";
+import {defaultDiagramDisplay, zeroBounds} from "../common/model";
 import {
     ActivationState,
     lifelineDefaultHeight,
@@ -272,6 +272,7 @@ export const getClassDemoDiagram = (id: string, title: string): StructureDiagram
         ports: portPlacements,
         links: linkPlacements,
         notes: {[note1.id]: note1},
+        display: defaultDiagramDisplay
     };
 };
 export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentDiagramState => {
@@ -346,6 +347,7 @@ export const getDeploymentDemoDiagram = (id: string, title: string): DeploymentD
         ports: {},
         links: {},
         notes: {[note1.id]: note1},
+        display: defaultDiagramDisplay,
     };
 };
 export const getSequenceDemoDiagram = (): SequenceDiagramState => {

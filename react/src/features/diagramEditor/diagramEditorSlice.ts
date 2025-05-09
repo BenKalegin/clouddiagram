@@ -1,4 +1,4 @@
-import {Bounds, Coordinate, Diagram, zeroCoordinate} from "../../common/model";
+import {Bounds, Coordinate, defaultDiagramDisplay, Diagram, zeroCoordinate} from "../../common/model";
 import {
     elementsAtom,
     exportingAtom,
@@ -274,7 +274,7 @@ function handleElementSelection(get: Get, set: Set, idAndKind: ElementRef | unde
 function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
     const openDiagramIds = get(openDiagramIdsAtom);
     const newDiagramId = generateId();
-    let diagram : Diagram = {id: "", selectedElements: [], type: ElementType.Unexpected, notes: {}};
+    let diagram : Diagram = {id: "", selectedElements: [], type: ElementType.Unexpected, notes: {}, display: defaultDiagramDisplay};
 
     switch (diagramKind) {
         case ElementType.ClassDiagram:

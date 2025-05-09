@@ -11,7 +11,7 @@ import { activeDiagramIdAtom } from '../diagramTabs/diagramTabsModel';
 import { elementsAtom, linkingAtom, snapGridSizeAtom } from '../diagramEditor/diagramEditorModel';
 import { Command } from '../propertiesEditor/propertiesEditorModel';
 import { ElementType } from '../../package/packageModel';
-import { Bounds, Coordinate } from '../../common/model';
+import {Bounds, Coordinate, defaultDiagramDisplay} from '../../common/model';
 import { StructureDiagramState } from './structureDiagramState';
 
 jest.mock("react-konva-to-svg", () => ({
@@ -56,7 +56,8 @@ describe('Structure Diagram Integration Tests', () => {
       links: {},
       ports: {},
       notes: {},
-      selectedElements: []
+      selectedElements: [],
+      display: defaultDiagramDisplay
     };
 
     mockState.set(activeDiagramIdAtom, diagramId);

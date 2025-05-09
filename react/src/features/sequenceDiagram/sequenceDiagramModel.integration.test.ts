@@ -13,7 +13,7 @@ import {activeDiagramIdAtom} from '../diagramTabs/diagramTabsModel';
 import {elementsAtom, generateId, linkingAtom} from '../diagramEditor/diagramEditorModel';
 import {Command} from '../propertiesEditor/propertiesEditorModel';
 import {DiagramElement, ElementType} from '../../package/packageModel';
-import {Coordinate} from '../../common/model';
+import {Coordinate, defaultDiagramDisplay} from '../../common/model';
 
 // Mock the recoil state
 jest.mock('recoil', () => {
@@ -57,7 +57,8 @@ describe('Sequence Diagram Integration Tests', () => {
       messages: {},
       activations: {},
       notes: {},
-      selectedElements: []
+      selectedElements: [],
+      display: defaultDiagramDisplay
     };
 
     mockState.set(activeDiagramIdAtom, diagramId);
