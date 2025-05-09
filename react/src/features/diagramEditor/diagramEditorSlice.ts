@@ -179,8 +179,15 @@ function handleAction(action: Action, get: Get, set: Set) {
 }
 
 export function screenToCanvas(e: KonvaEventObject<DragEvent | MouseEvent>) {
-    const stage = e.target.getStage()?.getPointerPosition() ?? zeroCoordinate;
-    return {x: stage.x, y: stage.y};
+    const stage = e.target.getStage();
+    if (!stage) return zeroCoordinate;
+
+    const stagePos = stage.getPointerPosition() ?? zeroCoordinate;
+    // Convert screen coordinates to stage coordinates
+    return {
+        x: (stagePos.x - stage.x()) / stage.scaleX(),
+        y: (stagePos.y - stage.y()) / stage.scaleY()
+    };
 }
 
 const snapToGrid = (pos: Coordinate, gridSize: number) => {
