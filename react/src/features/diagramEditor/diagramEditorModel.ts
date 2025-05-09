@@ -1,4 +1,4 @@
-import {Bounds, Coordinate, Diagram} from "../../common/model";
+import {Bounds, Coordinate, defaultDiagramDisplay, Diagram} from "../../common/model";
 import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
 import {atom, atomFamily, selectorFamily} from "recoil";
 import {elements} from "../demo";
@@ -66,6 +66,11 @@ export const diagramTitleSelector = selectorFamily<string | undefined, DiagramId
 export const diagramKindSelector = selectorFamily<ElementType, DiagramId>({
     key: 'diagram',
     get: (id) => ({get}) => get(elementsAtom(id)).type
+})
+
+export const diagramDisplaySelector = selectorFamily<Diagram['display'], DiagramId>({
+    key: 'diagramDisplay',
+    get: (id) => ({get}) => (get(elementsAtom(id)) as Diagram).display ?? defaultDiagramDisplay
 })
 
 export const selectedRefsSelector = selectorFamily<ElementRef[], DiagramId>({

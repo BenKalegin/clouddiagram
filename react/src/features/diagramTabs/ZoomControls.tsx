@@ -4,6 +4,10 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import FitScreenIcon from '@mui/icons-material/FitScreen';
 import Konva from "konva";
+import { useRecoilValue } from "recoil";
+import { activeDiagramIdAtom } from "./diagramTabsModel";
+import { diagramDisplaySelector } from "../diagramEditor/diagramEditorModel";
+import { updateDiagramDisplayAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
 
 interface ZoomControlsProps {
     scale: number;
@@ -52,8 +56,28 @@ export const ZoomControls: React.FC<ZoomControlsProps> = ({
 };
 
 export const useZoom = (stageRef: React.RefObject<Konva.Stage>, scrollContainerRef: React.RefObject<HTMLDivElement>, WIDTH: number, HEIGHT: number) => {
-    const [scale, setScale] = React.useState(1);
-    const [position, setPosition] = React.useState({ x: 0, y: 0 });
+    const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
+    const diagramDisplay = useRecoilValue(diagramDisplaySelector(activeDiagramId));
+    const dispatch = useDispatch();
+
+    // Use diagram's display property instead of React state
+    const scale = diagramDisplay.scale;
+    const position = diagramDisplay.offset;
+
+    // These functions are kept for compatibility with the existing code
+    const setScale = (newScale: number) => {
+        dispatch(updateDiagramDisplayAction({
+            scale: newScale,
+            offset: position
+        }));
+    };
+
+    const setPosition = (newPos: { x: number, y: number }) => {
+        dispatch(updateDiagramDisplayAction({
+            scale,
+            offset: newPos
+        }));
+    };
 
     const applyZoom = (newScale: number) => {
         if (!stageRef.current) return;
@@ -79,8 +103,11 @@ export const useZoom = (stageRef: React.RefObject<Konva.Stage>, scrollContainerR
         stage.position(newPos);
         stage.batchDraw();
 
-        setScale(newScale);
-        setPosition(newPos);
+        // Update diagram's display property
+        dispatch(updateDiagramDisplayAction({
+            scale: newScale,
+            offset: newPos
+        }));
     };
 
     const handleZoomIn = () => {
@@ -118,8 +145,11 @@ export const useZoom = (stageRef: React.RefObject<Konva.Stage>, scrollContainerR
         stage.position(newPos);
         stage.batchDraw();
 
-        setScale(newScale);
-        setPosition(newPos);
+        // Update diagram's display property
+        dispatch(updateDiagramDisplayAction({
+            scale: newScale,
+            offset: newPos
+        }));
     };
 
     const handleSliderChange = (_event: Event, newValue: number | number[]) => {

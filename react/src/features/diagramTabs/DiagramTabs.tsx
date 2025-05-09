@@ -1,8 +1,9 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Stack, Tabs, Box } from "@mui/material";
 import { LinkToNewDialog } from "../dialogs/LinkToNewDialog";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
+    diagramDisplaySelector,
     diagramKindSelector,
     exportingAtom,
     importingAtom,
@@ -30,6 +31,7 @@ export const DiagramTabs = () => {
     const importing = useRecoilValue(importingAtom)
     const showingContext = useRecoilValue(showContextAtom)
     const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
+    const diagramDisplay = useRecoilValue(diagramDisplaySelector(activeDiagramId!))
 
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -41,28 +43,35 @@ export const DiagramTabs = () => {
 
     // Use the extracted hooks
     const {
-        scale,
-        position,
-        setScale,
-        setPosition,
         handleZoomIn,
         handleZoomOut,
         handleZoomToFit,
         handleSliderChange
     } = useZoom(stageRef, scrollContainerRef, WIDTH, HEIGHT);
 
+    // Create dummy setScale and setPosition functions for compatibility
+    const setScale = (newScale: number) => {};
+    const setPosition = (newPos: { x: number, y: number }) => {};
+
     usePanZoomHandlers({
         stageRef,
         containerRef,
         scrollContainerRef,
-        scale,
+        scale: diagramDisplay.scale,
         setScale,
-        position,
+        position: diagramDisplay.offset,
         setPosition,
         padding: PADDING
     });
 
     useKeyboardShortcuts({ activeDiagramId });
+
+    // Ensure activeDiagramId is always a valid open diagram
+    useEffect(() => {
+        if (openDiagramIds.length > 0 && (activeDiagramId === "" || !openDiagramIds.includes(activeDiagramId!))) {
+            setActiveDiagramId(openDiagramIds[0]);
+        }
+    }, [openDiagramIds, activeDiagramId, setActiveDiagramId]);
 
     const handleTabChange = (_unused: React.SyntheticEvent, newValue: number) => {
         setActiveDiagramId(openDiagramIds[newValue]);
@@ -73,7 +82,7 @@ export const DiagramTabs = () => {
             <Stack direction="row" spacing="2" alignItems="center">
                 <Tabs
                     sx={{height: TabHeight, minHeight: TabHeight}}
-                    value={openDiagramIds.indexOf(activeDiagramId!)}
+                    value={openDiagramIds.indexOf(activeDiagramId!) !== -1 ? openDiagramIds.indexOf(activeDiagramId!) : 0}
                     onChange={handleTabChange}
                     aria-label="Open diagrams"
                 >
@@ -102,8 +111,8 @@ export const DiagramTabs = () => {
                     stageRef={stageRef}
                     scrollContainerRef={scrollContainerRef}
                     containerRef={containerRef}
-                    scale={scale}
-                    position={position}
+                    scale={diagramDisplay.scale}
+                    position={diagramDisplay.offset}
                     width={WIDTH}
                     height={HEIGHT}
                     padding={PADDING}
@@ -112,7 +121,7 @@ export const DiagramTabs = () => {
 
             {/* Zoom controls */}
             <ZoomControls
-                scale={scale}
+                scale={diagramDisplay?.scale ?? 1}
                 onZoomIn={handleZoomIn}
                 onZoomOut={handleZoomOut}
                 onZoomToFit={handleZoomToFit}

@@ -120,6 +120,11 @@ export const showContextAction = createAction<{
 export const hideContextAction = createAction<{
 }>("editor/hideContext");
 
+export const updateDiagramDisplayAction = createAction<{
+    scale: number;
+    offset: Coordinate;
+}>("editor/updateDiagramDisplay");
+
 export type Get = (<T>(a: RecoilValue<T>) => T)
 export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
 
@@ -173,6 +178,8 @@ function handleAction(action: Action, get: Get, set: Set) {
         showContext(set, elementId, mousePos, diagramPos);
     }else if(hideContextAction.match(action)) {
         hideContext(set);
+    }else if(updateDiagramDisplayAction.match(action)) {
+        updateDiagramDisplay(get, set, action.payload.scale, action.payload.offset);
     }
     else
         diagramEditors[diagramKind].handleAction(action, get, set);
@@ -327,8 +334,9 @@ function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
 function closeDiagramTab(get: Get, set: Set) {
     const diagramId = get(activeDiagramIdAtom);
     const openDiagramIds = get(openDiagramIdsAtom);
-    set(openDiagramIdsAtom, openDiagramIds.filter(id => id !== diagramId))
-    set(activeDiagramIdAtom, openDiagramIds.length === 0 ? "" : openDiagramIds[-1])
+    const filteredDiagramIds = openDiagramIds.filter(id => id !== diagramId);
+    set(openDiagramIdsAtom, filteredDiagramIds);
+    set(activeDiagramIdAtom, filteredDiagramIds.length === 0 ? "" : filteredDiagramIds[filteredDiagramIds.length - 1]);
 }
 
 export function exportDiagramTab(set: Set, exportState: ExportPhase, format: ExportImportFormat | undefined) {
@@ -385,6 +393,23 @@ function showContext(set: Set, elementId: string, mousePos: Coordinate, diagramP
 
 function hideContext(set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
     set(showContextAtom, undefined)
+}
+
+function updateDiagramDisplay(get: Get, set: Set, scale: number, offset: Coordinate) {
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as Diagram;
+
+    // Update the diagram's display property
+    const updatedDiagram = {
+        ...diagram,
+        display: {
+            ...diagram.display,
+            scale,
+            offset
+        }
+    };
+
+    set(elementsAtom(diagramId), updatedDiagram);
 }
 
 

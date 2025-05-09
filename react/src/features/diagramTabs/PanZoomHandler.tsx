@@ -1,5 +1,8 @@
 import React, { useEffect } from "react";
 import Konva from "konva";
+import { useRecoilValue } from "recoil";
+import { activeDiagramIdAtom } from "./diagramTabsModel";
+import { updateDiagramDisplayAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
 
 interface PanZoomHandlerProps {
     stageRef: React.RefObject<Konva.Stage>;
@@ -22,6 +25,8 @@ export const usePanZoomHandlers = ({
     setPosition,
     padding
 }: PanZoomHandlerProps) => {
+    const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
+    const dispatch = useDispatch();
     // Refs for right-click panning (using refs instead of state for immediate updates)
     const isRightMouseDownRef = React.useRef(false);
     const lastPointerPositionRef = React.useRef<{ x: number, y: number } | null>(null);
@@ -29,6 +34,12 @@ export const usePanZoomHandlers = ({
     // State for right-click panning (for component re-rendering)
     const [isRightMouseDown, setIsRightMouseDown] = React.useState(false);
     const [lastPointerPosition, setLastPointerPosition] = React.useState<{ x: number, y: number } | null>(null);
+
+    // Ref to track the initial setup
+    const initialSetupDoneRef = React.useRef(false);
+
+    // Ref to track previous position to avoid unnecessary updates
+    const prevPositionRef = React.useRef(position);
 
     // Set up event handlers for right-click panning and wheel zooming
     useEffect(() => {
@@ -75,7 +86,12 @@ export const usePanZoomHandlers = ({
 
                 stage.position(newPos);
                 stage.batchDraw();
-                setPosition(newPos);
+
+                // Update diagram's display property
+                dispatch(updateDiagramDisplayAction({
+                    scale,
+                    offset: newPos
+                }));
 
                 const newPointerPosition = {
                     x: e.clientX,
@@ -146,9 +162,11 @@ export const usePanZoomHandlers = ({
             stage.position(newPos);
             stage.batchDraw();
 
-            // Update state
-            setScale(limitedScale);
-            setPosition(newPos);
+            // Update diagram's display property
+            dispatch(updateDiagramDisplayAction({
+                scale: limitedScale,
+                offset: newPos
+            }));
         };
 
         // Prevent wheel events on the scroll container from scrolling
@@ -167,7 +185,18 @@ export const usePanZoomHandlers = ({
             if (containerRef.current) {
                 containerRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
             }
-            setPosition({ x: -dx, y: -dy });
+            const newPos = { x: -dx, y: -dy };
+
+            // Only update if position has changed
+            if (prevPositionRef.current.x !== newPos.x || prevPositionRef.current.y !== newPos.y) {
+                prevPositionRef.current = newPos;
+
+                // Update diagram's display property
+                dispatch(updateDiagramDisplayAction({
+                    scale,
+                    offset: newPos
+                }));
+            }
         }
 
         // Add event listeners
@@ -180,7 +209,12 @@ export const usePanZoomHandlers = ({
             scrollContainerRef.current.addEventListener('wheel', preventWheelScroll, { passive: false });
             scrollContainerRef.current.addEventListener('scroll', repositionStage);
         }
-        repositionStage();
+
+        // Only call repositionStage on initial setup
+        if (!initialSetupDoneRef.current) {
+            initialSetupDoneRef.current = true;
+            repositionStage();
+        }
 
         // Clean up event listeners
         return () => {
@@ -194,7 +228,7 @@ export const usePanZoomHandlers = ({
                 scrollContainerRef.current.removeEventListener('scroll', repositionStage);
             }
         };
-    }, [scale, stageRef, containerRef, scrollContainerRef, setPosition, setScale, padding]);
+    }, [scale, stageRef, containerRef, scrollContainerRef, setPosition, setScale, padding, position, dispatch, activeDiagramId]);
 
     return {
         isRightMouseDown,
