@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React, {useEffect} from "react";
 import Konva from "konva";
-import { useRecoilValue } from "recoil";
-import { activeDiagramIdAtom } from "./diagramTabsModel";
-import { updateDiagramDisplayAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
+import {useRecoilValue} from "recoil";
+import {activeDiagramIdAtom} from "./diagramTabsModel";
+import {updateDiagramDisplayAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 
 interface PanZoomHandlerProps {
     stageRef: React.RefObject<Konva.Stage>;
@@ -180,8 +180,8 @@ export const usePanZoomHandlers = ({
         function repositionStage() {
             if (!scrollContainerRef.current) return;
 
-            const dx = scrollContainerRef.current.scrollLeft - padding;
-            const dy = scrollContainerRef.current.scrollTop - padding;
+            const dx = scrollContainer.scrollLeft - padding;
+            const dy = scrollContainer.scrollTop - padding;
             if (containerRef.current) {
                 containerRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
             }
@@ -205,9 +205,9 @@ export const usePanZoomHandlers = ({
         window.addEventListener('mouseup', handleMouseUp);
         container.addEventListener('contextmenu', handleContextMenu);
         container.addEventListener('wheel', handleWheel);
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.addEventListener('wheel', preventWheelScroll, { passive: false });
-            scrollContainerRef.current.addEventListener('scroll', repositionStage);
+        if (scrollContainer) {
+            scrollContainer.addEventListener('wheel', preventWheelScroll, { passive: false });
+            scrollContainer.addEventListener('scroll', repositionStage);
         }
 
         // Only call repositionStage on initial setup
@@ -216,16 +216,16 @@ export const usePanZoomHandlers = ({
             repositionStage();
         }
 
-        // Clean up event listeners
+        // Cleanup event listeners
         return () => {
             container.removeEventListener('mousedown', handleMouseDown);
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
             container.removeEventListener('contextmenu', handleContextMenu);
             container.removeEventListener('wheel', handleWheel);
-            if (scrollContainerRef.current) {
-                scrollContainerRef.current.removeEventListener('wheel', preventWheelScroll);
-                scrollContainerRef.current.removeEventListener('scroll', repositionStage);
+            if (scrollContainer) {
+                scrollContainer.removeEventListener('wheel', preventWheelScroll);
+                scrollContainer.removeEventListener('scroll', repositionStage);
             }
         };
     }, [scale, stageRef, containerRef, scrollContainerRef, setPosition, setScale, padding, position, dispatch, activeDiagramId]);

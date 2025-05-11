@@ -1,4 +1,4 @@
-import React, {ReactNode} from "react";
+import React, {ReactNode, useContext} from "react";
 import {
     classClass,
     classInterface,
@@ -19,6 +19,9 @@ import {
 import {dropFromPaletteAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ElementType} from "../../package/packageModel";
 import {PredefinedSvg} from "../graphics/graphicsReader";
+import {useRecoilValue} from "recoil";
+import {diagramDisplaySelector} from "../diagramEditor/diagramEditorModel";
+import {activeDiagramIdAtom} from "./diagramTabsModel";
 
 export interface TypeAndSubType {
     type: ElementType;
@@ -83,6 +86,8 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
 export function HtmlDrop(props: { children: ReactNode }) {
 
     const dispatch = useDispatch();
+    const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
+    const diagramDisplay = useRecoilValue(diagramDisplaySelector(activeDiagramId!));
 
     return (
         <div
@@ -93,12 +98,18 @@ export function HtmlDrop(props: { children: ReactNode }) {
                 const target = e.target as HTMLDivElement;
                 const rect = target.getBoundingClientRect();
 
+                // Calculate position relative to the container
                 const offsetX = e.clientX - rect.x;
                 const offsetY = e.clientY - rect.y;
+
+                // Adjust for diagram scale and offset
+                const adjustedX = (offsetX - diagramDisplay.offset.x) / diagramDisplay.scale;
+                const adjustedY = (offsetY - diagramDisplay.offset.y) / diagramDisplay.scale;
+
                 const galleryItem: GalleryItem = JSON.parse(e.dataTransfer.getData("application/json"));
                 dispatch(dropFromPaletteAction(
             {
-                        droppedAt: {x: offsetX, y: offsetY},
+                        droppedAt: {x: adjustedX, y: adjustedY},
                         name: galleryItem.name,
                         kind: mapGalleryType(galleryItem.key)
                     }));
