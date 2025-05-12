@@ -111,12 +111,19 @@ export const useZoom = (stageRef: React.RefObject<Konva.Stage>, scrollContainerR
     };
 
     const handleZoomIn = () => {
-        const newScale = Math.min(scale * 1.2, 5);
+        // Define slider stops: 0.1, 0.2, ..., 5.0 (step 0.1)
+        const stops = Array.from({ length: 50 }, (_, i) => +(0.1 + i * 0.1).toFixed(1));
+        const currentIdx = stops.findIndex(s => Math.abs(s - scale) < 0.01);
+        const nextIdx = Math.min(currentIdx + 1, stops.length - 1);
+        const newScale = stops[nextIdx];
         applyZoom(newScale);
     };
 
     const handleZoomOut = () => {
-        const newScale = Math.max(scale / 1.2, 0.1);
+        const stops = Array.from({ length: 50 }, (_, i) => +(0.1 + i * 0.1).toFixed(1));
+        const currentIdx = stops.findIndex(s => Math.abs(s - scale) < 0.01);
+        const prevIdx = Math.max(currentIdx - 1, 0);
+        const newScale = stops[prevIdx];
         applyZoom(newScale);
     };
 
