@@ -123,56 +123,73 @@ export const usePanZoomHandlers = ({
             e.preventDefault();
         };
 
-        // Handle wheel event for zooming
+        // Handle wheel event for scrolling and zooming
         const handleWheel = (e: WheelEvent) => {
-            // Prevent default scrolling behavior
-            e.preventDefault();
-            e.stopPropagation();
+            // If the Ctrl key is pressed, handle zooming
+            if (e.ctrlKey || e.metaKey) {
+                // Prevent default scrolling behavior
+                e.preventDefault();
+                e.stopPropagation();
 
-            const oldScale = stage.scaleX();
+                const oldScale = stage.scaleX();
 
-            // Get pointer position
-            const pointer = stage.getPointerPosition();
-            if (!pointer) return;
+                // Get pointer position
+                const pointer = stage.getPointerPosition();
+                if (!pointer) return;
 
-            const mousePointTo = {
-                x: (pointer.x - stage.x()) / oldScale,
-                y: (pointer.y - stage.y()) / oldScale,
-            };
+                const mousePointTo = {
+                    x: (pointer.x - stage.x()) / oldScale,
+                    y: (pointer.y - stage.y()) / oldScale,
+                };
 
-            // Calculate a new scale
-            // Zoom in: scale up, Zoom out: scale down
-            const direction = e.deltaY > 0 ? -1 : 1;
-            const scaleBy = 1.1;
-            const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+                // Calculate a new scale
+                // Zoom in: scale up, Zoom out: scale down
+                const direction = e.deltaY > 0 ? -1 : 1;
+                const scaleBy = 1.1;
+                const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 
-            // Limit scale to reasonable bounds
-            const limitedScale = Math.max(0.1, Math.min(newScale, 5));
+                // Limit scale to reasonable bounds
+                const limitedScale = Math.max(0.1, Math.min(newScale, 5));
 
-            // Set a new scale
-            stage.scale({ x: limitedScale, y: limitedScale });
+                // Set a new scale
+                stage.scale({ x: limitedScale, y: limitedScale });
 
-            // Calculate a new position
-            const newPos = {
-                x: pointer.x - mousePointTo.x * limitedScale,
-                y: pointer.y - mousePointTo.y * limitedScale,
-            };
+                // Calculate a new position
+                const newPos = {
+                    x: pointer.x - mousePointTo.x * limitedScale,
+                    y: pointer.y - mousePointTo.y * limitedScale,
+                };
 
-            // Set a new position
-            stage.position(newPos);
-            stage.batchDraw();
+                // Set a new position
+                stage.position(newPos);
+                stage.batchDraw();
 
-            // Update diagram's display property
-            dispatch(updateDiagramDisplayAction({
-                scale: limitedScale,
-                offset: newPos
-            }));
+                // Update diagram's display property
+                dispatch(updateDiagramDisplayAction({
+                    scale: limitedScale,
+                    offset: newPos
+                }));
+            }
+            // If a Shift key is pressed, handle horizontal scrolling
+            else if (e.shiftKey) {
+                // Prevent default scrolling behavior
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Scroll horizontally
+                if (scrollContainer) {
+                    // noinspection JSSuspiciousNameCombination
+                    scrollContainer.scrollLeft += e.deltaY;
+                }
+            }
+            // Otherwise, let the default vertical scrolling happen
+            // No need to prevent default or stop propagation
         };
 
         // Prevent wheel events on the scroll container from scrolling
         const preventWheelScroll = (e: WheelEvent) => {
-            if (e.ctrlKey || e.metaKey) {
-                // Allow pinch-to-zoom on trackpads
+            if (e.ctrlKey || e.metaKey || e.shiftKey) {
+                // Prevent default for Ctrl/Meta (zoom) and Shift (horizontal scroll)
                 e.preventDefault();
             }
         };
