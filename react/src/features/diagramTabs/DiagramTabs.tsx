@@ -37,17 +37,15 @@ export const DiagramTabs = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const stageRef = useRef<Konva.Stage>(null);
 
-    const WIDTH = 3000;
-    const HEIGHT = 3000;
+    // Use real diagram dimensions instead of hardcoded values
     const PADDING = 500;
-
     // Use the extracted hooks
     const {
         handleZoomIn,
         handleZoomOut,
         handleZoomToFit,
         handleSliderChange
-    } = useZoom(stageRef, scrollContainerRef, WIDTH, HEIGHT);
+    } = useZoom(stageRef, scrollContainerRef, diagramDisplay.width || 3000, diagramDisplay.height || 3000);
 
     // Create dummy setScale and setPosition functions for compatibility
     const setScale = (newScale: number) => {};
@@ -113,8 +111,8 @@ export const DiagramTabs = () => {
                     containerRef={containerRef}
                     scale={diagramDisplay.scale}
                     position={diagramDisplay.offset}
-                    width={WIDTH}
-                    height={HEIGHT}
+                    width={diagramDisplay.width || 3000}
+                    height={diagramDisplay.height || 3000}
                     padding={PADDING}
                 />
             </Box>

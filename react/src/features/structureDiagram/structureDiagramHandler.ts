@@ -1,4 +1,5 @@
 import {
+    calculateDiagramBounds,
     DiagramHandler,
     dropFromPaletteAction,
     elementCommandAction,
@@ -93,6 +94,25 @@ export class StructureDiagramHandler implements DiagramHandler {
                     this.startElement = null;
                     this.startNodePosition = null;
                 }
+
+                // Update diagram bounds after element move
+                const diagramId = get(activeDiagramIdAtom);
+                const diagram = get(elementsAtom(diagramId)) as Diagram;
+                const bounds = calculateDiagramBounds(diagram);
+
+                // Update the diagram's display property
+                const updatedDiagram = {
+                    ...diagram,
+                    display: {
+                        ...diagram.display,
+                        scale: diagram.display.scale,
+                        offset: diagram.display.offset,
+                        width: bounds.width,
+                        height: bounds.height
+                    }
+                };
+
+                set(elementsAtom(diagramId), updatedDiagram);
             }
         } else if (elementResizeAction.match(action)) {
             const {element, suggestedBounds, phase} = action.payload;
@@ -136,9 +156,47 @@ export class StructureDiagramHandler implements DiagramHandler {
                     this.startElement = null;
                     this.startNodePosition = null;
                 }
+
+                // Update diagram bounds after element resize
+                const diagramId = get(activeDiagramIdAtom);
+                const diagram = get(elementsAtom(diagramId)) as Diagram;
+                const bounds = calculateDiagramBounds(diagram);
+
+                // Update the diagram's display property
+                const updatedDiagram = {
+                    ...diagram,
+                    display: {
+                        ...diagram.display,
+                        scale: diagram.display.scale,
+                        offset: diagram.display.offset,
+                        width: bounds.width,
+                        height: bounds.height
+                    }
+                };
+
+                set(elementsAtom(diagramId), updatedDiagram);
             }
         } else if (dropFromPaletteAction.match(action)) {
             addNewElementAt(get, set, action.payload.droppedAt, action.payload.name, action.payload.kind);
+
+            // Update diagram bounds after element drop
+            const diagramId = get(activeDiagramIdAtom);
+            const diagram = get(elementsAtom(diagramId)) as Diagram;
+            const bounds = calculateDiagramBounds(diagram);
+
+            // Update the diagram's display property
+            const updatedDiagram = {
+                ...diagram,
+                display: {
+                    ...diagram.display,
+                    scale: diagram.display.scale,
+                    offset: diagram.display.offset,
+                    width: bounds.width,
+                    height: bounds.height
+                }
+            };
+
+            set(elementsAtom(diagramId), updatedDiagram);
         } else if(elementCommandAction.match(action)) {
             const {elements, command} = action.payload;
             handleStructureElementCommand(get, set, elements, command)

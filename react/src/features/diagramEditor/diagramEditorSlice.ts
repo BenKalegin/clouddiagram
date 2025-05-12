@@ -3,12 +3,16 @@ import {
     elementsAtom,
     exportingAtom,
     ExportPhase,
-    generateId, Importing, importingAtom, ImportPhase,
+    generateId,
+    Importing,
+    importingAtom,
+    ImportPhase,
     Linking,
-    linkingAtom, showContextAtom,
+    linkingAtom,
+    showContextAtom,
     snapGridSizeAtom
 } from "./diagramEditorModel";
-import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
+import {DiagramElement, ElementRef, ElementType, Id} from "../../package/packageModel";
 import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
 import {activeDiagramIdAtom, openDiagramIdsAtom} from "../diagramTabs/diagramTabsModel";
 import {classDiagramEditor} from "../classDiagram/classDiagramSlice";
@@ -16,13 +20,13 @@ import {Action, createAction} from "@reduxjs/toolkit";
 import {sequenceDiagramEditor} from "../sequenceDiagram/sequenceDiagramSlice";
 import Konva from "konva";
 import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
-import KonvaEventObject = Konva.KonvaEventObject;
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {ExportImportFormat, importDiagramAs} from "../export/exportFormats";
 import {DeploymentDiagramState} from "../deploymentDiagram/deploymentDaigramModel";
 import {deploymentDiagramEditor} from "../deploymentDiagram/deploymentDiagramSlice";
 import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
 import {Command} from "../propertiesEditor/propertiesEditorModel";
+import KonvaEventObject = Konva.KonvaEventObject;
 
 export enum ElementMoveResizePhase {
     start  = "start",
@@ -395,9 +399,66 @@ function hideContext(set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) =
     set(showContextAtom, undefined)
 }
 
+// Calculate the bounds of a diagram based on node positions
+export function calculateDiagramBounds(diagram: Diagram): { width: number, height: number } {
+    let minX = Number.MAX_VALUE;
+    let minY = Number.MAX_VALUE;
+    let maxX = Number.MIN_VALUE;
+    let maxY = Number.MIN_VALUE;
+
+    function updateMinMax(bounds: Bounds) {
+        minX = Math.min(minX, bounds.x);
+        minY = Math.min(minY, bounds.y);
+        maxX = Math.max(maxX, bounds.x + bounds.width);
+        maxY = Math.max(maxY, bounds.y + bounds.height);
+    }
+
+    // Check if the diagram has nodes property (structure diagrams). Todo: should be refactored to use OOP
+    if ('nodes' in diagram) {
+        const structureDiagram = diagram as any;
+        // Process nodes
+        for (const nodeId in structureDiagram.nodes) {
+            updateMinMax(structureDiagram.nodes[nodeId].bounds);
+        }
+
+        // Process notes
+        for (const noteId in structureDiagram.notes) {
+            updateMinMax(structureDiagram.notes[noteId].bounds);
+        }
+    }
+
+    // Check if the diagram has lifelines property (sequence diagrams)
+    if ('lifelines' in diagram) {
+        const sequenceDiagram = diagram as any;
+        // Process lifelines
+        for (const lifelineId in sequenceDiagram.lifelines) {
+            const lifeline = sequenceDiagram.lifelines[lifelineId];
+            if (lifeline.bounds) {
+                updateMinMax(lifeline.bounds);
+            }
+        }
+    }
+
+    // If no elements found, return the default size
+    if (minX === Number.MAX_VALUE || minY === Number.MAX_VALUE ||
+        maxX === Number.MIN_VALUE || maxY === Number.MIN_VALUE) {
+        return { width: 0, height: 0 };
+    }
+
+    // Add some padding
+    const padding = 100;
+    const width = maxX - minX + padding * 2;
+    const height = maxY - minY + padding * 2;
+
+    return { width, height };
+}
+
 function updateDiagramDisplay(get: Get, set: Set, scale: number, offset: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as Diagram;
+
+    // Calculate diagram bounds
+    const bounds = calculateDiagramBounds(diagram);
 
     // Update the diagram's display property
     const updatedDiagram = {
@@ -405,7 +466,9 @@ function updateDiagramDisplay(get: Get, set: Set, scale: number, offset: Coordin
         display: {
             ...diagram.display,
             scale,
-            offset
+            offset,
+            width: bounds.width,
+            height: bounds.height
         }
     };
 

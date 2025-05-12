@@ -118,7 +118,7 @@ export const usePanZoomHandlers = ({
             }
         };
 
-        // Handle context menu to prevent it from showing
+        // Handle a context menu to prevent it from showing
         const handleContextMenu = (e: MouseEvent) => {
             e.preventDefault();
         };
@@ -140,7 +140,7 @@ export const usePanZoomHandlers = ({
                 y: (pointer.y - stage.y()) / oldScale,
             };
 
-            // Calculate new scale
+            // Calculate a new scale
             // Zoom in: scale up, Zoom out: scale down
             const direction = e.deltaY > 0 ? -1 : 1;
             const scaleBy = 1.1;
@@ -149,16 +149,16 @@ export const usePanZoomHandlers = ({
             // Limit scale to reasonable bounds
             const limitedScale = Math.max(0.1, Math.min(newScale, 5));
 
-            // Set new scale
+            // Set a new scale
             stage.scale({ x: limitedScale, y: limitedScale });
 
-            // Calculate new position
+            // Calculate a new position
             const newPos = {
                 x: pointer.x - mousePointTo.x * limitedScale,
                 y: pointer.y - mousePointTo.y * limitedScale,
             };
 
-            // Set new position
+            // Set a new position
             stage.position(newPos);
             stage.batchDraw();
 
@@ -187,7 +187,7 @@ export const usePanZoomHandlers = ({
             }
             const newPos = { x: -dx, y: -dy };
 
-            // Only update if position has changed
+            // Only update if the position has changed
             if (prevPositionRef.current.x !== newPos.x || prevPositionRef.current.y !== newPos.y) {
                 prevPositionRef.current = newPos;
 
