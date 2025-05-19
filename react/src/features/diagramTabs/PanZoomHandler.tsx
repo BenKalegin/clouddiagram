@@ -1,28 +1,22 @@
 import React, {useEffect} from "react";
-import Konva from "konva";
 import {useRecoilValue} from "recoil";
 import {activeDiagramIdAtom} from "./diagramTabsModel";
-import {updateDiagramDisplayAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {StageHandler, ScrollHandler} from "./DiagramStage";
 
 interface PanZoomHandlerProps {
-    stageRef: React.RefObject<Konva.Stage>;
-    containerRef: React.RefObject<HTMLDivElement>;
-    scrollContainerRef: React.RefObject<HTMLDivElement>;
+    stageHandler: StageHandler | null;
+    scrollHandler: ScrollHandler | null;
     scale: number;
-    setScale: (scale: number) => void;
     position: { x: number, y: number };
-    setPosition: (position: { x: number, y: number }) => void;
     padding: number;
 }
 
 export const usePanZoomHandlers = ({
-    stageRef,
-    containerRef,
-    scrollContainerRef,
+    stageHandler,
+    scrollHandler,
     scale,
-    setScale,
     position,
-    setPosition,
     padding
 }: PanZoomHandlerProps) => {
     const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
@@ -35,19 +29,17 @@ export const usePanZoomHandlers = ({
     const [isRightMouseDown, setIsRightMouseDown] = React.useState(false);
     const [lastPointerPosition, setLastPointerPosition] = React.useState<{ x: number, y: number } | null>(null);
 
-    // Ref to track the initial setup
-    const initialSetupDoneRef = React.useRef(false);
-
-    // Ref to track previous position to avoid unnecessary updates
-    const prevPositionRef = React.useRef(position);
-
     // Set up event handlers for right-click panning and wheel zooming
     useEffect(() => {
-        if (!stageRef.current || !containerRef.current || !scrollContainerRef.current) return;
+        // Early return if handlers are null
+        if (!stageHandler || !scrollHandler) return;
 
-        const stage = stageRef.current;
+        const stage = stageHandler.getStage();
+        if (!stage) return;
+
         const container = stage.container();
-        const scrollContainer = scrollContainerRef.current;
+        const scrollPosition = scrollHandler.getScrollPosition();
+        if (!scrollPosition) return;
 
         // Handle right mouse button down
         const handleMouseDown = (e: MouseEvent) => {
@@ -79,19 +71,16 @@ export const usePanZoomHandlers = ({
                 const dx = e.clientX - lastPointerPositionRef.current.x;
                 const dy = e.clientY - lastPointerPositionRef.current.y;
 
+                const currentStage = stageHandler.getStage();
+                if (!currentStage) return;
+
                 const newPos = {
-                    x: stage.x() + dx,
-                    y: stage.y() + dy
+                    x: currentStage.x() + dx,
+                    y: currentStage.y() + dy
                 };
 
-                stage.position(newPos);
-                stage.batchDraw();
-
-                // Update diagram's display property
-                dispatch(updateDiagramDisplayAction({
-                    scale,
-                    offset: newPos
-                }));
+                // Use stageHandler to update position
+                stageHandler.setPosition(newPos);
 
                 const newPointerPosition = {
                     x: e.clientX,
@@ -131,15 +120,18 @@ export const usePanZoomHandlers = ({
                 e.preventDefault();
                 e.stopPropagation();
 
-                const oldScale = stage.scaleX();
+                const currentStage = stageHandler.getStage();
+                if (!currentStage) return;
+
+                const oldScale = currentStage.scaleX();
 
                 // Get pointer position
-                const pointer = stage.getPointerPosition();
+                const pointer = currentStage.getPointerPosition();
                 if (!pointer) return;
 
                 const mousePointTo = {
-                    x: (pointer.x - stage.x()) / oldScale,
-                    y: (pointer.y - stage.y()) / oldScale,
+                    x: (pointer.x - currentStage.x()) / oldScale,
+                    y: (pointer.y - currentStage.y()) / oldScale,
                 };
 
                 // Calculate a new scale
@@ -151,24 +143,15 @@ export const usePanZoomHandlers = ({
                 // Limit scale to reasonable bounds
                 const limitedScale = Math.max(0.1, Math.min(newScale, 5));
 
-                // Set a new scale
-                stage.scale({ x: limitedScale, y: limitedScale });
-
                 // Calculate a new position
                 const newPos = {
                     x: pointer.x - mousePointTo.x * limitedScale,
                     y: pointer.y - mousePointTo.y * limitedScale,
                 };
 
-                // Set a new position
-                stage.position(newPos);
-                stage.batchDraw();
-
-                // Update diagram's display property
-                dispatch(updateDiagramDisplayAction({
-                    scale: limitedScale,
-                    offset: newPos
-                }));
+                // Use stageHandler to update scale and position
+                stageHandler.setScale(limitedScale);
+                stageHandler.setPosition(newPos);
             }
             // If a Shift key is pressed, handle horizontal scrolling
             else if (e.shiftKey) {
@@ -177,44 +160,15 @@ export const usePanZoomHandlers = ({
                 e.stopPropagation();
 
                 // Scroll horizontally
-                if (scrollContainer) {
+                const scrollPosition = scrollHandler.getScrollPosition();
+                if (scrollPosition) {
                     // noinspection JSSuspiciousNameCombination
-                    scrollContainer.scrollLeft += e.deltaY;
+                    scrollHandler.scrollTo(scrollPosition.left + e.deltaY, scrollPosition.top);
                 }
             }
             // Otherwise, let the default vertical scrolling happen
             // No need to prevent default or stop propagation
         };
-
-        // Prevent wheel events on the scroll container from scrolling
-        const preventWheelScroll = (e: WheelEvent) => {
-            if (e.ctrlKey || e.metaKey || e.shiftKey) {
-                // Prevent default for Ctrl/Meta (zoom) and Shift (horizontal scroll)
-                e.preventDefault();
-            }
-        };
-
-        function repositionStage() {
-            if (!scrollContainerRef.current) return;
-
-            const dx = scrollContainer.scrollLeft - padding;
-            const dy = scrollContainer.scrollTop - padding;
-            if (containerRef.current) {
-                containerRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
-            }
-            const newPos = { x: -dx, y: -dy };
-
-            // Only update if the position has changed
-            if (prevPositionRef.current.x !== newPos.x || prevPositionRef.current.y !== newPos.y) {
-                prevPositionRef.current = newPos;
-
-                // Update diagram's display property
-                dispatch(updateDiagramDisplayAction({
-                    scale,
-                    offset: newPos
-                }));
-            }
-        }
 
         // Add event listeners
         container.addEventListener('mousedown', handleMouseDown);
@@ -222,16 +176,8 @@ export const usePanZoomHandlers = ({
         window.addEventListener('mouseup', handleMouseUp);
         container.addEventListener('contextmenu', handleContextMenu);
         container.addEventListener('wheel', handleWheel);
-        if (scrollContainer) {
-            scrollContainer.addEventListener('wheel', preventWheelScroll, { passive: false });
-            scrollContainer.addEventListener('scroll', repositionStage);
-        }
 
-        // Only call repositionStage on initial setup
-        if (!initialSetupDoneRef.current) {
-            initialSetupDoneRef.current = true;
-            repositionStage();
-        }
+        // Note: scroll event listeners are now handled inside the DiagramStage component
 
         // Cleanup event listeners
         return () => {
@@ -240,12 +186,10 @@ export const usePanZoomHandlers = ({
             window.removeEventListener('mouseup', handleMouseUp);
             container.removeEventListener('contextmenu', handleContextMenu);
             container.removeEventListener('wheel', handleWheel);
-            if (scrollContainer) {
-                scrollContainer.removeEventListener('wheel', preventWheelScroll);
-                scrollContainer.removeEventListener('scroll', repositionStage);
-            }
+
+            // Note: scroll event listeners cleanup is now handled inside the DiagramStage component
         };
-    }, [scale, stageRef, containerRef, scrollContainerRef, setPosition, setScale, padding, position, dispatch, activeDiagramId]);
+    }, [scale, stageHandler, scrollHandler, padding, position, dispatch, activeDiagramId]);
 
     return {
         isRightMouseDown,
