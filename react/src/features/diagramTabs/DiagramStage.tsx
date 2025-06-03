@@ -66,66 +66,68 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
         }
     };
 
-    // Create handlers for external components to interact with the stage
-    const stageHandler: StageHandler = {
-        getStage: () => stageRef.current,
-        setScale: (newScale: number) => {
-            if (stageRef.current) {
-                stageRef.current.scale({ x: newScale, y: newScale });
-                stageRef.current.batchDraw();
-                dispatch(updateDiagramDisplayAction({
-                    scale: newScale,
-                    offset: position
-                }));
-            }
-        },
-        setPosition: (newPosition: { x: number, y: number }) => {
-            if (stageRef.current) {
-                stageRef.current.position(newPosition);
-                stageRef.current.batchDraw();
-                dispatch(updateDiagramDisplayAction({
-                    scale,
-                    offset: newPosition
-                }));
-            }
-        },
-        getContainerDimensions: () => {
-            if (scrollContainerRef.current) {
-                return {
-                    width: scrollContainerRef.current.clientWidth,
-                    height: scrollContainerRef.current.clientHeight
-                };
-            }
-            return null;
-        }
-    };
-
-    const scrollHandler: ScrollHandler = {
-        scrollTo: (left: number, top: number) => {
-            if (scrollContainerRef.current) {
-                scrollContainerRef.current.scrollLeft = left;
-                scrollContainerRef.current.scrollTop = top;
-            }
-        },
-        getScrollPosition: () => {
-            if (scrollContainerRef.current) {
-                return {
-                    left: scrollContainerRef.current.scrollLeft,
-                    top: scrollContainerRef.current.scrollTop
-                };
-            }
-            return null;
-        }
-    };
-
-    // Notify parent when stage is ready
+    // Notify parent when the stage is ready
     useEffect(() => {
         if (stageRef.current && scrollContainerRef.current) {
+            // Create handlers inside the effect to avoid recreating on every render
+            const stageHandler: StageHandler = {
+                getStage: () => stageRef.current,
+                setScale: (newScale: number) => {
+                    if (stageRef.current) {
+                        stageRef.current.scale({ x: newScale, y: newScale });
+                        stageRef.current.batchDraw();
+                        dispatch(updateDiagramDisplayAction({
+                            scale: newScale,
+                            offset: position
+                        }));
+                    }
+                },
+                setPosition: (newPosition: { x: number, y: number }) => {
+                    if (stageRef.current) {
+                        stageRef.current.position(newPosition);
+                        stageRef.current.batchDraw();
+                        dispatch(updateDiagramDisplayAction({
+                            scale,
+                            offset: newPosition
+                        }));
+                    }
+                },
+                getContainerDimensions: () => {
+                    if (scrollContainerRef.current) {
+                        return {
+                            width: scrollContainerRef.current.clientWidth,
+                            height: scrollContainerRef.current.clientHeight
+                        };
+                    }
+                    return null;
+                }
+            };
+
+            const scrollHandler: ScrollHandler = {
+                scrollTo: (left: number, top: number) => {
+                    if (scrollContainerRef.current) {
+                        scrollContainerRef.current.scrollLeft = left;
+                        scrollContainerRef.current.scrollTop = top;
+                    }
+                },
+                getScrollPosition: () => {
+                    if (scrollContainerRef.current) {
+                        return {
+                            left: scrollContainerRef.current.scrollLeft,
+                            top: scrollContainerRef.current.scrollTop
+                        };
+                    }
+                    return null;
+                }
+            };
+
             onStageReady(stageHandler, scrollHandler);
         }
-    }, [onStageReady]);
+        // Only run when refs are set
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [onStageReady, dispatch, scale, position]);
 
-    // Handle repositioning of stage when scrolling
+    // Handle repositioning of the stage when scrolling
     const repositionStage = useCallback(() => {
         if (!scrollContainerRef.current || !containerRef.current) return;
 
@@ -142,7 +144,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
         }));
     }, [scale, padding, dispatch]);
 
-    // Set up scroll event listener
+    // Set up a scroll event listener
     useEffect(() => {
         const scrollContainer = scrollContainerRef.current;
         if (scrollContainer) {
