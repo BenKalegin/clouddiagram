@@ -71,12 +71,15 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
         const oldScale = stage.scaleX();
 
         // Keep the center of the view fixed when zooming
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
+        const dimensions = stageHandler.getContainerDimensions();
+        if (!dimensions) return;
+
+        const centerX = dimensions.width / 2;
+        const centerY = dimensions.height / 2;
 
         const mousePointTo = {
-            x: (centerX - stage.x()) / oldScale,
-            y: (centerY - stage.y()) / oldScale,
+            x: (centerX - position.x) / oldScale,
+            y: (centerY - position.y) / oldScale,
         };
 
         const newPos = {
@@ -84,9 +87,8 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
             y: centerY - mousePointTo.y * newScale,
         };
 
-        // Use stageHandler to update scale and position
-        stageHandler.setScale(newScale);
-        stageHandler.setPosition(newPos);
+        // Use stageHandler to update scale and position at once (prevents race conditions)
+        stageHandler.setViewport(newScale, newPos);
     };
 
     const handleZoomIn = () => {
@@ -131,9 +133,8 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
             y: (containerHeight - HEIGHT * newScale) / 2,
         };
 
-        // Use stageHandler to update scale and position
-        stageHandler.setScale(newScale);
-        stageHandler.setPosition(newPos);
+        // Use stageHandler to update scale and position at once (prevents race conditions)
+        stageHandler.setViewport(newScale, newPos);
     };
 
     const handleSliderChange = (_event: Event, newValue: number | number[]) => {

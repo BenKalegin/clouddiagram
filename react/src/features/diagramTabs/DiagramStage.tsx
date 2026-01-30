@@ -18,6 +18,7 @@ export interface StageHandler {
     getStage: () => Konva.Stage | null;
     setScale: (scale: number) => void;
     setPosition: (position: { x: number, y: number }) => void;
+    setViewport: (scale: number, position: { x: number, y: number }) => void;
     getContainerDimensions: () => { width: number, height: number } | null;
 }
 
@@ -51,12 +52,13 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
+    // Dimensions state is no longer used for Stage size, but can be used for calculations
+    const [viewportDimensions, setViewportDimensions] = React.useState({ width: 0, height: 0 });
 
     useEffect(() => {
         const updateDimensions = () => {
             if (scrollContainerRef.current) {
-                setDimensions({
+                setViewportDimensions({
                     width: scrollContainerRef.current.clientWidth,
                     height: scrollContainerRef.current.clientHeight
                 });
@@ -70,6 +72,12 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
 
     const scale = diagramDisplay.scale;
     const position = diagramDisplay.offset;
+
+    // Keep refs for handlers to avoid frequent re-creation while still having access to latest values
+    const scaleRef = useRef(scale);
+    scaleRef.current = scale;
+    const positionRef = useRef(position);
+    positionRef.current = position;
 
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on an empty area
@@ -91,20 +99,31 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                 getStage: () => stageRef.current,
                 setScale: (newScale: number) => {
                     if (stageRef.current) {
-                        stageRef.current.scale({ x: newScale, y: newScale });
-                        stageRef.current.batchDraw();
                         dispatch(updateDiagramDisplayAction({
                             scale: newScale,
-                            offset: position
+                            offset: positionRef.current
                         }));
                     }
                 },
                 setPosition: (newPosition: { x: number, y: number }) => {
-                    if (stageRef.current) {
-                        stageRef.current.position(newPosition);
-                        stageRef.current.batchDraw();
+                    if (scrollContainerRef.current) {
+                        // Update scroll position instead of stage position
+                        scrollContainerRef.current.scrollLeft = padding - newPosition.x;
+                        scrollContainerRef.current.scrollTop = padding - newPosition.y;
+
                         dispatch(updateDiagramDisplayAction({
-                            scale,
+                            scale: scaleRef.current,
+                            offset: newPosition
+                        }));
+                    }
+                },
+                setViewport: (newScale: number, newPosition: { x: number, y: number }) => {
+                    if (scrollContainerRef.current) {
+                        scrollContainerRef.current.scrollLeft = padding - newPosition.x;
+                        scrollContainerRef.current.scrollTop = padding - newPosition.y;
+
+                        dispatch(updateDiagramDisplayAction({
+                            scale: newScale,
                             offset: newPosition
                         }));
                     }
@@ -142,21 +161,19 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
         }
         // Only run when refs are set
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [onStageReady, dispatch, scale, position]);
+    }, [onStageReady, dispatch, padding, activeDiagramId]);
 
-    // Handle repositioning of the stage when scrolling
-    const repositionStage = useCallback(() => {
-        if (!scrollContainerRef.current || !containerRef.current) return;
+    // Update the store with the new scroll position
+    const handleScroll = useCallback(() => {
+        if (!scrollContainerRef.current) return;
 
         const scrollLeft = scrollContainerRef.current.scrollLeft;
         const scrollTop = scrollContainerRef.current.scrollTop;
 
-        const dx = scrollLeft - padding;
-        const dy = scrollTop - padding;
-
-        containerRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
-
-        const newPos = { x: -dx, y: -dy };
+        const newPos = { 
+            x: padding - scrollLeft, 
+            y: padding - scrollTop 
+        };
 
         dispatch(updateDiagramDisplayAction({
             scale,
@@ -168,12 +185,27 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
     useEffect(() => {
         const scrollContainer = scrollContainerRef.current;
         if (scrollContainer) {
-            scrollContainer.addEventListener('scroll', repositionStage);
+            scrollContainer.addEventListener('scroll', handleScroll);
             return () => {
-                scrollContainer.removeEventListener('scroll', repositionStage);
+                scrollContainer.removeEventListener('scroll', handleScroll);
             };
         }
-    }, [repositionStage]);
+    }, [handleScroll]);
+
+    // Re-sync scroll position when diagram ID or initial scale/position changes
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            const targetLeft = padding - position.x;
+            const targetTop = padding - position.y;
+            
+            // Only update if significantly different to avoid feedback loops
+            if (Math.abs(scrollContainerRef.current.scrollLeft - targetLeft) > 1 ||
+                Math.abs(scrollContainerRef.current.scrollTop - targetTop) > 1) {
+                scrollContainerRef.current.scrollLeft = targetLeft;
+                scrollContainerRef.current.scrollTop = targetTop;
+            }
+        }
+    }, [activeDiagramId]); // Re-sync when switching diagrams
 
     return (
         <div
@@ -198,35 +230,26 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                     position: 'relative'
                 }}
             >
-                {/* Spacer to define the virtual scrollable area */}
-                <div 
-                    style={{ 
-                        width: (width + padding * 2) + 'px', 
-                        height: (height + padding * 2) + 'px',
-                        pointerEvents: 'none'
-                    }} 
-                />
                 <div 
                     ref={containerRef}
                     style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        willChange: 'transform'
+                        position: 'relative',
+                        width: (width * scale + padding * 2) + 'px',
+                        height: (height * scale + padding * 2) + 'px'
                     }}
                 >
                     <HtmlDrop>
                         <AppLayoutContext.Consumer>
                             {value => (
                                 <Stage
-                                    width={dimensions.width > 0 ? dimensions.width + padding * 2 : 100}
-                                    height={dimensions.height > 0 ? dimensions.height + padding * 2 : 100}
+                                    width={width * scale + padding * 2}
+                                    height={height * scale + padding * 2}
                                     onMouseDown={e => checkDeselect(e)}
                                     ref={stageRef}
                                     scaleX={scale}
                                     scaleY={scale}
-                                    x={position.x}
-                                    y={position.y}
+                                    x={padding}
+                                    y={padding}
                                     draggable={false} // Disable built-in dragging as we're using custom panning
                                 >
                                     <Bridge>

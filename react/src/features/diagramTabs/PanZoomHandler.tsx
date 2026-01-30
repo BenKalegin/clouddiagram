@@ -71,15 +71,12 @@ export const usePanZoomHandlers = ({
                 const dx = e.clientX - lastPointerPositionRef.current.x;
                 const dy = e.clientY - lastPointerPositionRef.current.y;
 
-                const currentStage = stageHandler.getStage();
-                if (!currentStage) return;
-
                 const newPos = {
-                    x: currentStage.x() + dx,
-                    y: currentStage.y() + dy
+                    x: position.x + dx,
+                    y: position.y + dy
                 };
 
-                // Use stageHandler to update position
+                // Use stageHandler to update position (now updates scroll)
                 stageHandler.setPosition(newPos);
 
                 const newPointerPosition = {
@@ -120,18 +117,27 @@ export const usePanZoomHandlers = ({
                 e.preventDefault();
                 e.stopPropagation();
 
+                const scrollPos = scrollHandler.getScrollPosition();
+                if (!scrollPos) return;
+
                 const currentStage = stageHandler.getStage();
                 if (!currentStage) return;
 
                 const oldScale = currentStage.scaleX();
 
-                // Get pointer position
+                // Get pointer position relative to the Stage container (which is now the scrollable content)
                 const pointer = currentStage.getPointerPosition();
                 if (!pointer) return;
 
+                // Calculate pointer position in viewport coordinates
+                const viewportPointer = {
+                    x: pointer.x - scrollPos.left,
+                    y: pointer.y - scrollPos.top
+                };
+
                 const mousePointTo = {
-                    x: (pointer.x - currentStage.x()) / oldScale,
-                    y: (pointer.y - currentStage.y()) / oldScale,
+                    x: (viewportPointer.x - position.x) / oldScale,
+                    y: (viewportPointer.y - position.y) / oldScale,
                 };
 
                 // Calculate a new scale
@@ -143,15 +149,14 @@ export const usePanZoomHandlers = ({
                 // Limit scale to reasonable bounds
                 const limitedScale = Math.max(0.1, Math.min(newScale, 5));
 
-                // Calculate a new position
+                // Calculate a new viewport position
                 const newPos = {
-                    x: pointer.x - mousePointTo.x * limitedScale,
-                    y: pointer.y - mousePointTo.y * limitedScale,
+                    x: viewportPointer.x - mousePointTo.x * limitedScale,
+                    y: viewportPointer.y - mousePointTo.y * limitedScale,
                 };
 
-                // Use stageHandler to update scale and position
-                stageHandler.setScale(limitedScale);
-                stageHandler.setPosition(newPos);
+                // Use stageHandler to update scale and position at once (prevents race conditions)
+                stageHandler.setViewport(limitedScale, newPos);
             }
             // If a Shift key is pressed, handle horizontal scrolling
             else if (e.shiftKey) {
