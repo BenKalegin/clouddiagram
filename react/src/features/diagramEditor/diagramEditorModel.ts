@@ -13,6 +13,7 @@ export interface Linking {
     diagramStartPos: Coordinate
     mousePos: Coordinate
     diagramPos: Coordinate
+    scale: number
 
     drawing: boolean
     showLinkToNewDialog?: boolean

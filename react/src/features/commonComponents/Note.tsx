@@ -1,10 +1,11 @@
 import {NoteId, noteSelector} from "./commonComponentsModel";
-import {DiagramId, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, diagramKindSelector, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {Group, Shape, Text} from "react-konva";
 import {useRecoilValue} from "recoil";
 import {Scaffold} from "../scaffold/Scaffold";
 import {ElementRef, ElementType} from "../../package/packageModel";
 import {DrawingMessage} from "../sequenceDiagram/DrawingMessage";
+import {DrawingLink} from "../structureDiagram/DrawingLink";
 import React from "react";
 import {inflate} from "../../common/model";
 import {Background} from "../scaffold/Background";
@@ -14,6 +15,7 @@ export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId
     const isSelected = selectedElements.map(e => e.id).includes(noteId)
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === noteId;
     const linking = useRecoilValue(linkingAtom)
+    const diagramKind = useRecoilValue(diagramKindSelector(diagramId))
 
     const note = useRecoilValue(noteSelector({noteId, diagramId}))
     const cornerSize = 10;
@@ -22,6 +24,8 @@ export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId
     const element: ElementRef = {id: noteId, type: ElementType.Note}
 
     const inflatedBounds = inflate(note.bounds, 12, 12);
+
+    const linkingDrawing = diagramKind === ElementType.SequenceDiagram ? <DrawingMessage/> : <DrawingLink/>;
 
     return (
         <Group>
@@ -78,7 +82,7 @@ export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId
                 excludeVerticalResize={false}
                 isFocused={isFocused}
                 isLinking={linking?.drawing === true}
-                linkingDrawing={<DrawingMessage/> }
+                linkingDrawing={linkingDrawing}
             />}
 
         </Group>

@@ -335,11 +335,11 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
         }
 
 
-        const node1Placement = get(nodePlacementSelector({
-            nodeId: linking.sourceElement,
-            diagramId: get(activeDiagramIdAtom)
-        }));
-        const port1Render = renderPort(node1Placement.bounds, port1, port1Placement);
+        const diagramId = get(activeDiagramIdAtom);
+        const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+        const sourcePlacement = diagram.nodes[linking.sourceElement] || diagram.notes[linking.sourceElement];
+
+        const port1Render = renderPort(sourcePlacement.bounds, port1, port1Placement);
 
         const port2: PortState = {
             nodeId: "",

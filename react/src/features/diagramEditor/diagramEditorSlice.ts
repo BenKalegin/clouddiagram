@@ -208,9 +208,10 @@ const snapToGrid = (pos: Coordinate, gridSize: number) => {
 }
 
 export function toDiagramPos(linking: Linking, screenPos: Coordinate) : Coordinate {
+    const scale = linking.scale || 1;
     return {
-        x: screenPos.x - linking.mouseStartPos.x + linking.diagramStartPos.x,
-        y: screenPos.y - linking.mouseStartPos.y + linking.diagramStartPos.y
+        x: (screenPos.x - linking.mouseStartPos.x) / scale + linking.diagramStartPos.x,
+        y: (screenPos.y - linking.mouseStartPos.y) / scale + linking.diagramStartPos.y
     }
 }
 
@@ -224,12 +225,16 @@ function scrubLinking(set: Set) {
 
 const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: Id, mousePos: Coordinate, diagramPos: Coordinate | undefined, phase: LinkingPhase) => {
     if (phase === LinkingPhase.start) {
+        const diagramId = get(activeDiagramIdAtom);
+        const diagram = get(elementsAtom(diagramId)) as Diagram;
+        const scale = diagram.display?.scale ?? 1;
         set(linkingAtom, {
             sourceElement: elementId,
             mouseStartPos: mousePos,
             diagramStartPos: diagramPos!,
             mousePos: mousePos,
             diagramPos: diagramPos!,
+            scale: scale,
             targetElement: undefined,
             drawing: true,
             showLinkToNewDialog: false
