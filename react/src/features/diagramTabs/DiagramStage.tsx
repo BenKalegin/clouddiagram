@@ -170,9 +170,9 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
         const scrollLeft = scrollContainerRef.current.scrollLeft;
         const scrollTop = scrollContainerRef.current.scrollTop;
 
-        const newPos = { 
-            x: padding - scrollLeft, 
-            y: padding - scrollTop 
+        const newPos = {
+            x: padding - scrollLeft,
+            y: padding - scrollTop
         };
 
         dispatch(updateDiagramDisplayAction({
@@ -197,7 +197,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
         if (scrollContainerRef.current) {
             const targetLeft = padding - position.x;
             const targetTop = padding - position.y;
-            
+
             // Only update if significantly different to avoid feedback loops
             if (Math.abs(scrollContainerRef.current.scrollLeft - targetLeft) > 1 ||
                 Math.abs(scrollContainerRef.current.scrollTop - targetTop) > 1) {
@@ -230,7 +230,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                     position: 'relative'
                 }}
             >
-                <div 
+                <div
                     ref={containerRef}
                     style={{
                         position: 'relative',
@@ -238,20 +238,30 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                         height: (height * scale + padding * 2) + 'px'
                     }}
                 >
-                    <HtmlDrop>
-                        <AppLayoutContext.Consumer>
-                            {value => (
-                                <Stage
-                                    width={width * scale + padding * 2}
-                                    height={height * scale + padding * 2}
-                                    onMouseDown={e => checkDeselect(e)}
-                                    ref={stageRef}
-                                    scaleX={scale}
-                                    scaleY={scale}
-                                    x={padding}
-                                    y={padding}
-                                    draggable={false} // Disable built-in dragging as we're using custom panning
-                                >
+                    <div
+                        style={{
+                            position: 'sticky',
+                            top: 0,
+                            left: 0,
+                            width: viewportDimensions.width || '100%',
+                            height: viewportDimensions.height || '100%',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        <HtmlDrop>
+                            <AppLayoutContext.Consumer>
+                                {value => (
+                                    <Stage
+                                        width={viewportDimensions.width || 1}
+                                        height={viewportDimensions.height || 1}
+                                        onMouseDown={e => checkDeselect(e)}
+                                        ref={stageRef}
+                                        scaleX={scale}
+                                        scaleY={scale}
+                                        x={position.x}
+                                        y={position.y}
+                                        draggable={false} // Disable built-in dragging as we're using custom panning
+                                    >
                                     <Bridge>
                                         <AppLayoutContext.Provider value={value}>
                                             {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId} />}
@@ -263,6 +273,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                             )}
                         </AppLayoutContext.Consumer>
                     </HtmlDrop>
+                    </div>
                 </div>
             </div>
         </div>

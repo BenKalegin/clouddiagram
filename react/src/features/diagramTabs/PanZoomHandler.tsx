@@ -125,14 +125,14 @@ export const usePanZoomHandlers = ({
 
                 const oldScale = currentStage.scaleX();
 
-                // Get pointer position relative to the Stage container (which is now the scrollable content)
+                // Get pointer position relative to the Stage container (which is now fixed to the viewport)
                 const pointer = currentStage.getPointerPosition();
                 if (!pointer) return;
 
-                // Calculate pointer position in viewport coordinates
+                // Pointer position is already in viewport coordinates because the Stage is sticky
                 const viewportPointer = {
-                    x: pointer.x - scrollPos.left,
-                    y: pointer.y - scrollPos.top
+                    x: pointer.x,
+                    y: pointer.y
                 };
 
                 const mousePointTo = {
