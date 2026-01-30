@@ -205,7 +205,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                 scrollContainerRef.current.scrollTop = targetTop;
             }
         }
-    }, [activeDiagramId]); // Re-sync when switching diagrams
+    }, [activeDiagramId, padding, position.x, position.y, viewportDimensions.width, viewportDimensions.height]); // Re-sync when switching diagrams or dimensions change
 
     return (
         <div
@@ -234,8 +234,8 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                     ref={containerRef}
                     style={{
                         position: 'relative',
-                        width: (width * scale + padding * 2) + 'px',
-                        height: (height * scale + padding * 2) + 'px'
+                        width: Math.max(width * scale + padding * 2, (viewportDimensions.width || 0) + padding * 2) + 'px',
+                        height: Math.max(height * scale + padding * 2, (viewportDimensions.height || 0) + padding * 2) + 'px'
                     }}
                 >
                     <div
