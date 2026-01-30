@@ -73,11 +73,19 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
     const scale = diagramDisplay.scale;
     const position = diagramDisplay.offset;
 
+    // Use effective padding to allow diagram to disappear in all directions
+    const effPaddingX = Math.max(padding, viewportDimensions.width);
+    const effPaddingY = Math.max(padding, viewportDimensions.height);
+
     // Keep refs for handlers to avoid frequent re-creation while still having access to latest values
     const scaleRef = useRef(scale);
     scaleRef.current = scale;
     const positionRef = useRef(position);
     positionRef.current = position;
+    const effPaddingXRef = useRef(effPaddingX);
+    effPaddingXRef.current = effPaddingX;
+    const effPaddingYRef = useRef(effPaddingY);
+    effPaddingYRef.current = effPaddingY;
 
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
         // deselect when clicked on an empty area
@@ -108,8 +116,8 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                 setPosition: (newPosition: { x: number, y: number }) => {
                     if (scrollContainerRef.current) {
                         // Update scroll position instead of stage position
-                        scrollContainerRef.current.scrollLeft = padding - newPosition.x;
-                        scrollContainerRef.current.scrollTop = padding - newPosition.y;
+                        scrollContainerRef.current.scrollLeft = effPaddingXRef.current - newPosition.x;
+                        scrollContainerRef.current.scrollTop = effPaddingYRef.current - newPosition.y;
 
                         dispatch(updateDiagramDisplayAction({
                             scale: scaleRef.current,
@@ -119,8 +127,8 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                 },
                 setViewport: (newScale: number, newPosition: { x: number, y: number }) => {
                     if (scrollContainerRef.current) {
-                        scrollContainerRef.current.scrollLeft = padding - newPosition.x;
-                        scrollContainerRef.current.scrollTop = padding - newPosition.y;
+                        scrollContainerRef.current.scrollLeft = effPaddingXRef.current - newPosition.x;
+                        scrollContainerRef.current.scrollTop = effPaddingYRef.current - newPosition.y;
 
                         dispatch(updateDiagramDisplayAction({
                             scale: newScale,
@@ -171,15 +179,15 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
         const scrollTop = scrollContainerRef.current.scrollTop;
 
         const newPos = {
-            x: padding - scrollLeft,
-            y: padding - scrollTop
+            x: effPaddingX - scrollLeft,
+            y: effPaddingY - scrollTop
         };
 
         dispatch(updateDiagramDisplayAction({
             scale,
             offset: newPos
         }));
-    }, [scale, padding, dispatch]);
+    }, [scale, effPaddingX, effPaddingY, dispatch]);
 
     // Set up a scroll event listener
     useEffect(() => {
@@ -195,8 +203,8 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
     // Re-sync scroll position when diagram ID or initial scale/position changes
     useEffect(() => {
         if (scrollContainerRef.current) {
-            const targetLeft = padding - position.x;
-            const targetTop = padding - position.y;
+            const targetLeft = effPaddingX - position.x;
+            const targetTop = effPaddingY - position.y;
 
             // Only update if significantly different to avoid feedback loops
             if (Math.abs(scrollContainerRef.current.scrollLeft - targetLeft) > 1 ||
@@ -205,7 +213,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                 scrollContainerRef.current.scrollTop = targetTop;
             }
         }
-    }, [activeDiagramId, padding, position.x, position.y, viewportDimensions.width, viewportDimensions.height]); // Re-sync when switching diagrams or dimensions change
+    }, [activeDiagramId, effPaddingX, effPaddingY, position.x, position.y, viewportDimensions.width, viewportDimensions.height]); // Re-sync when switching diagrams or dimensions change
 
     return (
         <div
@@ -224,7 +232,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                 style={{
                     width: '100%',
                     height: '100%',
-                    overflow: 'auto',
+                    overflow: 'scroll',
                     margin: '0px',
                     border: '0px solid grey',
                     position: 'relative'
@@ -234,8 +242,8 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                     ref={containerRef}
                     style={{
                         position: 'relative',
-                        width: Math.max(width * scale + padding * 2, (viewportDimensions.width || 0) + padding * 2) + 'px',
-                        height: Math.max(height * scale + padding * 2, (viewportDimensions.height || 0) + padding * 2) + 'px'
+                        width: (width * scale + effPaddingX + (viewportDimensions.width || 0)) + 'px',
+                        height: (height * scale + effPaddingY + (viewportDimensions.height || 0)) + 'px'
                     }}
                 >
                     <div
