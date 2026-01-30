@@ -108,11 +108,11 @@ const theme = getTheme(appLayout.darkMode);
                         </Stack>
                     </Toolbar>
                 </AppBar>
-                <Main open={appLayout.propsPaneOpen} drawerwidth={appLayout.propsDrawerWidth}>
-                    <Stack direction="column">
-                        <Stack direction="row">
+                <Main open={appLayout.propsPaneOpen} drawerwidth={appLayout.propsDrawerWidth} sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', p: 0, overflow: 'hidden' }}>
+                    <Stack direction="column" sx={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+                        <Stack direction="row" sx={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
                             <Toolbox/>
-                            <Divider/>
+                            <Divider orientation="vertical" flexItem />
                             <DiagramTabs/>
                         </Stack>
                     </Stack>

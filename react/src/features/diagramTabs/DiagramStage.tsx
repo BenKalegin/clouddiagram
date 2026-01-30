@@ -51,6 +51,23 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+    const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+        const updateDimensions = () => {
+            if (scrollContainerRef.current) {
+                setDimensions({
+                    width: scrollContainerRef.current.clientWidth,
+                    height: scrollContainerRef.current.clientHeight
+                });
+            }
+        };
+
+        updateDimensions();
+        window.addEventListener('resize', updateDimensions);
+        return () => window.removeEventListener('resize', updateDimensions);
+    }, []);
+
     const scale = diagramDisplay.scale;
     const position = diagramDisplay.offset;
 
@@ -131,8 +148,11 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
     const repositionStage = useCallback(() => {
         if (!scrollContainerRef.current || !containerRef.current) return;
 
-        const dx = scrollContainerRef.current.scrollLeft - padding;
-        const dy = scrollContainerRef.current.scrollTop - padding;
+        const scrollLeft = scrollContainerRef.current.scrollLeft;
+        const scrollTop = scrollContainerRef.current.scrollTop;
+
+        const dx = scrollLeft - padding;
+        const dy = scrollTop - padding;
 
         containerRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
 
@@ -158,9 +178,13 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
     return (
         <div
             style={{
-                width: width + 'px',
-                height: height + 'px',
+                width: '100%',
+                height: '100%',
                 overflow: 'hidden',
+                flex: 1,
+                position: 'relative',
+                minWidth: 0,
+                minHeight: 0
             }}
         >
             <div
@@ -171,15 +195,32 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                     overflow: 'auto',
                     margin: '0px',
                     border: '0px solid grey',
+                    position: 'relative'
                 }}
             >
-                <div ref={containerRef}>
+                {/* Spacer to define the virtual scrollable area */}
+                <div 
+                    style={{ 
+                        width: (width + padding * 2) + 'px', 
+                        height: (height + padding * 2) + 'px',
+                        pointerEvents: 'none'
+                    }} 
+                />
+                <div 
+                    ref={containerRef}
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        willChange: 'transform'
+                    }}
+                >
                     <HtmlDrop>
                         <AppLayoutContext.Consumer>
                             {value => (
                                 <Stage
-                                    width={scrollContainerRef.current ? scrollContainerRef.current.clientWidth + padding * 2 : width + padding * 2}
-                                    height={scrollContainerRef.current ? scrollContainerRef.current.clientHeight + padding * 2 : height + padding * 2}
+                                    width={dimensions.width > 0 ? dimensions.width + padding * 2 : 100}
+                                    height={dimensions.height > 0 ? dimensions.height + padding * 2 : 100}
                                     onMouseDown={e => checkDeselect(e)}
                                     ref={stageRef}
                                     scaleX={scale}

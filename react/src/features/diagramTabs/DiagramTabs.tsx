@@ -30,7 +30,7 @@ export const DiagramTabs = () => {
     }
 
     return (
-        <Stack direction="column" spacing="2" sx={{ flex: 1 }}>
+        <Stack direction="column" spacing="2" sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
             <Stack direction="row" spacing="2" alignItems="center">
                 <Tabs
                     sx={{height: TabHeight, minHeight: TabHeight}}
