@@ -49,15 +49,16 @@ import {defaultColorSchema} from "../../common/colors/colorSchemas";
 import {withElementHistory, withHistory} from "../diagramEditor/historySlice";
 
 // Original function for element movement
-export const moveElementImpl = (get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate) => {
+export const moveElementImpl = (get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate, snap: boolean = true) => {
     const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
 
     function updateElementPos(bounds: Draft<Bounds>) {
-        const pos = snapToGrid({
+        const rawPos = {
             x: startNodePos.x + currentPointerPos.x - startPointerPos.x,
             y: startNodePos.y + currentPointerPos.y - startPointerPos.y
-        }, get(snapGridSizeAtom))
+        };
+        const pos = snap ? snapToGrid(rawPos, get(snapGridSizeAtom)) : rawPos;
         bounds.x = pos.x;
         bounds.y = pos.y;
     }

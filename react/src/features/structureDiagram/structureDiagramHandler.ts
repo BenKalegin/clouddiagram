@@ -62,16 +62,16 @@ export class StructureDiagramHandler implements DiagramHandler {
                 this.startNodePosition = startNodePos;
 
                 // Just update the position without creating an undo operation
-                moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos);
+                moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos, true);
             }
             // For the 'move' phase, just update the position without creating an undo operation
             else if (phase === ElementMoveResizePhase.move) {
-                moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos);
+                moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos, false);
             }
             // For the 'end' phase, create a single undo operation for the entire move
             else if (phase === ElementMoveResizePhase.end) {
                 // First update the position
-                moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos);
+                moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos, true);
 
                 // Then create an undo operation if we have the original state
                 if (this.originalDiagramState && this.startElement && this.startElement.id === element.id) {

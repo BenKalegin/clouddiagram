@@ -6,7 +6,8 @@ import {Scaffold} from "../scaffold/Scaffold";
 import {ElementRef, ElementType} from "../../package/packageModel";
 import {DrawingMessage} from "../sequenceDiagram/DrawingMessage";
 import React from "react";
-import {useCustomDispatch} from "../diagramEditor/commonHandlers";
+import {inflate} from "../../common/model";
+import {Background} from "../scaffold/Background";
 
 export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId }) => {
     const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
@@ -20,16 +21,16 @@ export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId
     const height = note.bounds.height;
     const element: ElementRef = {id: noteId, type: ElementType.Note}
 
-    const eventHandlers = useCustomDispatch({
-        onClick: true,
-        onDrag: true,
-        element: element,
-        diagramId: diagramId,
-        bounds: note.bounds,
-    });
+    const inflatedBounds = inflate(note.bounds, 12, 12);
 
     return (
         <Group>
+            <Background
+                origin={element}
+                backgroundBounds={inflatedBounds}
+                nodeBounds={note.bounds}
+                diagramId={diagramId}
+            />
             <Shape
                 x={note.bounds.x}
                 y={note.bounds.y}
@@ -56,8 +57,8 @@ export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId
                     context.strokeShape(shape);
                 }}
 
-                {...eventHandlers}
-                draggable={true}
+                draggable={false}
+                listening={false}
 
             />
             <Text
