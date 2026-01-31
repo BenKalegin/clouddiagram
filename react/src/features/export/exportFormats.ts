@@ -7,6 +7,7 @@ import Konva from "konva";
 import Stage = Konva.Stage;
 import {exportAsSvg} from "./svgFormat";
 import {exportAsCloudDiagram, importCloudDiagram} from "./CloudDiagramFormat";
+import {importMermaidSequenceDiagram, importMermaidStructureDiagram} from "./mermaidFormat";
 
 export enum ExportImportFormat {
     PlantUmlSequenceDiagram = "plantuml_sequence",
@@ -14,6 +15,8 @@ export enum ExportImportFormat {
     Png = "png",
     Svg = "svg",
     CloudDiagram = "cd",
+    MermaidSequenceDiagram = "mermaid_sequence",
+    MermaidStructureDiagram = "mermaid_structure",
 }
 
 
@@ -56,6 +59,18 @@ export const formatRegistry: ExportRegistryEntry[] = [
         exportFunction: async (diagram: Diagram, stage: Stage) => exportAsCloudDiagram(diagram, stage),
         importFunction: importCloudDiagram,
         supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram]
+    },
+    {
+        format: ExportImportFormat.MermaidSequenceDiagram,
+        name: "Mermaid Sequence Diagram",
+        importFunction: importMermaidSequenceDiagram,
+        supportedDiagram: [ElementType.SequenceDiagram]
+    },
+    {
+        format: ExportImportFormat.MermaidStructureDiagram,
+        name: "Mermaid Class/Flowchart Diagram",
+        importFunction: importMermaidStructureDiagram,
+        supportedDiagram: [ElementType.ClassDiagram, ElementType.DeploymentDiagram]
     },
 ];
 

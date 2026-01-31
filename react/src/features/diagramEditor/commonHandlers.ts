@@ -84,13 +84,20 @@ export const useCustomDispatch = ({
                 startNodePos: startNodePos,
                 startPointerPos: startPointerPos,
                 currentPointerPos: screenToCanvas(e)}));
+        // Reset Konva node position to sync with React state
+        e.target.position({x: bounds.x, y: bounds.y});
         }
 
         if (disableVerticalDrag)
-            eventHandlers.dragBoundFunc=(pos) => ({
-                x: pos.x,
-                y: startNodePos ? startNodePos.y : pos.y
-            })
+            eventHandlers.dragBoundFunc = function(pos) {
+                const stage = this.getStage();
+                const stageY = stage ? stage.y() : 0;
+                const scale = stage ? stage.scaleY() : 1;
+                return {
+                    x: pos.x,
+                    y: bounds.y * scale + stageY
+                };
+            }
     }
 
     return eventHandlers;
