@@ -92,7 +92,6 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 height={placement.headBounds.height}
                 fill={"transparent"}
                 stroke={""}
-                listening={true}
             />
             <Shape
                 sceneFunc={getLifelineCustomDrawById(lifeline.customShape?.pictureId!)}

@@ -66,13 +66,16 @@ export const useCustomDispatch = ({
         }
         eventHandlers.onDragMove=(e) => {
         // check required because DragMove event can be received before DragStart updated the state
-        if (startPointerPos && startNodePos)
+        if (startPointerPos && startNodePos) {
             dispatch(elementMoveAction({
                 phase: ElementMoveResizePhase.move,
                 element,
                 startNodePos: startNodePos,
                 startPointerPos: startPointerPos,
                 currentPointerPos: screenToCanvas(e)}));
+            // Reset Konva node position to prevent flickering from position desync
+            e.target.position({x: bounds.x, y: bounds.y});
+        }
         }
 
         eventHandlers.onDragEnd=(e) => {
