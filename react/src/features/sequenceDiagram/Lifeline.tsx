@@ -40,75 +40,83 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
     const colorSchema = adjustColorSchemaForTheme(lifeline.colorSchema, appLayout.darkMode);
 
     function DefaultHead() {
-        return <>
+        return <Group
+            {...eventHandlers}
+            x={placement.headBounds.x}
+            y={placement.headBounds.y}
+            draggable={true}
+        >
             <Rect
-                x={placement.headBounds.x + 2}
-                y={placement.headBounds.y + 2}
+                x={2}
+                y={2}
                 width={placement.headBounds.width}
                 height={placement.headBounds.height}
                 fill="darkgray"
             />
             <Rect
-                {...eventHandlers}
                 fill={colorSchema.fillColor}
                 stroke={colorSchema.strokeColor}
                 strokeWidth={1}
-                x={placement.headBounds.x}
-                y={placement.headBounds.y}
+                x={0}
+                y={0}
                 width={placement.headBounds.width}
                 height={placement.headBounds.height}
-                draggable={true}
             />
             <Text
-                {...placement.headBounds}
+                x={0}
+                y={0}
+                width={placement.headBounds.width}
+                height={placement.headBounds.height}
                 fontSize={14}
                 align={"center"}
                 verticalAlign={"middle"}
                 text={lifeline.title}
                 fill={colorSchema.textColor}
-                draggable={false}
                 listening={false}
                 preventDefault={true}
             />
-        </>;
+        </Group>;
     }
 
     function CustomHead() {
-        return <>
+        return <Group
+            {...eventHandlers}
+            x={placement.headBounds.x}
+            y={placement.headBounds.y}
+            draggable={true}
+        >
             <Rect
-                {...placement.headBounds}
-                {...eventHandlers}
-                draggable={true}
+                x={0}
+                y={0}
+                width={placement.headBounds.width}
+                height={placement.headBounds.height}
                 fill={"transparent"}
                 stroke={""}
                 listening={true}
             />
             <Shape
-                {...eventHandlers}
                 sceneFunc={getLifelineCustomDrawById(lifeline.customShape?.pictureId!)}
                 fill="darkgray"
                 stroke="darkgray"
                 strokeWidth={1}
-                x={placement.headBounds.x + 2}
-                y={placement.headBounds.y + 2}
+                x={2}
+                y={2}
                 width={placement.headBounds.width}
                 height={placement.headBounds.height - 16}
             />
             <Shape
-                {...eventHandlers}
                 sceneFunc={getLifelineCustomDrawById(lifeline.customShape?.pictureId!)}
                 fill={colorSchema.fillColor}
                 stroke={colorSchema.strokeColor}
                 strokeWidth={1}
-                x={placement.headBounds.x}
-                y={placement.headBounds.y}
+                x={0}
+                y={0}
                 width={placement.headBounds.width}
                 height={placement.headBounds.height - 16}
-                draggable={true}
             />
             <Text
-                x = {placement.headBounds.x}
-                y = {placement.headBounds.y + placement.headBounds.height - 14}
+                x={0}
+                y={placement.headBounds.height - 14}
                 width={placement.headBounds.width}
                 height={16}
                 fontSize={14}
@@ -116,11 +124,10 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 verticalAlign={"middle"}
                 text={lifeline.title}
                 fill={colorSchema.textColor}
-                draggable={false}
                 listening={false}
                 preventDefault={true}
             />
-        </>;
+        </Group>;
     }
 
     return <Group>
