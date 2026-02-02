@@ -36,7 +36,7 @@ const NodeLayoutIcon: React.FC<{ layout: PictureLayout }> = ({ layout }) => {
                     <rect height="100%" width="100%" fill={"none"} stroke={isDarkMode ? "white" : "black"} strokeWidth={2}/>
                     <rect width="25%" height="30%" fill={isDarkMode ? "white" : "black"}/>
                     <circle cx="12%" cy="13%" r="9%" fill={isDarkMode ? "black" : "white"}/>
-                    <text x="35%" y="15%" textAnchor="left" fill={isDarkMode ? "white" : "black"}>Caption</text>
+                    <text x="35%" y="15%" textAnchor="start" fill={isDarkMode ? "white" : "black"}>Caption</text>
                 </>
             );
             break;
