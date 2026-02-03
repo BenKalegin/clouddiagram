@@ -1,5 +1,13 @@
 import {Diagram} from "../../common/model";
-import {ElementType} from "../../package/packageModel";
+import {
+    CornerStyle,
+    ElementType,
+    LinkState,
+    NodeState,
+    PortState,
+    RouteStyle,
+    TipStyle
+} from "../../package/packageModel";
 import {
     ActivationState,
     LifelineState,
@@ -130,7 +138,7 @@ export function importMermaidSequenceDiagram(baseDiagram: Diagram, content: stri
         }
 
         // Parse messages: A->>B: message or A-->>B: message (async) or A--)B: message
-        const messageMatch = line.match(/^(\S+)\s*(--?>>?|--?\)|--?>)\s*(\S+)\s*:\s*(.*)$/);
+        const messageMatch = line.match(/^(\S+?)\s*(--?>>?|--?\)|--?>)\s*(\S+?)\s*:\s*(.*)$/);
         if (messageMatch) {
             const [, from, arrow, to, text] = messageMatch;
             const fromLifelineId = getOrCreateLifeline(from);
@@ -168,7 +176,12 @@ export function importMermaidSequenceDiagram(baseDiagram: Diagram, content: stri
 
     const result: SequenceDiagramState = {
         id: baseDiagram.id,
-        display: baseDiagram.display,
+        display: {
+            ...baseDiagram.display,
+            width: 2000,
+            height: totalHeight + 200,
+            offset: { x: 0, y: 0 }
+        },
         type: ElementType.SequenceDiagram,
         lifelines,
         messages,
@@ -189,7 +202,7 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
 
     // Check if it's a class diagram or flowchart
     const headerLine = lines.find(l =>
-        l.toLowerCase().startsWith('classDiagram') ||
+        l.toLowerCase().startsWith('classdiagram') ||
         l.toLowerCase().startsWith('flowchart') ||
         l.toLowerCase().startsWith('graph')
     );
@@ -198,6 +211,7 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         throw new Error('Not a valid Mermaid class diagram or flowchart');
     }
 
+    const elements: { [id: string]: any } = {};
     const nodes: { [id: string]: any } = {};
     const ports: { [id: string]: any } = {};
     const links: { [id: string]: any } = {};
@@ -209,28 +223,43 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
     function getOrCreateNode(name: string, label?: string): string {
         const normalizedName = name.trim();
         if (nodeMap[normalizedName]) {
-            return nodeMap[normalizedName];
+            const nodeId = nodeMap[normalizedName];
+            // Update label if provided and previously not set
+            if (label) {
+                (elements[nodeId] as NodeState).text = label.trim();
+            }
+            return nodeId;
         }
 
         const nodeId = generateId();
-        const nodeWidth = 120;
+        const nodeWidth = 140; // Slightly wider for better text fit
         const nodeHeight = 60;
-        const nodesPerRow = 4;
-        const spacing = 50;
+        const nodesPerRow = 5; // More nodes per row
+        const spacingX = 60;
+        const spacingY = 80;
 
         const row = Math.floor(nodeIndex / nodesPerRow);
         const col = nodeIndex % nodesPerRow;
 
-        nodes[nodeId] = {
-            bounds: {
-                x: 50 + col * (nodeWidth + spacing),
-                y: 50 + row * (nodeHeight + spacing),
-                width: nodeWidth,
-                height: nodeHeight
-            }
+        const bounds = {
+            x: 100 + col * (nodeWidth + spacingX), // More initial offset
+            y: 100 + row * (nodeHeight + spacingY),
+            width: nodeWidth,
+            height: nodeHeight
         };
 
-        // Store node info in package elements (will be merged later)
+        elements[nodeId] = {
+            id: nodeId,
+            type: ElementType.ClassNode,
+            text: (label || normalizedName).trim(),
+            ports: [],
+            colorSchema: defaultColorSchema
+        } as NodeState;
+
+        nodes[nodeId] = {
+            bounds
+        };
+
         nodeMap[normalizedName] = nodeId;
         nodeIndex++;
         return nodeId;
@@ -238,6 +267,19 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
 
     function createPort(nodeId: string, alignment: number): string {
         const portId = generateId();
+        elements[portId] = {
+            id: portId,
+            type: ElementType.ClassPort,
+            nodeId,
+            links: [],
+            depthRatio: 50,
+            latitude: 10,
+            longitude: 10
+        } as PortState;
+
+        const node = elements[nodeId] as NodeState;
+        node.ports.push(portId);
+
         ports[portId] = {
             alignment,
             edgePosRatio: 50
@@ -245,14 +287,32 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         return portId;
     }
 
-    function createLink(sourceNodeId: string, targetNodeId: string, _label?: string): void {
+    function createLink(sourceNodeId: string, targetNodeId: string, arrowType?: string): void {
         const linkId = generateId();
         const sourcePortId = createPort(sourceNodeId, 1); // Right
         const targetPortId = createPort(targetNodeId, 0); // Left
 
-        links[linkId] = {};
+        let tipStyle2 = TipStyle.Arrow;
+        if (arrowType === '<|--') tipStyle2 = TipStyle.Triangle;
+        if (arrowType === '--*') tipStyle2 = TipStyle.Diamond;
+        if (arrowType === '--o') tipStyle2 = TipStyle.Circle;
 
-        // Store port-link relationships for later
+        elements[linkId] = {
+            id: linkId,
+            type: ElementType.ClassLink,
+            port1: sourcePortId,
+            port2: targetPortId,
+            tipStyle1: TipStyle.None,
+            tipStyle2,
+            routeStyle: RouteStyle.Direct,
+            cornerStyle: CornerStyle.Straight,
+            colorSchema: defaultColorSchema
+        } as LinkState;
+
+        (elements[sourcePortId] as PortState).links.push(linkId);
+        (elements[targetPortId] as PortState).links.push(linkId);
+
+        links[linkId] = {};
     }
 
     // Parse lines
@@ -262,47 +322,58 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             lowerLine.startsWith('flowchart') ||
             lowerLine.startsWith('graph')) continue;
 
-        // Parse class diagram relationships: ClassA <|-- ClassB or ClassA --> ClassB
-        const classRelMatch = line.match(/^(\w+)\s*(<\|--|--|\.\.>|-->|--\*|--o|<--)\s*(\w+)(?:\s*:\s*(.*))?$/);
-        if (classRelMatch) {
-            const [, from, , to] = classRelMatch;
-            getOrCreateNode(from);
-            getOrCreateNode(to);
-            createLink(nodeMap[from], nodeMap[to]);
+        // Parse standalone node declarations in flowchart: A[Label], A(Label), A((Label)), A{Label}
+        // Identifier can be followed by an optional space before the shape
+        const nodeMatch = line.match(/^([\w-]+)\s*(?:\[([^\]]+)\]|\(([^)]+)\)|\(\(([^)]+)\)\)|\{([^}]+)\})$/);
+        if (nodeMatch) {
+            const [, id, label1, label2, label3, label4] = nodeMatch;
+            getOrCreateNode(id, label1 || label2 || label3 || label4);
             continue;
         }
 
         // Parse flowchart nodes and edges: A --> B or A[Label] --> B[Label]
-        const flowMatch = line.match(/^(\w+)(?:\[([^\]]+)\])?\s*(-->|---|-\.-|==>)\s*(\w+)(?:\[([^\]]+)\])?(?:\s*\|([^|]+)\|)?$/);
+        // Match both alphanumeric and hyphenated/underscored identifiers
+        // Support optional space before shapes
+        const flowMatch = line.match(/^([\w-]+)\s*(?:\[([^\]]+)\]|\(([^)]+)\)|\(\(([^)]+)\)\)|\{([^}]+)\})?\s*(-->|---|-\.-|==>|--|--\.\.|--o|--\*|<->|<--)\s*([\w-]+)\s*(?:\[([^\]]+)\]|\(([^)]+)\)|\(\(([^)]+)\)\)|\{([^}]+)\})?(?:\s*\|([^|]+)\|)?$/);
         if (flowMatch) {
-            const [, from, fromLabel, , to, toLabel] = flowMatch;
-            getOrCreateNode(from, fromLabel);
-            getOrCreateNode(to, toLabel);
-            createLink(nodeMap[from], nodeMap[to]);
+            const [, from, f1, f2, f3, f4, arrow, to, t1, t2, t3, t4, edgeLabel] = flowMatch;
+            const fromNodeId = getOrCreateNode(from, f1 || f2 || f3 || f4);
+            const toNodeId = getOrCreateNode(to, t1 || t2 || t3 || t4);
+            createLink(fromNodeId, toNodeId, arrow);
+            continue;
+        }
+
+        // Parse class diagram relationships: ClassA <|-- ClassB or ClassA --> ClassB
+        const classRelMatch = line.match(/^([\w-]+)\s*(<\|--|--|\.\.>|-->|--\*|--o|<--|<->)\s*([\w-]+)(?:\s*:\s*(.*))?$/);
+        if (classRelMatch) {
+            const [, from, arrow, to] = classRelMatch;
+            const fromNodeId = getOrCreateNode(from);
+            const toNodeId = getOrCreateNode(to);
+            createLink(fromNodeId, toNodeId, arrow);
             continue;
         }
 
         // Parse standalone class declarations: class ClassName
-        const classMatch = line.match(/^class\s+(\w+)/);
+        const classMatch = line.match(/^class\s+([\w-]+)/);
         if (classMatch) {
             getOrCreateNode(classMatch[1]);
             continue;
         }
-
-        // Parse standalone node declarations in flowchart: A[Label]
-        const nodeMatch = line.match(/^(\w+)\[([^\]]+)\]$/);
-        if (nodeMatch) {
-            getOrCreateNode(nodeMatch[1], nodeMatch[2]);
-            continue;
-        }
     }
 
-    const result: StructureDiagramState = {
+    const result: any = {
         ...baseDiagram,
+        elements,
         nodes,
         ports,
-        links
+        links,
+        display: {
+            ...baseDiagram.display,
+            width: 2000,
+            height: 2000,
+            offset: { x: 0, y: 0 }
+        }
     };
 
-    return result;
+    return result as StructureDiagramState;
 }

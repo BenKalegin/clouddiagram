@@ -1,5 +1,6 @@
 import {Bounds, Coordinate, defaultDiagramDisplay, Diagram, zeroCoordinate} from "../../common/model";
 import {
+    elementIdsAtom,
     elementsAtom,
     exportingAtom,
     ExportPhase,
@@ -380,6 +381,23 @@ export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format:
                 const diagramId = get(activeDiagramIdAtom);
                 const originalDiagram = get(elementsAtom(diagramId)) as Diagram;
                 const imported = importDiagramAs(originalDiagram, format, code);
+                
+                // If the imported diagram contains elements (nodes, ports, links),
+                // we need to set them individually in the elementsAtom family.
+                const importedWithElements = imported as any;
+                if (importedWithElements.elements) {
+                    const importedIds = Object.keys(importedWithElements.elements);
+                    importedIds.forEach(id => {
+                        set(elementsAtom(id), importedWithElements.elements[id] as DiagramElement);
+                    });
+                    
+                    // Update elementIdsAtom with new IDs
+                    const currentIds = get(elementIdsAtom);
+                    const newIds = Array.from(new Set([...currentIds, ...importedIds]));
+                    set(elementIdsAtom, newIds);
+                }
+                
+                // Set the diagram itself
                 set(elementsAtom(diagramId), imported);
             }
 
