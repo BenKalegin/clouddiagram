@@ -367,6 +367,8 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         nodes,
         ports,
         links,
+        notes: {},
+        selectedElements: [],
         display: {
             ...baseDiagram.display,
             width: 2000,

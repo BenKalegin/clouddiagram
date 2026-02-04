@@ -157,5 +157,30 @@ describe('mermaidFormat', () => {
             expect(nodes).toHaveLength(2);
             expect(nodes.map(n => n.text).sort()).toEqual(['A', 'B']);
         });
+
+        it('should clear old notes and selected elements on import', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-diagram',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.ClassDiagram,
+                selectedElements: ['old-element-1', 'old-element-2'],
+                notes: {
+                    'note-1': {
+                        id: 'note-1',
+                        type: ElementType.Note,
+                        text: 'Old note',
+                        bounds: { x: 0, y: 0, width: 100, height: 50 },
+                        colorSchema: { fillColor: '#fff', strokeColor: '#000' }
+                    }
+                }
+            };
+
+            const flowchart = `flowchart LR
+    A --> B`;
+
+            const result = importMermaidStructureDiagram(baseDiagram, flowchart) as StructureDiagramState;
+            expect(Object.keys(result.notes)).toHaveLength(0);
+            expect(result.selectedElements).toHaveLength(0);
+        });
     });
 });
