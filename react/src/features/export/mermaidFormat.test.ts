@@ -163,7 +163,10 @@ describe('mermaidFormat', () => {
                 id: 'test-diagram',
                 display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
                 type: ElementType.ClassDiagram,
-                selectedElements: ['old-element-1', 'old-element-2'],
+                selectedElements: [
+                    { id: 'old-element-1', type: ElementType.ClassNode },
+                    { id: 'old-element-2', type: ElementType.ClassNode }
+                ],
                 notes: {
                     'note-1': {
                         id: 'note-1',
