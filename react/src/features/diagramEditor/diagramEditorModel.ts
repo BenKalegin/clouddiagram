@@ -55,7 +55,7 @@ export interface ContextPopupProps {
 export const emptyElementSentinel: DiagramElement = {id: "", type: ElementType.ClassNode};
 
 export const diagramTitleSelector = selectorFamily<string | undefined, DiagramId | undefined>({
-    key: 'diagram',
+    key: 'diagramTitle',
     get: (id) => ({get}) => {
         if (!id)
             return "New diagram";
@@ -65,7 +65,7 @@ export const diagramTitleSelector = selectorFamily<string | undefined, DiagramId
 })
 
 export const diagramKindSelector = selectorFamily<ElementType, DiagramId>({
-    key: 'diagram',
+    key: 'diagramKind',
     get: (id) => ({get}) => get(elementsAtom(id)).type
 })
 
@@ -75,12 +75,12 @@ export const diagramDisplaySelector = selectorFamily<Diagram['display'], Diagram
 })
 
 export const selectedRefsSelector = selectorFamily<ElementRef[], DiagramId>({
-    key: 'selectedElements',
+    key: 'selectedRefs',
     get: (id) => ({get}) => (get(elementsAtom(id)) as Diagram).selectedElements ?? []
 })
 
 export const selectedElementsSelector = selectorFamily<ElementRef[], DiagramId>({
-    key: 'selectedElements',
+    key: 'selectedElementsResolved',
     get: (diagramId) => ({get}) => {
         const diagram = get(elementsAtom(diagramId)) as Diagram
         const refs = diagram.selectedElements || []

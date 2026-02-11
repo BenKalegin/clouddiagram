@@ -12,7 +12,7 @@ import {
 } from "../diagramEditor/diagramEditorSlice";
 import { addToHistory, createDiagramChangeOperation } from "../diagramEditor/historyModel";
 import {Action} from "@reduxjs/toolkit";
-import {Bounds, Coordinate, Diagram, withinBounds} from "../../common/model";
+import {Bounds, Coordinate, defaultDiagramDisplay, Diagram, withinBounds} from "../../common/model";
 import {
     DiagramElement,
     ElementRef,
@@ -95,24 +95,7 @@ export class StructureDiagramHandler implements DiagramHandler {
                     this.startNodePosition = null;
                 }
 
-                // Update diagram bounds after element move
-                const diagramId = get(activeDiagramIdAtom);
-                const diagram = get(elementsAtom(diagramId)) as Diagram;
-                const bounds = calculateDiagramBounds(diagram);
-
-                // Update the diagram's display property
-                const updatedDiagram = {
-                    ...diagram,
-                    display: {
-                        ...diagram.display,
-                        scale: diagram.display.scale,
-                        offset: diagram.display.offset,
-                        width: bounds.width,
-                        height: bounds.height
-                    }
-                };
-
-                set(elementsAtom(diagramId), updatedDiagram);
+                updateActiveDiagramBounds(get, set);
             }
         } else if (elementResizeAction.match(action)) {
             const {element, suggestedBounds, phase} = action.payload;
@@ -157,46 +140,11 @@ export class StructureDiagramHandler implements DiagramHandler {
                     this.startNodePosition = null;
                 }
 
-                // Update diagram bounds after element resize
-                const diagramId = get(activeDiagramIdAtom);
-                const diagram = get(elementsAtom(diagramId)) as Diagram;
-                const bounds = calculateDiagramBounds(diagram);
-
-                // Update the diagram's display property
-                const updatedDiagram = {
-                    ...diagram,
-                    display: {
-                        ...diagram.display,
-                        scale: diagram.display.scale,
-                        offset: diagram.display.offset,
-                        width: bounds.width,
-                        height: bounds.height
-                    }
-                };
-
-                set(elementsAtom(diagramId), updatedDiagram);
+                updateActiveDiagramBounds(get, set);
             }
         } else if (dropFromPaletteAction.match(action)) {
             addNewElementAt(get, set, action.payload.droppedAt, action.payload.name, action.payload.kind);
-
-            // Update diagram bounds after element drop
-            const diagramId = get(activeDiagramIdAtom);
-            const diagram = get(elementsAtom(diagramId)) as Diagram;
-            const bounds = calculateDiagramBounds(diagram);
-
-            // Update the diagram's display property
-            const updatedDiagram = {
-                ...diagram,
-                display: {
-                    ...diagram.display,
-                    scale: diagram.display.scale,
-                    offset: diagram.display.offset,
-                    width: bounds.width,
-                    height: bounds.height
-                }
-            };
-
-            set(elementsAtom(diagramId), updatedDiagram);
+            updateActiveDiagramBounds(get, set);
         } else if(elementCommandAction.match(action)) {
             const {elements, command} = action.payload;
             handleStructureElementCommand(get, set, elements, command)
@@ -240,6 +188,26 @@ export class StructureDiagramHandler implements DiagramHandler {
         }
     }
 
+}
+
+function updateActiveDiagramBounds(get: Get, set: Set): void {
+    const diagramId = get(activeDiagramIdAtom);
+    const diagram = get(elementsAtom(diagramId)) as Diagram;
+    const bounds = calculateDiagramBounds(diagram);
+    const display = diagram.display ?? defaultDiagramDisplay;
+
+    const updatedDiagram: Diagram = {
+        ...diagram,
+        display: {
+            ...defaultDiagramDisplay,
+            ...display,
+            offset: display.offset ?? defaultDiagramDisplay.offset,
+            width: bounds.width,
+            height: bounds.height
+        }
+    };
+
+    set(elementsAtom(diagramId), updatedDiagram);
 }
 
 /**

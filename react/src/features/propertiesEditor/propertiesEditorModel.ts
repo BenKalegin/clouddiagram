@@ -1,10 +1,6 @@
-import {ElementType} from "../../package/packageModel";
 import {
-    ColorSchema,
-    CustomShape,
-    LineStyle,
-    RouteStyle,
-    TipStyle
+    ElementType,
+    HasColorSchema,
 } from "../../package/packageModel";
 
 export enum PropertyType {
@@ -50,10 +46,6 @@ export const lineStyleProp: PropertyDefinition = {name: "lineStyle", label: "Lin
 export const linkStyleProp: PropertyDefinition = {name: "routeStyle", label: "Route", type: PropertyType.RouteStyle, supportMultiEdit: true}
 export const tipStyleProp1: PropertyDefinition = {name: "tipStyle1", label: "Start tip", type: PropertyType.TipStyle, supportMultiEdit: true}
 export const tipStyleProp2: PropertyDefinition = {name: "tipStyle2", label: "End tip", type: PropertyType.TipStyle, supportMultiEdit: true}
-
-export interface HasColorSchema {
-    colorSchema: ColorSchema;
-}
 
 export function getPropertyList(type: ElementType): PropertyDefinition[] {
     switch (type) {

@@ -288,6 +288,34 @@ function handleElementSelection(get: Get, set: Set, idAndKind: ElementRef | unde
     }
 }
 
+function createDiagramBase(id: Id, type: ElementType, title: string): Pick<Diagram, "id" | "type" | "title" | "selectedElements" | "notes" | "display"> {
+    return {
+        id,
+        type,
+        title,
+        selectedElements: [],
+        notes: {},
+        display: {
+            ...defaultDiagramDisplay,
+            offset: { ...defaultDiagramDisplay.offset }
+        }
+    };
+}
+
+function normalizeDiagram(diagram: Diagram): Diagram {
+    const display = diagram.display ?? defaultDiagramDisplay;
+    return {
+        ...diagram,
+        selectedElements: diagram.selectedElements ?? [],
+        notes: diagram.notes ?? {},
+        display: {
+            ...defaultDiagramDisplay,
+            ...display,
+            offset: display.offset ?? defaultDiagramDisplay.offset
+        }
+    };
+}
+
 function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
     const openDiagramIds = get(openDiagramIdsAtom);
     const newDiagramId = generateId();
@@ -296,39 +324,28 @@ function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
     switch (diagramKind) {
         case ElementType.ClassDiagram:
             diagram = {
-                id: newDiagramId,
-                type: ElementType.ClassDiagram,
-                title: "Class Diagram",
+                ...createDiagramBase(newDiagramId, ElementType.ClassDiagram, "Class Diagram"),
                 nodes: {},
                 ports: {},
                 links: {},
-                notes: {}
-
             } as StructureDiagramState;
             break;
 
         case ElementType.DeploymentDiagram:
             diagram = {
-                id: newDiagramId,
-                type: ElementType.DeploymentDiagram,
-                title: "Deployment Diagram",
+                ...createDiagramBase(newDiagramId, ElementType.DeploymentDiagram, "Deployment Diagram"),
                 nodes: {},
                 ports: {},
                 links: {},
-                notes: {}
-
             } as DeploymentDiagramState;
             break;
 
         case ElementType.SequenceDiagram:
             diagram = {
-                id: newDiagramId,
-                type: ElementType.SequenceDiagram,
-                title: "Sequence Diagram",
+                ...createDiagramBase(newDiagramId, ElementType.SequenceDiagram, "Sequence Diagram"),
                 lifelines: {},
                 messages: {},
                 activations: {},
-                notes: {}
             } as SequenceDiagramState;
             break;
 
@@ -336,7 +353,7 @@ function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
         default: throw new Error(`Unknown diagram kind: ${diagramKind}`);
 
     }
-    set(elementsAtom(newDiagramId), diagram)
+    set(elementsAtom(newDiagramId), normalizeDiagram(diagram))
     set(openDiagramIdsAtom, [...openDiagramIds, newDiagramId])
     set(activeDiagramIdAtom, newDiagramId)
 }
@@ -380,7 +397,7 @@ export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format:
             if (format && code) {
                 const diagramId = get(activeDiagramIdAtom);
                 const originalDiagram = get(elementsAtom(diagramId)) as Diagram;
-                const imported = importDiagramAs(originalDiagram, format, code);
+                const imported = normalizeDiagram(importDiagramAs(originalDiagram, format, code));
                 
                 // If the imported diagram contains elements (nodes, ports, links),
                 // we need to set them individually in the elementsAtom family.
@@ -479,6 +496,7 @@ export function calculateDiagramBounds(diagram: Diagram): { width: number, heigh
 function updateDiagramDisplay(get: Get, set: Set, scale: number, offset: Coordinate) {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as Diagram;
+    const display = diagram.display ?? defaultDiagramDisplay;
 
     // Calculate diagram bounds
     const bounds = calculateDiagramBounds(diagram);
@@ -487,7 +505,8 @@ function updateDiagramDisplay(get: Get, set: Set, scale: number, offset: Coordin
     const updatedDiagram = {
         ...diagram,
         display: {
-            ...diagram.display,
+            ...defaultDiagramDisplay,
+            ...display,
             scale,
             offset,
             width: bounds.width,

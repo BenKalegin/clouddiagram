@@ -2,7 +2,7 @@ import { AtomEffect } from 'recoil';
 import { DiagramElement, Id } from '../../package/packageModel';
 
 // Define the structure of the persisted state
-interface PersistedState {
+export interface PersistedState {
     elements: { [id: Id]: DiagramElement };
     activeDiagramId: Id;
     openDiagramIds: Id[];
@@ -10,8 +10,8 @@ interface PersistedState {
 }
 
 // Choose storage method (localStorage or IndexedDB)
-const STORAGE_KEY = 'clouddiagram_state';
-const STORAGE_VERSION = '1.0';
+export const STORAGE_KEY = 'clouddiagram_state';
+export const STORAGE_VERSION = '1.0';
 
 // LocalStorage implementation
 export const localStoragePersistence = <T>(key: string): AtomEffect<T> => ({ setSelf, onSet, trigger }) => {

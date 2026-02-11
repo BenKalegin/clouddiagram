@@ -1,132 +1,21 @@
 import { AtomEffect } from 'recoil';
-import { DiagramElement, Id } from '../../package/packageModel';
+import type { PersistedState } from "../../common/persistence/statePersistence";
+import {
+    clearPersistedState,
+    indexedDBPersistence,
+    localStoragePersistence,
+    STORAGE_KEY,
+    STORAGE_VERSION
+} from "../../common/persistence/statePersistence";
 
-// Define the structure of the persisted state
-export interface PersistedState {
-    elements: { [id: Id]: DiagramElement };
-    activeDiagramId: Id;
-    openDiagramIds: Id[];
-    lastUpdated: number;
-}
-
-// Storage configuration
-export const STORAGE_KEY = 'clouddiagram_state';
-export const STORAGE_VERSION = '1.0';
+export type { PersistedState };
+export { STORAGE_KEY, STORAGE_VERSION };
 
 /**
- * Persistence service for managing state persistence using localStorage or IndexedDB
+ * Service wrapper around shared persistence helpers.
  */
 export class PersistenceService {
-    /**
-     * Creates a Recoil atom effect that persists state to localStorage
-     * @param key The key to use for storing the state
-     * @returns A Recoil atom effect
-     */
-    static localStoragePersistence = <T>(key: string): AtomEffect<T> => ({ setSelf, onSet, trigger }) => {
-        // Load persisted value when atom is initialized
-        if (trigger === 'get') {
-            const savedValue = localStorage.getItem(`${STORAGE_KEY}_${key}`);
-            if (savedValue != null) {
-                try {
-                    setSelf(JSON.parse(savedValue));
-                } catch (error) {
-                    console.error(`Error parsing saved state for ${key}:`, error);
-                }
-            }
-        }
-
-        // Save value to localStorage when atom changes
-        onSet((newValue) => {
-            try {
-                localStorage.setItem(`${STORAGE_KEY}_${key}`, JSON.stringify(newValue));
-            } catch (error) {
-                console.error(`Error saving state for ${key}:`, error);
-            }
-        });
-    };
-
-    /**
-     * Creates a Recoil atom effect that persists state to IndexedDB
-     * @param key The key to use for storing the state
-     * @returns A Recoil atom effect
-     */
-    static indexedDBPersistence = <T>(key: string): AtomEffect<T> => ({ setSelf, onSet, trigger }) => {
-        const dbName = STORAGE_KEY;
-        const storeName = 'diagramState';
-        const version = 1;
-
-        // Open IndexedDB
-        const openDB = (): Promise<IDBDatabase> => {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(dbName, version);
-
-                request.onupgradeneeded = (event) => {
-                    const db = (event.target as IDBOpenDBRequest).result;
-                    if (!db.objectStoreNames.contains(storeName)) {
-                        db.createObjectStore(storeName);
-                    }
-                };
-
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-        };
-
-        // Load persisted value when atom is initialized
-        if (trigger === 'get') {
-            openDB()
-                .then(db => {
-                    const transaction = db.transaction(storeName, 'readonly');
-                    const store = transaction.objectStore(storeName);
-                    const request = store.get(key);
-
-                    request.onsuccess = () => {
-                        if (request.result != null) {
-                            setSelf(request.result);
-                        }
-                    };
-
-                    transaction.oncomplete = () => db.close();
-                })
-                .catch(error => {
-                    console.error(`Error loading state for ${key}:`, error);
-                });
-        }
-
-        // Save value to IndexedDB when atom changes
-        onSet((newValue) => {
-            openDB()
-                .then(db => {
-                    const transaction = db.transaction(storeName, 'readwrite');
-                    const store = transaction.objectStore(storeName);
-                    store.put(newValue, key);
-
-                    transaction.oncomplete = () => db.close();
-                })
-                .catch(error => {
-                    console.error(`Error saving state for ${key}:`, error);
-                });
-        });
-    };
-
-    /**
-     * Clears all persisted state from localStorage and IndexedDB
-     */
-    static clearPersistedState = (): void => {
-        try {
-            // Clear localStorage
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith(STORAGE_KEY)) {
-                    localStorage.removeItem(key);
-                }
-            });
-
-            // Clear IndexedDB
-            const request = indexedDB.deleteDatabase(STORAGE_KEY);
-            request.onsuccess = () => console.log('IndexedDB state cleared');
-            request.onerror = () => console.error('Error clearing IndexedDB state');
-        } catch (error) {
-            console.error('Error clearing persisted state:', error);
-        }
-    };
+    static localStoragePersistence = <T>(key: string): AtomEffect<T> => localStoragePersistence<T>(key);
+    static indexedDBPersistence = <T>(key: string): AtomEffect<T> => indexedDBPersistence<T>(key);
+    static clearPersistedState = (): void => clearPersistedState();
 }
