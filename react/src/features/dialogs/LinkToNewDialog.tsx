@@ -9,14 +9,19 @@ import {
 import React from "react";
 import {galleryGroups, GalleryItem} from "../toolbox/models";
 import {useRecoilValue} from "recoil";
-import {linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {diagramKindSelector, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {linkToNewDialogCompletedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
+import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
+import {ElementType} from "../../package/packageModel";
 
 
 export const LinkToNewDialog = () => {
     const linking = useRecoilValue(linkingAtom)
     const source = linking?.sourceElement;
-    const items = galleryGroups.filter(group => group.key === "class").flatMap(group => group.items);
+    const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
+    const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId));
+    const groupKeys = diagramKind === ElementType.FlowchartDiagram ? ["flowchart", "c4"] : ["class"];
+    const items = galleryGroups.filter(group => groupKeys.includes(group.key)).flatMap(group => group.items);
     const dispatch = useDispatch();
 
     function toggleHideDialog(item?: GalleryItem) {

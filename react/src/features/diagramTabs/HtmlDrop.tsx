@@ -1,4 +1,4 @@
-import React, {ReactNode, useContext} from "react";
+import React, {ReactNode} from "react";
 import {
     classClass,
     classInterface,
@@ -9,6 +9,14 @@ import {
     deploymentElb,
     deploymentKinesis, deploymentLambda, deploymentRoute53, deploymentS3, deploymentS3Bucket,
     deploymentSqs, deploymentUsers, deploymentWaf,
+    c4Component,
+    c4Container,
+    c4Person,
+    c4System,
+    flowchartDecision,
+    flowchartInputOutput,
+    flowchartProcess,
+    flowchartTerminator,
     GalleryItem,
     interactionActor,
     interactionBoundary,
@@ -17,7 +25,7 @@ import {
     interactionLifeline
 } from "../toolbox/models";
 import {dropFromPaletteAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
-import {ElementType} from "../../package/packageModel";
+import {ElementType, FlowchartNodeKind} from "../../package/packageModel";
 import {PredefinedSvg} from "../graphics/graphicsReader";
 import {useRecoilValue} from "recoil";
 import {diagramDisplaySelector} from "../diagramEditor/diagramEditorModel";
@@ -26,6 +34,7 @@ import {activeDiagramIdAtom} from "./diagramTabsModel";
 export interface TypeAndSubType {
     type: ElementType;
     subType?: PredefinedSvg;
+    flowchartKind?: FlowchartNodeKind;
 }
 function mapGalleryType(galleryType: string) : TypeAndSubType {
     switch (galleryType) {
@@ -34,6 +43,24 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
         case classClass:
         case classInterface:
             return { type: ElementType.ClassNode};
+
+        case flowchartProcess:
+            return { type: ElementType.ClassNode, flowchartKind: FlowchartNodeKind.Process };
+        case flowchartDecision:
+            return { type: ElementType.ClassNode, flowchartKind: FlowchartNodeKind.Decision };
+        case flowchartTerminator:
+            return { type: ElementType.ClassNode, flowchartKind: FlowchartNodeKind.Terminator };
+        case flowchartInputOutput:
+            return { type: ElementType.ClassNode, flowchartKind: FlowchartNodeKind.InputOutput };
+
+        case c4Person:
+            return { type: ElementType.ClassNode, flowchartKind: FlowchartNodeKind.C4Person, subType: PredefinedSvg.Actor };
+        case c4System:
+            return { type: ElementType.ClassNode, flowchartKind: FlowchartNodeKind.C4System };
+        case c4Container:
+            return { type: ElementType.ClassNode, flowchartKind: FlowchartNodeKind.C4Container };
+        case c4Component:
+            return { type: ElementType.ClassNode, flowchartKind: FlowchartNodeKind.C4Component };
 
         case interactionLifeline:
             return { type: ElementType.SequenceLifeLine};

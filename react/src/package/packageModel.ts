@@ -1,6 +1,6 @@
 import {PredefinedSvg} from "../features/graphics/graphicsReader";
 import {NodeId} from "../features/structureDiagram/structureDiagramState";
-import {colorSchemaList, defaultColorSchema} from "../common/colors/colorSchemas";
+import {colorSchemaList} from "../common/colors/colorSchemas";
 
 export type Id = string;
 export enum ElementType {
@@ -17,6 +17,7 @@ export enum ElementType {
     DeploymentDiagram,
     DeploymentNode,
     DeploymentLink,
+    FlowchartDiagram,
 }
 
 export interface ElementRef {
@@ -95,6 +96,18 @@ export interface HasColorSchema {
 export interface NodeState extends DiagramElement, HasColorSchema {
     text: string;
     ports: Id[];
+    flowchartKind?: FlowchartNodeKind;
+}
+
+export enum FlowchartNodeKind {
+    Process = "process",
+    Decision = "decision",
+    Terminator = "terminator",
+    InputOutput = "input-output",
+    C4Person = "c4-person",
+    C4System = "c4-system",
+    C4Container = "c4-container",
+    C4Component = "c4-component",
 }
 
 export enum RouteStyle {
@@ -201,6 +214,7 @@ export const defaultLineStyle: LineStyle = lineStyleList[0]
 export interface LinkState extends DiagramElement, HasColorSchema {
     port1: Id;
     port2: Id;
+    text?: string;
 
     tipStyle1: TipStyle;
     tipStyle2: TipStyle;

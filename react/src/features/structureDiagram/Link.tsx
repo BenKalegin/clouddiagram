@@ -1,5 +1,5 @@
 import React, {useContext} from "react";
-import {Group, Path} from "react-konva";
+import {Group, Path, Text} from "react-konva";
 import {useRecoilValue} from "recoil";
 import {DiagramId, elementsAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {linkRenderSelector} from "./structureDiagramHandler";
@@ -38,6 +38,19 @@ export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}
                             }}
                         />;
                     }
+                )}
+                {link.text && (
+                    <Text
+                        x={render.bounds.x + render.bounds.width / 2 - 50}
+                        y={render.bounds.y + render.bounds.height / 2 - 10}
+                        width={100}
+                        text={link.text}
+                        align="center"
+                        verticalAlign="middle"
+                        fontSize={12}
+                        fill={colorSchema.strokeColor}
+                        listening={false}
+                    />
                 )}
             </Group>
         </VirtualizedItem>

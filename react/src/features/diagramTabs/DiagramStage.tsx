@@ -7,6 +7,7 @@ import { ElementType } from "../../package/packageModel";
 import { ClassDiagramEditor } from "../classDiagram/ClassDiagramEditor";
 import { DeploymentDiagramEditor } from "../deploymentDiagram/DeploymentDiagramEditor";
 import { SequenceDiagramEditor } from "../sequenceDiagram/SequenceDiagramEditor";
+import { FlowchartDiagramEditor } from "../flowchartDiagram/FlowchartDiagramEditor";
 import { HtmlDrop } from "./HtmlDrop";
 import { useRecoilBridgeAcrossReactRoots_UNSTABLE } from "recoil";
 import { AppLayoutContext } from "../../app/appModel";
@@ -274,6 +275,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                                         <AppLayoutContext.Provider value={value}>
                                             {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId} />}
                                             {diagramKind === ElementType.DeploymentDiagram && <DeploymentDiagramEditor diagramId={activeDiagramId} />}
+                                            {diagramKind === ElementType.FlowchartDiagram && <FlowchartDiagramEditor diagramId={activeDiagramId} />}
                                             {diagramKind === ElementType.SequenceDiagram && <SequenceDiagramEditor diagramId={activeDiagramId} />}
                                         </AppLayoutContext.Provider>
                                     </Bridge>

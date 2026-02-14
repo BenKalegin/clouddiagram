@@ -47,11 +47,15 @@ export const linkStyleProp: PropertyDefinition = {name: "routeStyle", label: "Ro
 export const tipStyleProp1: PropertyDefinition = {name: "tipStyle1", label: "Start tip", type: PropertyType.TipStyle, supportMultiEdit: true}
 export const tipStyleProp2: PropertyDefinition = {name: "tipStyle2", label: "End tip", type: PropertyType.TipStyle, supportMultiEdit: true}
 
-export function getPropertyList(type: ElementType): PropertyDefinition[] {
+export function getPropertyList(type: ElementType, diagramType?: ElementType): PropertyDefinition[] {
     switch (type) {
         case ElementType.ClassNode:
             return [textProp, colorSchemaProp, shapeLayoutProp];
         case ElementType.ClassLink:
+            if (diagramType === ElementType.FlowchartDiagram) {
+                // Flowcharts keep links directional by design.
+                return [textProp, colorSchemaProp, linkStyleProp];
+            }
             return [textProp, colorSchemaProp, linkStyleProp, tipStyleProp1, tipStyleProp2];
         case ElementType.SequenceLifeLine:
             return [{name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false}, colorSchemaProp];

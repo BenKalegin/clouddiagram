@@ -9,6 +9,7 @@ import {
     DiagramElement,
     ElementRef,
     ElementType,
+    FlowchartNodeKind,
     Id,
     LinkState,
     NodeState,
@@ -230,6 +231,8 @@ const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: st
         const defaultWidth = 100;
         const defaultHeight = 80;
         const diagramId = get(activeDiagramIdAtom);
+        const diagramType = get(elementsAtom(diagramId)).type;
+        const flowchartKind = elementType.flowchartKind ?? (diagramType === ElementType.FlowchartDiagram ? FlowchartNodeKind.Process : undefined);
         const customShape: CustomShape | undefined = elementType.subType ?
             {
                 layout: PictureLayout.FullIconTextBelow,
@@ -244,6 +247,7 @@ const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: st
             ports: [],
             colorSchema: defaultColorSchema,
             customShape: customShape,
+            flowchartKind,
         };
 
         const placement: NodePlacement = {
@@ -402,7 +406,14 @@ const handleNodePropertyChangedImpl = (get: Get, set: Set, element: ElementRef, 
 // Function to handle link property changes (wrapped with element history)
 const handleLinkPropertyChangedImpl = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
     const link = get(elementsAtom(element.id)) as LinkState;
+    const diagramId = get(activeDiagramIdAtom);
+    const diagramType = get(elementsAtom(diagramId)).type;
     const update = produce(link, (draft: Draft<LinkState>) => {
+        if (diagramType === ElementType.FlowchartDiagram && (propertyName === "tipStyle1" || propertyName === "tipStyle2")) {
+            draft.tipStyle1 = TipStyle.None;
+            draft.tipStyle2 = TipStyle.Arrow;
+            return;
+        }
         const object: any = draft;
         object[propertyName] = value
     });

@@ -42,6 +42,15 @@ export const deploymentS3Bucket = `deployment:aws:s3bucket`;
 export const deploymentCognito = `deployment:aws:cognito`;
 export const deploymentApiGateway = `deployment:aws:apigateway`;
 
+export const flowchartProcess = "flowchart:process";
+export const flowchartDecision = "flowchart:decision";
+export const flowchartTerminator = "flowchart:terminator";
+export const flowchartInputOutput = "flowchart:input-output";
+
+export const c4Person = "c4:person";
+export const c4System = "c4:system";
+export const c4Container = "c4:container";
+export const c4Component = "c4:component";
 
 const items: GalleryItem[] = [
     {key: classClass, name: 'Class', icon: PredefinedSvg.Class},
@@ -72,6 +81,14 @@ const items: GalleryItem[] = [
     {key: deploymentS3Bucket, name: 'S3 Bucket', icon: PredefinedSvg.S3Bucket},
     {key: deploymentCognito, name: 'Cognito', icon: PredefinedSvg.Cognito},
     {key: deploymentApiGateway, name: 'API Gateway', icon: PredefinedSvg.ApiGateway},
+    {key: flowchartProcess, name: 'Process'},
+    {key: flowchartDecision, name: 'Decision'},
+    {key: flowchartTerminator, name: 'Terminator'},
+    {key: flowchartInputOutput, name: 'Input/Output'},
+    {key: c4Person, name: 'Person', icon: PredefinedSvg.Actor},
+    {key: c4System, name: 'System'},
+    {key: c4Container, name: 'Container'},
+    {key: c4Component, name: 'Component'},
 ]
 
 
@@ -102,8 +119,17 @@ export const galleryGroups: IGalleryGroup[] = [
         key: 'deployment',
         items: items.filter(item => item.key.startsWith("deployment:"))
     },
+    {
+        name: "Flowchart",
+        key: "flowchart",
+        items: items.filter(item => item.key.startsWith("flowchart:"))
+    },
+    {
+        name: "C4",
+        key: "c4",
+        items: items.filter(item => item.key.startsWith("c4:"))
+    },
 ];
-
 
 
 

@@ -7,7 +7,7 @@ import Konva from "konva";
 import Stage = Konva.Stage;
 import {exportAsSvg} from "./svgFormat";
 import {exportAsCloudDiagram, importCloudDiagram} from "./CloudDiagramFormat";
-import {importMermaidSequenceDiagram, importMermaidStructureDiagram} from "./mermaidFormat";
+import {importMermaidFlowchartDiagram, importMermaidSequenceDiagram, importMermaidStructureDiagram} from "./mermaidFormat";
 
 export enum ExportImportFormat {
     PlantUmlSequenceDiagram = "plantuml_sequence",
@@ -17,6 +17,7 @@ export enum ExportImportFormat {
     CloudDiagram = "cd",
     MermaidSequenceDiagram = "mermaid_sequence",
     MermaidStructureDiagram = "mermaid_structure",
+    MermaidFlowchartDiagram = "mermaid_flowchart",
 }
 
 
@@ -32,33 +33,33 @@ export const formatRegistry: ExportRegistryEntry[] = [
     {
         format: ExportImportFormat.PlantUmlSequenceDiagram,
         name: "PlantUML",
-        exportFunction: async (diagram: Diagram, stage: Stage) => exportSequenceDiagramAsPlantUml(diagram),
+        exportFunction: async (diagram: Diagram) => exportSequenceDiagramAsPlantUml(diagram),
         supportedDiagram: [ElementType.SequenceDiagram]
     },
     {
         format: ExportImportFormat.LucidChartSequenceDiagram,
         name: "Lucid Charts",
-        exportFunction: async (diagram: Diagram, stage: Stage) => exportSequenceDiagramAsLucid(diagram),
+        exportFunction: async (diagram: Diagram) => exportSequenceDiagramAsLucid(diagram),
         supportedDiagram: [ElementType.SequenceDiagram]
     },
     {
         format: ExportImportFormat.Png,
         name: "PNG image",
         exportFunction: async (diagram: Diagram, stage: Stage) => exportAsPng(diagram, stage),
-        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram]
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram]
     },
     {
         format: ExportImportFormat.Svg,
         name: "SVG file",
         exportFunction: exportAsSvg,
-        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram]
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram]
     },
     {
         format: ExportImportFormat.CloudDiagram,
         name: "CloudDiagram file",
         exportFunction: async (diagram: Diagram, stage: Stage) => exportAsCloudDiagram(diagram, stage),
         importFunction: importCloudDiagram,
-        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram]
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram]
     },
     {
         format: ExportImportFormat.MermaidSequenceDiagram,
@@ -68,9 +69,15 @@ export const formatRegistry: ExportRegistryEntry[] = [
     },
     {
         format: ExportImportFormat.MermaidStructureDiagram,
-        name: "Mermaid Class/Flowchart Diagram",
+        name: "Mermaid Class Diagram",
         importFunction: importMermaidStructureDiagram,
         supportedDiagram: [ElementType.ClassDiagram, ElementType.DeploymentDiagram]
+    },
+    {
+        format: ExportImportFormat.MermaidFlowchartDiagram,
+        name: "Mermaid Flowchart (UML/C4)",
+        importFunction: importMermaidFlowchartDiagram,
+        supportedDiagram: [ElementType.FlowchartDiagram]
     },
 ];
 
@@ -99,4 +106,3 @@ export function importDiagramAs(diagram: Diagram, kind: ExportImportFormat, cont
         throw new Error("Unknown export kind " + kind);
     return entry.importFunction!(diagram, content);
 }
-

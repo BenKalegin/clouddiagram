@@ -4,7 +4,7 @@ jest.mock("react-konva-to-svg", () => ({
     exportStageSVG: jest.fn(),
 }));
 
-import { importMermaidStructureDiagram, importMermaidSequenceDiagram } from './mermaidFormat';
+import { importMermaidFlowchartDiagram, importMermaidStructureDiagram, importMermaidSequenceDiagram } from './mermaidFormat';
 import { Diagram } from '../../common/model';
 import { StructureDiagramState } from '../structureDiagram/structureDiagramState';
 import { SequenceDiagramState } from '../sequenceDiagram/sequenceDiagramModel';
@@ -184,6 +184,88 @@ describe('mermaidFormat', () => {
             const result = importMermaidStructureDiagram(baseDiagram, flowchart) as StructureDiagramState;
             expect(Object.keys(result.notes)).toHaveLength(0);
             expect(result.selectedElements).toHaveLength(0);
+        });
+    });
+
+    describe('importMermaidFlowchartDiagram', () => {
+        it('should import decision branches with one-directional links', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-flowchart',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.FlowchartDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const flowchart = `flowchart TD
+    Start([Start]) --> Check{Valid?}
+    Check -->|Yes| End([End])
+    Check <--|No| Retry[/Retry Input/]`;
+
+            const result = importMermaidFlowchartDiagram(baseDiagram, flowchart) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+
+            expect(result.type).toBe(ElementType.FlowchartDiagram);
+            expect(nodes).toHaveLength(4);
+
+            const byLabel: Record<string, NodeState> = {};
+            nodes.forEach(n => {
+                byLabel[n.text] = n;
+            });
+
+            expect(byLabel['Valid?'].flowchartKind).toBe('decision');
+
+            const hasLink = (fromLabel: string, toLabel: string, text?: string) =>
+                links.some(l => {
+                    const p1 = result.elements[l.port1] as any;
+                    const p2 = result.elements[l.port2] as any;
+                    const fromNode = byLabel[fromLabel];
+                    const toNode = byLabel[toLabel];
+                    return p1.nodeId === fromNode.id
+                        && p2.nodeId === toNode.id
+                        && (!text || l.text === text);
+                });
+
+            expect(hasLink('Start', 'Valid?')).toBe(true);
+            expect(hasLink('Valid?', 'End', 'Yes')).toBe(true);
+            // Reverse arrow in Mermaid must still become a one-directional source->target link.
+            expect(hasLink('Retry Input', 'Valid?', 'No')).toBe(true);
+            expect(links.every(l => l.tipStyle1 === 'none' && l.tipStyle2 === 'arrow')).toBe(true);
+        });
+
+        it('should import basic C4 nodes and relationships', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-c4-flowchart',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.FlowchartDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const c4 = `flowchart LR
+    Person(user, "User")
+    System(core, "Core System")
+    Container(web, "Web App")
+    Component(api, "API")
+    Rel(user, web, "Uses")
+    Rel(web, api, "Calls")
+    Rel(api, core, "Reads")`;
+
+            const result = importMermaidFlowchartDiagram(baseDiagram, c4) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+
+            const byLabel: Record<string, NodeState> = {};
+            nodes.forEach(n => {
+                byLabel[n.text] = n;
+            });
+
+            expect(byLabel['User'].flowchartKind).toBe('c4-person');
+            expect(byLabel['Core System'].flowchartKind).toBe('c4-system');
+            expect(byLabel['Web App'].flowchartKind).toBe('c4-container');
+            expect(byLabel['API'].flowchartKind).toBe('c4-component');
+            expect(links.map(l => l.text).sort()).toEqual(['Calls', 'Reads', 'Uses']);
         });
     });
 });

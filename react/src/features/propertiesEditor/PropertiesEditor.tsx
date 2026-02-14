@@ -2,7 +2,7 @@ import {Box, Button, Divider, FormControlLabel, ListItem, Switch, TextField} fro
 import List from "@mui/material/List";
 import React from "react";
 import {useRecoilValue} from "recoil";
-import {selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
+import {diagramKindSelector, selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {
     ColorSchema,
     CustomShape,
@@ -29,6 +29,7 @@ import {
 
 export const PropertiesEditor = () => {
     const diagramId = useRecoilValue(activeDiagramIdAtom)
+    const diagramKind = useRecoilValue(diagramKindSelector(diagramId))
     const selectedIds = useRecoilValue(selectedRefsSelector(diagramId))
     const selectedElements = new Map(useRecoilValue(selectedElementsSelector(diagramId)).map(e => [e.id, e]))
 
@@ -37,7 +38,7 @@ export const PropertiesEditor = () => {
 
 
     const properties = selectedKinds
-        .flatMap(kind => getPropertyList(kind).map<PropAndKind>(prop => ({kind, prop: prop})))
+        .flatMap(kind => getPropertyList(kind, diagramKind).map<PropAndKind>(prop => ({kind, prop: prop})))
         .filter(({prop}) => prop.supportMultiEdit || selectedIds.length === 1)
 
     const commands = selectedKinds

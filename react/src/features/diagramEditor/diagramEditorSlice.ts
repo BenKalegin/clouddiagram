@@ -27,6 +27,8 @@ import {DeploymentDiagramState} from "../deploymentDiagram/deploymentDaigramMode
 import {deploymentDiagramEditor} from "../deploymentDiagram/deploymentDiagramSlice";
 import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
 import {Command} from "../propertiesEditor/propertiesEditorModel";
+import { FlowchartDiagramState } from "../flowchartDiagram/flowchartDiagramModel";
+import { flowchartDiagramEditor } from "../flowchartDiagram/flowchartDiagramSlice";
 import KonvaEventObject = Konva.KonvaEventObject;
 
 export enum ElementMoveResizePhase {
@@ -349,6 +351,15 @@ function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
             } as SequenceDiagramState;
             break;
 
+        case ElementType.FlowchartDiagram:
+            diagram = {
+                ...createDiagramBase(newDiagramId, ElementType.FlowchartDiagram, "Flowchart Diagram"),
+                nodes: {},
+                ports: {},
+                links: {},
+            } as FlowchartDiagramState;
+            break;
+
 
         default: throw new Error(`Unknown diagram kind: ${diagramKind}`);
 
@@ -522,4 +533,5 @@ export const diagramEditors: Record<any, DiagramHandler> = {
     [ElementType.ClassDiagram]: classDiagramEditor,
     [ElementType.DeploymentDiagram]: deploymentDiagramEditor,
     [ElementType.SequenceDiagram]: sequenceDiagramEditor,
+    [ElementType.FlowchartDiagram]: flowchartDiagramEditor,
 };

@@ -34,6 +34,7 @@ export function AddNewTabButton() {
             >
                 <MenuItem data-testid="add-class-diagram" onClick={() => handleClose(ElementType.ClassDiagram)}>Class Diagram</MenuItem>
                 <MenuItem data-testid="add-deployment-diagram" onClick={() => handleClose(ElementType.DeploymentDiagram)}>Deployment Diagram</MenuItem>
+                <MenuItem data-testid="add-flowchart-diagram" onClick={() => handleClose(ElementType.FlowchartDiagram)}>Flowchart Diagram</MenuItem>
                 <MenuItem data-testid="add-sequence-diagram" onClick={() => handleClose(ElementType.SequenceDiagram)}>Sequence Diagram</MenuItem>
             </Menu>
         </div>
