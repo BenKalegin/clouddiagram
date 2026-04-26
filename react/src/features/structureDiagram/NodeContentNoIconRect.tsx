@@ -1,7 +1,7 @@
 import React, {FC, useContext} from "react";
 import {Line, Rect, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
-import {AppLayoutContext} from "../../app/appModel";
+import {AppLayoutContext} from "../../editor/editorLayout";
 import {
     adjustColorSchemaForTheme,
 } from "../../common/colors/colorTransform";

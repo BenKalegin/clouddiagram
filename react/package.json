@@ -2,6 +2,20 @@
   "name": "cd",
   "version": "0.1.0",
   "private": true,
+  "exports": {
+    "./editor": {
+      "types": "./dist/editor-types/editor/index.d.ts",
+      "source": "./src/editor/index.ts",
+      "default": "./src/editor/index.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "editor": [
+        "dist/editor-types/editor/index.d.ts"
+      ]
+    }
+  },
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
@@ -37,6 +51,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:editor:types": "tsc -p tsconfig.editor.json",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "cypress:open": "cypress open",
@@ -60,6 +75,20 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "peerDependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/icons-material": "^5.10.16",
+    "@mui/material": "^5.10.16",
+    "@reduxjs/toolkit": "^1.9.0",
+    "konva": "^8.3.13",
+    "react": ">=18",
+    "react-dom": ">=18",
+    "react-konva": ">=18",
+    "react-konva-to-svg": "^1.0.2",
+    "recoil": "^0.7.7",
+    "use-image": "^1.1.1"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",

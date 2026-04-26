@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist/editor-types",
+    "rootDir": "src"
+  },
+  "include": [
+    "src/react-app-env.d.ts",
+    "src/types/**/*.d.ts",
+    "src/editor/index.ts"
+  ]
+}

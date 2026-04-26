@@ -408,23 +408,22 @@ export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format:
             if (format && code) {
                 const diagramId = get(activeDiagramIdAtom);
                 const originalDiagram = get(elementsAtom(diagramId)) as Diagram;
-                const imported = normalizeDiagram(importDiagramAs(originalDiagram, format, code));
-                
-                // If the imported diagram contains elements (nodes, ports, links),
-                // we need to set them individually in the elementsAtom family.
-                const importedWithElements = imported as any;
-                if (importedWithElements.elements) {
-                    const importedIds = Object.keys(importedWithElements.elements);
+                const importedResult = importDiagramAs(originalDiagram, format, code);
+                const imported = normalizeDiagram(importedResult.diagram);
+
+                // Structure-like diagrams keep element payloads in the elements atom family.
+                if (Object.keys(importedResult.elements).length > 0) {
+                    const importedIds = Object.keys(importedResult.elements);
                     importedIds.forEach(id => {
-                        set(elementsAtom(id), importedWithElements.elements[id] as DiagramElement);
+                        set(elementsAtom(id), importedResult.elements[id] as DiagramElement);
                     });
-                    
+
                     // Update elementIdsAtom with new IDs
                     const currentIds = get(elementIdsAtom);
                     const newIds = Array.from(new Set([...currentIds, ...importedIds]));
                     set(elementIdsAtom, newIds);
                 }
-                
+
                 // Set the diagram itself
                 set(elementsAtom(diagramId), imported);
             }

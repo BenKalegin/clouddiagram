@@ -6,7 +6,7 @@ import {ColorSchema} from "../../package/packageModel";
 import {portRenderSelector} from "./structureDiagramHandler";
 import {NodeId, PortId} from "./structureDiagramState";
 import {portSelector} from "./structureDiagramModel";
-import {AppLayoutContext} from "../../app/appModel";
+import {AppLayoutContext} from "../../editor/editorLayout";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 
 export interface PortProps {

@@ -10,7 +10,7 @@ import { SequenceDiagramEditor } from "../sequenceDiagram/SequenceDiagramEditor"
 import { FlowchartDiagramEditor } from "../flowchartDiagram/FlowchartDiagramEditor";
 import { HtmlDrop } from "./HtmlDrop";
 import { useRecoilBridgeAcrossReactRoots_UNSTABLE } from "recoil";
-import { AppLayoutContext } from "../../app/appModel";
+import { AppLayoutContext } from "../../editor/editorLayout";
 import { DiagramId } from "../diagramEditor/diagramEditorModel";
 import { elementSelectedAction, updateDiagramDisplayAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
 

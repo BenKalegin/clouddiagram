@@ -10,7 +10,7 @@ import {
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
 import KonvaEventObject = Konva.KonvaEventObject;
-import {AppLayoutContext} from "../../app/appModel";
+import {AppLayoutContext} from "../../editor/editorLayout";
 
 interface ContextButtonProps {
     svgPath: string

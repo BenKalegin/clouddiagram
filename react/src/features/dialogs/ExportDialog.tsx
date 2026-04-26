@@ -9,13 +9,13 @@ import {
     ListItemText,
 } from "@mui/material";
 import React from "react";
-import {useRecoilValue} from "recoil";
+import {useRecoilCallback, useRecoilValue} from "recoil";
 import {elementsAtom, exportingAtom, ExportPhase} from "../diagramEditor/diagramEditorModel";
 import {useState, useEffect} from "react";
 import {exportDiagramTabAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {exportDiagramAs, exportFormats, ExportImportFormat} from "../export/exportFormats";
 import {CodeMemo} from "../commonControls/CodeMemo";
-import {ElementType} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id} from "../../package/packageModel";
 import Konva from "konva";
 import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {Diagram} from "../../common/model";
@@ -32,12 +32,25 @@ export const ExportDialog = ({diagramKind, getStage}: {diagramKind: ElementType,
     }
 
     const stage = getStage();
+    const exportSelectedDiagram = useRecoilCallback(({snapshot}) =>
+        async (format: ExportImportFormat, diagram: Diagram, stage: Konva.Stage | null) =>
+            exportDiagramAs(
+                diagram,
+                format,
+                stage,
+                (id: Id): DiagramElement | undefined => {
+                    const loadable = snapshot.getLoadable(elementsAtom(id));
+                    return loadable.state === "hasValue" ? loadable.contents as DiagramElement : undefined;
+                }
+            ),
+        []
+    );
 
     useEffect(() => {
         const fetchExportedContent = async () => {
-            if (stage && exporting?.format) {
+            if (exporting?.format) {
                 try {
-                    const content = await exportDiagramAs(diagram, exporting.format, stage);
+                    const content = await exportSelectedDiagram(exporting.format, diagram, stage);
                     setExportedContent(content);
                 } catch (error) {
                     console.error("Error exporting diagram:", error);
@@ -49,7 +62,7 @@ export const ExportDialog = ({diagramKind, getStage}: {diagramKind: ElementType,
         };
 
         fetchExportedContent();
-    }, [diagram, exporting?.format, stage]);
+    }, [diagram, exporting?.format, exportSelectedDiagram, stage]);
 
     return (
         <Dialog

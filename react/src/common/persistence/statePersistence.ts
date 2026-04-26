@@ -13,8 +13,29 @@ export interface PersistedState {
 export const STORAGE_KEY = 'clouddiagram_state';
 export const STORAGE_VERSION = '1.0';
 
+export const PersistenceMode = {
+    Local: "local",
+    Host: "host"
+} as const;
+
+export type PersistenceMode = (typeof PersistenceMode)[keyof typeof PersistenceMode];
+
+let persistenceMode: PersistenceMode = PersistenceMode.Local;
+
+export function setPersistenceMode(mode: PersistenceMode): void {
+    persistenceMode = mode;
+}
+
+export function getPersistenceMode(): PersistenceMode {
+    return persistenceMode;
+}
+
 // LocalStorage implementation
 export const localStoragePersistence = <T>(key: string): AtomEffect<T> => ({ setSelf, onSet, trigger }) => {
+    if (persistenceMode === PersistenceMode.Host) {
+        return;
+    }
+
     // Load persisted value when atom is initialized
     if (trigger === 'get') {
         const savedValue = localStorage.getItem(`${STORAGE_KEY}_${key}`);
@@ -39,6 +60,10 @@ export const localStoragePersistence = <T>(key: string): AtomEffect<T> => ({ set
 
 // IndexedDB implementation
 export const indexedDBPersistence = <T>(key: string): AtomEffect<T> => ({ setSelf, onSet, trigger }) => {
+    if (persistenceMode === PersistenceMode.Host) {
+        return;
+    }
+
     const dbName = STORAGE_KEY;
     const storeName = 'diagramState';
     const version = 1;

@@ -3,7 +3,6 @@ import reportWebVitals from './reportWebVitals';
 import {App} from "./app/App";
 import {createRoot} from "react-dom/client";
 import '@fontsource/roboto/400.css';
-import {RecoilRoot} from "recoil";
 import {DevSupport} from "@react-buddy/ide-toolbox";
 import {ComponentPreviews, useInitial} from "./dev";
 
@@ -12,14 +11,11 @@ const root = createRoot(container);
 
 root.render(
     <React.StrictMode>
-        <RecoilRoot>
-            {/*<RecoilDevTools forceSerialize={false} />*/}
-            <DevSupport ComponentPreviews={ComponentPreviews}
-                        useInitialHook={useInitial}
-            >
-                <App/>
-            </DevSupport>
-        </RecoilRoot>
+        <DevSupport ComponentPreviews={ComponentPreviews}
+                    useInitialHook={useInitial}
+        >
+            <App/>
+        </DevSupport>
     </React.StrictMode>
 );
 
