@@ -71,7 +71,7 @@ export const LinkStylePropertyEditor: React.FC<LinkStylePropertyEditorProps> = (
     const popupOpen = Boolean(anchorEl);
     return (
             <FormControlLabel control={
-                <>
+                <span>
                     <ButtonGroup variant="text" aria-label="split button">
                         <IconButton
                             aria-label="change color"
@@ -102,7 +102,7 @@ export const LinkStylePropertyEditor: React.FC<LinkStylePropertyEditorProps> = (
                             ))
                         }
                     </Menu>
-                </>
+                </span>
             }
              label={props.propAndKind.prop.label}
             />

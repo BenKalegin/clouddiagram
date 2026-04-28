@@ -46,7 +46,7 @@ import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {Command} from "../propertiesEditor/propertiesEditorModel";
 import {atom} from "jotai";
-import {atomFamily} from "jotai/utils";
+import {atomFamily} from "jotai-family";
 import {generatePath} from "../../common/Geometry/PathGenerator";
 import {defaultColorSchema} from "../../common/colors/colorSchemas";
 import {withElementHistory, withHistory} from "../diagramEditor/historySlice";

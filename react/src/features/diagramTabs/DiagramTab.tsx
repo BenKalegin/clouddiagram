@@ -65,40 +65,41 @@ const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
 
             <Tab
                 sx={{height: TabHeight, minHeight: TabHeight, paddingRight: "0px"}}
-                icon={<>
-                    <Icon
-                        aria-label="options"
-                        arial-controls="tab-options-menu"
-                        aria-haspopup="true"
-                        onClick={handleClick}
-                        sx={{
-                            padding: '2px',
-                            borderRadius: '50%',
-                            visibility: isIconVisible ? 'visible' : 'hidden',
-                            '&:hover': {
-                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                            },
-                        }}
-                    >
-                        <MoreVertIcon
+                icon={
+                    <span>
+                        <Icon
+                            aria-label="options"
+                            arial-controls="tab-options-menu"
+                            aria-haspopup="true"
+                            onClick={handleClick}
                             sx={{
-                                fontSize: '14px',
-                                marginBottom: '0.4em',
+                                padding: '2px',
+                                borderRadius: '50%',
+                                visibility: isIconVisible ? 'visible' : 'hidden',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                                },
                             }}
-                        />
-                    </Icon>
-                    <Menu
-                        id="tab-options-menu"
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleCloseMenu}
-                    >
-                        <MenuItem onClick={exportTab}>Export</MenuItem>
-                        <MenuItem onClick={importTab}>Import</MenuItem>
-                        <MenuDivider />
-                        <MenuItem onClick={closeTab}>Close</MenuItem>
-                    </Menu>
-                </>
+                        >
+                            <MoreVertIcon
+                                sx={{
+                                    fontSize: '14px',
+                                    marginBottom: '0.4em',
+                                }}
+                            />
+                        </Icon>
+                        <Menu
+                            id="tab-options-menu"
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={handleCloseMenu}
+                        >
+                            <MenuItem onClick={exportTab}>Export</MenuItem>
+                            <MenuItem onClick={importTab}>Import</MenuItem>
+                            <MenuDivider />
+                            <MenuItem onClick={closeTab}>Close</MenuItem>
+                        </Menu>
+                    </span>
                 }
                 iconPosition={"end"}
                 {...props}

@@ -3,7 +3,7 @@ import {Port} from "./Port";
 import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "./DrawingLink";
 import {atom, useAtomValue} from "jotai";
-import {atomFamily} from "jotai/utils";
+import {atomFamily} from "jotai-family";
 import {DiagramId, elementsAtom, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType, NodeState, PictureLayout} from "../../package/packageModel";
 import {NodeContentTopLeftIcon} from "./NodeContentTopLeftIcon";

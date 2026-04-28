@@ -71,7 +71,7 @@ export const TipStylePropertyEditor: React.FC<TipStylePropertyEditorProps> = (pr
     const popupOpen = Boolean(anchorEl);
     return (
             <FormControlLabel control={
-                <>
+                <span>
                     <ButtonGroup variant="text" aria-label="split button">
                         <IconButton
                             aria-label="change color"
@@ -102,7 +102,7 @@ export const TipStylePropertyEditor: React.FC<TipStylePropertyEditorProps> = (pr
                             ))
                         }
                     </Menu>
-                </>
+                </span>
             }
              label={props.propAndKind.prop.label}
             />

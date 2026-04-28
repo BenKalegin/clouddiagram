@@ -1,6 +1,6 @@
 import {DiagramElement, Id, HasColorSchema} from "../../package/packageModel";
 import {atom} from "jotai";
-import {atomFamily} from "jotai/utils";
+import {atomFamily} from "jotai-family";
 import {Bounds, Diagram} from "../../common/model";
 import {DiagramId, elementsAtom} from "../diagramEditor/diagramEditorModel";
 

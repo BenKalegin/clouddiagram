@@ -1,7 +1,7 @@
 import {Bounds, Coordinate, defaultDiagramDisplay, Diagram} from "../../common/model";
 import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
 import {atom, Atom} from "jotai";
-import {atomFamily} from "jotai/utils";
+import {atomFamily} from "jotai-family";
 import {persistentAtom, persistentAtomFamily} from "../../common/state/persistentAtoms";
 import {elements} from "../demo";
 import {nanoid} from 'nanoid';

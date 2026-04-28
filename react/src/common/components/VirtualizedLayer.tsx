@@ -45,7 +45,7 @@ export const VirtualizedLayer: React.FC<VirtualizedLayerProps> = ({
     height: window.innerHeight
   });
 
-  // Update viewport when the stage is transformed (panned/zoomed)
+  // Update viewport when the stage is transformed (panned/zoomed) or resized.
   useEffect(() => {
     if (!layerRef.current) return;
 
@@ -54,12 +54,10 @@ export const VirtualizedLayer: React.FC<VirtualizedLayerProps> = ({
 
     if (!stage) return;
 
-    // Function to update the viewport bounds
     const updateViewport = () => {
       const scale = stage.scaleX();
       const position = stage.position();
 
-      // Calculate the viewport in world coordinates
       const viewportBounds: Bounds = {
         x: -position.x / scale - padding,
         y: -position.y / scale - padding,
@@ -70,19 +68,24 @@ export const VirtualizedLayer: React.FC<VirtualizedLayerProps> = ({
       setViewport(viewportBounds);
     };
 
-    // Update viewport initially
     updateViewport();
 
-    // Add event listeners for stage transformations
     stage.on('dragmove', updateViewport);
     stage.on('wheel', updateViewport);
     stage.on('scaleChange', updateViewport);
 
-    // Clean up event listeners
+    // Stage size is set asynchronously by parent layout (DiagramStage measures
+    // its container in a useEffect). Konva doesn't emit a resize event, so we
+    // observe the container directly to catch the post-mount size update.
+    const container = stage.container();
+    const resizeObserver = new ResizeObserver(updateViewport);
+    resizeObserver.observe(container);
+
     return () => {
       stage.off('dragmove', updateViewport);
       stage.off('wheel', updateViewport);
       stage.off('scaleChange', updateViewport);
+      resizeObserver.disconnect();
     };
   }, [padding]);
 

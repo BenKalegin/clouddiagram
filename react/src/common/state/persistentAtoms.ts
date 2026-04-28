@@ -1,5 +1,5 @@
 import {atom, PrimitiveAtom} from "jotai";
-import {atomFamily} from "jotai/utils";
+import {atomFamily} from "jotai-family";
 import {PersistenceMode, STORAGE_KEY, getPersistenceMode} from "../persistence/statePersistence";
 
 const buildStorageKey = (key: string): string => `${STORAGE_KEY}_${key}`;
@@ -82,6 +82,7 @@ export function persistentAtom<T>(storageKey: string, defaultValue: T): Primitiv
         (get, set, update: T | ((prev: T) => T)) => {
             const prev = get(baseAtom);
             const next = typeof update === "function" ? (update as (prev: T) => T)(prev) : update;
+            if (Object.is(next, prev)) return;
             set(baseAtom, next);
             scheduleWrite(fullKey, next);
         }

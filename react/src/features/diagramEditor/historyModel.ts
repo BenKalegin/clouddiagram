@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { atomFamily } from "jotai/utils";
+import { atomFamily } from "jotai-family";
 import { DiagramId, elementsAtom } from "./diagramEditorModel";
 import { DiagramElement } from "../../package/packageModel";
 import { Diagram } from "../../common/model";

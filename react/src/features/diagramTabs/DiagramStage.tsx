@@ -197,20 +197,22 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
         }
     }, [handleScroll]);
 
-    // Re-sync scroll position when diagram ID or initial scale/position changes
+    // Sync scroll position only on diagram switch or viewport resize. Reading
+    // position via ref instead of via deps avoids the per-scroll feedback loop:
+    // each scroll event dispatches a position update, which would otherwise
+    // re-fire this effect and write a slightly-different scroll value back,
+    // causing oscillation with subpixel rounding.
     useEffect(() => {
-        if (scrollContainerRef.current) {
-            const targetLeft = effPaddingX - position.x;
-            const targetTop = effPaddingY - position.y;
+        if (!scrollContainerRef.current) return;
+        const targetLeft = effPaddingX - positionRef.current.x;
+        const targetTop = effPaddingY - positionRef.current.y;
 
-            // Only update if significantly different to avoid feedback loops
-            if (Math.abs(scrollContainerRef.current.scrollLeft - targetLeft) > 1 ||
-                Math.abs(scrollContainerRef.current.scrollTop - targetTop) > 1) {
-                scrollContainerRef.current.scrollLeft = targetLeft;
-                scrollContainerRef.current.scrollTop = targetTop;
-            }
+        if (Math.abs(scrollContainerRef.current.scrollLeft - targetLeft) > 1 ||
+            Math.abs(scrollContainerRef.current.scrollTop - targetTop) > 1) {
+            scrollContainerRef.current.scrollLeft = targetLeft;
+            scrollContainerRef.current.scrollTop = targetTop;
         }
-    }, [activeDiagramId, effPaddingX, effPaddingY, position.x, position.y, viewportDimensions.width, viewportDimensions.height]); // Re-sync when switching diagrams or dimensions change
+    }, [activeDiagramId, effPaddingX, effPaddingY, viewportDimensions.width, viewportDimensions.height]);
 
     return (
         <div

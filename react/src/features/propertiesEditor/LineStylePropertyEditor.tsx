@@ -52,7 +52,7 @@ export const LineStylePropertyEditor: React.FC<LineStylePropertyEditorProps> = (
     const popupOpen = Boolean(anchorEl);
     return (
             <FormControlLabel control={
-                <>
+                <span>
                     <ButtonGroup variant="text" aria-label="split button">
                         <IconButton
                             aria-label="change color"
@@ -82,7 +82,7 @@ export const LineStylePropertyEditor: React.FC<LineStylePropertyEditorProps> = (
                             ))
                         }
                     </Menu>
-                </>
+                </span>
             }
              label={props.propAndKind.prop.label}
             />

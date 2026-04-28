@@ -92,7 +92,7 @@ export const NodeLayoutPropertyEditor: React.FC<NodeLayoutPropertyEditorProps> =
     const popupOpen = Boolean(anchorEl);
     return (
         <FormControlLabel control={
-            <>
+            <span>
                 <ButtonGroup variant="text" aria-label="split button">
                     <IconButton
                         aria-label="change color"
@@ -122,7 +122,7 @@ export const NodeLayoutPropertyEditor: React.FC<NodeLayoutPropertyEditorProps> =
                         </MenuItem>
                     ))}
                 </Menu>
-            </>
+            </span>
         }
          label={props.propAndKind.prop.label}
         />

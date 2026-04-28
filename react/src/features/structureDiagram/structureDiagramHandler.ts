@@ -44,7 +44,7 @@ import {
     resizeElementImpl
 } from "./structureDiagramModel";
 import {atom} from "jotai";
-import {atomFamily} from "jotai/utils";
+import {atomFamily} from "jotai-family";
 
 const PORT_SNAP_DISTANCE = 22;
 

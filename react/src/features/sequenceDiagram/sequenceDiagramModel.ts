@@ -14,7 +14,7 @@ import {
     PictureLayout
 } from "../../package/packageModel";
 import {atom} from "jotai";
-import {atomFamily} from "jotai/utils";
+import {atomFamily} from "jotai-family";
 import {
     ConnectorRender,
     DiagramId,
@@ -482,14 +482,15 @@ export function createLifelineAndConnectTo(get: Get, set: Set, name: string) {
 }
 
 export const drawingMessageRenderSelector = atom<MessageRender | undefined>((get) => {
-    const maybeLinking = get(linkingAtom)
-    if (!maybeLinking)
+    const linking = get(linkingAtom)
+    if (!linking)
         return undefined;
-    const linking = maybeLinking!
     const diagramId = get(activeDiagramIdAtom)
     const y = linking.diagramPos.y;
     const lifeline1 = get(lifelineSelector({lifelineId: linking.sourceElement, diagramId}))
-    const lifeline1Placement = get(lifelinePlacementSelector({lifelineId: linking.sourceElement, diagramId}))
+    if (!lifeline1) return undefined;
+    const lifeline1Placement = lifeline1.placement;
+    if (!lifeline1Placement) return undefined;
     const lifelineY = Math.max(y - lifeline1Placement.headBounds.height, 0)
 
     let activation1 = lifeline1.activations
@@ -562,7 +563,7 @@ export const lifelineSelector = atomFamily(
 export const lifelinePlacementSelector = atomFamily(
     (param: LifelineParam) =>
         atom(
-            (get) => get(lifelineSelector(param)).placement,
+            (get) => get(lifelineSelector(param))?.placement,
             (get, set, newValue: LifelinePlacement) => {
                 const diagram = get(sequenceDiagramSelector(param.diagramId));
                 set(sequenceDiagramSelector(param.diagramId), {
