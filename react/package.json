@@ -1,21 +1,21 @@
 {
-  "name": "cd",
+  "name": "clouddiagram-editor",
   "version": "0.1.0",
-  "private": true,
+  "type": "module",
+  "main": "./dist/lib/editor.js",
+  "module": "./dist/lib/editor.js",
+  "types": "./dist/editor-types/editor/index.d.ts",
   "exports": {
-    "./editor": {
+    ".": {
       "types": "./dist/editor-types/editor/index.d.ts",
-      "source": "./src/editor/index.ts",
-      "default": "./src/editor/index.ts"
+      "import": "./dist/lib/editor.js",
+      "default": "./dist/lib/editor.js"
     }
   },
-  "typesVersions": {
-    "*": {
-      "editor": [
-        "dist/editor-types/editor/index.d.ts"
-      ]
-    }
-  },
+  "files": [
+    "dist/lib",
+    "dist/editor-types"
+  ],
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -53,8 +53,8 @@
     "test:e2e": "start-server-and-test start http://localhost:3000 cypress:run"
   },
   "peerDependencies": {
-    "react-konva-to-svg": "^1.0.2",
-    "use-image": "^1.1.1"
+    "react": ">=19",
+    "react-dom": ">=19"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
