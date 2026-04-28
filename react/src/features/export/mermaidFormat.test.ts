@@ -1,7 +1,8 @@
-jest.mock("konva", () => ({}));
-jest.mock("react-konva", () => ({}));
-jest.mock("react-konva-to-svg", () => ({
-    exportStageSVG: jest.fn(),
+import { vi } from "vitest";
+vi.mock("konva", () => ({}));
+vi.mock("react-konva", () => ({}));
+vi.mock("react-konva-to-svg", () => ({
+    exportStageSVG: vi.fn(),
 }));
 
 import {

@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import {
   autoConnectActivations,
   createLifelineAndConnectTo,
@@ -14,8 +15,8 @@ import {Command} from '../propertiesEditor/propertiesEditorModel';
 import {DiagramElement, ElementType} from '../../package/packageModel';
 import {Coordinate, defaultDiagramDisplay} from '../../common/model';
 
-jest.mock("react-konva-to-svg", () => ({
-  exportStageSVG: jest.fn(),
+vi.mock("react-konva-to-svg", () => ({
+  exportStageSVG: vi.fn(),
 }));
 
 describe('Sequence Diagram Integration Tests', () => {

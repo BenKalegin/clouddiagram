@@ -26,8 +26,6 @@
     "@react-buddy/ide-toolbox": "^2.4.0",
     "@react-buddy/palette-mui": "^5.0.1",
     "@reduxjs/toolkit": "^1.9.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.11.66",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
     "jotai": "^2.19.1",
@@ -39,39 +37,22 @@
     "react-hotkeys-hook": "^4.6.1",
     "react-konva": ">=18",
     "react-konva-to-svg": "^1.0.2",
-    "react-scripts": "5.0.1",
     "sass": "^1.85.0",
     "typescript": "^4.8.4",
-    "use-image": "^1.1.1",
-    "web-vitals": "^2.1.4"
+    "use-image": "^1.1.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "vite",
+    "dev": "vite",
+    "build": "vite build",
+    "build:lib": "vite build --mode library",
     "build:editor:types": "tsc -p tsconfig.editor.json",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "test:e2e": "start-server-and-test start http://localhost:3000 cypress:run"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "peerDependencies": {
     "@emotion/react": "^11.10.5",
@@ -89,11 +70,18 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@cypress/webpack-preprocessor": "^6.0.0",
-    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^14.4.3",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.19.17",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/ui": "^4.1.5",
     "classnames": "^2.3.1",
     "cypress": "^13.6.0",
-    "start-server-and-test": "^2.0.0"
+    "jsdom": "^29.1.0",
+    "start-server-and-test": "^2.0.0",
+    "vite": "^8.0.10",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^4.1.5"
   }
 }

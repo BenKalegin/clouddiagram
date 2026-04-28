@@ -1,10 +1,11 @@
+import { vi } from "vitest";
 import { portBounds } from './structureDiagramModel';
 import { Bounds } from '../../common/model';
 import { PortAlignment, PortState } from '../../package/packageModel';
 import {PortPlacement} from "./structureDiagramState";
 
-jest.mock("react-konva-to-svg", () => ({
-  exportStageSVG: jest.fn(),
+vi.mock("react-konva-to-svg", () => ({
+  exportStageSVG: vi.fn(),
 }));
 
 

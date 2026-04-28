@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import {
   addNewElementAt,
   addNodeAndConnect,
@@ -14,8 +15,8 @@ import { ElementType } from '../../package/packageModel';
 import {Bounds, Coordinate, defaultDiagramDisplay} from '../../common/model';
 import { StructureDiagramState } from '../structureDiagram/structureDiagramState';
 
-jest.mock("react-konva-to-svg", () => ({
-  exportStageSVG: jest.fn(),
+vi.mock("react-konva-to-svg", () => ({
+  exportStageSVG: vi.fn(),
 }));
 
 describe('Deployment Diagram Integration Tests', () => {
