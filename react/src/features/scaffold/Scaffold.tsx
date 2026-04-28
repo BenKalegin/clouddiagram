@@ -13,7 +13,7 @@ export interface ScaffoldProps {
     element: ElementRef;
     excludeDiagonalResize?: boolean;
     excludeVerticalResize?: boolean;
-    linkingDrawing: JSX.Element | undefined;
+    linkingDrawing: React.JSX.Element | undefined;
 }
 
 export const Scaffold = (props: ScaffoldProps) => {

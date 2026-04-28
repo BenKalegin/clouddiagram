@@ -137,7 +137,7 @@ function CloudDiagramEditorContent({
         hydrateCloudDiagramDocument(document, set);
     }, []);
     const getCurrentDocument = useStoreCallback(({get}) => () => getCloudDiagramDocument(get), []);
-    const hydratedKeyRef = useRef<string | undefined>();
+    const hydratedKeyRef = useRef<string | undefined>(undefined);
     const shouldRecoverOnMount = recoverOnMount ?? persistenceMode === PersistenceMode.Local;
 
     useEffect(() => {
@@ -292,7 +292,7 @@ function CloudDiagramDocumentChangeObserver({
     debounceMs = DEFAULT_CHANGE_DEBOUNCE_MS
 }: CloudDiagramDocumentChangeObserverProps) {
     const store = useStore();
-    const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>();
+    const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const onChangeRef = useRef(onChange);
 
     useEffect(() => {

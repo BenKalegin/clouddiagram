@@ -31,7 +31,7 @@ import {
     linkingAtom,
     snapGridSizeAtom
 } from "../diagramEditor/diagramEditorModel";
-import produce, {Draft} from "immer";
+import {produce, Draft} from "immer";
 import {snapToGrid} from "../../common/Geometry/snap";
 import {
     LinkPlacement,

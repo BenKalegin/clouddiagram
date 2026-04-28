@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "types": ["vitest/globals"],
     "typeRoots": [
       "node_modules/@types",
       "src/types"
@@ -19,7 +18,7 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,

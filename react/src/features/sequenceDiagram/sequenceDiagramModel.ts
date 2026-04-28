@@ -25,7 +25,7 @@ import {
 } from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {Get, Set} from "../diagramEditor/diagramEditorSlice";
-import produce, {Draft} from 'immer';
+import {produce, Draft} from 'immer';
 import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {defaultColorSchema} from "../../common/colors/colorSchemas";

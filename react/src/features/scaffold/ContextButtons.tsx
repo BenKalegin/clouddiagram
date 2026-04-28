@@ -22,7 +22,7 @@ interface ContextButtonProps {
 export const ContextButton = (props: ContextButtonProps) => {
     const [isHover, setIsHover] = useState(false);
     const scaleX = 1;
-    const groupRef: RefObject<Konva.Group> = React.useRef(null);
+    const groupRef: RefObject<Konva.Group | null> = React.useRef<Konva.Group | null>(null);
 
     const { appLayout } = useContext(AppLayoutContext);
 

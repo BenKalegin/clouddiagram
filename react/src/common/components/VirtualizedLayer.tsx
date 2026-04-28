@@ -106,7 +106,7 @@ export const VirtualizedLayer: React.FC<VirtualizedLayerProps> = ({
 
     // If it's a VirtualizedItem, check if it's visible
     if (child.type === VirtualizedItem) {
-      const getBounds = child.props.getBounds;
+      const getBounds = (child.props as VirtualizedItemProps).getBounds;
 
       if (typeof getBounds === 'function') {
         const bounds = getBounds();

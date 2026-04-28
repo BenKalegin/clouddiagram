@@ -1,61 +1,97 @@
-import {PrimitiveAtom} from "jotai";
-import {atomFamily, atomWithStorage} from "jotai/utils";
+import {atom, PrimitiveAtom} from "jotai";
+import {atomFamily} from "jotai/utils";
 import {PersistenceMode, STORAGE_KEY, getPersistenceMode} from "../persistence/statePersistence";
 
 const buildStorageKey = (key: string): string => `${STORAGE_KEY}_${key}`;
 
-interface SyncStorage<T> {
-    getItem: (key: string, initialValue: T) => T;
-    setItem: (key: string, newValue: T) => void;
-    removeItem: (key: string) => void;
+// Drag interactions fire 60+ writes/sec; serializing and persisting each one
+// chokes the main thread. State stays live in memory — only the storage
+// write is deferred.
+const STORAGE_WRITE_DEBOUNCE_MS = 200;
+
+interface PendingWrite {
+    timer: ReturnType<typeof setTimeout>;
+    latestValue: unknown;
 }
 
-function makeLocalStorageAdapter<T>(): SyncStorage<T> {
-    return {
-        getItem: (key, initialValue) => {
-            if (getPersistenceMode() === PersistenceMode.Host) return initialValue;
-            try {
-                const stored = localStorage.getItem(buildStorageKey(key));
-                if (stored == null) return initialValue;
-                return JSON.parse(stored) as T;
-            } catch (error) {
-                console.error(`Error parsing saved state for ${key}:`, error);
-                return initialValue;
-            }
-        },
-        setItem: (key, newValue) => {
-            if (getPersistenceMode() === PersistenceMode.Host) return;
-            try {
-                localStorage.setItem(buildStorageKey(key), JSON.stringify(newValue));
-            } catch (error) {
-                console.error(`Error saving state for ${key}:`, error);
-            }
-        },
-        removeItem: (key) => {
-            try {
-                localStorage.removeItem(buildStorageKey(key));
-            } catch (error) {
-                console.error(`Error removing state for ${key}:`, error);
-            }
-        }
-    };
+const pendingWrites = new Map<string, PendingWrite>();
+
+function flushWrite(storageKey: string, value: unknown): void {
+    try {
+        localStorage.setItem(storageKey, JSON.stringify(value));
+    } catch (error) {
+        console.error(`Error saving state for ${storageKey}:`, error);
+    }
+}
+
+function flushAllPendingWrites(): void {
+    for (const [storageKey, pending] of pendingWrites) {
+        clearTimeout(pending.timer);
+        flushWrite(storageKey, pending.latestValue);
+    }
+    pendingWrites.clear();
+}
+
+function scheduleWrite(storageKey: string, value: unknown): void {
+    if (getPersistenceMode() === PersistenceMode.Host) return;
+    const existing = pendingWrites.get(storageKey);
+    if (existing) clearTimeout(existing.timer);
+    const timer = setTimeout(() => {
+        const current = pendingWrites.get(storageKey);
+        pendingWrites.delete(storageKey);
+        if (current) flushWrite(storageKey, current.latestValue);
+    }, STORAGE_WRITE_DEBOUNCE_MS);
+    pendingWrites.set(storageKey, {timer, latestValue: value});
+}
+
+function readFromStorage<T>(storageKey: string, fallback: T): T {
+    if (getPersistenceMode() === PersistenceMode.Host) return fallback;
+    try {
+        const stored = localStorage.getItem(storageKey);
+        if (stored == null) return fallback;
+        return JSON.parse(stored) as T;
+    } catch (error) {
+        console.error(`Error parsing saved state for ${storageKey}:`, error);
+        return fallback;
+    }
+}
+
+if (typeof window !== "undefined") {
+    window.addEventListener("beforeunload", flushAllPendingWrites);
+    window.addEventListener("pagehide", flushAllPendingWrites);
+}
+
+if (import.meta.hot) {
+    import.meta.hot.dispose(flushAllPendingWrites);
 }
 
 /**
- * Drop-in replacement for `atom(...)` with `localStoragePersistence` AtomEffect.
- * The persisted value is loaded lazily on first subscription (jotai onMount),
- * and write-through happens on every set.
+ * Persistent atom backed by localStorage. The initial value is loaded eagerly
+ * at atom-creation time (synchronous read), and every subsequent set is
+ * write-through with a per-key debounce.
  *
- * Host-mode (axonize-embedded) skips both reads and writes — the host owns state.
+ * Avoids `atomWithStorage`'s onMount race: when a fresh atom is set and then
+ * mounted, `atomWithStorage` re-reads storage on mount and clobbers the value.
  */
 export function persistentAtom<T>(storageKey: string, defaultValue: T): PrimitiveAtom<T> {
-    return atomWithStorage<T>(storageKey, defaultValue, makeLocalStorageAdapter<T>()) as unknown as PrimitiveAtom<T>;
+    const fullKey = buildStorageKey(storageKey);
+    const initial = readFromStorage(fullKey, defaultValue);
+    const baseAtom = atom<T>(initial);
+    const wrapped = atom(
+        (get) => get(baseAtom),
+        (get, set, update: T | ((prev: T) => T)) => {
+            const prev = get(baseAtom);
+            const next = typeof update === "function" ? (update as (prev: T) => T)(prev) : update;
+            set(baseAtom, next);
+            scheduleWrite(fullKey, next);
+        }
+    );
+    return wrapped as unknown as PrimitiveAtom<T>;
 }
 
 /**
- * Drop-in replacement for `atomFamily(...)` whose members were each given a
- * `localStoragePersistence` AtomEffect. Each family member is persisted under
- * `${storageKeyPrefix}_${paramToKey(param)}`.
+ * Persistent `atomFamily` backed by localStorage. Each family member is
+ * persisted under `${storageKeyPrefix}_${paramToKey(param)}`.
  */
 export function persistentAtomFamily<T, Param>(
     storageKeyPrefix: string,
@@ -63,10 +99,6 @@ export function persistentAtomFamily<T, Param>(
     paramToKey: (param: Param) => string = String
 ) {
     return atomFamily((param: Param) =>
-        atomWithStorage<T>(
-            `${storageKeyPrefix}_${paramToKey(param)}`,
-            initialFn(param),
-            makeLocalStorageAdapter<T>()
-        ) as unknown as PrimitiveAtom<T>
+        persistentAtom<T>(`${storageKeyPrefix}_${paramToKey(param)}`, initialFn(param))
     );
 }
