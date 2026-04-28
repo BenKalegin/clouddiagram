@@ -13,7 +13,8 @@ import {
     LineStyle,
     PictureLayout
 } from "../../package/packageModel";
-import {DefaultValue, selector, selectorFamily} from "recoil";
+import {atom} from "jotai";
+import {atomFamily} from "jotai/utils";
 import {
     ConnectorRender,
     DiagramId,
@@ -480,128 +481,156 @@ export function createLifelineAndConnectTo(get: Get, set: Set, name: string) {
     autoConnectActivations(get, set, linking.sourceElement, { id: targetActivationId, type: ElementType.SequenceActivation}, diagramPos)
 }
 
-export const drawingMessageRenderSelector = selector<MessageRender | undefined>({
-    key: 'drawMessageRender',
-    get: ({get}) => {
-        const maybeLinking = get(linkingAtom)
-        if (!maybeLinking)
-            return undefined;
-        const linking = maybeLinking!
-        const diagramId = get(activeDiagramIdAtom)
-        const y = linking.diagramPos.y;
-        const lifeline1 = get(lifelineSelector({lifelineId: linking.sourceElement, diagramId}))
-        const lifeline1Placement = get(lifelinePlacementSelector({lifelineId: linking.sourceElement, diagramId}))
-        const lifelineY = Math.max(y - lifeline1Placement.headBounds.height, 0)
+export const drawingMessageRenderSelector = atom<MessageRender | undefined>((get) => {
+    const maybeLinking = get(linkingAtom)
+    if (!maybeLinking)
+        return undefined;
+    const linking = maybeLinking!
+    const diagramId = get(activeDiagramIdAtom)
+    const y = linking.diagramPos.y;
+    const lifeline1 = get(lifelineSelector({lifelineId: linking.sourceElement, diagramId}))
+    const lifeline1Placement = get(lifelinePlacementSelector({lifelineId: linking.sourceElement, diagramId}))
+    const lifelineY = Math.max(y - lifeline1Placement.headBounds.height, 0)
 
-        let activation1 = lifeline1.activations
-            .map(a => get(activationSelector({activationId: a, diagramId})))
-            .find(a => a.start <= lifelineY && a.start + a.length >= lifelineY);
-        if (!activation1) {
-            activation1 = {
-                lifelineId: "",
-                placement: {},
-                type: ElementType.SequenceActivation,
-                start: lifelineY,
-                length: 50,
-                id: "dummy"
-            };
-        }
-
-        const activationRender1: ActivationRender = renderActivation(activation1, lifeline1Placement);
-
-        const activation2: ActivationState = {
+    let activation1 = lifeline1.activations
+        .map(a => get(activationSelector({activationId: a, diagramId})))
+        .find(a => a.start <= lifelineY && a.start + a.length >= lifelineY);
+    if (!activation1) {
+        activation1 = {
             lifelineId: "",
+            placement: {},
             type: ElementType.SequenceActivation,
-            id: "linking_target",
-            start: y,
-            length: 20,
-            placement: zeroBounds
+            start: lifelineY,
+            length: 50,
+            id: "dummy"
         };
-        const lifelinePlacement2: LifelinePlacement = {
-            headBounds: {
-                x: linking.diagramPos.x - lifeline1Placement.headBounds.width / 2,
-                y: lifeline1Placement.headBounds.y,
-                width: lifeline1Placement.headBounds.width,
-                height: lifeline1Placement.headBounds.height
-            },
-            lifelineStart: 0,
-            lifelineEnd: lifeline1Placement.lifelineEnd
+    }
+
+    const activationRender1: ActivationRender = renderActivation(activation1, lifeline1Placement);
+
+    const activation2: ActivationState = {
+        lifelineId: "",
+        type: ElementType.SequenceActivation,
+        id: "linking_target",
+        start: y,
+        length: 20,
+        placement: zeroBounds
+    };
+    const lifelinePlacement2: LifelinePlacement = {
+        headBounds: {
+            x: linking.diagramPos.x - lifeline1Placement.headBounds.width / 2,
+            y: lifeline1Placement.headBounds.y,
+            width: lifeline1Placement.headBounds.width,
+            height: lifeline1Placement.headBounds.height
+        },
+        lifelineStart: 0,
+        lifelineEnd: lifeline1Placement.lifelineEnd
+    }
+    const activationRender2: ActivationRender = renderActivation(activation2, lifelinePlacement2);
+    let messageActivationOffset = y - activationRender1.bounds.y;
+
+    return renderMessage(activationRender1, activationRender2, messageActivationOffset, activation1.id === linking.targetElement?.id);
+});
+
+
+export const sequenceDiagramSelector = atomFamily((id: DiagramId) =>
+    atom(
+        (get) => get(elementsAtom(id)) as SequenceDiagramState,
+        (_get, set, newValue: SequenceDiagramState) => {
+            set(elementsAtom(id), newValue);
         }
-        const activationRender2: ActivationRender = renderActivation(activation2, lifelinePlacement2);
-        let messageActivationOffset = y - activationRender1.bounds.y;
+    )
+);
 
-        return renderMessage(activationRender1, activationRender2, messageActivationOffset, activation1.id === linking.targetElement?.id);
-    }
-})
+interface LifelineParam {
+    lifelineId: Id;
+    diagramId: DiagramId;
+}
 
+const lifelineParamEq = (a: LifelineParam, b: LifelineParam) =>
+    a.lifelineId === b.lifelineId && a.diagramId === b.diagramId;
 
-export const sequenceDiagramSelector = selectorFamily<SequenceDiagramState, DiagramId>({
-    key: 'sequenceDiagram',
-    get: (id) => ({get}) => {
-        return get(elementsAtom(id)) as SequenceDiagramState;
-    },
+export const lifelineSelector = atomFamily(
+    (param: LifelineParam) =>
+        atom((get) => {
+            const diagram = get(sequenceDiagramSelector(param.diagramId));
+            return diagram.lifelines[param.lifelineId];
+        }),
+    lifelineParamEq
+);
 
-    set: (id) => ({set}, newValue) => {
-        set(elementsAtom(id), newValue)
-    }
-})
+export const lifelinePlacementSelector = atomFamily(
+    (param: LifelineParam) =>
+        atom(
+            (get) => get(lifelineSelector(param)).placement,
+            (get, set, newValue: LifelinePlacement) => {
+                const diagram = get(sequenceDiagramSelector(param.diagramId));
+                set(sequenceDiagramSelector(param.diagramId), {
+                    ...diagram,
+                    lifelines: {
+                        ...diagram.lifelines,
+                        [param.lifelineId]: {...diagram.lifelines[param.lifelineId], placement: newValue}
+                    }
+                });
+            }
+        ),
+    lifelineParamEq
+);
 
-export const lifelineSelector = selectorFamily<LifelineState, {lifelineId: Id, diagramId: DiagramId}>({
-    key: 'lifeline',
-    get: ({lifelineId, diagramId}) => ({get}) => {
-        const diagram = get(sequenceDiagramSelector(diagramId));
-        return diagram.lifelines[lifelineId];
-    }
-})
+interface ActivationParam {
+    activationId: Id;
+    diagramId: DiagramId;
+}
 
-export const lifelinePlacementSelector = selectorFamily<LifelinePlacement, {lifelineId: Id, diagramId: DiagramId}>({
-    key: 'lifelinePlacement',
-    get: ({lifelineId, diagramId}) => ({get}) => {
-        const lifeline = get(lifelineSelector({lifelineId, diagramId}));
-        return lifeline.placement;
-    },
-    set: ({lifelineId, diagramId}) => ({get, set}, newValue) => {
-        const diagram = get(sequenceDiagramSelector(diagramId))
-        if (!(newValue instanceof DefaultValue)) {
-            set(sequenceDiagramSelector(diagramId), { ...diagram, lifelines: {...diagram.lifelines, [lifelineId] : {...diagram.lifelines[lifelineId], placement: newValue}}});
-        }
-    }
-})
+const activationParamEq = (a: ActivationParam, b: ActivationParam) =>
+    a.activationId === b.activationId && a.diagramId === b.diagramId;
 
-export const activationSelector = selectorFamily<ActivationState, {activationId: Id, diagramId: DiagramId}>({
-    key: 'activation',
-    get: ({activationId, diagramId}) => ({get}) => {
-        const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
-        return diagram.activations[activationId];
-    }
-})
+export const activationSelector = atomFamily(
+    (param: ActivationParam) =>
+        atom((get) => {
+            const diagram = get(elementsAtom(param.diagramId)) as SequenceDiagramState;
+            return diagram.activations[param.activationId];
+        }),
+    activationParamEq
+);
 
-export const activationRenderSelector = selectorFamily<ActivationRender, {activationId: Id, diagramId: DiagramId}>({
-    key: 'activationRender',
-    get: ({activationId, diagramId}) => ({get}) => {
-        const activation = get(activationSelector({activationId, diagramId}));
-        const lifelineBounds = get(lifelinePlacementSelector({lifelineId: activation.lifelineId, diagramId}));
-        return renderActivation(activation!, lifelineBounds)
-    }
-})
+export const activationRenderSelector = atomFamily(
+    (param: ActivationParam) =>
+        atom((get) => {
+            const activation = get(activationSelector(param));
+            const lifelineBounds = get(lifelinePlacementSelector({lifelineId: activation.lifelineId, diagramId: param.diagramId}));
+            return renderActivation(activation!, lifelineBounds);
+        }),
+    activationParamEq
+);
 
-export const messageSelector = selectorFamily<MessageState, {messageId: MessageId, diagramId: DiagramId}>({
-    key: 'message',
-    get: ({messageId, diagramId}) => ({get}) => {
-        const diagram = get(elementsAtom(diagramId)) as SequenceDiagramState;
-        return diagram.messages[messageId];
-    }
-})
+interface MessageParam {
+    messageId: MessageId;
+    diagramId: DiagramId;
+}
 
-export const messageRenderSelector = selectorFamily<MessageRender, {messageId: MessageId, diagramId: DiagramId}>({
-    key: 'messageRender',
-    get: ({messageId, diagramId}) => ({get}) => {
-        const message = get(messageSelector({messageId, diagramId}));
-        const activation1 = get(activationRenderSelector({activationId: message.activation1, diagramId: diagramId}));
-        const activation2 = get(activationRenderSelector({activationId: message.activation2, diagramId: diagramId}));
-        return renderMessage(activation1, activation2, message.sourceActivationOffset, message.activation1 === message.activation2);
-    }
-})
+const messageParamEq = (a: MessageParam, b: MessageParam) =>
+    a.messageId === b.messageId && a.diagramId === b.diagramId;
+
+export const messageSelector = atomFamily(
+    (param: MessageParam) =>
+        atom((get) => {
+            const diagram = get(elementsAtom(param.diagramId)) as SequenceDiagramState;
+            return diagram.messages[param.messageId];
+        }),
+    messageParamEq
+);
+
+export const messageRenderSelector = atomFamily(
+    (param: MessageParam) =>
+        atom((get) => {
+            const message = get(messageSelector(param));
+            const activation1 = get(activationRenderSelector({activationId: message.activation1, diagramId: param.diagramId}));
+            const activation2 = get(activationRenderSelector({activationId: message.activation2, diagramId: param.diagramId}));
+            return renderMessage(activation1, activation2, message.sourceActivationOffset, message.activation1 === message.activation2);
+        }),
+    messageParamEq
+);
 
 export function handleSequenceElementPropertyChanged(get: Get, set: Set, elements: ElementRef[], propertyName: string, value: any) {
     const diagramId = get(activeDiagramIdAtom)

@@ -1,18 +1,13 @@
 import React, { useRef, useEffect, useCallback } from "react";
 import { Stage } from 'react-konva';
 import Konva from "konva";
-import { useRecoilValue } from "recoil";
+import { useAtomValue, useStore, Provider as JotaiProvider } from "jotai";
 import { diagramKindSelector, diagramDisplaySelector } from "../diagramEditor/diagramEditorModel";
-import { ElementType } from "../../package/packageModel";
-import { ClassDiagramEditor } from "../classDiagram/ClassDiagramEditor";
-import { DeploymentDiagramEditor } from "../deploymentDiagram/DeploymentDiagramEditor";
-import { SequenceDiagramEditor } from "../sequenceDiagram/SequenceDiagramEditor";
-import { FlowchartDiagramEditor } from "../flowchartDiagram/FlowchartDiagramEditor";
 import { HtmlDrop } from "./HtmlDrop";
-import { useRecoilBridgeAcrossReactRoots_UNSTABLE } from "recoil";
 import { AppLayoutContext } from "../../editor/editorLayout";
 import { DiagramId } from "../diagramEditor/diagramEditorModel";
 import { elementSelectedAction, updateDiagramDisplayAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
+import {getDiagramEditor} from "../diagramTypes/diagramEditorRegistry";
 
 // Define interfaces for handlers
 export interface StageHandler {
@@ -43,10 +38,11 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
     padding,
     onStageReady
 }) => {
-    const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId));
-    const diagramDisplay = useRecoilValue(diagramDisplaySelector(activeDiagramId));
+    const diagramKind = useAtomValue(diagramKindSelector(activeDiagramId));
+    const DiagramEditor = getDiagramEditor(diagramKind);
+    const diagramDisplay = useAtomValue(diagramDisplaySelector(activeDiagramId));
     const dispatch = useDispatch();
-    const Bridge = useRecoilBridgeAcrossReactRoots_UNSTABLE();
+    const jotaiStore = useStore();
 
     // Create internal refs
     const stageRef = useRef<Konva.Stage>(null);
@@ -271,14 +267,11 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                                         y={position.y}
                                         draggable={false} // Disable built-in dragging as we're using custom panning
                                     >
-                                    <Bridge>
+                                    <JotaiProvider store={jotaiStore}>
                                         <AppLayoutContext.Provider value={value}>
-                                            {diagramKind === ElementType.ClassDiagram && <ClassDiagramEditor diagramId={activeDiagramId} />}
-                                            {diagramKind === ElementType.DeploymentDiagram && <DeploymentDiagramEditor diagramId={activeDiagramId} />}
-                                            {diagramKind === ElementType.FlowchartDiagram && <FlowchartDiagramEditor diagramId={activeDiagramId} />}
-                                            {diagramKind === ElementType.SequenceDiagram && <SequenceDiagramEditor diagramId={activeDiagramId} />}
+                                            <DiagramEditor diagramId={activeDiagramId} />
                                         </AppLayoutContext.Provider>
-                                    </Bridge>
+                                    </JotaiProvider>
                                 </Stage>
                             )}
                         </AppLayoutContext.Consumer>

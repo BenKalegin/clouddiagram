@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import { activeDiagramIdAtom } from '../diagramTabs/diagramTabsModel';
 import { canRedoSelector, canUndoSelector } from './historyModel';
 import { useUndoRedo } from './historySlice';
 
 export const KeyboardShortcuts: React.FC = () => {
   const { undo, redo } = useUndoRedo();
-  const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
-  const canUndo = useRecoilValue(canUndoSelector(activeDiagramId));
-  const canRedo = useRecoilValue(canRedoSelector(activeDiagramId));
+  const activeDiagramId = useAtomValue(activeDiagramIdAtom);
+  const canUndo = useAtomValue(canUndoSelector(activeDiagramId));
+  const canRedo = useAtomValue(canRedoSelector(activeDiagramId));
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

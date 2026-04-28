@@ -1,7 +1,7 @@
 import { Get, Set } from "./diagramEditorSlice";
-import { DiagramId, elementsAtom } from "./diagramEditorModel";
+import { elementsAtom } from "./diagramEditorModel";
 import { addToHistory, createDiagramChangeOperation, createElementChangeOperation, redoOperation, undoOperation } from "./historyModel";
-import { useRecoilTransaction_UNSTABLE } from "recoil";
+import { useTransaction } from "../../common/state/jotaiShim";
 import { activeDiagramIdAtom } from "../diagramTabs/diagramTabsModel";
 import { Diagram } from "../../common/model";
 import { DiagramElement } from "../../package/packageModel";
@@ -24,12 +24,12 @@ export function handleRedo(get: Get, set: Set): void {
 
 // Hook to use undo/redo in components
 export function useUndoRedo() {
-  const undoTransaction = useRecoilTransaction_UNSTABLE(
+  const undoTransaction = useTransaction(
     ({ get, set }) => () => handleUndo(get, set),
     []
   );
 
-  const redoTransaction = useRecoilTransaction_UNSTABLE(
+  const redoTransaction = useTransaction(
     ({ get, set }) => () => handleRedo(get, set),
     []
   );

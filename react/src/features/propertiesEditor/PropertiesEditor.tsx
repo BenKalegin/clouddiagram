@@ -1,7 +1,7 @@
-import {Box, Button, Divider, FormControlLabel, ListItem, Switch, TextField} from "@mui/material";
+import {Box, Button, Divider, FormControlLabel, ListItem, MenuItem, Switch, TextField} from "@mui/material";
 import List from "@mui/material/List";
 import React from "react";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {diagramKindSelector, selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {
     ColorSchema,
@@ -24,14 +24,15 @@ import {
     PropAndKind,
     PropertyType
 } from "./propertiesEditorModel";
+import {getGanttTaskDurationDays} from "../ganttDiagram/ganttDiagramUtils";
 
 
 
 export const PropertiesEditor = () => {
-    const diagramId = useRecoilValue(activeDiagramIdAtom)
-    const diagramKind = useRecoilValue(diagramKindSelector(diagramId))
-    const selectedIds = useRecoilValue(selectedRefsSelector(diagramId))
-    const selectedElements = new Map(useRecoilValue(selectedElementsSelector(diagramId)).map(e => [e.id, e]))
+    const diagramId = useAtomValue(activeDiagramIdAtom)
+    const diagramKind = useAtomValue(diagramKindSelector(diagramId))
+    const selectedIds = useAtomValue(selectedRefsSelector(diagramId))
+    const selectedElements = new Map(useAtomValue(selectedElementsSelector(diagramId)).map(e => [e.id, e]))
 
     const selectedKinds = [...new Set(selectedIds.map(element => element.type))]
     const dispatch = useDispatch()
@@ -51,7 +52,7 @@ export const PropertiesEditor = () => {
 
         const values: any[] = elementsOfAKind.map(element => {
             const obj: any = selectedElements.get(element.id)
-            return obj[prop.name];
+            return getObjectPropertyValue(obj, prop.name);
         })
 
         if (values.every(value => value === values[0])) {
@@ -73,6 +74,18 @@ export const PropertiesEditor = () => {
             /> )
     }
 
+    function NumberPropertyEditor(p: PropAndKind, value: number | undefined, updateProps: (value: any) => void) {
+        return (
+            <TextField
+                label={p.prop.label}
+                variant="outlined"
+                size="small"
+                type="number"
+                value={value ?? ""}
+                onChange={e => updateProps(e.target.value === "" ? undefined : Number(e.target.value))}
+            /> )
+    }
+
     function BooleanPropertyEditor(p: PropAndKind, value: boolean, updateProps: (value: any) => void) {
         return <FormControlLabel control={
             <Switch
@@ -81,6 +94,23 @@ export const PropertiesEditor = () => {
             />
         } label={p.prop.label}
         />;
+    }
+
+    function SelectPropertyEditor(p: PropAndKind, value: string | undefined, updateProps: (value: any) => void) {
+        return (
+            <TextField
+                select
+                label={p.prop.label}
+                variant="outlined"
+                size="small"
+                value={value ?? ""}
+                onChange={e => updateProps(e.target.value)}
+            >
+                {(p.prop.options ?? []).map(option =>
+                    <MenuItem key={option || "none"} value={option}>{option || "Not set"}</MenuItem>
+                )}
+            </TextField>
+        );
     }
 
     const PropertiesSection = properties.map((p, i) => {
@@ -95,7 +125,9 @@ export const PropertiesEditor = () => {
         return (
             <Box display="flex" flexDirection="column" p={2} key={i}>
                 {p.prop.type === PropertyType.String && StringPropertyEditor(p, value as string, updateProps)}
+                {p.prop.type === PropertyType.Number && NumberPropertyEditor(p, value as number | undefined, updateProps)}
                 {p.prop.type === PropertyType.Boolean && BooleanPropertyEditor(p, value as boolean, updateProps)}
+                {p.prop.type === PropertyType.Select && SelectPropertyEditor(p, value as string | undefined, updateProps)}
                 {p.prop.type === PropertyType.ColorSchema && <ColorSchemaPropertyEditor propAndKind={p} value = {value as ColorSchema} updateProps={updateProps}/>}
                 {p.prop.type === PropertyType.ShapeLayout && <NodeLayoutPropertyEditor propAndKind={p} value = {value as CustomShape} updateProps={updateProps}/>}
                 {p.prop.type === PropertyType.LineStyle && <LineStylePropertyEditor propAndKind={p} value = {value as LineStyle} updateProps={updateProps}/>}
@@ -126,4 +158,15 @@ export const PropertiesEditor = () => {
             {actionsSection}
         </>
     );
+}
+
+function getObjectPropertyValue(obj: any, propertyName: string): any {
+    if (!obj) return undefined;
+    if (propertyName === "ganttTask.durationDays") {
+        return obj.ganttTask ? getGanttTaskDurationDays(obj.ganttTask) : undefined;
+    }
+
+    return propertyName
+        .split(".")
+        .reduce((value, key) => value?.[key], obj);
 }

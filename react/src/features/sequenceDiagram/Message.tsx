@@ -1,5 +1,5 @@
 import {Arrow, Group, Text} from "react-konva";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {ElementRef, ElementType, Id} from "../../package/packageModel";
 import {messageRenderSelector, messageSelector} from "./sequenceDiagramModel";
 import {DiagramId, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
@@ -13,8 +13,8 @@ import Context = Konva.Context;
 import ShapeConfig = Konva.ShapeConfig;
 
 export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: DiagramId  }) => {
-    const render = useRecoilValue(messageRenderSelector({messageId, diagramId}))
-    const message = useRecoilValue(messageSelector({messageId, diagramId}))
+    const render = useAtomValue(messageRenderSelector({messageId, diagramId}))
+    const message = useAtomValue(messageSelector({messageId, diagramId}))
     const textWidth = 40;
     const textHeight = 20;
     const textShiftUp = textHeight + 2;
@@ -24,7 +24,7 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
         y: render.bounds.y - textShiftUp,
         width: textWidth, height: textHeight}
 
-    const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
+    const selectedElements = useAtomValue(selectedRefsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(messageId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === messageId;
     const dispatch = useDispatch()

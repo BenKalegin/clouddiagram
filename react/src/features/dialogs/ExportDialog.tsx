@@ -9,7 +9,8 @@ import {
     ListItemText,
 } from "@mui/material";
 import React from "react";
-import {useRecoilCallback, useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
+import {useStoreCallback} from "../../common/state/jotaiShim";
 import {elementsAtom, exportingAtom, ExportPhase} from "../diagramEditor/diagramEditorModel";
 import {useState, useEffect} from "react";
 import {exportDiagramTabAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
@@ -21,10 +22,10 @@ import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {Diagram} from "../../common/model";
 
 export const ExportDialog = ({diagramKind, getStage}: {diagramKind: ElementType, getStage: () => Konva.Stage | null}) => {
-    const exporting = useRecoilValue(exportingAtom)
+    const exporting = useAtomValue(exportingAtom)
     const dispatch = useDispatch();
-    const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
-    const diagram = useRecoilValue(elementsAtom(activeDiagramId)) as Diagram;
+    const activeDiagramId = useAtomValue(activeDiagramIdAtom);
+    const diagram = useAtomValue(elementsAtom(activeDiagramId)) as Diagram;
     const [exportedContent, setExportedContent] = useState("");
 
     function toggleHideDialog(item: ExportImportFormat | undefined) {
@@ -32,15 +33,14 @@ export const ExportDialog = ({diagramKind, getStage}: {diagramKind: ElementType,
     }
 
     const stage = getStage();
-    const exportSelectedDiagram = useRecoilCallback(({snapshot}) =>
+    const exportSelectedDiagram = useStoreCallback(({get}) =>
         async (format: ExportImportFormat, diagram: Diagram, stage: Konva.Stage | null) =>
             exportDiagramAs(
                 diagram,
                 format,
                 stage,
                 (id: Id): DiagramElement | undefined => {
-                    const loadable = snapshot.getLoadable(elementsAtom(id));
-                    return loadable.state === "hasValue" ? loadable.contents as DiagramElement : undefined;
+                    return get(elementsAtom(id)) as DiagramElement | undefined;
                 }
             ),
         []

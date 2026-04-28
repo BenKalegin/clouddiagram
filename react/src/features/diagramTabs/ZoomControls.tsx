@@ -3,7 +3,7 @@ import { Stack, Slider, IconButton, Typography } from "@mui/material";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import FitScreenIcon from '@mui/icons-material/FitScreen';
-import { useRecoilValue } from "recoil";
+import { useAtomValue } from "jotai";
 import { activeDiagramIdAtom } from "./diagramTabsModel";
 import { diagramDisplaySelector } from "../diagramEditor/diagramEditorModel";
 import { StageHandler } from "./DiagramStage";
@@ -55,8 +55,8 @@ export const ZoomControls: React.FC<ZoomControlsProps> = ({
 };
 
 export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT: number) => {
-    const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
-    const diagramDisplay = useRecoilValue(diagramDisplaySelector(activeDiagramId));
+    const activeDiagramId = useAtomValue(activeDiagramIdAtom);
+    const diagramDisplay = useAtomValue(diagramDisplaySelector(activeDiagramId));
 
     // Use diagram's display property instead of React state
     const scale = diagramDisplay.scale;

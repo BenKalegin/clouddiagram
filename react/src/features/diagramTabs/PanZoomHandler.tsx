@@ -1,5 +1,5 @@
 import React, {useEffect} from "react";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {activeDiagramIdAtom} from "./diagramTabsModel";
 import {useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {StageHandler, ScrollHandler} from "./DiagramStage";
@@ -19,7 +19,7 @@ export const usePanZoomHandlers = ({
     position,
     padding
 }: PanZoomHandlerProps) => {
-    const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
+    const activeDiagramId = useAtomValue(activeDiagramIdAtom);
     const dispatch = useDispatch();
     // Refs for right-click panning (using refs instead of state for immediate updates)
     const isRightMouseDownRef = React.useRef(false);

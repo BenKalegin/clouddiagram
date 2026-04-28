@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useAtom, useAtomValue } from "jotai";
 import {
     diagramDisplaySelector,
 } from "../diagramEditor/diagramEditorModel";
@@ -11,8 +11,8 @@ import { DiagramStage, StageHandler, ScrollHandler } from "./DiagramStage";
 import { ZoomControls } from "./ZoomControls";
 
 export const DiagramContainer = () => {
-    const [activeDiagramId] = useRecoilState(activeDiagramIdAtom);
-    const diagramDisplay = useRecoilValue(diagramDisplaySelector(activeDiagramId!));
+    const [activeDiagramId] = useAtom(activeDiagramIdAtom);
+    const diagramDisplay = useAtomValue(diagramDisplaySelector(activeDiagramId!));
 
     const [stageHandler, setStageHandler] = useState<StageHandler | null>(null);
     const [scrollHandler, setScrollHandler] = useState<ScrollHandler | null>(null);

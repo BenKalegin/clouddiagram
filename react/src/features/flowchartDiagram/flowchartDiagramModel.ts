@@ -1,13 +1,15 @@
-import { selectorFamily } from "recoil";
-import { DiagramId, elementsAtom } from "../diagramEditor/diagramEditorModel";
-import { StructureDiagramState } from "../structureDiagram/structureDiagramState";
+import {atom} from "jotai";
+import {atomFamily} from "jotai/utils";
+import {DiagramId, elementsAtom} from "../diagramEditor/diagramEditorModel";
+import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
 
 export interface FlowchartDiagramState extends StructureDiagramState {}
 
-export const flowchartDiagramSelector = selectorFamily<FlowchartDiagramState, DiagramId>({
-    key: "flowchartDiagram",
-    get: (id) => ({ get }) => get(elementsAtom(id)) as FlowchartDiagramState,
-    set: (id) => ({ set }, newValue) => {
-        set(elementsAtom(id), newValue);
-    }
-});
+export const flowchartDiagramSelector = atomFamily((id: DiagramId) =>
+    atom(
+        (get) => get(elementsAtom(id)) as FlowchartDiagramState,
+        (_get, set, newValue: FlowchartDiagramState) => {
+            set(elementsAtom(id), newValue);
+        }
+    )
+);

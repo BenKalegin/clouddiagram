@@ -1,5 +1,5 @@
 import {Icon, Menu, styled, Tab} from "@mui/material";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {DiagramId, diagramTitleSelector, ExportPhase, ImportPhase} from "../diagramEditor/diagramEditorModel";
 import React, {useState} from "react";
 import {
@@ -36,7 +36,7 @@ const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
          ...props
      }) => {
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-        const activeDiagramId = useRecoilValue(activeDiagramIdAtom)
+        const activeDiagramId = useAtomValue(activeDiagramIdAtom)
         const isIconVisible = props.diagram_id === activeDiagramId
         const dispatch = useDispatch()
 
@@ -106,7 +106,7 @@ const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
         );
     };
 export const PlainTab = styled((props: StyledTabProps) => {
-    const label = useRecoilValue(diagramTitleSelector(props.diagram_id)) ?? "New";
+    const label = useAtomValue(diagramTitleSelector(props.diagram_id)) ?? "New";
 
     return <DiagramTab
         label={label}

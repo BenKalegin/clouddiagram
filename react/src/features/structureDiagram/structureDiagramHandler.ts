@@ -19,6 +19,7 @@ import {
     ElementType,
     Id,
     LinkState,
+    NodeState,
     TipStyle,
     PortAlignment,
     PortState,
@@ -42,11 +43,15 @@ import {
     renderLink,
     resizeElementImpl
 } from "./structureDiagramModel";
-import {selector, selectorFamily} from "recoil";
+import {atom} from "jotai";
+import {atomFamily} from "jotai/utils";
+
+const PORT_SNAP_DISTANCE = 22;
 
 export class StructureDiagramHandler implements DiagramHandler {
     // Store the original diagram state for undo operations
     private originalDiagramState: any = null;
+    private originalElementState: DiagramElement | null = null;
     private startElement: ElementRef | null = null;
     private startNodePosition: Coordinate | null = null;
 
@@ -58,6 +63,7 @@ export class StructureDiagramHandler implements DiagramHandler {
             if (phase === ElementMoveResizePhase.start) {
                 const diagramId = get(activeDiagramIdAtom);
                 this.originalDiagramState = get(elementsAtom(diagramId));
+                this.originalElementState = get(elementsAtom(element.id));
                 this.startElement = element;
                 this.startNodePosition = startNodePos;
 
@@ -76,21 +82,21 @@ export class StructureDiagramHandler implements DiagramHandler {
                 // Then create an undo operation if we have the original state
                 if (this.originalDiagramState && this.startElement && this.startElement.id === element.id) {
                     const diagramId = get(activeDiagramIdAtom);
-                    const newDiagramState = get(elementsAtom(diagramId)) as Diagram;
-
-                    // Create and add the undo operation
-                    const historyOperation = createDiagramChangeOperation(
+                    addDiagramAndElementHistory(
+                        get,
+                        set,
                         diagramId,
+                        element.id,
                         this.originalDiagramState,
-                        newDiagramState,
-                        "Move Element",
-                        set
+                        get(elementsAtom(diagramId)) as Diagram,
+                        this.originalElementState,
+                        get(elementsAtom(element.id)),
+                        "Move Element"
                     );
-
-                    addToHistory(get, set, historyOperation);
 
                     // Reset the stored state
                     this.originalDiagramState = null;
+                    this.originalElementState = null;
                     this.startElement = null;
                     this.startNodePosition = null;
                 }
@@ -104,6 +110,7 @@ export class StructureDiagramHandler implements DiagramHandler {
             if (phase === ElementMoveResizePhase.start) {
                 const diagramId = get(activeDiagramIdAtom);
                 this.originalDiagramState = get(elementsAtom(diagramId));
+                this.originalElementState = get(elementsAtom(element.id));
                 this.startElement = element;
 
                 // Just update the bounds without creating an undo operation
@@ -121,21 +128,21 @@ export class StructureDiagramHandler implements DiagramHandler {
                 // Then create an undo operation if we have the original state
                 if (this.originalDiagramState && this.startElement && this.startElement.id === element.id) {
                     const diagramId = get(activeDiagramIdAtom);
-                    const newDiagramState = get(elementsAtom(diagramId)) as Diagram;
-
-                    // Create and add the undo operation
-                    const historyOperation = createDiagramChangeOperation(
+                    addDiagramAndElementHistory(
+                        get,
+                        set,
                         diagramId,
+                        element.id,
                         this.originalDiagramState,
-                        newDiagramState,
-                        "Resize Element",
-                        set
+                        get(elementsAtom(diagramId)) as Diagram,
+                        this.originalElementState,
+                        get(elementsAtom(element.id)),
+                        "Resize Element"
                     );
-
-                    addToHistory(get, set, historyOperation);
 
                     // Reset the stored state
                     this.originalDiagramState = null;
+                    this.originalElementState = null;
                     this.startElement = null;
                     this.startNodePosition = null;
                 }
@@ -162,6 +169,10 @@ export class StructureDiagramHandler implements DiagramHandler {
         }
         const [targetNodeId, targetNodeBounds] = findNodeAtPos(get, diagramPos, diagramId, 3);
         if (targetNodeId && targetNodeBounds) {
+            const [closestPortId, closestPortBounds] = findClosestNodePort(get, diagramPos, diagramId, targetNodeId, PORT_SNAP_DISTANCE);
+            if (closestPortId && closestPortBounds) {
+                return [snapToBounds(diagramPos, closestPortBounds), {id: closestPortId, type: ElementType.ClassPort}]
+            }
             return [snapToBounds(diagramPos, targetNodeBounds), {id: targetNodeId, type: ElementType.ClassNode}]
         }
         return undefined;
@@ -188,6 +199,38 @@ export class StructureDiagramHandler implements DiagramHandler {
         }
     }
 
+}
+
+function addDiagramAndElementHistory(
+    get: Get,
+    set: Set,
+    diagramId: DiagramId,
+    elementId: Id,
+    oldDiagram: Diagram,
+    newDiagram: Diagram,
+    oldElement: DiagramElement | null,
+    newElement: DiagramElement,
+    description: string
+): void {
+    if (!oldElement || oldElement === newElement) {
+        addToHistory(get, set, createDiagramChangeOperation(diagramId, oldDiagram, newDiagram, description, set));
+        return;
+    }
+
+    addToHistory(get, set, {
+        diagramId,
+        description,
+        undo: (_get, setUndo) => {
+            const setter = setUndo ?? set;
+            setter(elementsAtom(elementId), oldElement);
+            setter(elementsAtom(diagramId), oldDiagram);
+        },
+        redo: (_get, setRedo) => {
+            const setter = setRedo ?? set;
+            setter(elementsAtom(elementId), newElement);
+            setter(elementsAtom(diagramId), newDiagram);
+        }
+    });
 }
 
 function updateActiveDiagramBounds(get: Get, set: Set): void {
@@ -238,22 +281,29 @@ const renderPort = (nodePlacement: Bounds, port: PortState, portPlacement: PortP
     }
 }
 
-export const portRenderSelector = selectorFamily<PortRender, { portId: Id, nodeId: Id, diagramId: Id }>({
-    key: 'portRender',
-    get: ({portId, nodeId, diagramId}) => ({get}) => {
-        const nodePlacement = get(nodePlacementSelector({nodeId, diagramId}));
-        const port = get(portSelector(portId));
-        const portPlacement = get(portPlacementSelector({portId, diagramId}));
-        if (!nodePlacement) {
-            throw new Error(`Node placement is undefined for node ${nodeId}`);
-        } else if (!port) {
-            throw new Error(`Port is undefined for port ${portId}`);
-        } else if (!portPlacement) {
-            throw new Error(`Port placement is undefined for port ${portId} on node ${nodeId}`);
-        }
-        return renderPort(nodePlacement.bounds, port, portPlacement);
-    }
-})
+interface PortRenderParam {
+    portId: Id;
+    nodeId: Id;
+    diagramId: Id;
+}
+
+export const portRenderSelector = atomFamily(
+    (param: PortRenderParam) =>
+        atom((get) => {
+            const nodePlacement = get(nodePlacementSelector({nodeId: param.nodeId, diagramId: param.diagramId}));
+            const port = get(portSelector(param.portId));
+            const portPlacement = get(portPlacementSelector({portId: param.portId, diagramId: param.diagramId}));
+            if (!nodePlacement) {
+                throw new Error(`Node placement is undefined for node ${param.nodeId}`);
+            } else if (!port) {
+                throw new Error(`Port is undefined for port ${param.portId}`);
+            } else if (!portPlacement) {
+                throw new Error(`Port placement is undefined for port ${param.portId} on node ${param.nodeId}`);
+            }
+            return renderPort(nodePlacement.bounds, port, portPlacement);
+        }),
+    (a, b) => a.portId === b.portId && a.nodeId === b.nodeId && a.diagramId === b.diagramId
+);
 
 export function findNodeAtPos(get: Get, pos: Coordinate, diagramId: string, tolerance: number): [Id?, Bounds?] {
     const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
@@ -268,40 +318,84 @@ export function findNodeAtPos(get: Get, pos: Coordinate, diagramId: string, tole
     return [undefined, undefined];
 }
 
-export const linkRenderSelector = selectorFamily<LinkRender, { linkId: LinkId, diagramId: DiagramId }>({
-    key: 'linkRender',
-    get: ({linkId, diagramId}) => ({get}) => {
-        const link = get(elementsAtom(linkId)) as LinkState;
-        const port1 = get(portSelector(link.port1));
-        const port2 = get(portSelector(link.port2));
-        const sourceRender = get(portRenderSelector({portId: link.port1, nodeId: port1.nodeId, diagramId}));
-        const targetRender = get(portRenderSelector({portId: link.port2, nodeId: port2.nodeId, diagramId}));
-        const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId}));
-        const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId}));
-        return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement, link.routeStyle, link.tipStyle1, link.tipStyle2);
+export function findClosestNodePort(
+    get: Get,
+    pos: Coordinate,
+    diagramId: string,
+    nodeId: string,
+    maxDistance: number
+): [Id?, Bounds?] {
+    const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    const node = get(elementsAtom(nodeId)) as NodeState;
+    const nodeBounds = diagram.nodes[nodeId]?.bounds;
+    if (!node || !nodeBounds) {
+        return [undefined, undefined];
     }
-})
 
-export const drawingLinkRenderSelector = selector<LinkRender>({
-    key: 'drawLinkRender',
-    get: ({get}) => {
-        const linking = get(linkingAtom)!
+    let bestPortId: Id | undefined;
+    let bestPortBounds: Bounds | undefined;
+    let bestDistance = maxDistance;
 
-        const port1: PortState = {
-            nodeId: "",
-            type: ElementType.ClassPort,
-            id: "DrawingLinkSourcePort",
-            depthRatio: 50,
-            latitude: 0,
-            longitude: 0,
-            links: []
+    for (const portId of node.ports) {
+        const port = get(elementsAtom(portId)) as PortState;
+        const placement = diagram.ports[portId];
+        if (!port || !placement) {
+            continue;
         }
 
+        const bounds = renderPort(nodeBounds, port, placement).bounds;
+        const centerX = bounds.x + bounds.width / 2;
+        const centerY = bounds.y + bounds.height / 2;
+        const distance = Math.hypot(centerX - pos.x, centerY - pos.y);
+
+        if (distance <= bestDistance) {
+            bestDistance = distance;
+            bestPortId = portId;
+            bestPortBounds = bounds;
+        }
+    }
+
+    return [bestPortId, bestPortBounds];
+}
+
+interface LinkRenderParam {
+    linkId: LinkId;
+    diagramId: DiagramId;
+}
+
+export const linkRenderSelector = atomFamily(
+    (param: LinkRenderParam) =>
+        atom((get) => {
+            const link = get(elementsAtom(param.linkId)) as LinkState;
+            const port1 = get(portSelector(link.port1));
+            const port2 = get(portSelector(link.port2));
+            const sourceRender = get(portRenderSelector({portId: link.port1, nodeId: port1.nodeId, diagramId: param.diagramId}));
+            const targetRender = get(portRenderSelector({portId: link.port2, nodeId: port2.nodeId, diagramId: param.diagramId}));
+            const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId: param.diagramId}));
+            const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId: param.diagramId}));
+            return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement, link.routeStyle, link.tipStyle1, link.tipStyle2);
+        }),
+    (a, b) => a.linkId === b.linkId && a.diagramId === b.diagramId
+);
+
+const createTempPort = (id: string): PortState => ({
+    nodeId: "",
+    type: ElementType.ClassPort,
+    id,
+    depthRatio: 50,
+    latitude: 0,
+    longitude: 0,
+    links: []
+});
+
+export const drawingLinkRenderSelector = atom<LinkRender>((get) => {
+        const linking = get(linkingAtom)!
+
+        const port1 = createTempPort("DrawingLinkSourcePort");
         const port1Placement: PortPlacement = {
             alignment: PortAlignment.Right,
             edgePosRatio: 50,
         }
-
 
         const diagramId = get(activeDiagramIdAtom);
         const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
@@ -309,16 +403,7 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
 
         const port1Render = renderPort(sourcePlacement.bounds, port1, port1Placement);
 
-        const port2: PortState = {
-            nodeId: "",
-            type: ElementType.ClassPort,
-            id: "DrawingLinkTarget",
-            depthRatio: 50,
-            latitude: 0,
-            longitude: 0,
-            links: []
-        }
-
+        const port2 = createTempPort("DrawingLinkTarget");
         const port2Placement: PortPlacement = {
             alignment: PortAlignment.Left,
             edgePosRatio: 50,
@@ -350,5 +435,4 @@ export const drawingLinkRenderSelector = selector<LinkRender>({
         };
 
         return linkRender;
-    }
-})
+});

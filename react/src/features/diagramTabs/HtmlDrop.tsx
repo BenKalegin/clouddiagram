@@ -27,7 +27,7 @@ import {
 import {dropFromPaletteAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ElementType, FlowchartNodeKind} from "../../package/packageModel";
 import {PredefinedSvg} from "../graphics/graphicsReader";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {diagramDisplaySelector} from "../diagramEditor/diagramEditorModel";
 import {activeDiagramIdAtom} from "./diagramTabsModel";
 
@@ -113,8 +113,8 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
 export function HtmlDrop(props: { children: ReactNode }) {
 
     const dispatch = useDispatch();
-    const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
-    const diagramDisplay = useRecoilValue(diagramDisplaySelector(activeDiagramId!));
+    const activeDiagramId = useAtomValue(activeDiagramIdAtom);
+    const diagramDisplay = useAtomValue(diagramDisplaySelector(activeDiagramId!));
 
     return (
         <div

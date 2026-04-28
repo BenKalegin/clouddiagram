@@ -4,7 +4,7 @@ import React, {FC, useContext} from "react";
 import {Scaffold} from "../scaffold/Scaffold";
 import {Activation} from "./Activation";
 import {DrawingMessage} from "./DrawingMessage";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {DiagramId, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType} from "../../package/packageModel";
 import {useCustomDispatch} from "../diagramEditor/commonHandlers";
@@ -19,12 +19,12 @@ export interface LifelineProps {
 
 
 export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
-    const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
+    const selectedElements = useAtomValue(selectedRefsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(lifelineId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === lifelineId;
-    const lifeline = useRecoilValue(lifelineSelector({lifelineId, diagramId}))
+    const lifeline = useAtomValue(lifelineSelector({lifelineId, diagramId}))
     const placement = lifeline.placement
-    const linking = useRecoilValue(linkingAtom)
+    const linking = useAtomValue(linkingAtom)
     const element = { id: lifelineId, type: ElementType.SequenceLifeLine };
 
     const eventHandlers = useCustomDispatch({

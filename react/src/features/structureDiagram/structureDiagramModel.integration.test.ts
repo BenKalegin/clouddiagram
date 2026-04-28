@@ -18,27 +18,10 @@ jest.mock("react-konva-to-svg", () => ({
   exportStageSVG: jest.fn(),
 }));
 
-// Mock the recoil state
-jest.mock('recoil', () => {
-  const originalModule = jest.requireActual('recoil');
-  const mockState = new Map();
-
-  return {
-    ...originalModule,
-    useRecoilState: jest.fn((atom) => {
-      const getValue = () => mockState.get(atom) || atom.default;
-      const setValue = (newValue: any) => mockState.set(atom, newValue);
-      return [getValue(), setValue];
-    }),
-    useRecoilValue: jest.fn((atom) => mockState.get(atom) || atom.default),
-    useSetRecoilState: jest.fn((atom) => (newValue: any) => mockState.set(atom, newValue)),
-  };
-});
-
 describe('Structure Diagram Integration Tests', () => {
   // Mock get and set functions for testing
   const mockState = new Map();
-  const get = (atom: any) => mockState.get(atom) || atom.default;
+  const get = (atom: any) => mockState.get(atom);
   const set = (atom: any, value: any) => mockState.set(atom, value);
 
   const diagramId = 'test-diagram-id';

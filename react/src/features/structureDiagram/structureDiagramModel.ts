@@ -9,6 +9,7 @@ import {
     DiagramElement,
     ElementRef,
     ElementType,
+    GanttTaskState,
     FlowchartNodeKind,
     Id,
     LinkState,
@@ -44,15 +45,38 @@ import {
 import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {Command} from "../propertiesEditor/propertiesEditorModel";
-import {selectorFamily} from "recoil";
+import {atom} from "jotai";
+import {atomFamily} from "jotai/utils";
 import {generatePath} from "../../common/Geometry/PathGenerator";
 import {defaultColorSchema} from "../../common/colors/colorSchemas";
 import {withElementHistory, withHistory} from "../diagramEditor/historySlice";
+import {
+    addGanttDays,
+    boundsForGanttTask,
+    createGanttTaskNode,
+    formatGanttDate,
+    ganttTaskFromMovedBounds,
+    ganttTaskFromResizedBounds,
+    ganttLayout,
+    getGanttChartStart,
+    getGanttTaskDurationDays,
+    normalizeGanttStatus,
+    parseGanttDateString,
+    snappedBoundsForGanttTask,
+    updateGanttNodeTask
+} from "../ganttDiagram/ganttDiagramUtils";
+import {GanttDiagramState} from "../ganttDiagram/ganttDiagramModel";
+import {addToHistory} from "../diagramEditor/historyModel";
 
 // Original function for element movement
 export const moveElementImpl = (get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate, snap: boolean = true) => {
     const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    const node = element.type === ElementType.ClassNode ? get(elementsAtom(element.id)) as NodeState : undefined;
+    const chartStart = originalDiagram.type === ElementType.GanttDiagram
+        ? getGanttChartStart(originalDiagram as GanttDiagramState)
+        : undefined;
+    let updatedGanttTask: GanttTaskState | undefined;
 
     function updateElementPos(bounds: Draft<Bounds>) {
         const rawPos = {
@@ -68,6 +92,13 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
         switch (element.type) {
             case ElementType.ClassNode:
                 updateElementPos(diagram.nodes[element.id].bounds);
+                if (node?.ganttTask && chartStart) {
+                    const bounds = diagram.nodes[element.id].bounds;
+                    updatedGanttTask = ganttTaskFromMovedBounds(node.ganttTask, bounds, chartStart);
+                    const snappedBounds = snappedBoundsForGanttTask(updatedGanttTask, bounds, chartStart);
+                    bounds.x = snappedBounds.x;
+                    bounds.width = snappedBounds.width;
+                }
                 break;
             case ElementType.Note:
                 updateElementPos(diagram.notes[element.id].bounds);
@@ -75,6 +106,9 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
         }
     })
     set(elementsAtom(diagramId), update)
+    if (node && updatedGanttTask) {
+        set(elementsAtom(element.id), updateGanttNodeTask(node, updatedGanttTask));
+    }
 }
 
 // Export the wrapped function with history tracking
@@ -84,6 +118,11 @@ export const moveElement = withHistory(moveElementImpl, "Move Element");
 export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, suggestedBounds: Bounds) => {
     const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    const node = element.type === ElementType.ClassNode ? get(elementsAtom(element.id)) as NodeState : undefined;
+    const chartStart = originalDiagram.type === ElementType.GanttDiagram
+        ? getGanttChartStart(originalDiagram as GanttDiagramState)
+        : undefined;
+    let updatedGanttTask: GanttTaskState | undefined;
 
     const update = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
         switch (element.type) {
@@ -94,6 +133,12 @@ export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, sugge
                 bounds.y = suggestedBounds.y;
                 bounds.width = Math.max(10, suggestedBounds.width);
                 bounds.height = Math.max(10, suggestedBounds.height);
+                if (element.type === ElementType.ClassNode && node?.ganttTask && chartStart) {
+                    updatedGanttTask = ganttTaskFromResizedBounds(node.ganttTask, bounds, chartStart);
+                    const snappedBounds = snappedBoundsForGanttTask(updatedGanttTask, bounds, chartStart);
+                    bounds.x = snappedBounds.x;
+                    bounds.width = snappedBounds.width;
+                }
                 break;
             case ElementType.Note:
                 const noteBounds = diagram.notes[element.id].bounds
@@ -105,34 +150,50 @@ export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, sugge
         }
     })
     set(elementsAtom(diagramId), update)
+    if (node && updatedGanttTask) {
+        set(elementsAtom(element.id), updateGanttNodeTask(node, updatedGanttTask));
+    }
 }
 
 // Export the wrapped function with history tracking
 export const resizeElement = withHistory(resizeElementImpl, "Resize Element");
 
-export const structureDiagramSelector = selectorFamily<StructureDiagramState, DiagramId>({
-    key: 'structureDiagram',
-    get: (id) => ({get}) => {
-        return get(elementsAtom(id)) as StructureDiagramState;
-    },
-    set: (id) => ({set}, newValue) => {
-        set(elementsAtom(id), newValue);
-    }
-})
-export const nodePlacementSelector = selectorFamily<NodePlacement, { nodeId: NodeId, diagramId: DiagramId }>({
-    key: 'nodePlacement',
-    get: ({nodeId, diagramId}) => ({get}) => {
-        const diagram = get(structureDiagramSelector(diagramId));
-        return diagram.nodes[nodeId];
-    }
-})
-export const portPlacementSelector = selectorFamily<PortPlacement, { portId: Id, diagramId: Id }>({
-    key: 'portPlacement',
-    get: ({portId, diagramId}) => ({get}) => {
-        const diagram = get(structureDiagramSelector(diagramId));
-        return diagram.ports[portId];
-    }
-})
+export const structureDiagramSelector = atomFamily((id: DiagramId) =>
+    atom(
+        (get) => get(elementsAtom(id)) as StructureDiagramState,
+        (_get, set, newValue: StructureDiagramState) => {
+            set(elementsAtom(id), newValue);
+        }
+    )
+);
+
+interface NodePlacementParam {
+    nodeId: NodeId;
+    diagramId: DiagramId;
+}
+
+export const nodePlacementSelector = atomFamily(
+    (param: NodePlacementParam) =>
+        atom((get) => {
+            const diagram = get(structureDiagramSelector(param.diagramId));
+            return diagram.nodes[param.nodeId];
+        }),
+    (a, b) => a.nodeId === b.nodeId && a.diagramId === b.diagramId
+);
+
+interface PortPlacementParam {
+    portId: Id;
+    diagramId: Id;
+}
+
+export const portPlacementSelector = atomFamily(
+    (param: PortPlacementParam) =>
+        atom((get) => {
+            const diagram = get(structureDiagramSelector(param.diagramId));
+            return diagram.ports[param.portId];
+        }),
+    (a, b) => a.portId === b.portId && a.diagramId === b.diagramId
+);
 
 // Original function wrapped with history tracking
 const autoConnectNodesImpl = (get: Get, set: Set, sourceId: Id, target: ElementRef) => {
@@ -231,7 +292,8 @@ const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: st
         const defaultWidth = 100;
         const defaultHeight = 80;
         const diagramId = get(activeDiagramIdAtom);
-        const diagramType = get(elementsAtom(diagramId)).type;
+        const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+        const diagramType = diagram.type;
         const flowchartKind = elementType.flowchartKind ?? (diagramType === ElementType.FlowchartDiagram ? FlowchartNodeKind.Process : undefined);
         const customShape: CustomShape | undefined = elementType.subType ?
             {
@@ -239,19 +301,31 @@ const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: st
                 pictureId: elementType.subType,
             }
             : undefined;
+        const nodeId = generateId();
+        const ganttTask = diagramType === ElementType.GanttDiagram
+            ? createDefaultGanttTask(name, nodeId, droppedAt, diagram as GanttDiagramState)
+            : undefined;
 
-        const node: NodeState = {
-            type: elementType.type,
-            id: generateId(),
-            text: name,
-            ports: [],
-            colorSchema: defaultColorSchema,
-            customShape: customShape,
-            flowchartKind,
-        };
+        const node: NodeState = ganttTask
+            ? createGanttTaskNode({
+                type: ElementType.ClassNode,
+                id: nodeId,
+                ports: [],
+                customShape,
+                flowchartKind,
+            }, ganttTask)
+            : {
+                type: elementType.type,
+                id: nodeId,
+                text: name,
+                ports: [],
+                colorSchema: defaultColorSchema,
+                customShape: customShape,
+                flowchartKind,
+            };
 
         const placement: NodePlacement = {
-            bounds: {
+            bounds: ganttTask ? boundsForGanttTask(ganttTask, getGanttChartStart(diagram as GanttDiagramState), droppedAt.y) : {
                 x: droppedAt.x - defaultWidth / 2,
                 y: droppedAt.y,
                 width: defaultWidth,
@@ -260,13 +334,27 @@ const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: st
         }
 
         set(elementsAtom(node.id), node)
-        const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
         const updatedDiagram = {...diagram, nodes: {...diagram.nodes, [node.id]: placement}};
         set(elementsAtom(diagramId), updatedDiagram)
         return node
     }
 
     throw new Error("Unknown element type: " + elementType);
+}
+
+function createDefaultGanttTask(name: string, taskId: string, droppedAt: Coordinate, diagram: GanttDiagramState): GanttTaskState {
+    const chartStart = getGanttChartStart(diagram);
+    const startOffset = Math.max(Math.round((droppedAt.x - ganttLayout.leftOffset) / ganttLayout.dayWidth), 0);
+    const start = addGanttDays(chartStart, startOffset);
+    const end = addGanttDays(start, 3);
+    return {
+        taskId,
+        label: name,
+        section: "Tasks",
+        start: formatGanttDate(start),
+        end: formatGanttDate(end),
+        status: ""
+    };
 }
 
 // Export the wrapped function
@@ -403,6 +491,107 @@ const handleNodePropertyChangedImpl = (get: Get, set: Set, element: ElementRef, 
     set(elementsAtom(element.id), update);
 };
 
+const handleGanttNodePropertyChanged = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
+    const diagramId = get(activeDiagramIdAtom);
+    const oldDiagram = get(elementsAtom(diagramId)) as GanttDiagramState;
+    const oldNode = get(elementsAtom(element.id)) as NodeState;
+    if (!oldNode.ganttTask) return;
+
+    const updatedTask = updateGanttTaskProperty(oldNode.ganttTask, propertyName, value);
+    const updatedNode = updateGanttNodeTask(oldNode, updatedTask);
+    const chartStart = getGanttChartStart(oldDiagram);
+    const updatedDiagram = produce(oldDiagram, (diagram: Draft<GanttDiagramState>) => {
+        const placement = diagram.nodes[element.id];
+        if (placement) {
+            placement.bounds = snappedBoundsForGanttTask(updatedTask, placement.bounds, chartStart);
+        }
+    });
+
+    set(elementsAtom(element.id), updatedNode);
+    set(elementsAtom(diagramId), updatedDiagram);
+
+    const newDiagram = get(elementsAtom(diagramId)) as GanttDiagramState;
+    const newNode = get(elementsAtom(element.id)) as NodeState;
+    if (oldDiagram === newDiagram && oldNode === newNode) return;
+
+    addToHistory(get, set, {
+        diagramId,
+        description: "Change Gantt Task",
+        undo: (_get, setUndo) => {
+            const setter = setUndo ?? set;
+            setter(elementsAtom(element.id), oldNode);
+            setter(elementsAtom(diagramId), oldDiagram);
+        },
+        redo: (_get, setRedo) => {
+            const setter = setRedo ?? set;
+            setter(elementsAtom(element.id), newNode);
+            setter(elementsAtom(diagramId), newDiagram);
+        }
+    });
+};
+
+function updateGanttTaskProperty(task: GanttTaskState, propertyName: string, value: any): GanttTaskState {
+    switch (propertyName) {
+        case "ganttTask.label":
+            return {...task, label: String(value ?? "")};
+        case "ganttTask.section":
+            return {...task, section: String(value ?? "")};
+        case "ganttTask.status":
+            return {...task, status: normalizeGanttStatus(value)};
+        case "ganttTask.start":
+            return updateGanttTaskStart(task, String(value ?? ""));
+        case "ganttTask.end":
+            return updateGanttTaskEnd(task, String(value ?? ""));
+        case "ganttTask.durationDays":
+            return updateGanttTaskDuration(task, Number(value));
+        default:
+            return task;
+    }
+}
+
+function updateGanttTaskStart(task: GanttTaskState, start: string): GanttTaskState {
+    const parsedStart = parseGanttDateString(start);
+    if (!parsedStart) {
+        return {...task, start};
+    }
+
+    const duration = getGanttTaskDurationDays(task);
+    return {
+        ...task,
+        start,
+        end: formatGanttDate(addGanttDays(parsedStart, duration))
+    };
+}
+
+function updateGanttTaskEnd(task: GanttTaskState, end: string): GanttTaskState {
+    const parsedStart = parseGanttDateString(task.start);
+    const parsedEnd = parseGanttDateString(end);
+    if (!parsedStart || !parsedEnd) {
+        return {...task, end};
+    }
+
+    const normalizedEnd = parsedEnd.getTime() <= parsedStart.getTime()
+        ? addGanttDays(parsedStart, 1)
+        : parsedEnd;
+    return {
+        ...task,
+        end: formatGanttDate(normalizedEnd)
+    };
+}
+
+function updateGanttTaskDuration(task: GanttTaskState, duration: number): GanttTaskState {
+    const parsedStart = parseGanttDateString(task.start);
+    const normalizedDuration = Number.isFinite(duration) ? Math.max(Math.round(duration), 1) : 1;
+    if (!parsedStart) {
+        return task;
+    }
+
+    return {
+        ...task,
+        end: formatGanttDate(addGanttDays(parsedStart, normalizedDuration))
+    };
+}
+
 // Function to handle link property changes (wrapped with element history)
 const handleLinkPropertyChangedImpl = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
     const link = get(elementsAtom(element.id)) as LinkState;
@@ -445,6 +634,12 @@ export const handleStructureElementPropertyChanged = (get: Get, set: Set, elemen
     elements.forEach(element => {
         switch (element.type) {
             case ElementType.ClassNode:
+                if (propertyName.startsWith("ganttTask.")) {
+                    handleGanttNodePropertyChanged(get, set, element, propertyName, value);
+                    break;
+                }
+                handleNodePropertyChanged(element.id)(get, set, element, propertyName, value);
+                break;
             case ElementType.DeploymentNode:
                 handleNodePropertyChanged(element.id)(get, set, element, propertyName, value);
                 break;
@@ -496,12 +691,9 @@ export function addNewPort(_get: Get, set: Set, node: NodeState) {
     return result
 }
 
-export const portSelector = selectorFamily<PortState, PortId>({
-    key: 'port',
-    get: (portId) => ({get}) => {
-        return get(elementsAtom(portId)) as PortState;
-    }
-})
+export const portSelector = atomFamily((portId: PortId) =>
+    atom((get) => get(elementsAtom(portId)) as PortState)
+);
 export const portBounds = (nodePlacement: Bounds, port: PortState, portPlacement: PortPlacement): Bounds => {
 
     switch (portPlacement.alignment) {

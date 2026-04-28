@@ -2,14 +2,14 @@ import React from "react";
 import {sequenceDiagramSelector} from "./sequenceDiagramModel";
 import {Lifeline} from "./Lifeline";
 import {Message} from "./Message";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
 import {EmptyDiagramHint} from "../diagramEditor/EmptyDiagramHint";
 import {Note} from "../commonComponents/Note";
 import {VirtualizedLayer, VirtualizedItem} from "../../common/components/VirtualizedLayer";
 
 export const SequenceDiagramEditor = ({diagramId}: { diagramId: DiagramId }) => {
-    const diagram = useRecoilValue(sequenceDiagramSelector(diagramId))
+    const diagram = useAtomValue(sequenceDiagramSelector(diagramId))
     const lifelines = Object.values(diagram.lifelines);
     const messages = Object.values(diagram.messages);
     const notes = Object.values(diagram.notes);

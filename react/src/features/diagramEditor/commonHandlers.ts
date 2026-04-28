@@ -10,7 +10,7 @@ import {ElementRef} from "../../package/packageModel";
 import React from "react";
 import {Bounds, Coordinate} from "../../common/model";
 import {DiagramId, selectedRefsSelector} from "./diagramEditorModel";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {Vector2d} from "konva/lib/types";
 import {Node} from "konva/lib/Node";
 
@@ -37,7 +37,7 @@ export const useCustomDispatch = ({
     disableVerticalDrag = false
 }: CustomDispatchOptions) => {
     const dispatch = useDispatch();
-    const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
+    const selectedElements = useAtomValue(selectedRefsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(element.id)
     const [startNodePos, setStartNodePos] = React.useState<Coordinate | undefined>();
     const [startPointerPos, setStartPointerPos] = React.useState<Coordinate | undefined>();

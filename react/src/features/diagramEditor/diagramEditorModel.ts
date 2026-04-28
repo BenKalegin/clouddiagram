@@ -1,11 +1,12 @@
 import {Bounds, Coordinate, defaultDiagramDisplay, Diagram} from "../../common/model";
 import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
-import {atom, atomFamily, selectorFamily} from "recoil";
+import {atom, Atom} from "jotai";
+import {atomFamily} from "jotai/utils";
+import {persistentAtom, persistentAtomFamily} from "../../common/state/persistentAtoms";
 import {elements} from "../demo";
 import {nanoid} from 'nanoid';
 import {diagramEditors} from "./diagramEditorSlice";
 import {ExportImportFormat} from "../export/exportFormats";
-import { PersistenceService } from "../../services/persistence/persistenceService";
 
 export interface Linking {
     sourceElement: Id
@@ -54,69 +55,45 @@ export interface ContextPopupProps {
 
 export const emptyElementSentinel: DiagramElement = {id: "", type: ElementType.ClassNode};
 
-export const diagramTitleSelector = selectorFamily<string | undefined, DiagramId | undefined>({
-    key: 'diagramTitle',
-    get: (id) => ({get}) => {
+export const diagramTitleSelector = atomFamily((id: DiagramId | undefined): Atom<string | undefined> =>
+    atom((get) => {
         if (!id)
             return "New diagram";
         const diagram = get(elementsAtom(id)) as Diagram;
-        return diagram ? diagram.title : "Unknown " + id
-    }
-})
+        return diagram ? diagram.title : "Unknown " + id;
+    })
+);
 
-export const diagramKindSelector = selectorFamily<ElementType, DiagramId>({
-    key: 'diagramKind',
-    get: (id) => ({get}) => get(elementsAtom(id)).type
-})
+export const diagramKindSelector = atomFamily((id: DiagramId): Atom<ElementType> =>
+    atom((get) => get(elementsAtom(id)).type)
+);
 
-export const diagramDisplaySelector = selectorFamily<Diagram['display'], DiagramId>({
-    key: 'diagramDisplay',
-    get: (id) => ({get}) => (get(elementsAtom(id)) as Diagram).display ?? defaultDiagramDisplay
-})
+export const diagramDisplaySelector = atomFamily((id: DiagramId): Atom<Diagram['display']> =>
+    atom((get) => (get(elementsAtom(id)) as Diagram).display ?? defaultDiagramDisplay)
+);
 
-export const selectedRefsSelector = selectorFamily<ElementRef[], DiagramId>({
-    key: 'selectedRefs',
-    get: (id) => ({get}) => (get(elementsAtom(id)) as Diagram).selectedElements ?? []
-})
+export const selectedRefsSelector = atomFamily((id: DiagramId): Atom<ElementRef[]> =>
+    atom((get) => (get(elementsAtom(id)) as Diagram).selectedElements ?? [])
+);
 
-export const selectedElementsSelector = selectorFamily<ElementRef[], DiagramId>({
-    key: 'selectedElementsResolved',
-    get: (diagramId) => ({get}) => {
-        const diagram = get(elementsAtom(diagramId)) as Diagram
-        const refs = diagram.selectedElements || []
-        const diagramEditor  = diagramEditors[diagram.type];
-        return (refs.map(ref => {
+export const selectedElementsSelector = atomFamily((diagramId: DiagramId): Atom<ElementRef[]> =>
+    atom((get) => {
+        const diagram = get(elementsAtom(diagramId)) as Diagram;
+        const refs = diagram.selectedElements || [];
+        const diagramEditor = diagramEditors[diagram.type];
+        return refs.map(ref => {
             if (ref.type === ElementType.Note)
                 return diagram.notes[ref.id];
             return diagramEditor.getElement(get, ref, diagram);
-        }))
-    }
-})
+        });
+    })
+);
 
-export const linkingAtom = atom<Linking | undefined>({
-    key: 'linking',
-    default: undefined
-})
-
-export const exportingAtom = atom<Exporting | undefined>({
-    key: 'exporting',
-    default: undefined
-})
-
-export const importingAtom = atom<Importing | undefined>({
-    key: 'importing',
-    default: undefined
-})
-
-export const showContextAtom = atom< ContextPopupProps | undefined>({
-    key: 'contextPopup',
-    default: undefined
-})
-
-export const snapGridSizeAtom = atom<number>({
-    key: 'snapGridSize',
-    default: 10,
-})
+export const linkingAtom = atom<Linking | undefined>(undefined);
+export const exportingAtom = atom<Exporting | undefined>(undefined);
+export const importingAtom = atom<Importing | undefined>(undefined);
+export const showContextAtom = atom<ContextPopupProps | undefined>(undefined);
+export const snapGridSizeAtom = atom<number>(10);
 
 export const generateId = (): string => {
     return nanoid(6);
@@ -127,19 +104,11 @@ export interface ConnectorRender {
     points: number[];
 }
 
-export const elementsAtom = atomFamily<DiagramElement, Id>({
-    key: 'elements',
-    default: id => elements[id] ?? emptyElementSentinel,
-    effects: id => [
-        PersistenceService.localStoragePersistence(`element_${id}`)
-    ]
-});
+export const elementsAtom = persistentAtomFamily<DiagramElement, Id>(
+    "element",
+    (id) => elements[id] ?? emptyElementSentinel,
+    (id) => id
+);
 
-// Create a new atom to track all element IDs for recovery
-export const elementIdsAtom = atom<Id[]>({
-    key: 'elementIds',
-    default: Object.keys(elements),
-    effects: [
-        PersistenceService.localStoragePersistence('elementIds')
-    ]
-});
+// Track all element IDs for recovery
+export const elementIdsAtom = persistentAtom<Id[]>("elementIds", Object.keys(elements));

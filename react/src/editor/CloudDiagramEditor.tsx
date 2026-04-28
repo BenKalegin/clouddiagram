@@ -17,11 +17,7 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 import GridOnIcon from "@mui/icons-material/GridOn";
 import GridOffIcon from "@mui/icons-material/GridOff";
 import SaveIcon from "@mui/icons-material/Save";
-import {
-    RecoilRoot,
-    useRecoilCallback,
-    useRecoilTransactionObserver_UNSTABLE
-} from "recoil";
+import {Provider as JotaiProvider, createStore, useStore} from "jotai";
 import {
     AppLayout,
     AppLayoutContext,
@@ -39,10 +35,13 @@ import {DiagramTabs} from "../features/diagramTabs/DiagramTabs";
 import {RecoveryService} from "../services/recovery/recoveryService";
 import {CloudDiagramDocument} from "../features/export/CloudDiagramFormat";
 import {
-    getCloudDiagramDocumentFromSnapshot,
-    hydrateCloudDiagramDocument
-} from "./recoilDocumentAdapter";
+    getCloudDiagramDocument,
+    getCloudDiagramDocumentFromStore,
+    hydrateCloudDiagramDocument,
+    subscribeToDocumentChanges
+} from "./documentAdapter";
 import {PersistenceMode, PersistenceService} from "../services/persistence/persistenceService";
+import {useStoreCallback, useTransaction} from "../common/state/jotaiShim";
 
 const TOP_BAR_HEIGHT = 64;
 const DEFAULT_CHANGE_DEBOUNCE_MS = 300;
@@ -98,15 +97,22 @@ export function CloudDiagramEditor({
     const resolvedPersistenceMode = persistenceMode ?? (value ? PersistenceMode.Host : PersistenceMode.Local);
     PersistenceService.setPersistenceMode(resolvedPersistenceMode);
 
+    // Each editor instance gets its own jotai store so multiple editors on a
+    // single page don't share state.
+    const storeRef = useRef<ReturnType<typeof createStore> | null>(null);
+    if (storeRef.current === null) {
+        storeRef.current = createStore();
+    }
+
     return (
-        <RecoilRoot>
+        <JotaiProvider store={storeRef.current}>
             <CloudDiagramEditorContent
                 {...props}
                 value={value}
                 valueVersion={valueVersion}
                 persistenceMode={resolvedPersistenceMode}
             />
-        </RecoilRoot>
+        </JotaiProvider>
     );
 }
 
@@ -127,13 +133,10 @@ function CloudDiagramEditorContent({
 }: CloudDiagramEditorProps) {
     const [appLayout, setAppLayout] = React.useState(initialLayout);
     const recoverDiagrams = RecoveryService.useRecoverDiagrams();
-    const hydrateDocument = useRecoilCallback(({set}) => (document: CloudDiagramDocument) => {
+    const hydrateDocument = useTransaction(({set}) => (document: CloudDiagramDocument) => {
         hydrateCloudDiagramDocument(document, set);
     }, []);
-    const getCurrentDocument = useRecoilCallback(({snapshot}) => () =>
-        getCloudDiagramDocumentFromSnapshot(snapshot),
-        []
-    );
+    const getCurrentDocument = useStoreCallback(({get}) => () => getCloudDiagramDocument(get), []);
     const hydratedKeyRef = useRef<string | undefined>();
     const shouldRecoverOnMount = recoverOnMount ?? persistenceMode === PersistenceMode.Local;
 
@@ -288,43 +291,40 @@ function CloudDiagramDocumentChangeObserver({
     onChange,
     debounceMs = DEFAULT_CHANGE_DEBOUNCE_MS
 }: CloudDiagramDocumentChangeObserverProps) {
+    const store = useStore();
     const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>();
-    const pendingDocumentRef = useRef<CloudDiagramDocument | undefined>();
     const onChangeRef = useRef(onChange);
 
     useEffect(() => {
         onChangeRef.current = onChange;
     }, [onChange]);
 
-    useEffect(() => () => {
-        if (timerRef.current) {
-            clearTimeout(timerRef.current);
-        }
-    }, []);
-
-    useRecoilTransactionObserver_UNSTABLE(({snapshot}) => {
-        try {
-            pendingDocumentRef.current = getCloudDiagramDocumentFromSnapshot(snapshot);
-        } catch (error) {
-            console.error("Failed to read CloudDiagram document after state change", error);
-            return;
-        }
-
-        if (!pendingDocumentRef.current) {
-            return;
-        }
-
-        if (timerRef.current) {
-            clearTimeout(timerRef.current);
-        }
-
-        timerRef.current = setTimeout(() => {
-            const document = pendingDocumentRef.current;
-            if (document) {
-                onChangeRef.current(document);
+    useEffect(() => {
+        const fire = () => {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
             }
-        }, debounceMs);
-    });
+            timerRef.current = setTimeout(() => {
+                try {
+                    const document = getCloudDiagramDocumentFromStore(store);
+                    if (document) {
+                        onChangeRef.current(document);
+                    }
+                } catch (error) {
+                    console.error("Failed to read CloudDiagram document after state change", error);
+                }
+            }, debounceMs);
+        };
+
+        const unsubscribe = subscribeToDocumentChanges(store, fire);
+
+        return () => {
+            unsubscribe();
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+            }
+        };
+    }, [store, debounceMs]);
 
     return null;
 }

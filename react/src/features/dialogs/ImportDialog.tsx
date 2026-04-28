@@ -10,7 +10,7 @@ import {
     ListItemText,
 } from "@mui/material";
 import React from "react";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {importingAtom, ImportPhase} from "../diagramEditor/diagramEditorModel";
 import {importDiagramTabAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ExportImportFormat, importFormats} from "../export/exportFormats";
@@ -18,7 +18,7 @@ import {CodeMemo} from "../commonControls/CodeMemo";
 import {ElementType} from "../../package/packageModel";
 
 export const ImportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
-    const importing = useRecoilValue(importingAtom)
+    const importing = useAtomValue(importingAtom)
     const dispatch = useDispatch();
     const [importedCode, setImportedCode] = React.useState("");
 

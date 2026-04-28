@@ -1,4 +1,4 @@
-import { useRecoilCallback } from 'recoil';
+import { useStoreCallback } from '../../common/state/jotaiShim';
 import { elementsAtom, elementIdsAtom } from '../../features/diagramEditor/diagramEditorModel';
 import { activeDiagramIdAtom, openDiagramIdsAtom } from '../../features/diagramTabs/diagramTabsModel';
 
@@ -11,19 +11,19 @@ export class RecoveryService {
      * @returns A function that recovers diagrams from persisted state
      */
     static useRecoverDiagrams = () => {
-        return useRecoilCallback(({ snapshot, set }) => async () => {
+        return useStoreCallback(({ get, set }) => async () => {
             try {
                 // Check if we have a persisted state
-                const elementIds = await snapshot.getPromise(elementIdsAtom);
-                const activeDiagramId = await snapshot.getPromise(activeDiagramIdAtom);
-                const openDiagramIds = await snapshot.getPromise(openDiagramIdsAtom);
+                const elementIds = get(elementIdsAtom);
+                const activeDiagramId = get(activeDiagramIdAtom);
+                const openDiagramIds = get(openDiagramIdsAtom);
 
                 // If we have a persisted state, load all elements
                 if (elementIds.length > 0) {
 
-                    // Load all elements
+                    // Load all elements (touching atoms triggers their persisted-storage hydration)
                     for (const id of elementIds) {
-                        const element = await snapshot.getPromise(elementsAtom(id));
+                        const element = get(elementsAtom(id));
                         if (element && element.id !== '') {
                             set(elementsAtom(id), element);
                         }

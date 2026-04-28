@@ -14,21 +14,20 @@ import {
     snapGridSizeAtom
 } from "./diagramEditorModel";
 import {DiagramElement, ElementRef, ElementType, Id} from "../../package/packageModel";
-import {RecoilState, RecoilValue, useRecoilTransaction_UNSTABLE} from "recoil";
+import type {Get as JotaiGet, Set as JotaiSet} from "../../common/state/jotaiShim";
+import {useTransaction} from "../../common/state/jotaiShim";
 import {activeDiagramIdAtom, openDiagramIdsAtom} from "../diagramTabs/diagramTabsModel";
 import {classDiagramEditor} from "../classDiagram/classDiagramSlice";
 import {Action, createAction} from "@reduxjs/toolkit";
 import {sequenceDiagramEditor} from "../sequenceDiagram/sequenceDiagramSlice";
 import Konva from "konva";
-import {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
 import {ExportImportFormat, importDiagramAs} from "../export/exportFormats";
-import {DeploymentDiagramState} from "../deploymentDiagram/deploymentDaigramModel";
 import {deploymentDiagramEditor} from "../deploymentDiagram/deploymentDiagramSlice";
-import {StructureDiagramState} from "../structureDiagram/structureDiagramState";
 import {Command} from "../propertiesEditor/propertiesEditorModel";
-import { FlowchartDiagramState } from "../flowchartDiagram/flowchartDiagramModel";
 import { flowchartDiagramEditor } from "../flowchartDiagram/flowchartDiagramSlice";
+import { ganttDiagramEditor } from "../ganttDiagram/ganttDiagramSlice";
+import {createDiagramForType} from "../diagramTypes/diagramTypeRegistry";
 import KonvaEventObject = Konva.KonvaEventObject;
 
 export enum ElementMoveResizePhase {
@@ -132,8 +131,8 @@ export const updateDiagramDisplayAction = createAction<{
     offset: Coordinate;
 }>("editor/updateDiagramDisplay");
 
-export type Get = (<T>(a: RecoilValue<T>) => T)
-export type Set = (<T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void)
+export type Get = JotaiGet;
+export type Set = JotaiSet;
 
 export interface DiagramHandler {
     handleAction(action: Action, get: Get, set: Set) : void
@@ -147,7 +146,7 @@ export interface DiagramHandler {
 
 
 export function useDispatch() {
-    return useRecoilTransaction_UNSTABLE(
+    return useTransaction(
         ({get, set}) => (action: Action) => {
             handleAction(action, get, set);
         },
@@ -290,20 +289,6 @@ function handleElementSelection(get: Get, set: Set, idAndKind: ElementRef | unde
     }
 }
 
-function createDiagramBase(id: Id, type: ElementType, title: string): Pick<Diagram, "id" | "type" | "title" | "selectedElements" | "notes" | "display"> {
-    return {
-        id,
-        type,
-        title,
-        selectedElements: [],
-        notes: {},
-        display: {
-            ...defaultDiagramDisplay,
-            offset: { ...defaultDiagramDisplay.offset }
-        }
-    };
-}
-
 function normalizeDiagram(diagram: Diagram): Diagram {
     const display = diagram.display ?? defaultDiagramDisplay;
     return {
@@ -321,49 +306,7 @@ function normalizeDiagram(diagram: Diagram): Diagram {
 function addDiagramTab(get: Get, set: Set, diagramKind: ElementType) {
     const openDiagramIds = get(openDiagramIdsAtom);
     const newDiagramId = generateId();
-    let diagram : Diagram = {id: "", selectedElements: [], type: ElementType.Unexpected, notes: {}, display: defaultDiagramDisplay};
-
-    switch (diagramKind) {
-        case ElementType.ClassDiagram:
-            diagram = {
-                ...createDiagramBase(newDiagramId, ElementType.ClassDiagram, "Class Diagram"),
-                nodes: {},
-                ports: {},
-                links: {},
-            } as StructureDiagramState;
-            break;
-
-        case ElementType.DeploymentDiagram:
-            diagram = {
-                ...createDiagramBase(newDiagramId, ElementType.DeploymentDiagram, "Deployment Diagram"),
-                nodes: {},
-                ports: {},
-                links: {},
-            } as DeploymentDiagramState;
-            break;
-
-        case ElementType.SequenceDiagram:
-            diagram = {
-                ...createDiagramBase(newDiagramId, ElementType.SequenceDiagram, "Sequence Diagram"),
-                lifelines: {},
-                messages: {},
-                activations: {},
-            } as SequenceDiagramState;
-            break;
-
-        case ElementType.FlowchartDiagram:
-            diagram = {
-                ...createDiagramBase(newDiagramId, ElementType.FlowchartDiagram, "Flowchart Diagram"),
-                nodes: {},
-                ports: {},
-                links: {},
-            } as FlowchartDiagramState;
-            break;
-
-
-        default: throw new Error(`Unknown diagram kind: ${diagramKind}`);
-
-    }
+    const diagram = createDiagramForType(diagramKind, newDiagramId);
     set(elementsAtom(newDiagramId), normalizeDiagram(diagram))
     set(openDiagramIdsAtom, [...openDiagramIds, newDiagramId])
     set(activeDiagramIdAtom, newDiagramId)
@@ -445,7 +388,7 @@ function showContext(set: Set, elementId: string, mousePos: Coordinate, diagramP
     })
 }
 
-function hideContext(set: <T>(s: RecoilState<T>, u: (((currVal: T) => T) | T)) => void) {
+function hideContext(set: Set) {
     set(showContextAtom, undefined)
 }
 
@@ -533,4 +476,5 @@ export const diagramEditors: Record<any, DiagramHandler> = {
     [ElementType.DeploymentDiagram]: deploymentDiagramEditor,
     [ElementType.SequenceDiagram]: sequenceDiagramEditor,
     [ElementType.FlowchartDiagram]: flowchartDiagramEditor,
+    [ElementType.GanttDiagram]: ganttDiagramEditor,
 };

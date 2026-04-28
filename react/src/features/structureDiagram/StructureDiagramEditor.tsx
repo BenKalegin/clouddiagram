@@ -1,7 +1,7 @@
 import {Node} from "./Node";
 import React from "react";
 import {Link} from "./Link";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {DiagramId} from "../diagramEditor/diagramEditorModel";
 import {EmptyDiagramHint} from "../diagramEditor/EmptyDiagramHint";
 import {Note} from "../commonComponents/Note";
@@ -9,7 +9,7 @@ import {structureDiagramSelector} from "./structureDiagramModel";
 import {VirtualizedLayer, VirtualizedItem} from "../../common/components/VirtualizedLayer";
 
 export const StructureDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
-    const diagram = useRecoilValue(structureDiagramSelector(diagramId))
+    const diagram = useAtomValue(structureDiagramSelector(diagramId))
 
     const nodeIds = Object.keys(diagram.nodes);
     const notes = Object.values(diagram.notes);

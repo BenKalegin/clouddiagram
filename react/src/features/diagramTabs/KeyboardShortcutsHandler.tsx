@@ -1,5 +1,5 @@
 import { useHotkeys } from "react-hotkeys-hook";
-import { useRecoilValue } from "recoil";
+import { useAtomValue } from "jotai";
 import { selectedRefsSelector } from "../diagramEditor/diagramEditorModel";
 import { elementCommandAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
 import { Command } from "../propertiesEditor/propertiesEditorModel";
@@ -11,7 +11,7 @@ interface KeyboardShortcutsHandlerProps {
 
 export const useKeyboardShortcuts = ({ activeDiagramId }: KeyboardShortcutsHandlerProps) => {
     const dispatch = useDispatch();
-    const selectedElements = useRecoilValue(selectedRefsSelector(activeDiagramId));
+    const selectedElements = useAtomValue(selectedRefsSelector(activeDiagramId));
 
     useHotkeys('delete, backspace, left, right, up, down', (event) => {
         event.preventDefault();

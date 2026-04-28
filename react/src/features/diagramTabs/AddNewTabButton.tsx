@@ -4,6 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import AddIcon from '@mui/icons-material/Add';
 import { ElementType } from "../../package/packageModel";
 import { addDiagramTabAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
+import {diagramTypeDefinitions} from "../diagramTypes/diagramTypeRegistry";
 
 export function AddNewTabButton() {
     const dispatch = useDispatch()
@@ -32,10 +33,15 @@ export function AddNewTabButton() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                <MenuItem data-testid="add-class-diagram" onClick={() => handleClose(ElementType.ClassDiagram)}>Class Diagram</MenuItem>
-                <MenuItem data-testid="add-deployment-diagram" onClick={() => handleClose(ElementType.DeploymentDiagram)}>Deployment Diagram</MenuItem>
-                <MenuItem data-testid="add-flowchart-diagram" onClick={() => handleClose(ElementType.FlowchartDiagram)}>Flowchart Diagram</MenuItem>
-                <MenuItem data-testid="add-sequence-diagram" onClick={() => handleClose(ElementType.SequenceDiagram)}>Sequence Diagram</MenuItem>
+                {diagramTypeDefinitions.map(definition => (
+                    <MenuItem
+                        key={definition.type}
+                        data-testid={definition.testId}
+                        onClick={() => handleClose(definition.type)}
+                    >
+                        {definition.title}
+                    </MenuItem>
+                ))}
             </Menu>
         </div>
     );

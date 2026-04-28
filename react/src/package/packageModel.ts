@@ -18,6 +18,7 @@ export enum ElementType {
     DeploymentNode,
     DeploymentLink,
     FlowchartDiagram,
+    GanttDiagram,
 }
 
 export interface ElementRef {
@@ -93,10 +94,27 @@ export interface HasColorSchema {
     colorSchema: ColorSchema
 }
 
+export type GanttTaskStatus = "" | "active" | "done" | "crit" | "milestone";
+
+export interface GanttTaskState {
+    taskId: string;
+    label: string;
+    section: string;
+    start: string;
+    end: string;
+    status: GanttTaskStatus;
+}
+
+export interface GanttDependencyState {
+    sourceTaskId: string;
+    targetTaskId: string;
+}
+
 export interface NodeState extends DiagramElement, HasColorSchema {
     text: string;
     ports: Id[];
     flowchartKind?: FlowchartNodeKind;
+    ganttTask?: GanttTaskState;
 }
 
 export enum FlowchartNodeKind {
@@ -215,6 +233,7 @@ export interface LinkState extends DiagramElement, HasColorSchema {
     port1: Id;
     port2: Id;
     text?: string;
+    ganttDependency?: GanttDependencyState;
 
     tipStyle1: TipStyle;
     tipStyle2: TipStyle;

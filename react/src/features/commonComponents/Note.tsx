@@ -1,7 +1,7 @@
 import {NoteId, noteSelector} from "./commonComponentsModel";
 import {DiagramId, diagramKindSelector, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {Group, Shape, Text} from "react-konva";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {Scaffold} from "../scaffold/Scaffold";
 import {ElementRef, ElementType} from "../../package/packageModel";
 import {DrawingMessage} from "../sequenceDiagram/DrawingMessage";
@@ -11,13 +11,13 @@ import {inflate} from "../../common/model";
 import {Background} from "../scaffold/Background";
 
 export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId }) => {
-    const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
+    const selectedElements = useAtomValue(selectedRefsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(noteId)
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === noteId;
-    const linking = useRecoilValue(linkingAtom)
-    const diagramKind = useRecoilValue(diagramKindSelector(diagramId))
+    const linking = useAtomValue(linkingAtom)
+    const diagramKind = useAtomValue(diagramKindSelector(diagramId))
 
-    const note = useRecoilValue(noteSelector({noteId, diagramId}))
+    const note = useAtomValue(noteSelector({noteId, diagramId}))
     const cornerSize = 10;
     const width = note.bounds.width;
     const height = note.bounds.height;

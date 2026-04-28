@@ -1,7 +1,7 @@
 import React from "react";
 import { Stack, Tabs } from "@mui/material";
 import { LinkToNewDialog } from "../dialogs/LinkToNewDialog";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {useAtom, useAtomValue} from "jotai";
 import {
     exportingAtom,
     importingAtom,
@@ -17,13 +17,13 @@ import { AddNewTabButton } from "./AddNewTabButton";
 import { DiagramContainer } from "./DiagramContainer";
 
 export const DiagramTabs = () => {
-    const [activeDiagramId, setActiveDiagramId] = useRecoilState(activeDiagramIdAtom);
-    const openDiagramIds = useRecoilValue(openDiagramIdsAtom);
-    const linking = useRecoilValue(linkingAtom)
-    const exporting = useRecoilValue(exportingAtom)
-    const importing = useRecoilValue(importingAtom)
-    const showingContext = useRecoilValue(showContextAtom)
-    const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId!))
+    const [activeDiagramId, setActiveDiagramId] = useAtom(activeDiagramIdAtom);
+    const openDiagramIds = useAtomValue(openDiagramIdsAtom);
+    const linking = useAtomValue(linkingAtom)
+    const exporting = useAtomValue(exportingAtom)
+    const importing = useAtomValue(importingAtom)
+    const showingContext = useAtomValue(showContextAtom)
+    const diagramKind = useAtomValue(diagramKindSelector(activeDiagramId!))
 
     const handleTabChange = (_unused: React.SyntheticEvent, newValue: number) => {
         setActiveDiagramId(openDiagramIds[newValue]);

@@ -1,5 +1,6 @@
-import {DiagramElement, Id, ColorSchema, HasColorSchema} from "../../package/packageModel";
-import {selectorFamily} from "recoil";
+import {DiagramElement, Id, HasColorSchema} from "../../package/packageModel";
+import {atom} from "jotai";
+import {atomFamily} from "jotai/utils";
 import {Bounds, Diagram} from "../../common/model";
 import {DiagramId, elementsAtom} from "../diagramEditor/diagramEditorModel";
 
@@ -10,10 +11,16 @@ export interface NoteState extends DiagramElement, HasColorSchema {
     bounds: Bounds
 }
 
-export const noteSelector = selectorFamily<NoteState, {noteId: NoteId, diagramId: DiagramId}> ({
-    key: 'noteSelector',
-    get: ({noteId, diagramId}) => ({get}) => {
-        const diagram = get(elementsAtom((diagramId))) as Diagram
-        return diagram.notes[noteId]
-    }
-})
+interface NoteSelectorParam {
+    noteId: NoteId;
+    diagramId: DiagramId;
+}
+
+export const noteSelector = atomFamily(
+    (param: NoteSelectorParam) =>
+        atom((get) => {
+            const diagram = get(elementsAtom(param.diagramId)) as Diagram;
+            return diagram.notes[param.noteId];
+        }),
+    (a, b) => a.noteId === b.noteId && a.diagramId === b.diagramId
+);

@@ -1,12 +1,12 @@
 import {Path} from "react-konva";
 import React from "react";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {drawingLinkRenderSelector} from "./structureDiagramHandler";
 
 export const DrawingLink = () => {
 
 
-    const placement = useRecoilValue(drawingLinkRenderSelector);
+    const placement = useAtomValue(drawingLinkRenderSelector);
     return (
         <>
             {placement.svgPath.map((pathData, index) =>

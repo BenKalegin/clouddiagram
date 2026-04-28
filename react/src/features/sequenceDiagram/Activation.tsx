@@ -1,5 +1,5 @@
 import {Rect} from "react-konva";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {ActivationId, activationRenderSelector} from "./sequenceDiagramModel";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {ColorSchema} from "../../package/packageModel";
@@ -12,8 +12,8 @@ export interface ActivationProps {
 
 export const Activation = ({activationId, diagramId, colorSchema}: ActivationProps) => {
 
-    const render = useRecoilValue(activationRenderSelector({activationId, diagramId}))
-    const linking = useRecoilValue(linkingAtom)
+    const render = useAtomValue(activationRenderSelector({activationId, diagramId}))
+    const linking = useAtomValue(linkingAtom)
     const linkingTarget = linking?.targetElement;
     const linkingSource = linking?.sourceElement;
     return (

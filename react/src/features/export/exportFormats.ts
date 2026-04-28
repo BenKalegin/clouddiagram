@@ -12,7 +12,14 @@ import {
     exportAsCloudDiagram,
     importCloudDiagram
 } from "./CloudDiagramFormat";
-import {importMermaidFlowchartDiagram, importMermaidSequenceDiagram, importMermaidStructureDiagram} from "./mermaidFormat";
+import {
+    importMermaidDiagram,
+    importMermaidFlowchartDiagram,
+    importMermaidGanttDiagram,
+    importMermaidSequenceDiagram,
+    importMermaidStructureDiagram
+} from "./mermaidFormat";
+import {exportGanttDiagramAsMermaid} from "./mermaid/mermaidGanttExporter";
 
 export type {ElementResolver};
 
@@ -25,6 +32,8 @@ export enum ExportImportFormat {
     MermaidSequenceDiagram = "mermaid_sequence",
     MermaidStructureDiagram = "mermaid_structure",
     MermaidFlowchartDiagram = "mermaid_flowchart",
+    MermaidDiagram = "mermaid",
+    MermaidGanttDiagram = "mermaid_gantt",
 }
 
 export interface DiagramExportContext {
@@ -61,20 +70,20 @@ export const formatRegistry: ExportRegistryEntry[] = [
         format: ExportImportFormat.Png,
         name: "PNG image",
         exportFunction: async (diagram: Diagram, {stage}) => exportAsPng(diagram, requireStage(stage, "PNG")),
-        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram]
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram]
     },
     {
         format: ExportImportFormat.Svg,
         name: "SVG file",
         exportFunction: async (diagram: Diagram, {stage}) => exportAsSvg(diagram, requireStage(stage, "SVG")),
-        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram]
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram]
     },
     {
         format: ExportImportFormat.CloudDiagram,
         name: "CloudDiagram file",
         exportFunction: async (diagram: Diagram, {stage, resolveElement}) => exportAsCloudDiagram(diagram, stage, resolveElement),
         importFunction: importCloudDiagram,
-        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram]
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram]
     },
     {
         format: ExportImportFormat.MermaidSequenceDiagram,
@@ -93,6 +102,19 @@ export const formatRegistry: ExportRegistryEntry[] = [
         name: "Mermaid Flowchart (UML/C4)",
         importFunction: importMermaidFlowchartDiagram,
         supportedDiagram: [ElementType.FlowchartDiagram]
+    },
+    {
+        format: ExportImportFormat.MermaidDiagram,
+        name: "Mermaid Diagram",
+        importFunction: importMermaidDiagram,
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram]
+    },
+    {
+        format: ExportImportFormat.MermaidGanttDiagram,
+        name: "Mermaid Gantt Diagram",
+        exportFunction: async (diagram: Diagram, {resolveElement}) => exportGanttDiagramAsMermaid(diagram, resolveElement),
+        importFunction: importMermaidGanttDiagram,
+        supportedDiagram: [ElementType.GanttDiagram]
     },
 ];
 

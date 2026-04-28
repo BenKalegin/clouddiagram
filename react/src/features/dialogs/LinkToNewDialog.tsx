@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import {galleryGroups, GalleryItem} from "../toolbox/models";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {diagramKindSelector, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {linkToNewDialogCompletedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
@@ -16,10 +16,10 @@ import {ElementType} from "../../package/packageModel";
 
 
 export const LinkToNewDialog = () => {
-    const linking = useRecoilValue(linkingAtom)
+    const linking = useAtomValue(linkingAtom)
     const source = linking?.sourceElement;
-    const activeDiagramId = useRecoilValue(activeDiagramIdAtom);
-    const diagramKind = useRecoilValue(diagramKindSelector(activeDiagramId));
+    const activeDiagramId = useAtomValue(activeDiagramIdAtom);
+    const diagramKind = useAtomValue(diagramKindSelector(activeDiagramId));
     const groupKeys = diagramKind === ElementType.FlowchartDiagram ? ["flowchart", "c4"] : ["class"];
     const items = galleryGroups.filter(group => groupKeys.includes(group.key)).flatMap(group => group.items);
     const dispatch = useDispatch();

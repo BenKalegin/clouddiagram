@@ -1,6 +1,6 @@
 import React, {useContext} from "react";
 import {Group, Path, Text} from "react-konva";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {DiagramId, elementsAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {linkRenderSelector} from "./structureDiagramHandler";
 import {LinkId} from "./structureDiagramState";
@@ -11,11 +11,11 @@ import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 import {VirtualizedItem} from "../../common/components/VirtualizedLayer";
 
 export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}) => {
-    const selectedElements = useRecoilValue(selectedRefsSelector(diagramId))
+    const selectedElements = useAtomValue(selectedRefsSelector(diagramId))
     const isSelected = selectedElements.map(e => e.id).includes(linkId);
     const dispatch = useDispatch()
-    const render = useRecoilValue(linkRenderSelector({linkId, diagramId}))
-    const link = useRecoilValue(elementsAtom(linkId)) as LinkState
+    const render = useAtomValue(linkRenderSelector({linkId, diagramId}))
+    const link = useAtomValue(elementsAtom(linkId)) as LinkState
     const { appLayout } = useContext(AppLayoutContext);
     const colorSchema = adjustColorSchemaForTheme(link.colorSchema, appLayout.darkMode);
 

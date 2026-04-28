@@ -41,4 +41,3 @@ export const Background = (props: BackgroundProps) => {
         />
     );
 };
-

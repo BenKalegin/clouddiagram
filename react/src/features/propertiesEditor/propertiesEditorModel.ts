@@ -5,7 +5,9 @@ import {
 
 export enum PropertyType {
     String,
+    Number,
     Boolean,
+    Select,
     ColorSchema,
     ShapeLayout,
     LineStyle,
@@ -20,6 +22,7 @@ export interface PropertyDefinition {
     label: string;
     type: PropertyType;
     supportMultiEdit: boolean;
+    options?: string[];
 }
 
 export enum Command {
@@ -46,12 +49,38 @@ export const lineStyleProp: PropertyDefinition = {name: "lineStyle", label: "Lin
 export const linkStyleProp: PropertyDefinition = {name: "routeStyle", label: "Route", type: PropertyType.RouteStyle, supportMultiEdit: true}
 export const tipStyleProp1: PropertyDefinition = {name: "tipStyle1", label: "Start tip", type: PropertyType.TipStyle, supportMultiEdit: true}
 export const tipStyleProp2: PropertyDefinition = {name: "tipStyle2", label: "End tip", type: PropertyType.TipStyle, supportMultiEdit: true}
+export const ganttTaskLabelProp: PropertyDefinition = {name: "ganttTask.label", label: "Task", type: PropertyType.String, supportMultiEdit: false}
+export const ganttTaskStartProp: PropertyDefinition = {name: "ganttTask.start", label: "Start", type: PropertyType.String, supportMultiEdit: false}
+export const ganttTaskEndProp: PropertyDefinition = {name: "ganttTask.end", label: "End", type: PropertyType.String, supportMultiEdit: false}
+export const ganttTaskDurationProp: PropertyDefinition = {name: "ganttTask.durationDays", label: "Duration (days)", type: PropertyType.Number, supportMultiEdit: false}
+export const ganttTaskStatusProp: PropertyDefinition = {
+    name: "ganttTask.status",
+    label: "Status",
+    type: PropertyType.Select,
+    supportMultiEdit: true,
+    options: ["", "active", "done", "crit", "milestone"]
+}
+export const ganttTaskSectionProp: PropertyDefinition = {name: "ganttTask.section", label: "Section", type: PropertyType.String, supportMultiEdit: false}
 
 export function getPropertyList(type: ElementType, diagramType?: ElementType): PropertyDefinition[] {
     switch (type) {
         case ElementType.ClassNode:
+            if (diagramType === ElementType.GanttDiagram) {
+                return [
+                    ganttTaskLabelProp,
+                    ganttTaskStartProp,
+                    ganttTaskEndProp,
+                    ganttTaskDurationProp,
+                    ganttTaskStatusProp,
+                    ganttTaskSectionProp,
+                    colorSchemaProp
+                ];
+            }
             return [textProp, colorSchemaProp, shapeLayoutProp];
         case ElementType.ClassLink:
+            if (diagramType === ElementType.GanttDiagram) {
+                return [textProp, colorSchemaProp, linkStyleProp];
+            }
             if (diagramType === ElementType.FlowchartDiagram) {
                 // Flowcharts keep links directional by design.
                 return [textProp, colorSchemaProp, linkStyleProp];

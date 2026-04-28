@@ -2,10 +2,10 @@ import {Arrow} from "react-konva";
 import {
     drawingMessageRenderSelector
 } from "./sequenceDiagramModel";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 
 export const DrawingMessage = () => {
-    const render = useRecoilValue(drawingMessageRenderSelector)
+    const render = useAtomValue(drawingMessageRenderSelector)
 
     if (!render) {
         return null

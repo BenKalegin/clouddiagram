@@ -1,4 +1,5 @@
-import { atom, selectorFamily } from "recoil";
+import { atom } from "jotai";
+import { atomFamily } from "jotai/utils";
 import { DiagramId, elementsAtom } from "./diagramEditorModel";
 import { DiagramElement } from "../../package/packageModel";
 import { Diagram } from "../../common/model";
@@ -20,36 +21,29 @@ export interface HistoryState {
 
 // Create an atom for the history state
 export const historyAtom = atom<HistoryState>({
-  key: 'history',
-  default: {
-    past: [],
-    future: [],
-    maxHistoryLength: 50 // Limit the history size to prevent memory issues
-  }
+  past: [],
+  future: [],
+  maxHistoryLength: 50 // Limit the history size to prevent memory issues
 });
 
 // Create selectors to check if undo/redo is available
-export const canUndoSelector = selectorFamily<boolean, DiagramId | undefined>({
-  key: 'canUndo',
-  get: (diagramId) => ({ get }) => {
+export const canUndoSelector = atomFamily((diagramId: DiagramId | undefined) =>
+  atom((get) => {
     if (!diagramId) return false;
     const history = get(historyAtom);
-    // Handle the case where history is undefined
     if (!history) return false;
     return history.past.some(op => op.diagramId === diagramId);
-  }
-});
+  })
+);
 
-export const canRedoSelector = selectorFamily<boolean, DiagramId | undefined>({
-  key: 'canRedo',
-  get: (diagramId) => ({ get }) => {
+export const canRedoSelector = atomFamily((diagramId: DiagramId | undefined) =>
+  atom((get) => {
     if (!diagramId) return false;
     const history = get(historyAtom);
-    // Handle the case where history is undefined
     if (!history) return false;
     return history.future.some(op => op.diagramId === diagramId);
-  }
-});
+  })
+);
 
 // Helper function to create an undoable operation for element changes
 export function createElementChangeOperation(

@@ -1,6 +1,6 @@
 import {Circle} from "react-konva";
 import React, {useContext} from "react";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {DiagramId, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {ColorSchema} from "../../package/packageModel";
 import {portRenderSelector} from "./structureDiagramHandler";
@@ -16,9 +16,9 @@ export interface PortProps {
     colorSchema: ColorSchema
 }
 export const Port = ({diagramId, nodeId, portId, colorSchema}: PortProps) => {
-    const port = useRecoilValue(portSelector(portId))
-    const render = useRecoilValue(portRenderSelector({portId, nodeId, diagramId}))
-    const linking = useRecoilValue(linkingAtom)
+    const port = useAtomValue(portSelector(portId))
+    const render = useAtomValue(portRenderSelector({portId, nodeId, diagramId}))
+    const linking = useAtomValue(linkingAtom)
     const linkingTarget = linking?.targetElement;
     const linkingSource = linking?.sourceElement;
 
