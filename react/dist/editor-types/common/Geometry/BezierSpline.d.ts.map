@@ -1,1 +1,0 @@
-{"version":3,"file":"BezierSpline.d.ts","sourceRoot":"","sources":["../../../../src/common/Geometry/BezierSpline.ts"],"names":[],"mappings":"AAkHA,OAAO,EAAC,UAAU,EAAC,MAAM,UAAU,CAAC;AAEpC,qBAAa,YAAY;IACrB;;;;;;;;;OASG;WACW,qBAAqB,CAAC,KAAK,EAAE,UAAU,EAAE;;;;;;;;;;IA6DvD,MAAM,CAAC,qBAAqB,QAAS,MAAM,MAAM,CAAC,cAmBjD;CACJ"}
