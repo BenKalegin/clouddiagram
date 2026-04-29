@@ -110,9 +110,18 @@ export interface GanttDependencyState {
     targetTaskId: string;
 }
 
+export type ClassMemberKind = "field" | "method";
+
+export interface ClassMemberState {
+    kind: ClassMemberKind;
+    text: string;
+}
+
 export interface NodeState extends DiagramElement, HasColorSchema {
     text: string;
     ports: Id[];
+    classAnnotation?: string;
+    classMembers?: ClassMemberState[];
     flowchartKind?: FlowchartNodeKind;
     ganttTask?: GanttTaskState;
 }

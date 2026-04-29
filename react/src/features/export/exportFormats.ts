@@ -20,6 +20,7 @@ import {
     importMermaidStructureDiagram
 } from "./mermaidFormat";
 import {exportGanttDiagramAsMermaid} from "./mermaid/mermaidGanttExporter";
+import {exportClassDiagramAsMermaid} from "./mermaid/mermaidClassExporter";
 
 export type {ElementResolver};
 
@@ -94,6 +95,7 @@ export const formatRegistry: ExportRegistryEntry[] = [
     {
         format: ExportImportFormat.MermaidStructureDiagram,
         name: "Mermaid Class Diagram",
+        exportFunction: async (diagram: Diagram, {resolveElement}) => exportClassDiagramAsMermaid(diagram, resolveElement),
         importFunction: importMermaidStructureDiagram,
         supportedDiagram: [ElementType.ClassDiagram, ElementType.DeploymentDiagram]
     },

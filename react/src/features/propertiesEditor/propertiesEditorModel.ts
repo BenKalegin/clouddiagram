@@ -5,6 +5,7 @@ import {
 
 export enum PropertyType {
     String,
+    MultilineString,
     Number,
     Boolean,
     Select,
@@ -43,6 +44,10 @@ export interface CommandDefinition {
 
 // Property definitions
 export const textProp : PropertyDefinition = {name: "text", label: "Text", type: PropertyType.String, supportMultiEdit: false};
+export const classNameProp : PropertyDefinition = {name: "text", label: "Class", type: PropertyType.String, supportMultiEdit: false};
+export const classAnnotationProp : PropertyDefinition = {name: "classAnnotation", label: "Annotation", type: PropertyType.String, supportMultiEdit: false};
+export const classFieldsProp : PropertyDefinition = {name: "classFields", label: "Fields", type: PropertyType.MultilineString, supportMultiEdit: false};
+export const classMethodsProp : PropertyDefinition = {name: "classMethods", label: "Methods", type: PropertyType.MultilineString, supportMultiEdit: false};
 export const colorSchemaProp : PropertyDefinition = {name: "colorSchema" as keyof HasColorSchema, label: "Colors", type: PropertyType.ColorSchema, supportMultiEdit: true}
 export const shapeLayoutProp : PropertyDefinition = {name: "customShape", label: "Shape Layout", type: PropertyType.ShapeLayout, supportMultiEdit: true}
 export const lineStyleProp: PropertyDefinition = {name: "lineStyle", label: "Line Style", type: PropertyType.LineStyle, supportMultiEdit: true}
@@ -75,6 +80,9 @@ export function getPropertyList(type: ElementType, diagramType?: ElementType): P
                     ganttTaskSectionProp,
                     colorSchemaProp
                 ];
+            }
+            if (diagramType === ElementType.ClassDiagram) {
+                return [classNameProp, classAnnotationProp, classFieldsProp, classMethodsProp, colorSchemaProp, shapeLayoutProp];
             }
             return [textProp, colorSchemaProp, shapeLayoutProp];
         case ElementType.ClassLink:

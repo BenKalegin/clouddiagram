@@ -25,6 +25,7 @@ import {
     PropertyType
 } from "./propertiesEditorModel";
 import {getGanttTaskDurationDays} from "../ganttDiagram/ganttDiagramUtils";
+import {getClassFieldsText, getClassMethodsText} from "../classDiagram/classDiagramUtils";
 
 
 
@@ -70,6 +71,19 @@ export const PropertiesEditor = () => {
                 variant="outlined"
                 size="small"
                 value={value || ""}
+                onChange={e => updateProps(e.target.value)}
+            /> )
+    }
+
+    function MultilineStringPropertyEditor(p: PropAndKind, value: string, updateProps: (value: any) => void) {
+        return (
+            <TextField
+                label={p.prop.label}
+                variant="outlined"
+                size="small"
+                value={value || ""}
+                multiline
+                minRows={4}
                 onChange={e => updateProps(e.target.value)}
             /> )
     }
@@ -125,6 +139,7 @@ export const PropertiesEditor = () => {
         return (
             <Box display="flex" flexDirection="column" p={2} key={i}>
                 {p.prop.type === PropertyType.String && StringPropertyEditor(p, value as string, updateProps)}
+                {p.prop.type === PropertyType.MultilineString && MultilineStringPropertyEditor(p, value as string, updateProps)}
                 {p.prop.type === PropertyType.Number && NumberPropertyEditor(p, value as number | undefined, updateProps)}
                 {p.prop.type === PropertyType.Boolean && BooleanPropertyEditor(p, value as boolean, updateProps)}
                 {p.prop.type === PropertyType.Select && SelectPropertyEditor(p, value as string | undefined, updateProps)}
@@ -164,6 +179,12 @@ function getObjectPropertyValue(obj: any, propertyName: string): any {
     if (!obj) return undefined;
     if (propertyName === "ganttTask.durationDays") {
         return obj.ganttTask ? getGanttTaskDurationDays(obj.ganttTask) : undefined;
+    }
+    if (propertyName === "classFields") {
+        return getClassFieldsText(obj);
+    }
+    if (propertyName === "classMethods") {
+        return getClassMethodsText(obj);
     }
 
     return propertyName

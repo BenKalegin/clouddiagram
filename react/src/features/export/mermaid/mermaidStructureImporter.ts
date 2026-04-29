@@ -12,6 +12,7 @@ import {
 import {defaultColorSchema} from "../../../common/colors/colorSchemas";
 import {StructureDiagramState} from "../../structureDiagram/structureDiagramState";
 import {createMermaidIdGenerator, mermaidSourceLines} from "./mermaidImportUtils";
+import {createClassMember, minimumClassNodeHeight, normalizeClassAnnotation} from "../../classDiagram/classDiagramUtils";
 
 interface ImportStructureOptions {
     forceFlowchart?: boolean;
@@ -71,6 +72,7 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
     const links: { [id: string]: any } = {};
     const nodeMap: { [name: string]: string } = {};
     let nodeIndex = 0;
+    let currentClassBlock: string | undefined;
 
     function getOrCreateNode(
         name: string,
@@ -119,6 +121,32 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         nodeMap[normalizedName] = nodeId;
         nodeIndex++;
         return nodeId;
+    }
+
+    function addClassMember(className: string, memberText: string): void {
+        const normalizedMember = memberText.trim();
+        if (!normalizedMember) return;
+
+        const annotationMatch = normalizedMember.match(/^<<(.+)>>$/);
+        if (annotationMatch) {
+            setClassAnnotation(className, annotationMatch[1]);
+            return;
+        }
+
+        const member = createClassMember(normalizedMember);
+        if (!member) return;
+
+        const nodeId = getOrCreateNode(className);
+        const node = elements[nodeId] as NodeState;
+        node.classMembers = [...(node.classMembers ?? []), member];
+        nodes[nodeId].bounds.height = Math.max(nodes[nodeId].bounds.height, minimumClassNodeHeight(node));
+    }
+
+    function setClassAnnotation(className: string, annotation: string): void {
+        const nodeId = getOrCreateNode(className);
+        const node = elements[nodeId] as NodeState;
+        node.classAnnotation = normalizeClassAnnotation(annotation);
+        nodes[nodeId].bounds.height = Math.max(nodes[nodeId].bounds.height, minimumClassNodeHeight(node));
     }
 
     function createPort(nodeId: string, alignment: number): string {
@@ -194,6 +222,52 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             lowerLine.startsWith('flowchart') ||
             lowerLine.startsWith('graph')) continue;
 
+        if (currentClassBlock) {
+            if (/^}\s*;?$/.test(line)) {
+                currentClassBlock = undefined;
+            } else {
+                addClassMember(currentClassBlock, line);
+            }
+            continue;
+        }
+
+        const inlineClassBlockMatch = line.match(/^class\s+([\w-]+)(?:~[^~]+~)?\s*\{\s*(.+?)\s*}\s*;?$/);
+        if (inlineClassBlockMatch) {
+            const [, className, members] = inlineClassBlockMatch;
+            getOrCreateNode(className);
+            members
+                .split(/;|,/)
+                .map(member => member.trim())
+                .filter(Boolean)
+                .forEach(member => addClassMember(className, member));
+            continue;
+        }
+
+        const classBlockMatch = line.match(/^class\s+([\w-]+)(?:~[^~]+~)?(?:\s*<<(.+)>>)?\s*\{\s*$/);
+        if (classBlockMatch) {
+            const [, className, annotation] = classBlockMatch;
+            getOrCreateNode(className);
+            if (annotation) {
+                setClassAnnotation(className, annotation);
+            }
+            currentClassBlock = className;
+            continue;
+        }
+
+        const classMemberMatch = line.match(/^([\w-]+)\s*:\s*(.+)$/);
+        if (!flowchartMode && classMemberMatch) {
+            const [, className, memberText] = classMemberMatch;
+            addClassMember(className, memberText);
+            continue;
+        }
+
+        const classAnnotationMatch = line.match(/^<<(.+)>>\s+([\w-]+)$/);
+        if (!flowchartMode && classAnnotationMatch) {
+            const [, annotation, className] = classAnnotationMatch;
+            setClassAnnotation(className, annotation);
+            continue;
+        }
+
         const c4NodeMatch = line.match(/^(Person|System|Container|Component)\s*\(\s*([\w-]+)\s*,\s*"?([^",)]+)"?(?:\s*,.*)?\)\s*$/i);
         if (c4NodeMatch) {
             const [, c4Type, id, label] = c4NodeMatch;
@@ -261,9 +335,13 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             continue;
         }
 
-        const classMatch = line.match(/^class\s+([\w-]+)/);
+        const classMatch = line.match(/^class\s+([\w-]+)(?:\s*\[\s*["`]?(.+?)["`]?\s*\])?(?:\s*<<(.+)>>)?/);
         if (classMatch) {
-            getOrCreateNode(classMatch[1]);
+            const [, className, label, annotation] = classMatch;
+            getOrCreateNode(className, label);
+            if (annotation) {
+                setClassAnnotation(className, annotation);
+            }
             continue;
         }
     }

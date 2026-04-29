@@ -67,6 +67,11 @@ import {
 } from "../ganttDiagram/ganttDiagramUtils";
 import {GanttDiagramState} from "../ganttDiagram/ganttDiagramModel";
 import {addToHistory} from "../diagramEditor/historyModel";
+import {
+    minimumClassNodeHeight,
+    normalizeClassAnnotation,
+    replaceClassMembersText
+} from "../classDiagram/classDiagramUtils";
 
 // Original function for element movement
 export const moveElementImpl = (get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate, snap: boolean = true) => {
@@ -87,6 +92,12 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
         bounds.x = pos.x;
         bounds.y = pos.y;
     }
+
+    // Drag-end events can fire during component teardown (React strict-mode
+    // remount or modal close), with element references that no longer exist
+    // in the current diagram. Bail out instead of crashing on undefined.
+    if (element.type === ElementType.ClassNode && !originalDiagram.nodes?.[element.id]) return;
+    if (element.type === ElementType.Note && !originalDiagram.notes?.[element.id]) return;
 
     const update = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
         switch (element.type) {
@@ -123,6 +134,11 @@ export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, sugge
         ? getGanttChartStart(originalDiagram as GanttDiagramState)
         : undefined;
     let updatedGanttTask: GanttTaskState | undefined;
+
+    // Same defensive guard as moveElementImpl: resize events can fire post-teardown.
+    if ((element.type === ElementType.ClassNode || element.type === ElementType.DeploymentNode)
+        && !originalDiagram.nodes?.[element.id]) return;
+    if (element.type === ElementType.Note && !originalDiagram.notes?.[element.id]) return;
 
     const update = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
         switch (element.type) {
@@ -592,6 +608,54 @@ function updateGanttTaskDuration(task: GanttTaskState, duration: number): GanttT
     };
 }
 
+const handleClassNodePropertyChanged = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
+    const diagramId = get(activeDiagramIdAtom);
+    const oldDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    const oldNode = get(elementsAtom(element.id)) as NodeState;
+    const updatedNode = updateClassNodeProperty(oldNode, propertyName, value);
+    const updatedDiagram = produce(oldDiagram, (diagram: Draft<StructureDiagramState>) => {
+        const placement = diagram.nodes[element.id];
+        if (placement) {
+            placement.bounds.height = Math.max(placement.bounds.height, minimumClassNodeHeight(updatedNode));
+        }
+    });
+
+    set(elementsAtom(element.id), updatedNode);
+    set(elementsAtom(diagramId), updatedDiagram);
+
+    const newDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    const newNode = get(elementsAtom(element.id)) as NodeState;
+    if (oldDiagram === newDiagram && oldNode === newNode) return;
+
+    addToHistory(get, set, {
+        diagramId,
+        description: "Change Class Property",
+        undo: (_get, setUndo) => {
+            const setter = setUndo ?? set;
+            setter(elementsAtom(element.id), oldNode);
+            setter(elementsAtom(diagramId), oldDiagram);
+        },
+        redo: (_get, setRedo) => {
+            const setter = setRedo ?? set;
+            setter(elementsAtom(element.id), newNode);
+            setter(elementsAtom(diagramId), newDiagram);
+        }
+    });
+};
+
+function updateClassNodeProperty(node: NodeState, propertyName: string, value: any): NodeState {
+    switch (propertyName) {
+        case "classAnnotation":
+            return {...node, classAnnotation: normalizeClassAnnotation(String(value ?? ""))};
+        case "classFields":
+            return {...node, classMembers: replaceClassMembersText(node.classMembers, "field", String(value ?? ""))};
+        case "classMethods":
+            return {...node, classMembers: replaceClassMembersText(node.classMembers, "method", String(value ?? ""))};
+        default:
+            return node;
+    }
+}
+
 // Function to handle link property changes (wrapped with element history)
 const handleLinkPropertyChangedImpl = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
     const link = get(elementsAtom(element.id)) as LinkState;
@@ -636,6 +700,10 @@ export const handleStructureElementPropertyChanged = (get: Get, set: Set, elemen
             case ElementType.ClassNode:
                 if (propertyName.startsWith("ganttTask.")) {
                     handleGanttNodePropertyChanged(get, set, element, propertyName, value);
+                    break;
+                }
+                if (propertyName === "classAnnotation" || propertyName === "classFields" || propertyName === "classMethods") {
+                    handleClassNodePropertyChanged(get, set, element, propertyName, value);
                     break;
                 }
                 handleNodePropertyChanged(element.id)(get, set, element, propertyName, value);

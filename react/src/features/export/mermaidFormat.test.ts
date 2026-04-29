@@ -19,6 +19,8 @@ import { StructureDiagramState } from '../structureDiagram/structureDiagramState
 import { SequenceDiagramState } from '../sequenceDiagram/sequenceDiagramModel';
 import { NodeState, LinkState, ElementType } from '../../package/packageModel';
 import { exportGanttDiagramAsMermaid } from './mermaid/mermaidGanttExporter';
+import { exportClassDiagramAsMermaid } from './mermaid/mermaidClassExporter';
+import { getClassFieldsText, replaceClassMembersText } from '../classDiagram/classDiagramUtils';
 
 describe('mermaidFormat', () => {
     describe('mermaid diagram type coverage', () => {
@@ -289,6 +291,86 @@ describe('mermaidFormat', () => {
             const result = importMermaidStructureDiagram(baseDiagram, flowchart) as StructureDiagramState;
             expect(Object.keys(result.notes)).toHaveLength(0);
             expect(result.selectedElements).toHaveLength(0);
+        });
+
+        it('imports Mermaid class fields, methods, and annotations', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-class-members',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.ClassDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const classDiagram = `classDiagram
+    Animal : +int age
+    Animal : +String gender$
+    Animal : +isMammal()
+    class Duck {
+      <<interface>>
+      +String beakColor
+      +quack() bool
+    }
+    Animal <|-- Duck`;
+
+            const result = importMermaidStructureDiagram(baseDiagram, classDiagram) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const byText = Object.fromEntries(nodes.map(node => [node.text, node]));
+
+            expect(byText.Animal.classMembers).toEqual([
+                {kind: 'field', text: '+int age'},
+                {kind: 'field', text: '+String gender$'},
+                {kind: 'method', text: '+isMammal()'}
+            ]);
+            expect(byText.Duck.classAnnotation).toBe('interface');
+            expect(byText.Duck.classMembers).toEqual([
+                {kind: 'field', text: '+String beakColor'},
+                {kind: 'method', text: '+quack() bool'}
+            ]);
+            expect(result.nodes[byText.Animal.id].bounds.height).toBeGreaterThan(60);
+        });
+
+        it('exports class fields, methods, and annotations to Mermaid', () => {
+            const diagram = importMermaidStructureDiagram({
+                id: 'test-class-export',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.ClassDiagram,
+                selectedElements: [],
+                notes: {}
+            }, `classDiagram
+    Animal : +int age
+    Animal : +isMammal()
+    class Duck {
+      <<interface>>
+      +String beakColor
+      +quack()
+    }
+    Animal <|-- Duck`) as StructureDiagramState & { elements: { [id: string]: any } };
+
+            expect(exportClassDiagramAsMermaid(diagram)).toBe(`classDiagram
+    class Animal {
+        +int age
+        +isMammal()
+    }
+    class Duck {
+        <<interface>>
+        +String beakColor
+        +quack()
+    }
+    Animal <|-- Duck
+`);
+        });
+
+        it('preserves a blank member row while editing fields', () => {
+            const classMembers = replaceClassMembersText(undefined, 'field', '+int age\n');
+            expect(getClassFieldsText({
+                id: 'animal',
+                type: ElementType.ClassNode,
+                text: 'Animal',
+                ports: [],
+                colorSchema: {strokeColor: 'black', fillColor: 'white'},
+                classMembers
+            })).toBe('+int age\n');
         });
     });
 
