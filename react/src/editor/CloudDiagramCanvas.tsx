@@ -18,6 +18,7 @@ import {PersistenceMode, PersistenceService} from "../services/persistence/persi
 import {useTransaction} from "../common/state/jotaiShim";
 
 const DEFAULT_CHANGE_DEBOUNCE_MS = 300;
+const INITIAL_HYDRATION_KEY = "initial";
 
 interface MainProps {
     open?: boolean;
@@ -62,12 +63,7 @@ export interface CloudDiagramCanvasProps {
     onLayoutChange?: (layout: AppLayout) => void;
 }
 
-/**
- * Embeddable diagram editing surface — Toolbox + DiagramTabs + PropertiesDrawer
- * with state, persistence, and theme/layout providers. Does not render any app
- * chrome (title bar, save button, etc.). Hosts compose chrome around the
- * canvas, optionally injecting toolbar items via the `header` slot.
- */
+/** Embeddable diagram editing surface. No app chrome — hosts compose their own. */
 export function CloudDiagramCanvas({
     value,
     valueVersion,
@@ -75,7 +71,10 @@ export function CloudDiagramCanvas({
     ...props
 }: CloudDiagramCanvasProps) {
     const resolvedPersistenceMode = persistenceMode ?? (value ? PersistenceMode.Host : PersistenceMode.Local);
-    PersistenceService.setPersistenceMode(resolvedPersistenceMode);
+
+    useEffect(() => {
+        PersistenceService.setPersistenceMode(resolvedPersistenceMode);
+    }, [resolvedPersistenceMode]);
 
     // One jotai store per canvas instance so multiple editors on a page don't share state.
     const storeRef = useRef<ReturnType<typeof createStore> | null>(null);
@@ -127,7 +126,7 @@ function CloudDiagramCanvasContent({
 
     useEffect(() => {
         if (!value) return;
-        const hydrationKey = `${value.diagram.id}:${valueVersion ?? "initial"}`;
+        const hydrationKey = `${value.diagram.id}:${valueVersion ?? INITIAL_HYDRATION_KEY}`;
         if (hydratedKeyRef.current === hydrationKey) return;
         hydrateDocument(value);
         hydratedKeyRef.current = hydrationKey;
@@ -159,12 +158,10 @@ function CloudDiagramCanvasContent({
                                 overflow: "hidden"
                             }}
                         >
-                            <Stack direction="column" sx={{flex: 1, overflow: "hidden", minHeight: 0}}>
-                                <Stack direction="row" sx={{flex: 1, overflow: "hidden", minWidth: 0}}>
-                                    <Toolbox/>
-                                    <Divider orientation="vertical" flexItem/>
-                                    <DiagramTabs/>
-                                </Stack>
+                            <Stack direction="row" sx={{flex: 1, overflow: "hidden", minWidth: 0, minHeight: 0}}>
+                                <Toolbox/>
+                                <Divider orientation="vertical" flexItem/>
+                                <DiagramTabs/>
                             </Stack>
                         </Main>
                         {showPropertiesPane && <PropertiesDrawer/>}
@@ -186,6 +183,7 @@ function CloudDiagramDocumentChangeObserver({
 }: CloudDiagramDocumentChangeObserverProps) {
     const store = useStore();
     const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+    const lastSerializedRef = useRef<string | undefined>(undefined);
     const onChangeRef = useRef(onChange);
 
     useEffect(() => {
@@ -198,7 +196,14 @@ function CloudDiagramDocumentChangeObserver({
             timerRef.current = setTimeout(() => {
                 try {
                     const document = getCloudDiagramDocumentFromStore(store);
-                    if (document) onChangeRef.current(document);
+                    if (!document) return;
+                    // Atom subscriptions fire on every set, including no-op writes (selection
+                    // toggles, transient drag state). Skip onChange when the serialized
+                    // document is unchanged to avoid forcing host re-renders for nothing.
+                    const serialized = JSON.stringify(document);
+                    if (serialized === lastSerializedRef.current) return;
+                    lastSerializedRef.current = serialized;
+                    onChangeRef.current(document);
                 } catch (error) {
                     console.error("Failed to read CloudDiagram document after state change", error);
                 }
