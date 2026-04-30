@@ -18,6 +18,7 @@ export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}
     const link = useAtomValue(elementsAtom(linkId)) as LinkState
     const { appLayout } = useContext(AppLayoutContext);
     const colorSchema = adjustColorSchemaForTheme(link.colorSchema, appLayout.darkMode);
+    const erRelationship = link.erRelationship;
 
     return (
         <VirtualizedItem
@@ -32,6 +33,7 @@ export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}
                             fill={colorSchema.fillColor}
                             strokeWidth={isSelected ? 3 : 1.4}
                             stroke={colorSchema.strokeColor}
+                            dash={erRelationship && !erRelationship.identifying ? [6, 4] : undefined}
                             onClick={(e) => {
                                 const element: ElementRef = {id: linkId, type: ElementType.ClassLink}
                                 dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
@@ -51,6 +53,34 @@ export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}
                         fill={colorSchema.strokeColor}
                         listening={false}
                     />
+                )}
+                {erRelationship && (
+                    <>
+                        <Text
+                            x={render.sourcePoint.x - 18}
+                            y={render.sourcePoint.y - 22}
+                            width={36}
+                            height={18}
+                            text={erRelationship.sourceCardinality}
+                            align="center"
+                            verticalAlign="middle"
+                            fontSize={12}
+                            fill={colorSchema.strokeColor}
+                            listening={false}
+                        />
+                        <Text
+                            x={render.targetPoint.x - 18}
+                            y={render.targetPoint.y - 22}
+                            width={36}
+                            height={18}
+                            text={erRelationship.targetCardinality}
+                            align="center"
+                            verticalAlign="middle"
+                            fontSize={12}
+                            fill={colorSchema.strokeColor}
+                            listening={false}
+                        />
+                    </>
                 )}
             </Group>
         </VirtualizedItem>

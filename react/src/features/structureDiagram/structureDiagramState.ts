@@ -1,4 +1,4 @@
-import {Bounds, Diagram} from "../../common/model";
+import {Bounds, Coordinate, Diagram} from "../../common/model";
 import {Id, PortAlignment} from "../../package/packageModel";
 
 export type NodePlacement = {
@@ -28,6 +28,8 @@ export interface LinkPlacement {
 export interface LinkRender {
     svgPath: string[];
     bounds: Bounds;
+    sourcePoint: Coordinate;
+    targetPoint: Coordinate;
 }
 
 export type PortRender = {

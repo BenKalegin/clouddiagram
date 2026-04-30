@@ -8,8 +8,10 @@ vi.mock("react-konva-to-svg", () => ({
 import {
     detectMermaidDiagramType,
     importMermaidDiagram,
+    importMermaidErDiagram,
     importMermaidFlowchartDiagram,
     importMermaidGanttDiagram,
+    importMermaidPieChartDiagram,
     importMermaidStructureDiagram,
     importMermaidSequenceDiagram,
     mermaidDiagramTypes
@@ -20,6 +22,8 @@ import { SequenceDiagramState } from '../sequenceDiagram/sequenceDiagramModel';
 import { NodeState, LinkState, ElementType } from '../../package/packageModel';
 import { exportGanttDiagramAsMermaid } from './mermaid/mermaidGanttExporter';
 import { exportClassDiagramAsMermaid } from './mermaid/mermaidClassExporter';
+import { exportErDiagramAsMermaid } from './mermaid/mermaidErExporter';
+import { exportPieChartDiagramAsMermaid } from './mermaid/mermaidPieExporter';
 import { getClassFieldsText, replaceClassMembersText } from '../classDiagram/classDiagramUtils';
 
 describe('mermaidFormat', () => {
@@ -88,7 +92,9 @@ describe('mermaidFormat', () => {
                 expect(detectMermaidDiagramType(source)?.kind).toBe(kind);
             });
 
+            expect(mermaidDiagramTypes.find(type => type.kind === 'er')?.nativeImport).toBe(true);
             expect(mermaidDiagramTypes.find(type => type.kind === 'gantt')?.nativeImport).toBe(true);
+            expect(mermaidDiagramTypes.find(type => type.kind === 'pie')?.nativeImport).toBe(true);
             expect(mermaidDiagramTypes.find(type => type.kind === 'state')?.nativeImport).toBe(false);
         });
 
@@ -570,6 +576,178 @@ describe('mermaidFormat', () => {
     section Discovery
     Research :done, research, 2026-01-01, 2026-01-04
     Prototype :active, proto, after research, 4d
+`);
+        });
+    });
+
+    describe('importMermaidErDiagram', () => {
+        it('imports entities, aliases, attributes, cardinalities, and identifying links', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-er',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.ErDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const erDiagram = `erDiagram
+    direction LR
+    CUSTOMER["Customer"] ||--o{ ORDER : places
+    ORDER ||--|{ LINE_ITEM : contains
+    CUSTOMER }|..|{ DELIVERY_ADDRESS : uses
+    CUSTOMER {
+        string name PK "Customer name"
+        string email UK
+    }
+    ORDER {
+        int id PK
+    }`;
+
+            const result = importMermaidErDiagram(baseDiagram, erDiagram) as StructureDiagramState & { elements: { [id: string]: any }, er: { direction: string } };
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+            const byEntity = Object.fromEntries(nodes.map(node => [node.erEntity?.entityId, node]));
+
+            expect(result.type).toBe(ElementType.ErDiagram);
+            expect(result.er.direction).toBe('LR');
+            expect(nodes).toHaveLength(4);
+            expect(byEntity.CUSTOMER.text).toBe('Customer');
+            expect(byEntity.CUSTOMER.erEntity?.attributes).toEqual([
+                {type: 'string', name: 'name', keys: 'PK', comment: 'Customer name'},
+                {type: 'string', name: 'email', keys: 'UK', comment: undefined}
+            ]);
+            expect(result.nodes[byEntity.CUSTOMER.id].bounds.height).toBeGreaterThan(76);
+
+            const relationships = links.map(link => link.erRelationship);
+            expect(relationships).toEqual(expect.arrayContaining([
+                {sourceCardinality: '||', targetCardinality: '}o', identifying: true, label: 'places'},
+                {sourceCardinality: '||', targetCardinality: '}|', identifying: true, label: 'contains'},
+                {sourceCardinality: '}|', targetCardinality: '}|', identifying: false, label: 'uses'}
+            ]));
+        });
+
+        it('routes generic Mermaid import to native ER import', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-er-generic',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.ErDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const result = importMermaidDiagram(baseDiagram, `erDiagram
+    CUSTOMER ||--o{ ORDER : places`) as StructureDiagramState & { elements: { [id: string]: any } };
+
+            expect(result.type).toBe(ElementType.ErDiagram);
+            expect(Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode)).toHaveLength(2);
+            expect(Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink)).toHaveLength(1);
+        });
+
+        it('exports editable ER diagrams back to Mermaid', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-er-export',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.ErDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const result = importMermaidErDiagram(baseDiagram, `erDiagram
+    direction LR
+    CUSTOMER["Customer"] ||--o{ ORDER : places
+    CUSTOMER {
+        string name PK "Customer name"
+        string email UK
+    }
+    ORDER {
+        int id PK
+    }`) as StructureDiagramState & { elements: { [id: string]: any } };
+
+            expect(exportErDiagramAsMermaid(result)).toBe(`erDiagram
+    direction LR
+    CUSTOMER["Customer"] {
+        string name PK "Customer name"
+        string email UK
+    }
+    ORDER {
+        int id PK
+    }
+    CUSTOMER ||--o{ ORDER : places
+`);
+        });
+    });
+
+    describe('importMermaidPieChartDiagram', () => {
+        it('imports showData, title, and positive quoted slices', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-pie',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.PieChartDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const pieChart = `pie showData
+    title Key elements in Product X
+    "Calcium" : 42.96
+    "Potassium" : 50.05
+    "Magnesium" : 10.01
+    "Iron" : 5`;
+
+            const result = importMermaidPieChartDiagram(baseDiagram, pieChart) as any;
+
+            expect(result.type).toBe(ElementType.PieChartDiagram);
+            expect(result.title).toBe('Key elements in Product X');
+            expect(result.pie.showData).toBe(true);
+            expect(result.pie.textPosition).toBe(0.75);
+            expect(result.pie.slices).toEqual([
+                {label: 'Calcium', value: 42.96},
+                {label: 'Potassium', value: 50.05},
+                {label: 'Magnesium', value: 10.01},
+                {label: 'Iron', value: 5}
+            ]);
+        });
+
+        it('imports inline title syntax and routes generic Mermaid import to native pie import', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-pie-inline',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.PieChartDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const result = importMermaidDiagram(baseDiagram, `pie title Pets adopted by volunteers
+    "Dogs" : 386
+    "Cats" : 85`) as any;
+
+            expect(result.type).toBe(ElementType.PieChartDiagram);
+            expect(result.title).toBe('Pets adopted by volunteers');
+            expect(result.pie.showData).toBe(false);
+            expect(result.pie.slices).toEqual([
+                {label: 'Dogs', value: 386},
+                {label: 'Cats', value: 85}
+            ]);
+        });
+
+        it('exports editable pie charts back to Mermaid', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-pie-export',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.PieChartDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const result = importMermaidPieChartDiagram(baseDiagram, `pie showData
+    title Key elements in Product X
+    "Calcium" : 42.96
+    "Potassium" : 50.05`) as any;
+
+            expect(exportPieChartDiagramAsMermaid(result)).toBe(`pie showData
+    title Key elements in Product X
+    "Calcium" : 42.96
+    "Potassium" : 50.05
 `);
         });
     });

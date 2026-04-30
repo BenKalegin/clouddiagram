@@ -1,5 +1,7 @@
 import {Diagram} from "../../common/model";
 import {importMermaidGanttDiagram} from "./mermaid/mermaidGanttImporter";
+import {importMermaidErDiagram} from "./mermaid/mermaidErImporter";
+import {importMermaidPieChartDiagram} from "./mermaid/mermaidPieImporter";
 import {importMermaidSequenceDiagram} from "./mermaid/mermaidSequenceImporter";
 import {
     importMermaidFlowchartDiagram,
@@ -15,6 +17,8 @@ import {mermaidSourceLines, normalizeMermaidDeclaration} from "./mermaid/mermaid
 
 export type {MermaidDiagramKind, MermaidDiagramTypeDefinition};
 export {importMermaidGanttDiagram};
+export {importMermaidErDiagram};
+export {importMermaidPieChartDiagram};
 export {importMermaidSequenceDiagram};
 export {importMermaidFlowchartDiagram, importMermaidStructureDiagram};
 
@@ -23,10 +27,10 @@ const mermaidDiagramTypeRegistry: MermaidDiagramTypeRegistryEntry[] = [
     { kind: "sequence", name: "Sequence Diagram", declarations: ["sequencediagram"], importer: importMermaidSequenceDiagram },
     { kind: "class", name: "Class Diagram", declarations: ["classdiagram"], importer: importMermaidStructureDiagram },
     { kind: "state", name: "State Diagram", declarations: ["statediagram-v2", "statediagram"] },
-    { kind: "er", name: "Entity Relationship Diagram", declarations: ["erdiagram"] },
+    { kind: "er", name: "Entity Relationship Diagram", declarations: ["erdiagram"], importer: importMermaidErDiagram },
     { kind: "journey", name: "User Journey", declarations: ["journey"] },
     { kind: "gantt", name: "Gantt", declarations: ["gantt"], importer: importMermaidGanttDiagram },
-    { kind: "pie", name: "Pie Chart", declarations: ["pie"] },
+    { kind: "pie", name: "Pie Chart", declarations: ["pie"], importer: importMermaidPieChartDiagram },
     { kind: "quadrant", name: "Quadrant Chart", declarations: ["quadrantchart"] },
     { kind: "requirement", name: "Requirement Diagram", declarations: ["requirementdiagram"] },
     { kind: "gitgraph", name: "GitGraph Diagram", declarations: ["gitgraph"] },

@@ -7,6 +7,7 @@ import {
 } from "../../common/colors/colorTransform";
 import {ClassMemberKind, ColorSchema, FlowchartNodeKind, NodeState} from "../../package/packageModel";
 import {Bounds} from "../../common/model";
+import {formatErAttribute, getErEntityDisplayName} from "../erDiagram/erDiagramUtils";
 
 export const NodeContentNoIconRect: FC<NodeContentProps> = ({
       node,
@@ -30,6 +31,10 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
         && !isTerminator
         && !isC4
         && ((node.classMembers?.length ?? 0) > 0 || !!node.classAnnotation);
+
+    if (node.erEntity) {
+        return renderErEntityNode(node, placement.bounds, colorSchema, shadowEnabled);
+    }
 
     if (shouldRenderClassCompartments) {
         return renderClassNode(node, placement.bounds, colorSchema, shadowEnabled);
@@ -200,5 +205,65 @@ function renderMembers(
             preventDefault={true}
             name={kind}
         />
+    );
+}
+
+function renderErEntityNode(node: NodeState, bounds: Bounds, colorSchema: ColorSchema, shadowEnabled: boolean) {
+    const entity = node.erEntity!;
+    const attributes = entity.attributes.filter(attribute => attribute.type || attribute.name);
+    const {x, y, width, height} = bounds;
+    const headerHeight = 38;
+    const attributesText = attributes.map(attribute => formatErAttribute(attribute)).join("\n");
+
+    return (
+        <>
+            <Rect
+                fill={colorSchema.fillColor}
+                stroke={colorSchema.strokeColor}
+                {...bounds}
+                cornerRadius={4}
+                shadowEnabled={shadowEnabled}
+                shadowColor={"black"}
+                shadowBlur={3}
+                shadowOffset={{x: 2, y: 2}}
+                shadowOpacity={0.4}
+                draggable={false}
+                listening={false}
+            />
+            <Line
+                points={[x, y + headerHeight, x + width, y + headerHeight]}
+                stroke={colorSchema.strokeColor}
+                listening={false}
+            />
+            <Text
+                x={x + 8}
+                y={y + 5}
+                width={width - 16}
+                height={headerHeight - 10}
+                fill={colorSchema.textColor}
+                fontSize={14}
+                fontStyle={"bold"}
+                align={"center"}
+                verticalAlign={"middle"}
+                text={getErEntityDisplayName(entity)}
+                draggable={false}
+                listening={false}
+                preventDefault={true}
+            />
+            <Text
+                x={x + 10}
+                y={y + headerHeight + 6}
+                width={width - 20}
+                height={Math.max(0, height - headerHeight - 12)}
+                fill={colorSchema.textColor}
+                fontSize={12}
+                align={"left"}
+                verticalAlign={"top"}
+                text={attributesText}
+                draggable={false}
+                listening={false}
+                preventDefault={true}
+            />
+        </>
     );
 }

@@ -6,6 +6,9 @@ import type {FlowchartDiagramState} from "../flowchartDiagram/flowchartDiagramMo
 import type {GanttDiagramState} from "../ganttDiagram/ganttDiagramModel";
 import type {SequenceDiagramState} from "../sequenceDiagram/sequenceDiagramModel";
 import {defaultGanttChartStart, defaultGanttDateFormat} from "../ganttDiagram/ganttDiagramUtils";
+import type {ErDiagramState} from "../erDiagram/erDiagramModel";
+import type {PieChartDiagramState} from "../pieChartDiagram/pieChartDiagramModel";
+import {defaultPieChartBounds, defaultPieSlices} from "../pieChartDiagram/pieChartDiagramModel";
 
 export interface DiagramTypeDefinition {
     type: ElementType;
@@ -57,6 +60,15 @@ export const diagramTypeDefinitions: DiagramTypeDefinition[] = [
         createDiagram: (id) => createStructureDiagram(id, ElementType.FlowchartDiagram, "Flowchart Diagram") as FlowchartDiagramState
     },
     {
+        type: ElementType.ErDiagram,
+        title: "ER Diagram",
+        testId: "add-er-diagram",
+        createDiagram: (id) => ({
+            ...createStructureDiagram(id, ElementType.ErDiagram, "ER Diagram"),
+            er: { direction: "TB" }
+        } as ErDiagramState)
+    },
+    {
         type: ElementType.GanttDiagram,
         title: "Gantt Diagram",
         testId: "add-gantt-diagram",
@@ -67,6 +79,20 @@ export const diagramTypeDefinitions: DiagramTypeDefinition[] = [
                 chartStart: defaultGanttChartStart
             }
         } as GanttDiagramState)
+    },
+    {
+        type: ElementType.PieChartDiagram,
+        title: "Pie Chart",
+        testId: "add-pie-chart-diagram",
+        createDiagram: (id) => ({
+            ...createDiagramBase(id, ElementType.PieChartDiagram, "Pie Chart"),
+            pie: {
+                showData: true,
+                textPosition: 0.75,
+                slices: defaultPieSlices,
+                bounds: defaultPieChartBounds
+            }
+        } as PieChartDiagramState)
     },
     {
         type: ElementType.SequenceDiagram,

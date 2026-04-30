@@ -26,6 +26,8 @@ import {
 } from "./propertiesEditorModel";
 import {getGanttTaskDurationDays} from "../ganttDiagram/ganttDiagramUtils";
 import {getClassFieldsText, getClassMethodsText} from "../classDiagram/classDiagramUtils";
+import {getErAttributesText} from "../erDiagram/erDiagramUtils";
+import {getPieSlicesText} from "../pieChartDiagram/pieChartDiagramUtils";
 
 
 
@@ -185,6 +187,12 @@ function getObjectPropertyValue(obj: any, propertyName: string): any {
     }
     if (propertyName === "classMethods") {
         return getClassMethodsText(obj);
+    }
+    if (propertyName === "erAttributes") {
+        return getErAttributesText(obj);
+    }
+    if (propertyName === "pieSlices") {
+        return obj.pie ? getPieSlicesText(obj.pie.slices) : undefined;
     }
 
     return propertyName

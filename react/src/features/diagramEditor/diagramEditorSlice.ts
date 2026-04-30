@@ -27,6 +27,8 @@ import {deploymentDiagramEditor} from "../deploymentDiagram/deploymentDiagramSli
 import {Command} from "../propertiesEditor/propertiesEditorModel";
 import { flowchartDiagramEditor } from "../flowchartDiagram/flowchartDiagramSlice";
 import { ganttDiagramEditor } from "../ganttDiagram/ganttDiagramSlice";
+import { erDiagramEditor } from "../erDiagram/erDiagramSlice";
+import { pieChartDiagramEditor } from "../pieChartDiagram/pieChartDiagramSlice";
 import {createDiagramForType} from "../diagramTypes/diagramTypeRegistry";
 import KonvaEventObject = Konva.KonvaEventObject;
 
@@ -432,6 +434,13 @@ export function calculateDiagramBounds(diagram: Diagram): { width: number, heigh
         }
     }
 
+    if ('pie' in diagram) {
+        const pieDiagram = diagram as any;
+        if (pieDiagram.pie?.bounds) {
+            updateMinMax(pieDiagram.pie.bounds);
+        }
+    }
+
     // If no elements found, return the default size
     if (minX === Number.MAX_VALUE || minY === Number.MAX_VALUE ||
         maxX === Number.MIN_VALUE || maxY === Number.MIN_VALUE) {
@@ -474,7 +483,9 @@ function updateDiagramDisplay(get: Get, set: Set, scale: number, offset: Coordin
 export const diagramEditors: Record<any, DiagramHandler> = {
     [ElementType.ClassDiagram]: classDiagramEditor,
     [ElementType.DeploymentDiagram]: deploymentDiagramEditor,
+    [ElementType.ErDiagram]: erDiagramEditor,
     [ElementType.SequenceDiagram]: sequenceDiagramEditor,
     [ElementType.FlowchartDiagram]: flowchartDiagramEditor,
     [ElementType.GanttDiagram]: ganttDiagramEditor,
+    [ElementType.PieChartDiagram]: pieChartDiagramEditor,
 };

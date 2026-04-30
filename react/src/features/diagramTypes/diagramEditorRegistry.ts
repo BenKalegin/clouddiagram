@@ -6,6 +6,8 @@ import {DeploymentDiagramEditor} from "../deploymentDiagram/DeploymentDiagramEdi
 import {FlowchartDiagramEditor} from "../flowchartDiagram/FlowchartDiagramEditor";
 import {GanttDiagramEditor} from "../ganttDiagram/GanttDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
+import {ErDiagramEditor} from "../erDiagram/ErDiagramEditor";
+import {PieChartDiagramEditor} from "../pieChartDiagram/PieChartDiagramEditor";
 
 export interface DiagramEditorProps {
     diagramId: DiagramId;
@@ -14,8 +16,10 @@ export interface DiagramEditorProps {
 const diagramEditorRegistry: Partial<Record<ElementType, ComponentType<DiagramEditorProps>>> = {
     [ElementType.ClassDiagram]: ClassDiagramEditor,
     [ElementType.DeploymentDiagram]: DeploymentDiagramEditor,
+    [ElementType.ErDiagram]: ErDiagramEditor,
     [ElementType.FlowchartDiagram]: FlowchartDiagramEditor,
     [ElementType.GanttDiagram]: GanttDiagramEditor,
+    [ElementType.PieChartDiagram]: PieChartDiagramEditor,
     [ElementType.SequenceDiagram]: SequenceDiagramEditor,
 };
 

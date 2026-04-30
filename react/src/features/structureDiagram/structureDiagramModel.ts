@@ -10,6 +10,7 @@ import {
     ElementRef,
     ElementType,
     GanttTaskState,
+    ErRelationshipState,
     FlowchartNodeKind,
     Id,
     LinkState,
@@ -20,7 +21,7 @@ import {
     RouteStyle,
     TipStyle
 } from "../../package/packageModel";
-import {Bounds, Coordinate} from "../../common/model";
+import {Bounds, center, Coordinate} from "../../common/model";
 import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {
     DiagramId,
@@ -72,6 +73,14 @@ import {
     normalizeClassAnnotation,
     replaceClassMembersText
 } from "../classDiagram/classDiagramUtils";
+import {
+    createErEntity,
+    erBoundsForAttributeCount,
+    getErEntityDisplayName,
+    normalizeErAlias,
+    normalizeErCardinality,
+    replaceErAttributesText
+} from "../erDiagram/erDiagramUtils";
 
 // Original function for element movement
 export const moveElementImpl = (get: Get, set: Set, element: ElementRef, currentPointerPos: Coordinate, startPointerPos: Coordinate, startNodePos: Coordinate, snap: boolean = true) => {
@@ -321,8 +330,19 @@ const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: st
         const ganttTask = diagramType === ElementType.GanttDiagram
             ? createDefaultGanttTask(name, nodeId, droppedAt, diagram as GanttDiagramState)
             : undefined;
+        const erEntity = diagramType === ElementType.ErDiagram
+            ? createErEntity(name)
+            : undefined;
 
-        const node: NodeState = ganttTask
+        const node: NodeState = erEntity ? {
+                type: ElementType.ClassNode,
+                id: nodeId,
+                text: getErEntityDisplayName(erEntity),
+                ports: [],
+                colorSchema: defaultColorSchema,
+                erEntity
+            }
+            : ganttTask
             ? createGanttTaskNode({
                 type: ElementType.ClassNode,
                 id: nodeId,
@@ -341,12 +361,14 @@ const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: st
             };
 
         const placement: NodePlacement = {
-            bounds: ganttTask ? boundsForGanttTask(ganttTask, getGanttChartStart(diagram as GanttDiagramState), droppedAt.y) : {
-                x: droppedAt.x - defaultWidth / 2,
-                y: droppedAt.y,
-                width: defaultWidth,
-                height: defaultHeight
-            }
+            bounds: erEntity
+                ? {x: droppedAt.x - 75, y: droppedAt.y, width: 150, height: 80}
+                : ganttTask ? boundsForGanttTask(ganttTask, getGanttChartStart(diagram as GanttDiagramState), droppedAt.y) : {
+                    x: droppedAt.x - defaultWidth / 2,
+                    y: droppedAt.y,
+                    width: defaultWidth,
+                    height: defaultHeight
+                }
         }
 
         set(elementsAtom(node.id), node)
@@ -656,6 +678,108 @@ function updateClassNodeProperty(node: NodeState, propertyName: string, value: a
     }
 }
 
+const handleErNodePropertyChanged = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
+    const diagramId = get(activeDiagramIdAtom);
+    const oldDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    const oldNode = get(elementsAtom(element.id)) as NodeState;
+    const updatedNode = updateErNodeProperty(oldNode, propertyName, value);
+    const updatedDiagram = produce(oldDiagram, (diagram: Draft<StructureDiagramState>) => {
+        const placement = diagram.nodes[element.id];
+        if (placement) {
+            placement.bounds = erBoundsForAttributeCount(placement.bounds, updatedNode);
+        }
+    });
+
+    set(elementsAtom(element.id), updatedNode);
+    set(elementsAtom(diagramId), updatedDiagram);
+
+    const newDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    const newNode = get(elementsAtom(element.id)) as NodeState;
+    if (oldDiagram === newDiagram && oldNode === newNode) return;
+
+    addToHistory(get, set, {
+        diagramId,
+        description: "Change ER Entity",
+        undo: (_get, setUndo) => {
+            const setter = setUndo ?? set;
+            setter(elementsAtom(element.id), oldNode);
+            setter(elementsAtom(diagramId), oldDiagram);
+        },
+        redo: (_get, setRedo) => {
+            const setter = setRedo ?? set;
+            setter(elementsAtom(element.id), newNode);
+            setter(elementsAtom(diagramId), newDiagram);
+        }
+    });
+};
+
+function updateErNodeProperty(node: NodeState, propertyName: string, value: any): NodeState {
+    const entity = node.erEntity ?? createErEntity(node.text);
+    switch (propertyName) {
+        case "erEntity.entityId": {
+            const entityId = String(value ?? "").trim();
+            const updatedEntity = {...entity, entityId: entityId || entity.entityId};
+            return {
+                ...node,
+                text: getErEntityDisplayName(updatedEntity),
+                erEntity: updatedEntity
+            };
+        }
+        case "erEntity.alias": {
+            const updatedEntity = {...entity, alias: normalizeErAlias(String(value ?? ""))};
+            return {
+                ...node,
+                text: getErEntityDisplayName(updatedEntity),
+                erEntity: updatedEntity
+            };
+        }
+        case "erAttributes": {
+            const updatedEntity = {...entity, attributes: replaceErAttributesText(String(value ?? ""))};
+            return {
+                ...node,
+                erEntity: updatedEntity
+            };
+        }
+        default:
+            return node;
+    }
+}
+
+const handleErLinkPropertyChangedImpl = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
+    const link = get(elementsAtom(element.id)) as LinkState;
+    const erRelationship = updateErRelationshipProperty(defaultErRelationship(link), propertyName, value);
+    const update: LinkState = {
+        ...link,
+        text: erRelationship.label,
+        erRelationship
+    };
+    set(elementsAtom(element.id), update);
+};
+
+function defaultErRelationship(link: LinkState): ErRelationshipState {
+    return link.erRelationship ?? {
+        sourceCardinality: "||",
+        targetCardinality: "}o",
+        identifying: true,
+        label: link.text ?? "relates to"
+    };
+}
+
+function updateErRelationshipProperty(relationship: ErRelationshipState, propertyName: string, value: any): ErRelationshipState {
+    switch (propertyName) {
+        case "erRelationship.label":
+            return {...relationship, label: String(value ?? "")};
+        case "erRelationship.sourceCardinality":
+            return {...relationship, sourceCardinality: normalizeErCardinality(value)};
+        case "erRelationship.targetCardinality":
+            return {...relationship, targetCardinality: normalizeErCardinality(value)};
+        case "erRelationship.identifying":
+            return {...relationship, identifying: Boolean(value)};
+        default:
+            return relationship;
+    }
+}
+
 // Function to handle link property changes (wrapped with element history)
 const handleLinkPropertyChangedImpl = (get: Get, set: Set, element: ElementRef, propertyName: string, value: any) => {
     const link = get(elementsAtom(element.id)) as LinkState;
@@ -691,6 +815,9 @@ const handleNodePropertyChanged = (elementId: string) =>
 const handleLinkPropertyChanged = (elementId: string) =>
     withElementHistory(handleLinkPropertyChangedImpl, elementId, "Change Link Property");
 
+const handleErLinkPropertyChanged = (elementId: string) =>
+    withElementHistory(handleErLinkPropertyChangedImpl, elementId, "Change ER Relationship");
+
 const handleNotePropertyChanged = withHistory(handleNotePropertyChangedImpl, "Change Note Property");
 
 // Main function to handle property changes for any element type
@@ -698,6 +825,10 @@ export const handleStructureElementPropertyChanged = (get: Get, set: Set, elemen
     elements.forEach(element => {
         switch (element.type) {
             case ElementType.ClassNode:
+                if (propertyName === "erEntity.entityId" || propertyName === "erEntity.alias" || propertyName === "erAttributes") {
+                    handleErNodePropertyChanged(get, set, element, propertyName, value);
+                    break;
+                }
                 if (propertyName.startsWith("ganttTask.")) {
                     handleGanttNodePropertyChanged(get, set, element, propertyName, value);
                     break;
@@ -713,6 +844,10 @@ export const handleStructureElementPropertyChanged = (get: Get, set: Set, elemen
                 break;
             case ElementType.ClassLink:
             case ElementType.DeploymentLink:
+                if (propertyName.startsWith("erRelationship.")) {
+                    handleErLinkPropertyChanged(element.id)(get, set, element, propertyName, value);
+                    break;
+                }
                 handleLinkPropertyChanged(element.id)(get, set, element, propertyName, value);
                 break;
             case ElementType.Note:
@@ -740,7 +875,9 @@ export const renderLink = (sourcePort: PortState, sourceBounds: Bounds, sourcePl
             y: minY - padding,
             width: maxX - minX + padding * 2,
             height: maxY - minY + padding * 2
-        }
+        },
+        sourcePoint: center(portBounds(sourceBounds, sourcePort, sourcePlacement)),
+        targetPoint: center(portBounds(targetBounds, targetPort, targetPlacement))
     }
 }
 

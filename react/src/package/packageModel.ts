@@ -19,6 +19,8 @@ export enum ElementType {
     DeploymentLink,
     FlowchartDiagram,
     GanttDiagram,
+    ErDiagram,
+    PieChartDiagram,
 }
 
 export interface ElementRef {
@@ -117,11 +119,39 @@ export interface ClassMemberState {
     text: string;
 }
 
+export interface ErAttributeState {
+    type: string;
+    name: string;
+    keys?: string;
+    comment?: string;
+}
+
+export interface ErEntityState {
+    entityId: string;
+    alias?: string;
+    attributes: ErAttributeState[];
+}
+
+export type ErCardinality = "||" | "|o" | "}o" | "}|";
+
+export interface ErRelationshipState {
+    sourceCardinality: ErCardinality;
+    targetCardinality: ErCardinality;
+    identifying: boolean;
+    label: string;
+}
+
+export interface PieSliceState {
+    label: string;
+    value: number;
+}
+
 export interface NodeState extends DiagramElement, HasColorSchema {
     text: string;
     ports: Id[];
     classAnnotation?: string;
     classMembers?: ClassMemberState[];
+    erEntity?: ErEntityState;
     flowchartKind?: FlowchartNodeKind;
     ganttTask?: GanttTaskState;
 }
@@ -243,6 +273,7 @@ export interface LinkState extends DiagramElement, HasColorSchema {
     port2: Id;
     text?: string;
     ganttDependency?: GanttDependencyState;
+    erRelationship?: ErRelationshipState;
 
     tipStyle1: TipStyle;
     tipStyle2: TipStyle;

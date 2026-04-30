@@ -48,6 +48,17 @@ export const classNameProp : PropertyDefinition = {name: "text", label: "Class",
 export const classAnnotationProp : PropertyDefinition = {name: "classAnnotation", label: "Annotation", type: PropertyType.String, supportMultiEdit: false};
 export const classFieldsProp : PropertyDefinition = {name: "classFields", label: "Fields", type: PropertyType.MultilineString, supportMultiEdit: false};
 export const classMethodsProp : PropertyDefinition = {name: "classMethods", label: "Methods", type: PropertyType.MultilineString, supportMultiEdit: false};
+export const erEntityNameProp : PropertyDefinition = {name: "erEntity.entityId", label: "Entity", type: PropertyType.String, supportMultiEdit: false};
+export const erEntityAliasProp : PropertyDefinition = {name: "erEntity.alias", label: "Alias", type: PropertyType.String, supportMultiEdit: false};
+export const erAttributesProp : PropertyDefinition = {name: "erAttributes", label: "Attributes", type: PropertyType.MultilineString, supportMultiEdit: false};
+export const erRelationshipLabelProp : PropertyDefinition = {name: "erRelationship.label", label: "Relationship", type: PropertyType.String, supportMultiEdit: false};
+export const erSourceCardinalityProp : PropertyDefinition = {name: "erRelationship.sourceCardinality", label: "Source Cardinality", type: PropertyType.Select, supportMultiEdit: false, options: ["||", "|o", "}o", "}|"]};
+export const erTargetCardinalityProp : PropertyDefinition = {name: "erRelationship.targetCardinality", label: "Target Cardinality", type: PropertyType.Select, supportMultiEdit: false, options: ["||", "|o", "}o", "}|"]};
+export const erIdentifyingProp : PropertyDefinition = {name: "erRelationship.identifying", label: "Identifying", type: PropertyType.Boolean, supportMultiEdit: false};
+export const pieTitleProp : PropertyDefinition = {name: "title", label: "Title", type: PropertyType.String, supportMultiEdit: false};
+export const pieShowDataProp : PropertyDefinition = {name: "pie.showData", label: "Show Data", type: PropertyType.Boolean, supportMultiEdit: false};
+export const pieTextPositionProp : PropertyDefinition = {name: "pie.textPosition", label: "Text Position", type: PropertyType.Number, supportMultiEdit: false};
+export const pieSlicesProp : PropertyDefinition = {name: "pieSlices", label: "Slices", type: PropertyType.MultilineString, supportMultiEdit: false};
 export const colorSchemaProp : PropertyDefinition = {name: "colorSchema" as keyof HasColorSchema, label: "Colors", type: PropertyType.ColorSchema, supportMultiEdit: true}
 export const shapeLayoutProp : PropertyDefinition = {name: "customShape", label: "Shape Layout", type: PropertyType.ShapeLayout, supportMultiEdit: true}
 export const lineStyleProp: PropertyDefinition = {name: "lineStyle", label: "Line Style", type: PropertyType.LineStyle, supportMultiEdit: true}
@@ -69,6 +80,8 @@ export const ganttTaskSectionProp: PropertyDefinition = {name: "ganttTask.sectio
 
 export function getPropertyList(type: ElementType, diagramType?: ElementType): PropertyDefinition[] {
     switch (type) {
+        case ElementType.PieChartDiagram:
+            return [pieTitleProp, pieShowDataProp, pieTextPositionProp, pieSlicesProp];
         case ElementType.ClassNode:
             if (diagramType === ElementType.GanttDiagram) {
                 return [
@@ -84,8 +97,14 @@ export function getPropertyList(type: ElementType, diagramType?: ElementType): P
             if (diagramType === ElementType.ClassDiagram) {
                 return [classNameProp, classAnnotationProp, classFieldsProp, classMethodsProp, colorSchemaProp, shapeLayoutProp];
             }
+            if (diagramType === ElementType.ErDiagram) {
+                return [erEntityNameProp, erEntityAliasProp, erAttributesProp, colorSchemaProp];
+            }
             return [textProp, colorSchemaProp, shapeLayoutProp];
         case ElementType.ClassLink:
+            if (diagramType === ElementType.ErDiagram) {
+                return [erRelationshipLabelProp, erSourceCardinalityProp, erTargetCardinalityProp, erIdentifyingProp, colorSchemaProp];
+            }
             if (diagramType === ElementType.GanttDiagram) {
                 return [textProp, colorSchemaProp, linkStyleProp];
             }

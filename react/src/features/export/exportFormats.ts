@@ -14,13 +14,17 @@ import {
 } from "./CloudDiagramFormat";
 import {
     importMermaidDiagram,
+    importMermaidErDiagram,
     importMermaidFlowchartDiagram,
     importMermaidGanttDiagram,
+    importMermaidPieChartDiagram,
     importMermaidSequenceDiagram,
     importMermaidStructureDiagram
 } from "./mermaidFormat";
 import {exportGanttDiagramAsMermaid} from "./mermaid/mermaidGanttExporter";
 import {exportClassDiagramAsMermaid} from "./mermaid/mermaidClassExporter";
+import {exportErDiagramAsMermaid} from "./mermaid/mermaidErExporter";
+import {exportPieChartDiagramAsMermaid} from "./mermaid/mermaidPieExporter";
 
 export type {ElementResolver};
 
@@ -35,6 +39,8 @@ export enum ExportImportFormat {
     MermaidFlowchartDiagram = "mermaid_flowchart",
     MermaidDiagram = "mermaid",
     MermaidGanttDiagram = "mermaid_gantt",
+    MermaidErDiagram = "mermaid_er",
+    MermaidPieChartDiagram = "mermaid_pie",
 }
 
 export interface DiagramExportContext {
@@ -71,20 +77,20 @@ export const formatRegistry: ExportRegistryEntry[] = [
         format: ExportImportFormat.Png,
         name: "PNG image",
         exportFunction: async (diagram: Diagram, {stage}) => exportAsPng(diagram, requireStage(stage, "PNG")),
-        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram]
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram, ElementType.ErDiagram, ElementType.PieChartDiagram]
     },
     {
         format: ExportImportFormat.Svg,
         name: "SVG file",
         exportFunction: async (diagram: Diagram, {stage}) => exportAsSvg(diagram, requireStage(stage, "SVG")),
-        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram]
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram, ElementType.ErDiagram, ElementType.PieChartDiagram]
     },
     {
         format: ExportImportFormat.CloudDiagram,
         name: "CloudDiagram file",
         exportFunction: async (diagram: Diagram, {stage, resolveElement}) => exportAsCloudDiagram(diagram, stage, resolveElement),
         importFunction: importCloudDiagram,
-        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram]
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram, ElementType.ErDiagram, ElementType.PieChartDiagram]
     },
     {
         format: ExportImportFormat.MermaidSequenceDiagram,
@@ -109,7 +115,7 @@ export const formatRegistry: ExportRegistryEntry[] = [
         format: ExportImportFormat.MermaidDiagram,
         name: "Mermaid Diagram",
         importFunction: importMermaidDiagram,
-        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram]
+        supportedDiagram: [ElementType.SequenceDiagram, ElementType.ClassDiagram, ElementType.DeploymentDiagram, ElementType.FlowchartDiagram, ElementType.GanttDiagram, ElementType.ErDiagram, ElementType.PieChartDiagram]
     },
     {
         format: ExportImportFormat.MermaidGanttDiagram,
@@ -117,6 +123,20 @@ export const formatRegistry: ExportRegistryEntry[] = [
         exportFunction: async (diagram: Diagram, {resolveElement}) => exportGanttDiagramAsMermaid(diagram, resolveElement),
         importFunction: importMermaidGanttDiagram,
         supportedDiagram: [ElementType.GanttDiagram]
+    },
+    {
+        format: ExportImportFormat.MermaidErDiagram,
+        name: "Mermaid ER Diagram",
+        exportFunction: async (diagram: Diagram, {resolveElement}) => exportErDiagramAsMermaid(diagram, resolveElement),
+        importFunction: importMermaidErDiagram,
+        supportedDiagram: [ElementType.ErDiagram]
+    },
+    {
+        format: ExportImportFormat.MermaidPieChartDiagram,
+        name: "Mermaid Pie Chart",
+        exportFunction: async (diagram: Diagram) => exportPieChartDiagramAsMermaid(diagram),
+        importFunction: importMermaidPieChartDiagram,
+        supportedDiagram: [ElementType.PieChartDiagram]
     },
 ];
 
