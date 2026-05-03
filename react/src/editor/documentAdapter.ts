@@ -1,6 +1,7 @@
 import {atom} from "jotai";
 import {Diagram} from "../common/model";
-import {DiagramElement} from "../package/packageModel";
+import {ColorSchema, DiagramElement} from "../package/packageModel";
+import {defaultColorSchema} from "../common/colors/colorSchemas";
 import {
     elementIdsAtom,
     elementsAtom,
@@ -28,7 +29,23 @@ export function bumpDocumentVersion(set: Set): void {
     set(documentVersionAtom, (v) => v + 1);
 }
 
-export function hydrateCloudDiagramDocument(document: CloudDiagramDocument, set: Set): void {
+function applyColorSchemaOverride(element: DiagramElement, override: ColorSchema): DiagramElement {
+    const el = element as DiagramElement & { colorSchema?: ColorSchema };
+    if (
+        el.colorSchema &&
+        el.colorSchema.fillColor === defaultColorSchema.fillColor &&
+        el.colorSchema.strokeColor === defaultColorSchema.strokeColor
+    ) {
+        return {...el, colorSchema: {...override, rawColors: true}} as DiagramElement;
+    }
+    return element;
+}
+
+export function hydrateCloudDiagramDocument(
+    document: CloudDiagramDocument,
+    set: Set,
+    overrideDefaultColorSchema?: ColorSchema
+): void {
     const elementIds = Object.keys(document.elements);
 
     set(activeDiagramIdAtom, document.diagram.id);
@@ -37,7 +54,10 @@ export function hydrateCloudDiagramDocument(document: CloudDiagramDocument, set:
     set(elementIdsAtom, elementIds);
 
     elementIds.forEach(id => {
-        set(elementsAtom(id), document.elements[id]);
+        const element = overrideDefaultColorSchema
+            ? applyColorSchemaOverride(document.elements[id], overrideDefaultColorSchema)
+            : document.elements[id];
+        set(elementsAtom(id), element);
     });
 
     set(linkingAtom, undefined);

@@ -28,7 +28,7 @@ import {Get, Set} from "../diagramEditor/diagramEditorSlice";
 import {produce, Draft} from 'immer';
 import {NoteState} from "../commonComponents/commonComponentsModel";
 import {TypeAndSubType} from "../diagramTabs/HtmlDrop";
-import {defaultColorSchema} from "../../common/colors/colorSchemas";
+import {defaultColorSchemaAtom} from "../../common/colors/colorSchemas";
 import {Command} from "../propertiesEditor/propertiesEditorModel";
 
 export const lifelineHeadY = 30;
@@ -247,7 +247,7 @@ export function handleSequenceDropFromLibrary(get: Get, set: Set, droppedAt: Coo
                         lifelineEnd: 100
                     },
                     activations: [],
-                    colorSchema: defaultColorSchema
+                    colorSchema: get(defaultColorSchemaAtom)
                 };
 
                 diagram.lifelines[newLifeline.id] = newLifeline;
@@ -465,7 +465,7 @@ export function createLifelineAndConnectTo(get: Get, set: Set, name: string) {
                 lifelineStart: 0,
                 lifelineEnd: Math.max(lifelineDefaultHeight, diagramPos.y - lifelineHeadY - 2),
             },
-            colorSchema: defaultColorSchema
+            colorSchema: get(defaultColorSchemaAtom)
         }
 
         produce(targetLifeline,lifelineDraft => {

@@ -1,8 +1,5 @@
 import React from "react";
-import { Stack, Slider, IconButton, Typography } from "@mui/material";
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
-import ZoomOutIcon from '@mui/icons-material/ZoomOut';
-import FitScreenIcon from '@mui/icons-material/FitScreen';
+import { Box, ButtonBase } from "@mui/material";
 import { useAtomValue } from "jotai";
 import { activeDiagramIdAtom } from "./diagramTabsModel";
 import { diagramDisplaySelector } from "../diagramEditor/diagramEditorModel";
@@ -13,44 +10,51 @@ interface ZoomControlsProps {
     onZoomIn: () => void;
     onZoomOut: () => void;
     onZoomToFit: () => void;
-    onSliderChange: (event: Event, newValue: number | number[]) => void;
 }
 
-export const ZoomControls: React.FC<ZoomControlsProps> = ({
-    scale,
-    onZoomIn,
-    onZoomOut,
-    onZoomToFit,
-    onSliderChange
-}) => {
+const btnSx = {
+    width: 28,
+    height: 24,
+    borderRadius: '4px',
+    fontSize: '16px',
+    fontWeight: 600,
+    color: 'text.secondary',
+    opacity: 0.7,
+    transition: 'opacity 0.15s, background 0.15s',
+    '&:hover': { opacity: 1, bgcolor: 'action.hover' },
+} as const;
+
+const levelSx = {
+    minWidth: 44,
+    height: 24,
+    borderRadius: '4px',
+    fontSize: '11px',
+    color: 'text.disabled',
+    transition: 'background 0.15s, color 0.15s',
+    '&:hover': { bgcolor: 'action.hover', color: 'text.primary' },
+} as const;
+
+export const ZoomControls: React.FC<ZoomControlsProps> = ({ scale, onZoomIn, onZoomOut, onZoomToFit }) => {
     return (
-        <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
-            <IconButton onClick={onZoomOut} size="small">
-                <ZoomOutIcon />
-            </IconButton>
-
-            <Slider
-                value={scale}
-                min={0.1}
-                max={5}
-                step={0.1}
-                onChange={onSliderChange}
-                aria-labelledby="zoom-slider"
-                sx={{ width: 200 }}
-            />
-
-            <IconButton onClick={onZoomIn} size="small">
-                <ZoomInIcon />
-            </IconButton>
-
-            <IconButton onClick={onZoomToFit} size="small">
-                <FitScreenIcon />
-            </IconButton>
-
-            <Typography variant="body2">
+        <Box sx={{
+            position: 'absolute',
+            bottom: 12,
+            right: 12,
+            display: 'flex',
+            gap: '2px',
+            zIndex: 20,
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: '6px',
+            padding: '2px',
+        }}>
+            <ButtonBase sx={btnSx} onClick={onZoomOut} title="Zoom out">−</ButtonBase>
+            <ButtonBase sx={levelSx} onClick={onZoomToFit} title="Fit to screen">
                 {Math.round(scale * 100)}%
-            </Typography>
-        </Stack>
+            </ButtonBase>
+            <ButtonBase sx={btnSx} onClick={onZoomIn} title="Zoom in">+</ButtonBase>
+        </Box>
     );
 };
 

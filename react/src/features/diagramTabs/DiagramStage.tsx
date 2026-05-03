@@ -38,6 +38,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
     padding,
     onStageReady
 }) => {
+    const {appLayout} = React.useContext(AppLayoutContext);
     const diagramKind = useAtomValue(diagramKindSelector(activeDiagramId));
     const DiagramEditor = getDiagramEditor(diagramKind);
     const diagramDisplay = useAtomValue(diagramDisplaySelector(activeDiagramId));
@@ -223,7 +224,8 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                 flex: 1,
                 position: 'relative',
                 minWidth: 0,
-                minHeight: 0
+                minHeight: 0,
+                backgroundColor: appLayout.canvasBackground,
             }}
         >
             <div

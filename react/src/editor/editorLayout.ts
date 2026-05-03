@@ -5,6 +5,7 @@ export interface AppLayout {
     propsDrawerWidth: number;
     darkMode: boolean;
     showGrid: boolean;
+    canvasBackground?: string;
 }
 
 export interface AppLayoutContextType {

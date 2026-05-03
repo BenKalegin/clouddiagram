@@ -1,7 +1,7 @@
 export {CloudDiagramEditor} from "./CloudDiagramEditor";
 export type {CloudDiagramEditorProps} from "./CloudDiagramEditor";
 export {CloudDiagramCanvas} from "./CloudDiagramCanvas";
-export type {CloudDiagramCanvasProps} from "./CloudDiagramCanvas";
+export type {CloudDiagramCanvasProps, DiagramTheme} from "./CloudDiagramCanvas";
 export {UndoRedoControls} from "../features/diagramEditor/UndoRedoControls";
 export {
     CLOUD_DIAGRAM_SCHEMA_VERSION,

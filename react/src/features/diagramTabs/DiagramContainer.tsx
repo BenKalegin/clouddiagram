@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { Box } from "@mui/material";
 import { useAtom, useAtomValue } from "jotai";
 import {
     diagramDisplaySelector,
@@ -28,7 +29,6 @@ export const DiagramContainer = () => {
         handleZoomIn,
         handleZoomOut,
         handleZoomToFit,
-        handleSliderChange
     } = useZoom(
         stageHandler,
         diagramDisplay.width || 3000,
@@ -46,7 +46,7 @@ export const DiagramContainer = () => {
     useKeyboardShortcuts({ activeDiagramId });
 
     return (
-        <>
+        <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', minWidth: 0, minHeight: 0 }}>
             <DiagramStage
                 activeDiagramId={activeDiagramId!}
                 width={diagramDisplay.width || 3000}
@@ -59,8 +59,7 @@ export const DiagramContainer = () => {
                 onZoomIn={handleZoomIn}
                 onZoomOut={handleZoomOut}
                 onZoomToFit={handleZoomToFit}
-                onSliderChange={handleSliderChange}
             />
-        </>
+        </Box>
     );
 };

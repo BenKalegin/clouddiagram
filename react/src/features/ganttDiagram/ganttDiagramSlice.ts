@@ -1,6 +1,6 @@
 import { Action } from "@reduxjs/toolkit";
 import { Coordinate } from "../../common/model";
-import { defaultColorSchema } from "../../common/colors/colorSchemas";
+import { defaultColorSchemaAtom } from "../../common/colors/colorSchemas";
 import {
     defaultCornerStyle,
     ElementRef,
@@ -62,7 +62,7 @@ const autoConnectGanttTasksImpl = (get: Get, set: Set, sourceId: Id, target: Ele
         port2: port2.id,
         tipStyle1: TipStyle.None,
         tipStyle2: TipStyle.Arrow,
-        colorSchema: defaultColorSchema,
+        colorSchema: get(defaultColorSchemaAtom),
         routeStyle: RouteStyle.OrthogonalSquare,
         cornerStyle: defaultCornerStyle,
         ganttDependency: sourceNode.ganttTask && targetNode.ganttTask ? {

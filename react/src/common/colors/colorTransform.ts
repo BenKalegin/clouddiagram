@@ -177,12 +177,13 @@ export function convertColorForDarkTheme(
 }
 
 export const adjustColorSchemaForTheme = (colorSchema: ColorSchema, darkMode: boolean): ColorSchema => {
+    if (colorSchema.rawColors) return colorSchema;
     if (darkMode) {
         return {
             ...colorSchema,
             strokeColor: convertColorForDarkTheme(colorSchema.strokeColor),
             fillColor: convertColorForDarkTheme(colorSchema.fillColor),
-            textColor: darkMode ? "#a9b7c6" : colorSchema.textColor
+            textColor: "#a9b7c6"
         }
     }
     return colorSchema;

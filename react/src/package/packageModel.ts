@@ -32,6 +32,8 @@ export interface ColorSchema {
     strokeColor: string;
     fillColor: string;
     textColor?: string;
+    /** When true, skip the dark-mode colour transform — colours are already theme-ready. */
+    rawColors?: boolean;
 }
 
 // for sequence diagram messages

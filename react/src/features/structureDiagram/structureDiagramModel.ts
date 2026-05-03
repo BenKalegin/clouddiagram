@@ -49,7 +49,7 @@ import {Command} from "../propertiesEditor/propertiesEditorModel";
 import {atom} from "jotai";
 import {atomFamily} from "jotai-family";
 import {generatePath} from "../../common/Geometry/PathGenerator";
-import {defaultColorSchema} from "../../common/colors/colorSchemas";
+import {defaultColorSchemaAtom} from "../../common/colors/colorSchemas";
 import {withElementHistory, withHistory} from "../diagramEditor/historySlice";
 import {
     addGanttDays,
@@ -250,7 +250,7 @@ const autoConnectNodesImpl = (get: Get, set: Set, sourceId: Id, target: ElementR
         port2: port2.id,
         tipStyle1: TipStyle.None,
         tipStyle2: TipStyle.Arrow,
-        colorSchema: defaultColorSchema,
+        colorSchema: get(defaultColorSchemaAtom),
         routeStyle: defaultRouteStyle,
         cornerStyle: defaultCornerStyle
     }
@@ -339,7 +339,7 @@ const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: st
                 id: nodeId,
                 text: getErEntityDisplayName(erEntity),
                 ports: [],
-                colorSchema: defaultColorSchema,
+                colorSchema: get(defaultColorSchemaAtom),
                 erEntity
             }
             : ganttTask
@@ -355,7 +355,7 @@ const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: st
                 id: nodeId,
                 text: name,
                 ports: [],
-                colorSchema: defaultColorSchema,
+                colorSchema: get(defaultColorSchemaAtom),
                 customShape: customShape,
                 flowchartKind,
             };

@@ -3,7 +3,7 @@ import {Box, CssBaseline, Divider, Stack, styled, ThemeProvider} from "@mui/mate
 import {Provider as JotaiProvider, createStore, useStore} from "jotai";
 import {AppLayout, AppLayoutContext, defaultAppLayout} from "./editorLayout";
 import {PropertiesDrawer} from "./PropertiesDrawer";
-import {getTheme} from "../common/colors/colorSchemas";
+import {defaultColorSchema, defaultColorSchemaAtom, getTheme} from "../common/colors/colorSchemas";
 import {KeyboardShortcuts} from "../features/diagramEditor/KeyboardShortcuts";
 import {Toolbox} from "../features/toolbox/Toolbox";
 import {DiagramTabs} from "../features/diagramTabs/DiagramTabs";
@@ -16,6 +16,18 @@ import {
 } from "./documentAdapter";
 import {PersistenceMode, PersistenceService} from "../services/persistence/persistenceService";
 import {useTransaction} from "../common/state/jotaiShim";
+import {ColorSchema} from "../package/packageModel";
+
+export interface DiagramTheme {
+    /** Switches the MUI chrome to dark or light mode. */
+    darkMode?: boolean;
+    /** Background colour of the canvas area (Konva stage wrapper). */
+    canvasBackground?: string;
+    /** Background colour of side panels (toolbox, properties pane). Maps to MUI background.paper. */
+    panelBackground?: string;
+    /** Colour schema applied to newly created and imported nodes/links. */
+    defaultColorSchema?: ColorSchema;
+}
 
 const DEFAULT_CHANGE_DEBOUNCE_MS = 300;
 const INITIAL_HYDRATION_KEY = "initial";
@@ -53,6 +65,8 @@ export interface CloudDiagramCanvasProps {
     header?: ReactNode;
     height?: React.CSSProperties["height"];
     initialLayout?: AppLayout;
+    /** Host-supplied visual theme. Values here override user-toggled layout settings. */
+    theme?: DiagramTheme;
     value?: CloudDiagramDocument;
     valueVersion?: string | number;
     persistenceMode?: PersistenceMode;
@@ -68,6 +82,7 @@ export function CloudDiagramCanvas({
     value,
     valueVersion,
     persistenceMode,
+    theme,
     ...props
 }: CloudDiagramCanvasProps) {
     const resolvedPersistenceMode = persistenceMode ?? (value ? PersistenceMode.Host : PersistenceMode.Local);
@@ -80,12 +95,17 @@ export function CloudDiagramCanvas({
     const storeRef = useRef<ReturnType<typeof createStore> | null>(null);
     if (storeRef.current === null) {
         storeRef.current = createStore();
+        // Seed the atom synchronously so the very first render uses the right colour.
+        if (theme?.defaultColorSchema) {
+            storeRef.current.set(defaultColorSchemaAtom, {...theme.defaultColorSchema, rawColors: true});
+        }
     }
 
     return (
         <JotaiProvider store={storeRef.current}>
             <CloudDiagramCanvasContent
                 {...props}
+                theme={theme}
                 value={value}
                 valueVersion={valueVersion}
                 persistenceMode={resolvedPersistenceMode}
@@ -98,6 +118,7 @@ function CloudDiagramCanvasContent({
     header,
     height = "100%",
     initialLayout = defaultAppLayout,
+    theme,
     value,
     valueVersion,
     persistenceMode,
@@ -107,17 +128,40 @@ function CloudDiagramCanvasContent({
     onDocumentLoad,
     onLayoutChange
 }: CloudDiagramCanvasProps) {
-    const [appLayout, setAppLayout] = React.useState(initialLayout);
+    const [appLayout, setAppLayout] = React.useState<AppLayout>(() => ({
+        ...initialLayout,
+        ...(theme?.darkMode !== undefined && {darkMode: theme.darkMode}),
+        ...(theme?.canvasBackground !== undefined && {canvasBackground: theme.canvasBackground}),
+    }));
+    const store = useStore();
     const recoverDiagrams = RecoveryService.useRecoverDiagrams();
+    const themeDefaultColorSchema = theme?.defaultColorSchema;
     const hydrateDocument = useTransaction(({set}) => (document: CloudDiagramDocument) => {
-        hydrateCloudDiagramDocument(document, set);
-    }, []);
+        hydrateCloudDiagramDocument(document, set, themeDefaultColorSchema);
+    }, [themeDefaultColorSchema]);
     const hydratedKeyRef = useRef<string | undefined>(undefined);
     const shouldRecoverOnMount = recoverOnMount ?? persistenceMode === PersistenceMode.Local;
 
     useEffect(() => {
         onLayoutChange?.(appLayout);
     }, [appLayout, onLayoutChange]);
+
+    useEffect(() => {
+        if (theme?.darkMode !== undefined) {
+            setAppLayout(prev => ({...prev, darkMode: theme.darkMode!}));
+        }
+    }, [theme?.darkMode]);
+
+    useEffect(() => {
+        setAppLayout(prev => ({...prev, canvasBackground: theme?.canvasBackground}));
+    }, [theme?.canvasBackground]);
+
+    useEffect(() => {
+        store.set(
+            defaultColorSchemaAtom,
+            themeDefaultColorSchema ? {...themeDefaultColorSchema, rawColors: true} : defaultColorSchema
+        );
+    }, [store, themeDefaultColorSchema]);
 
     useEffect(() => {
         if (!shouldRecoverOnMount) return;
@@ -136,11 +180,14 @@ function CloudDiagramCanvasContent({
     const contextValue = React.useMemo(() => ({appLayout, setAppLayout}), [appLayout]);
     const drawerWidth = showPropertiesPane ? appLayout.propsDrawerWidth : 0;
     const drawerOpen = showPropertiesPane && appLayout.propsPaneOpen;
-    const theme = getTheme(appLayout.darkMode);
+    const muiTheme = React.useMemo(
+        () => getTheme(appLayout.darkMode, {default: theme?.canvasBackground, paper: theme?.panelBackground}),
+        [appLayout.darkMode, theme?.canvasBackground, theme?.panelBackground]
+    );
 
     return (
         <AppLayoutContext.Provider value={contextValue}>
-            <ThemeProvider theme={theme}>
+            <ThemeProvider theme={muiTheme}>
                 <Box sx={{display: "flex", flexDirection: "column", height, overflow: "hidden"}}>
                     <CssBaseline/>
                     <KeyboardShortcuts/>

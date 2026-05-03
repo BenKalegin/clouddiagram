@@ -1,5 +1,6 @@
 // Create theme based on darkMode flag
 import {createTheme} from "@mui/material";
+import {atom} from "jotai";
 import {ColorSchema} from "../../package/packageModel";
 
 const darkTheme = createTheme({
@@ -77,8 +78,27 @@ export const colorSchemaList: ColorSchema[] = [
 
 
 
-export const getTheme = (darkMode: boolean) => {
-    return darkMode ? darkTheme : lightTheme;
+export const getTheme = (darkMode: boolean, backgrounds?: { default?: string; paper?: string }) => {
+    if (!backgrounds?.default && !backgrounds?.paper) {
+        return darkMode ? darkTheme : lightTheme;
+    }
+    const base = darkMode
+        ? { mode: 'dark' as const, primary: {main: '#90caf9'}, secondary: {main: '#f48fb1'} }
+        : { mode: 'light' as const, primary: {main: '#1976d2'}, secondary: {main: '#e91e63'} };
+    return createTheme({
+        palette: {
+            ...base,
+            background: {
+                ...(darkMode && {default: '#1e1f22'}),
+                ...backgrounds,
+            },
+        },
+    });
 }
+
+// Per-store atom so each CloudDiagramCanvas instance can have its own default.
+// Initialised to the static defaultColorSchema; set by CloudDiagramCanvas when
+// a host-supplied theme.defaultColorSchema is provided.
+export const defaultColorSchemaAtom = atom<ColorSchema>(defaultColorSchema);
 
 
