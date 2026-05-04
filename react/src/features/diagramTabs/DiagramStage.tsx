@@ -169,7 +169,9 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [onStageReady, dispatch, padding, activeDiagramId]);
 
-    // Update the store with the new scroll position
+    // Read scale directly from the store at scroll-time so that setViewport-
+    // triggered scrolls don't dispatch a stale scale (the closure or even
+    // refs-set-during-render lag a tick behind the store).
     const handleScroll = useCallback(() => {
         if (!scrollContainerRef.current) return;
 
@@ -181,11 +183,13 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
             y: effPaddingY - scrollTop
         };
 
+        const currentScale = jotaiStore.get(diagramDisplaySelector(activeDiagramId)).scale;
+
         dispatch(updateDiagramDisplayAction({
-            scale,
+            scale: currentScale,
             offset: newPos
         }));
-    }, [scale, effPaddingX, effPaddingY, dispatch]);
+    }, [effPaddingX, effPaddingY, dispatch, jotaiStore, activeDiagramId]);
 
     // Set up a scroll event listener
     useEffect(() => {

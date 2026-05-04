@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { Box } from "@mui/material";
 import { useAtom, useAtomValue } from "jotai";
 import {
@@ -34,6 +34,20 @@ export const DiagramContainer = () => {
         diagramDisplay.width || 3000,
         diagramDisplay.height || 3000
     );
+
+    const fittedRef = useRef(false);
+    useEffect(() => {
+        if (!stageHandler || fittedRef.current) return;
+        if (!diagramDisplay.width || !diagramDisplay.height) return;
+        const FIT_DELAY_MS = 80;
+        const t = window.setTimeout(() => {
+            const dimensions = stageHandler.getContainerDimensions();
+            if (!dimensions || !dimensions.width || !dimensions.height) return;
+            handleZoomToFit();
+            fittedRef.current = true;
+        }, FIT_DELAY_MS);
+        return () => window.clearTimeout(t);
+    }, [stageHandler, diagramDisplay.width, diagramDisplay.height, handleZoomToFit]);
 
     usePanZoomHandlers({
         stageHandler,

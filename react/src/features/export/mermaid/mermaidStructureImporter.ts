@@ -11,8 +11,9 @@ import {
 } from "../../../package/packageModel";
 import {defaultColorSchema} from "../../../common/colors/colorSchemas";
 import {StructureDiagramState} from "../../structureDiagram/structureDiagramState";
-import {createMermaidIdGenerator, mermaidSourceLines} from "./mermaidImportUtils";
+import {createMermaidIdGenerator, mermaidSourceLines, parseMermaidLayoutHints} from "./mermaidImportUtils";
 import {createClassMember, minimumClassNodeHeight, normalizeClassAnnotation} from "../../classDiagram/classDiagramUtils";
+import {applyAutoLayout, LayoutLink} from "../../layout/autoLayout";
 
 interface ImportStructureOptions {
     forceFlowchart?: boolean;
@@ -70,9 +71,43 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
     const nodes: { [id: string]: any } = {};
     const ports: { [id: string]: any } = {};
     const links: { [id: string]: any } = {};
+    const layoutEdges: LayoutLink[] = [];
     const nodeMap: { [name: string]: string } = {};
+    const subgraphMembers: { [name: string]: string[] } = {};
+    const subgraphStack: string[] = [];
     let nodeIndex = 0;
     let currentClassBlock: string | undefined;
+
+    function trackSubgraphMembership(name: string): void {
+        for (const sid of subgraphStack) {
+            const members = subgraphMembers[sid] ?? (subgraphMembers[sid] = []);
+            if (!members.includes(name)) members.push(name);
+        }
+    }
+
+    function expandSubgraphRef(name: string): string[] {
+        return subgraphMembers[name]?.length ? [...subgraphMembers[name]] : [name];
+    }
+
+    function normalizeLabel(label: string | undefined): string | undefined {
+        return label?.replace(/\\n/g, "\n");
+    }
+
+    function stripLabelQuotes(label: string | undefined): string | undefined {
+        if (label === undefined) return undefined;
+        const trimmed = label.trim();
+        if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
+            return trimmed.slice(1, -1);
+        }
+        return trimmed;
+    }
+
+    function splitChainSide(side: string): string[] {
+        return side
+            .split(/\s*&\s*/)
+            .map(part => part.trim())
+            .filter(part => /^[\w-]+$/.test(part));
+    }
 
     function getOrCreateNode(
         name: string,
@@ -209,6 +244,30 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         (elements[targetPortId] as PortState).links.push(linkId);
 
         links[linkId] = {};
+        layoutEdges.push({ source: fromId, target: toId });
+    }
+
+    function tryEdgeChain(line: string): boolean {
+        const arrowMatch = line.match(/\s+(<\|--|<-->|<--|-->|---|-\.-|==>|--\.\.|--o|--\*|<->|--)\s+(?:\|([^|]+)\|\s+)?/);
+        if (!arrowMatch || arrowMatch.index === undefined) return false;
+        const arrow = arrowMatch[1];
+        const edgeLabel = arrowMatch[2];
+        const lhs = line.slice(0, arrowMatch.index);
+        const rhs = line.slice(arrowMatch.index + arrowMatch[0].length);
+        const fromNames = splitChainSide(lhs);
+        const toNames = splitChainSide(rhs);
+        if (fromNames.length === 0 || toNames.length === 0) return false;
+
+        for (const fromName of fromNames) {
+            for (const toName of toNames) {
+                for (const fid of expandSubgraphRef(fromName)) {
+                    for (const tid of expandSubgraphRef(toName)) {
+                        createLink(getOrCreateNode(fid), getOrCreateNode(tid), arrow, edgeLabel);
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     for (const line of lines) {
@@ -221,6 +280,22 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             lowerLine.startsWith('c4deployment') ||
             lowerLine.startsWith('flowchart') ||
             lowerLine.startsWith('graph')) continue;
+
+        const subgraphMatch = line.match(/^subgraph\s+([\w-]+)(?:\s*\[\s*["`]?(.+?)["`]?\s*\])?\s*$/);
+        if (subgraphMatch) {
+            const [, sid] = subgraphMatch;
+            subgraphStack.push(sid);
+            if (!subgraphMembers[sid]) subgraphMembers[sid] = [];
+            continue;
+        }
+        if (lowerLine === "end") {
+            subgraphStack.pop();
+            continue;
+        }
+
+        if (flowchartMode && line.includes("&") && tryEdgeChain(line)) {
+            continue;
+        }
 
         if (currentClassBlock) {
             if (/^}\s*;?$/.test(line)) {
@@ -290,39 +365,51 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             continue;
         }
 
-        const nodeMatch = line.match(/^([\w-]+)\s*(?:\[\/([^\]]+)\/\]|\[([^\]]+)\]|\(\[([^\]]+)\]\)|\(\(([^)]+)\)\)|\(([^)]+)\)|\{([^}]+)\})$/);
+        const nodeMatch = line.match(/^([\w-]+)\s*(?:\[\/([^\]]+)\/\]|\[\(("[^"]+"|.+?)\)\]|\[([^\]]+)\]|\(\[([^\]]+)\]\)|\(\(([^)]+)\)\)|\(([^)]+)\)|\{([^}]+)\})$/);
         if (nodeMatch) {
-            const [, id, ioLabel, squareLabel, stadiumLabel, circleLabel, roundLabel, decisionLabel] = nodeMatch;
-            const label = ioLabel || squareLabel || stadiumLabel || circleLabel || roundLabel || decisionLabel;
+            const [, id, ioLabel, cylinderLabel, squareLabel, stadiumLabel, circleLabel, roundLabel, decisionLabel] = nodeMatch;
+            const rawLabel = ioLabel || cylinderLabel || squareLabel || stadiumLabel || circleLabel || roundLabel || decisionLabel;
+            const label = normalizeLabel(stripLabelQuotes(rawLabel));
             const shape = decisionLabel ? "decision"
                 : ioLabel ? "input-output"
-                    : (stadiumLabel || circleLabel || roundLabel) ? "terminator"
+                    : (stadiumLabel || circleLabel || roundLabel || cylinderLabel) ? "terminator"
                         : "process";
             getOrCreateNode(id, label, toFlowchartKind(shape));
+            trackSubgraphMembership(id);
             continue;
         }
 
-        const flowMatch = line.match(/^([\w-]+)\s*(?:\[\/([^\]]+)\/\]|\[([^\]]+)\]|\(\[([^\]]+)\]\)|\(\(([^)]+)\)\)|\(([^)]+)\)|\{([^}]+)\})?\s*(<\|--|<-->|<--|-->|---|-\.-|==>|--|--\.\.|--o|--\*|<->)\s*(?:\|([^|]+)\|\s*)?([\w-]+)\s*(?:\[\/([^\]]+)\/\]|\[([^\]]+)\]|\(\[([^\]]+)\]\)|\(\(([^)]+)\)\)|\(([^)]+)\)|\{([^}]+)\})?(?:\s*\|([^|]+)\|)?$/);
+        const flowMatch = line.match(/^([\w-]+)\s*(?:\[\/([^\]]+)\/\]|\[\(("[^"]+"|.+?)\)\]|\[([^\]]+)\]|\(\[([^\]]+)\]\)|\(\(([^)]+)\)\)|\(([^)]+)\)|\{([^}]+)\})?\s*(<\|--|<-->|<--|-->|---|-\.-|==>|--|--\.\.|--o|--\*|<->)\s*(?:\|([^|]+)\|\s*)?([\w-]+)\s*(?:\[\/([^\]]+)\/\]|\[\(("[^"]+"|.+?)\)\]|\[([^\]]+)\]|\(\[([^\]]+)\]\)|\(\(([^)]+)\)\)|\(([^)]+)\)|\{([^}]+)\})?(?:\s*\|([^|]+)\|)?$/);
         if (flowMatch) {
-            const [, from, fio, fsquare, fstadium, fcircle, fround, fdecision, arrow, edgeLabelBefore, to, tio, tsquare, tstadium, tcircle, tround, tdecision, edgeLabelAfter] = flowMatch;
-            const edgeLabel = edgeLabelBefore || edgeLabelAfter;
-            const fromLabel = fio || fsquare || fstadium || fcircle || fround || fdecision;
-            const toLabel = tio || tsquare || tstadium || tcircle || tround || tdecision;
-            const fromShape = fromLabel
+            const [, from, fio, fcyl, fsquare, fstadium, fcircle, fround, fdecision, arrow, edgeLabelBefore, to, tio, tcyl, tsquare, tstadium, tcircle, tround, tdecision, edgeLabelAfter] = flowMatch;
+            const edgeLabel = normalizeLabel(edgeLabelBefore || edgeLabelAfter);
+            const fromLabel = normalizeLabel(stripLabelQuotes(fio || fcyl || fsquare || fstadium || fcircle || fround || fdecision));
+            const toLabel = normalizeLabel(stripLabelQuotes(tio || tcyl || tsquare || tstadium || tcircle || tround || tdecision));
+            const fromHasShape = !!(fio || fcyl || fsquare || fstadium || fcircle || fround || fdecision);
+            const toHasShape = !!(tio || tcyl || tsquare || tstadium || tcircle || tround || tdecision);
+            const fromShape = fromHasShape
                 ? (fdecision ? "decision"
                     : fio ? "input-output"
-                        : (fstadium || fcircle || fround) ? "terminator"
+                        : (fstadium || fcircle || fround || fcyl) ? "terminator"
                             : "process")
                 : undefined;
-            const toShape = toLabel
+            const toShape = toHasShape
                 ? (tdecision ? "decision"
                     : tio ? "input-output"
-                        : (tstadium || tcircle || tround) ? "terminator"
+                        : (tstadium || tcircle || tround || tcyl) ? "terminator"
                             : "process")
                 : undefined;
-            const fromNodeId = getOrCreateNode(from, fromLabel, toFlowchartKind(fromShape));
-            const toNodeId = getOrCreateNode(to, toLabel, toFlowchartKind(toShape));
-            createLink(fromNodeId, toNodeId, arrow, edgeLabel);
+            const fromIds = fromHasShape ? [from] : expandSubgraphRef(from);
+            const toIds = toHasShape ? [to] : expandSubgraphRef(to);
+            for (const fname of fromIds) {
+                for (const tname of toIds) {
+                    const fLabel = fname === from ? fromLabel : undefined;
+                    const tLabel = tname === to ? toLabel : undefined;
+                    const fromNodeId = getOrCreateNode(fname, fLabel, toFlowchartKind(fromShape));
+                    const toNodeId = getOrCreateNode(tname, tLabel, toFlowchartKind(toShape));
+                    createLink(fromNodeId, toNodeId, arrow, edgeLabel);
+                }
+            }
             continue;
         }
 
@@ -346,6 +433,10 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         }
     }
 
+    applyAutoLayout(nodes, layoutEdges, parseMermaidLayoutHints(content));
+
+    const { width: displayWidth, height: displayHeight } = computeDisplaySize(nodes);
+
     const result: any = {
         ...baseDiagram,
         elements,
@@ -356,11 +447,30 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         selectedElements: [],
         display: {
             ...baseDiagram.display,
-            width: 2000,
-            height: 2000,
+            width: displayWidth,
+            height: displayHeight,
             offset: { x: 0, y: 0 }
         }
     };
 
     return result as StructureDiagramState;
+}
+
+const DISPLAY_PADDING = 80;
+const DISPLAY_MIN_WIDTH = 800;
+const DISPLAY_MIN_HEIGHT = 600;
+
+function computeDisplaySize(nodes: { [id: string]: any }): { width: number; height: number } {
+    let maxRight = DISPLAY_MIN_WIDTH;
+    let maxBottom = DISPLAY_MIN_HEIGHT;
+    for (const node of Object.values(nodes)) {
+        const bounds = node?.bounds;
+        if (!bounds) continue;
+        maxRight = Math.max(maxRight, bounds.x + bounds.width);
+        maxBottom = Math.max(maxBottom, bounds.y + bounds.height);
+    }
+    return {
+        width: maxRight + DISPLAY_PADDING,
+        height: maxBottom + DISPLAY_PADDING
+    };
 }
