@@ -125,9 +125,13 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             .filter(part => /^[\w-]+$/.test(part));
     }
 
-    function estimateNodeHeight(label: string): number {
-        const lines = label.split("\n").length;
-        return Math.max(60, lines * 14 + 16);
+    function estimateNodeHeight(label: string, nodeWidth = 140): number {
+        const charsPerLine = Math.floor(nodeWidth / 7); // ~7px per char at fontSize 14
+        let totalLines = 0;
+        for (const segment of label.split("\n")) {
+            totalLines += segment.length === 0 ? 1 : Math.ceil(segment.length / charsPerLine);
+        }
+        return Math.max(60, totalLines * 18 + 16);
     }
 
     function getOrCreateNode(
