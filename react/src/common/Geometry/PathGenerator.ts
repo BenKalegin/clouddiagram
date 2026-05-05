@@ -101,10 +101,7 @@ const bezier = (route: Coordinate[], source: PortState, sourcePlacement: PortPla
         // handle simple case: just two points
         route = getRouteWithCurvePoints(route, source, sourcePlacement, target, targetPlacement);
 
-        result.svg = [`
-          M ${route[0].x} ${route[0].y}
-          C ${route[1].x} ${route[1].y}, ${route[2].x} ${route[2].y}, ${route[3].x} ${route[3].y}
-          C ${route[2].x} ${route[2].y}, ${route[1].x} ${route[1].y}, ${route[0].x} ${route[0].y} Z`];
+        result.svg = [`M ${route[0].x} ${route[0].y} C ${route[1].x} ${route[1].y}, ${route[2].x} ${route[2].y}, ${route[3].x} ${route[3].y}`];
 
         result.startAngle = Math.atan2(route[0].y - route[1].y, route[0].x - route[1].x);
         result.endAngle = Math.atan2(route[route.length - 1].y - route[route.length - 2].y,
@@ -449,11 +446,14 @@ const orthogonalSquare = (route: Coordinate[], source: PortState, sourceBounds: 
     // Add intermediate points based on port alignments
     switch (sourcePlacement.alignment) {
         case PortAlignment.Top:
-            waypoints.push({x: start.x, y: Math.min(start.y - _margin, end.y)});
+        case PortAlignment.Bottom: {
+            // Route through the vertical midpoint so the elbow sits between the nodes,
+            // then cross horizontally to align with the target before the final segment.
+            const midY = (start.y + end.y) / 2;
+            waypoints.push({x: start.x, y: midY});
+            if (Math.abs(start.x - end.x) > 1) waypoints.push({x: end.x, y: midY});
             break;
-        case PortAlignment.Bottom:
-            waypoints.push({x: start.x, y: Math.max(start.y + _margin, end.y)});
-            break;
+        }
         case PortAlignment.Left:
             waypoints.push({x: Math.min(start.x - _margin, end.x), y: start.y});
             break;
