@@ -70,9 +70,12 @@ export const VirtualizedLayer: React.FC<VirtualizedLayerProps> = ({
 
     updateViewport();
 
-    stage.on('dragmove', updateViewport);
-    stage.on('wheel', updateViewport);
-    stage.on('scaleChange', updateViewport);
+    // 'dragmove'/'wheel' cover interactive pan/zoom; 'xChange'/'yChange'/
+    // 'scaleXChange'/'scaleYChange' cover programmatic updates (e.g. fit-to-screen
+    // via setViewport, which sets Stage props through react-konva rather than
+    // emitting dragmove or wheel).
+    const stageEvents = 'dragmove wheel xChange yChange scaleXChange scaleYChange';
+    stage.on(stageEvents, updateViewport);
 
     // Stage size is set asynchronously by parent layout (DiagramStage measures
     // its container in a useEffect). Konva doesn't emit a resize event, so we
@@ -82,9 +85,7 @@ export const VirtualizedLayer: React.FC<VirtualizedLayerProps> = ({
     resizeObserver.observe(container);
 
     return () => {
-      stage.off('dragmove', updateViewport);
-      stage.off('wheel', updateViewport);
-      stage.off('scaleChange', updateViewport);
+      stage.off(stageEvents, updateViewport);
       resizeObserver.disconnect();
     };
   }, [padding]);

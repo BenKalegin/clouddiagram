@@ -106,7 +106,7 @@ const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
             />
         );
     };
-export const PlainTab = styled((props: StyledTabProps) => {
+export const PlainTab: React.ComponentType<StyledTabProps> = styled((props: StyledTabProps) => {
     const label = useAtomValue(diagramTitleSelector(props.diagram_id)) ?? "New";
 
     return <DiagramTab

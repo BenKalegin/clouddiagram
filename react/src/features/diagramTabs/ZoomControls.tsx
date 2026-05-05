@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Box, ButtonBase } from "@mui/material";
 import { useAtomValue } from "jotai";
 import { activeDiagramIdAtom } from "./diagramTabsModel";
@@ -114,7 +114,11 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
         applyZoom(newScale);
     };
 
-    const handleZoomToFit = () => {
+    // Memoized so that effects depending on `handleZoomToFit` (e.g. the
+    // fit-on-mount effect in DiagramContainer) don't re-fire on every render
+    // — that previously cleared the scheduled fit timeout repeatedly during
+    // hydration, leaving the diagram un-fit at scale=1.
+    const handleZoomToFit = useCallback(() => {
         if (!stageHandler) return;
 
         const stage = stageHandler.getStage();
@@ -139,7 +143,7 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
 
         // Use stageHandler to update scale and position at once (prevents race conditions)
         stageHandler.setViewport(newScale, newPos);
-    };
+    }, [stageHandler, WIDTH, HEIGHT]);
 
     const handleSliderChange = (_event: Event, newValue: number | number[]) => {
         if (!stageHandler) return;

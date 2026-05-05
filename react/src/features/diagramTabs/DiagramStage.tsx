@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { Stage } from 'react-konva';
 import Konva from "konva";
 import { useAtomValue, useStore, Provider as JotaiProvider } from "jotai";
@@ -54,18 +54,20 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
     const [viewportDimensions, setViewportDimensions] = React.useState({ width: 0, height: 0 });
 
     useEffect(() => {
+        const el = scrollContainerRef.current;
+        if (!el) return;
+
         const updateDimensions = () => {
-            if (scrollContainerRef.current) {
-                setViewportDimensions({
-                    width: scrollContainerRef.current.clientWidth,
-                    height: scrollContainerRef.current.clientHeight
-                });
-            }
+            setViewportDimensions({
+                width: el.clientWidth,
+                height: el.clientHeight
+            });
         };
 
         updateDimensions();
-        window.addEventListener('resize', updateDimensions);
-        return () => window.removeEventListener('resize', updateDimensions);
+        const observer = new ResizeObserver(updateDimensions);
+        observer.observe(el);
+        return () => observer.disconnect();
     }, []);
 
     const scale = diagramDisplay.scale;
@@ -125,13 +127,15 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                 },
                 setViewport: (newScale: number, newPosition: { x: number, y: number }) => {
                     if (scrollContainerRef.current) {
-                        scrollContainerRef.current.scrollLeft = effPaddingXRef.current - newPosition.x;
-                        scrollContainerRef.current.scrollTop = effPaddingYRef.current - newPosition.y;
-
+                        // Dispatch first so jotai has the new scale before any
+                        // synchronous scroll events fire and read it back.
                         dispatch(updateDiagramDisplayAction({
                             scale: newScale,
                             offset: newPosition
                         }));
+
+                        scrollContainerRef.current.scrollLeft = effPaddingXRef.current - newPosition.x;
+                        scrollContainerRef.current.scrollTop = effPaddingYRef.current - newPosition.y;
                     }
                 },
                 getContainerDimensions: () => {
@@ -218,6 +222,15 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
             scrollContainerRef.current.scrollTop = targetTop;
         }
     }, [activeDiagramId, effPaddingX, effPaddingY, viewportDimensions.width, viewportDimensions.height]);
+
+    // Force Konva to redraw synchronously before each browser paint whenever
+    // scale or position changes.  Konva schedules its own batchDraw via RAF but
+    // in some Electron/Chromium timing scenarios the RAF fires too late (after a
+    // scroll event has already re-entered handleScroll with stale state), leaving
+    // the canvas at scale=1 with most nodes outside the viewport.
+    useLayoutEffect(() => {
+        stageRef.current?.draw();
+    }, [scale, position.x, position.y]);
 
     return (
         <div

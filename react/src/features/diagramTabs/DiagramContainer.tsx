@@ -40,13 +40,23 @@ export const DiagramContainer = () => {
         if (!stageHandler || fittedRef.current) return;
         if (!diagramDisplay.width || !diagramDisplay.height) return;
         const FIT_DELAY_MS = 80;
-        const t = window.setTimeout(() => {
+        let cancelled = false;
+        let timer: number;
+        const tryFit = () => {
+            if (cancelled || fittedRef.current) return;
             const dimensions = stageHandler.getContainerDimensions();
-            if (!dimensions || !dimensions.width || !dimensions.height) return;
+            if (!dimensions || !dimensions.width || !dimensions.height) {
+                timer = window.setTimeout(tryFit, FIT_DELAY_MS);
+                return;
+            }
             handleZoomToFit();
             fittedRef.current = true;
-        }, FIT_DELAY_MS);
-        return () => window.clearTimeout(t);
+        };
+        timer = window.setTimeout(tryFit, FIT_DELAY_MS);
+        return () => {
+            cancelled = true;
+            window.clearTimeout(timer);
+        };
     }, [stageHandler, diagramDisplay.width, diagramDisplay.height, handleZoomToFit]);
 
     usePanZoomHandlers({
