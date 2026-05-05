@@ -1,28 +1,16 @@
 import {defineConfig} from "vite";
 import react from "@vitejs/plugin-react";
-import dts from "vite-plugin-dts";
 import {resolve} from "path";
 
 const PORT = 3000;
 
+// Note: type declarations are emitted by `pnpm build:editor:types`
+// (tsc -p tsconfig.editor.json), not by vite-plugin-dts.
 export default defineConfig(({mode}) => {
     const isLibraryBuild = mode === "library";
 
     return {
-        plugins: [
-            react(),
-            ...(isLibraryBuild
-                ? [
-                      dts({
-                          entryRoot: "src",
-                          include: ["src/editor/**/*", "src/features/**/*", "src/common/**/*", "src/services/**/*", "src/package/**/*"],
-                          exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*.integration.test.ts"],
-                          outDir: "dist/editor-types",
-                          tsconfigPath: "tsconfig.editor.json"
-                      })
-                  ]
-                : [])
-        ],
+        plugins: [react()],
         server: {
             port: PORT,
             host: true

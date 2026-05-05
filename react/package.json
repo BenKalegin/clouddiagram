@@ -38,6 +38,7 @@
     "jotai": "^2.19.1",
     "jotai-family": "^1.0.1",
     "konva": "^9.3.22",
+    "nanoid": "^3.3.12",
     "playwright": "^1.49.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

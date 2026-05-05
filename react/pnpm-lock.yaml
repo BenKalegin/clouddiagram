@@ -47,6 +47,9 @@ importers:
       konva:
         specifier: ^9.3.22
         version: 9.3.22
+      nanoid:
+        specifier: ^3.3.12
+        version: 3.3.12
       playwright:
         specifier: ^1.49.0
         version: 1.59.1
