@@ -38,15 +38,6 @@ const LAYOUT_ORIGIN_Y = 80;
 const CLUSTER_PADDING = 20;
 const CLUSTER_LABEL_HEIGHT = 22; // must match ClusterContainer LABEL_HEIGHT
 
-/**
- * Run a hierarchical layout (dagre) over the given nodes/links and write the
- * computed top-left coordinates back into each node's bounds. Nodes without an
- * incident edge are placed by dagre as disconnected components.
- *
- * When clusters and nodeParents are provided the graph is treated as a compound
- * graph: dagre groups child nodes inside their parent cluster and returns bounds
- * for each cluster, which are returned as the function result.
- */
 export function applyAutoLayout(
     nodes: { [id: string]: LayoutNode },
     links: LayoutLink[],
@@ -61,6 +52,15 @@ export function applyAutoLayout(
     const clusterIds = clusters ? Object.keys(clusters) : [];
     const hasCompound = clusterIds.length > 0;
 
+    // For compound layouts, remove edges whose direction contradicts the
+    // dominant inter-cluster flow (determined by majority vote over all
+    // cross-cluster edges). This prevents minority "back-flow" edges such as
+    // Lambda→DynamoDB from dragging cluster members to a lower rank and placing
+    // them outside their parent cluster box.
+    const layoutLinks = hasCompound
+        ? filterMinorityClusterEdges(links, nodeParents ?? {}, clusterParents ?? {})
+        : links;
+
     const graph = new dagre.graphlib.Graph({ multigraph: true, compound: hasCompound });
     graph.setGraph({
         rankdir: hints?.direction ?? DEFAULT_DIRECTION,
@@ -74,7 +74,13 @@ export function applyAutoLayout(
 
     if (hasCompound) {
         for (const clusterId of clusterIds) {
-            graph.setNode(clusterId, { clusterLabelPos: "top", paddingTop: CLUSTER_PADDING + CLUSTER_LABEL_HEIGHT, paddingBottom: CLUSTER_PADDING, paddingLeft: CLUSTER_PADDING, paddingRight: CLUSTER_PADDING });
+            graph.setNode(clusterId, {
+                clusterLabelPos: "top",
+                paddingTop: CLUSTER_PADDING + CLUSTER_LABEL_HEIGHT,
+                paddingBottom: CLUSTER_PADDING,
+                paddingLeft: CLUSTER_PADDING,
+                paddingRight: CLUSTER_PADDING
+            });
         }
     }
 
@@ -99,7 +105,7 @@ export function applyAutoLayout(
         }
     }
 
-    for (const [index, link] of links.entries()) {
+    for (const [index, link] of layoutLinks.entries()) {
         if (!nodes[link.source] || !nodes[link.target]) continue;
         graph.setEdge(link.source, link.target, {}, `e${index}`);
     }
@@ -116,17 +122,122 @@ export function applyAutoLayout(
 
     if (!hasCompound) return {};
 
-    const clusterBounds: { [clusterId: string]: LayoutNodeBounds } = {};
-    for (const clusterId of clusterIds) {
-        const placed = graph.node(clusterId);
-        if (placed?.width && placed?.height) {
-            clusterBounds[clusterId] = {
-                x: placed.x - placed.width / 2,
-                y: placed.y - placed.height / 2,
-                width: placed.width,
-                height: placed.height
-            };
+    // Derive cluster bounding boxes from positioned leaf nodes rather than
+    // trusting dagre's cluster coordinates (unreliable for nested graphs).
+    return computeClusterBoundsFromNodes(
+        nodes, clusterIds, nodeParents ?? {}, clusterParents ?? {}
+    );
+}
+
+/**
+ * For each pair of distinct root-level clusters, count edges in each direction.
+ * The minority direction (fewer edges) is discarded from the layout so dagre
+ * can rank nodes without contradiction. Edges within the same root cluster, or
+ * between standalone nodes, are always kept.
+ */
+function filterMinorityClusterEdges(
+    links: LayoutLink[],
+    nodeParents: { [nodeId: string]: string },
+    clusterParents: { [clusterId: string]: string }
+): LayoutLink[] {
+    const rootOf = (nodeId: string): string | undefined => {
+        let c = nodeParents[nodeId];
+        if (!c) return undefined;
+        while (clusterParents[c]) c = clusterParents[c];
+        return c;
+    };
+
+    // Count cross-cluster edges in each direction
+    const fwd: { [key: string]: number } = {}; // "A>B" → count
+    for (const link of links) {
+        const sc = rootOf(link.source), tc = rootOf(link.target);
+        if (!sc || !tc || sc === tc) continue;
+        const key = `${sc}>${tc}`;
+        fwd[key] = (fwd[key] ?? 0) + 1;
+    }
+
+    // For each cluster pair, the dominant direction wins; minority edges are dropped
+    const dominated = new Set<string>(); // "A>B" keys to remove
+    const seen = new Set<string>();
+    for (const key of Object.keys(fwd)) {
+        const [a, b] = key.split(">") as [string, string];
+        const pairKey = a < b ? `${a}|${b}` : `${b}|${a}`;
+        if (seen.has(pairKey)) continue;
+        seen.add(pairKey);
+        const ab = fwd[`${a}>${b}`] ?? 0;
+        const ba = fwd[`${b}>${a}`] ?? 0;
+        if (ab >= ba) {
+            dominated.add(`${b}>${a}`);
+        } else {
+            dominated.add(`${a}>${b}`);
         }
     }
-    return clusterBounds;
+
+    return links.filter(link => {
+        const sc = rootOf(link.source), tc = rootOf(link.target);
+        if (!sc || !tc || sc === tc) return true;
+        return !dominated.has(`${sc}>${tc}`);
+    });
+}
+
+function computeClusterBoundsFromNodes(
+    nodes: { [id: string]: LayoutNode },
+    clusterIds: string[],
+    nodeParents: { [nodeId: string]: string },
+    clusterParents: { [clusterId: string]: string }
+): { [clusterId: string]: LayoutNodeBounds } {
+    const directNodes: { [clusterId: string]: string[] } = {};
+    const directChildClusters: { [clusterId: string]: string[] } = {};
+
+    for (const cid of clusterIds) {
+        directNodes[cid] = [];
+        directChildClusters[cid] = [];
+    }
+    for (const [nodeId, parentId] of Object.entries(nodeParents)) {
+        directNodes[parentId]?.push(nodeId);
+    }
+    for (const [childId, parentId] of Object.entries(clusterParents)) {
+        directChildClusters[parentId]?.push(childId);
+    }
+
+    const result: { [clusterId: string]: LayoutNodeBounds } = {};
+
+    function getBounds(clusterId: string): LayoutNodeBounds | null {
+        if (result[clusterId]) return result[clusterId];
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+        const expand = (b: LayoutNodeBounds) => {
+            if (b.x < minX) minX = b.x;
+            if (b.y < minY) minY = b.y;
+            if (b.x + b.width > maxX) maxX = b.x + b.width;
+            if (b.y + b.height > maxY) maxY = b.y + b.height;
+        };
+
+        for (const nodeId of directNodes[clusterId]) {
+            const b = nodes[nodeId]?.bounds;
+            if (b) expand(b);
+        }
+        for (const childId of directChildClusters[clusterId]) {
+            const cb = getBounds(childId);
+            if (cb) expand(cb);
+        }
+
+        if (minX === Infinity) return null;
+
+        const bounds: LayoutNodeBounds = {
+            x: minX - CLUSTER_PADDING,
+            y: minY - (CLUSTER_LABEL_HEIGHT + CLUSTER_PADDING),
+            width: (maxX - minX) + 2 * CLUSTER_PADDING,
+            height: (maxY - minY) + CLUSTER_LABEL_HEIGHT + 2 * CLUSTER_PADDING
+        };
+        result[clusterId] = bounds;
+        return bounds;
+    }
+
+    for (const clusterId of clusterIds) {
+        getBounds(clusterId);
+    }
+
+    return result;
 }

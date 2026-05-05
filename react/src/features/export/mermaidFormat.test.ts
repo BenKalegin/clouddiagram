@@ -812,6 +812,9 @@ describe('importMermaidStructureDiagram - nested subgraph cluster layout', () =>
     QC --> FL
     QA --> AL
     Kinesis --> SL
+    VL --> DDBVS
+    VL --> S3
+    PL --> DDBFifo
     SL & EL --> DB
     GP --> DB`;
 
