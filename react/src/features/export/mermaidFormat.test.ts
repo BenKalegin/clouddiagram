@@ -752,3 +752,203 @@ describe('mermaidFormat', () => {
         });
     });
 });
+
+describe('importMermaidStructureDiagram - nested subgraph cluster layout', () => {
+    // Reduced but structurally faithful reproduction of the bug-report diagram:
+    // flat subgraphs (Clients, CoreSvcs, LambdaLayer) plus two-level nesting
+    // (DDBTables and SQSQueues inside AWSServices).  graph TD means top-to-bottom.
+    const mermaidContent = String.raw`graph TD
+    subgraph Clients["Client Applications"]
+        UI["Web UI / Mobile"]
+        AddIns["Outlook & Word Add-ins"]
+        Ext["External Systems"]
+    end
+
+    LB["API Gateway / Load Balancer"]
+
+    subgraph CoreSvcs["Core Services"]
+        GP["GridPackage\n(Core API)"]
+        RS["ResourceServer\n(Distribution Module)"]
+        SW["StaticWeb\n(UI Assets)"]
+    end
+
+    subgraph AWSServices["AWS Services Layer"]
+        Kinesis["Kinesis\n(MES stream)"]
+        S3["S3"]
+        subgraph DDBTables["DynamoDB Tables"]
+            DDBVS["idm-virus-scanning-table\n(virus scan jobs)"]
+            DDBFifo["idm-fifo-job\n(print FIFO ordering)"]
+        end
+        subgraph SQSQueues["SQS Queues"]
+            QV["virus.scan.queue\nStandard"]
+            QE["distribution.email.queue\nStandard"]
+            QT["daf.rs.textExtraction.queue\nStandard"]
+            QC["daf.rs.conversions.queue\nStandard"]
+            QA["daf.rs.auditCollection.queue\nStandard"]
+        end
+    end
+
+    subgraph LambdaLayer["Lambda Functions"]
+        SL["Search Integration"]
+        EL["Email Integration"]
+        VL["Virus Scan"]
+        TL["Text Extraction"]
+        FL["File Conversion"]
+    end
+
+    DB[("Database\n(PostgreSQL / MSSQL)")]
+
+    Clients --> LB
+    LB --> GP & RS & SW
+    GP --> Kinesis & S3
+    GP --> DDBVS & DDBFifo
+    GP --> QV & QE & QT & QC & QA
+    RS --> QC & QE
+    RS --> DDBFifo
+    S3 --> QV
+    QV --> VL
+    QE --> EL
+    QT --> TL
+    QC --> FL
+    QA --> AL
+    Kinesis --> SL
+    SL & EL --> DB
+    GP --> DB`;
+
+    type TestResult = StructureDiagramState & { elements: { [id: string]: any } };
+
+    const result = importMermaidStructureDiagram({
+        id: 'test-nested-subgraph-layout',
+        display: { width: 2000, height: 2000, scale: 1, offset: { x: 0, y: 0 } },
+        type: ElementType.FlowchartDiagram,
+        selectedElements: [],
+        notes: {}
+    }, mermaidContent) as TestResult;
+
+    function getNodeBounds(textPrefix: string) {
+        const entry = Object.entries(result.elements).find(
+            ([, e]) => (e as NodeState).type === ElementType.ClassNode && (e as NodeState).text.startsWith(textPrefix)
+        );
+        if (!entry) throw new Error(`Node not found with text prefix: "${textPrefix}"`);
+        return result.nodes[entry[0]].bounds;
+    }
+
+    function isContainedIn(
+        inner: { x: number; y: number; width: number; height: number },
+        outer: { x: number; y: number; width: number; height: number },
+        tolerance = 5
+    ): boolean {
+        return inner.x >= outer.x - tolerance
+            && inner.y >= outer.y - tolerance
+            && inner.x + inner.width <= outer.x + outer.width + tolerance
+            && inner.y + inner.height <= outer.y + outer.height + tolerance;
+    }
+
+    it('creates all expected nodes', () => {
+        const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+        // 3 Clients + 1 LB + 3 CoreSvcs + 2 AWS-direct + 2 DDB + 5 SQS + 5 Lambda + 1 DB = 22
+        // (AL is referenced in edge but never declared as a node in this reduced diagram — 21)
+        expect(nodes.length).toBeGreaterThanOrEqual(21);
+        const labels = nodes.map(n => n.text.split('\n')[0]);
+        expect(labels).toContain('Web UI / Mobile');
+        expect(labels).toContain('API Gateway / Load Balancer');
+        expect(labels).toContain('GridPackage');
+        expect(labels).toContain('S3');
+        expect(labels).toContain('idm-virus-scanning-table');
+        expect(labels).toContain('virus.scan.queue');
+        expect(labels).toContain('Search Integration');
+    });
+
+    it('creates cluster objects for all 6 subgraphs with correct labels', () => {
+        expect(result.clusters).toBeDefined();
+        const clusters = result.clusters!;
+        expect(Object.keys(clusters)).toHaveLength(6);
+        expect(clusters['Clients']?.label).toBe('Client Applications');
+        expect(clusters['CoreSvcs']?.label).toBe('Core Services');
+        expect(clusters['AWSServices']?.label).toBe('AWS Services Layer');
+        expect(clusters['LambdaLayer']?.label).toBe('Lambda Functions');
+        expect(clusters['DDBTables']?.label).toBe('DynamoDB Tables');
+        expect(clusters['SQSQueues']?.label).toBe('SQS Queues');
+    });
+
+    it('Clients cluster bounds contain all three client nodes', () => {
+        const cb = result.clusters!['Clients'].bounds;
+        expect(isContainedIn(getNodeBounds('Web UI / Mobile'), cb)).toBe(true);
+        expect(isContainedIn(getNodeBounds('Outlook & Word Add-ins'), cb)).toBe(true);
+        expect(isContainedIn(getNodeBounds('External Systems'), cb)).toBe(true);
+    });
+
+    it('CoreSvcs cluster bounds contain GP, RS, and SW nodes', () => {
+        const cb = result.clusters!['CoreSvcs'].bounds;
+        expect(isContainedIn(getNodeBounds('GridPackage'), cb)).toBe(true);
+        expect(isContainedIn(getNodeBounds('ResourceServer'), cb)).toBe(true);
+        expect(isContainedIn(getNodeBounds('StaticWeb'), cb)).toBe(true);
+    });
+
+    it('AWSServices cluster bounds contain Kinesis and S3 nodes', () => {
+        const cb = result.clusters!['AWSServices'].bounds;
+        expect(isContainedIn(getNodeBounds('Kinesis'), cb)).toBe(true);
+        expect(isContainedIn(getNodeBounds('S3'), cb)).toBe(true);
+    });
+
+    it('DDBTables cluster is nested inside AWSServices cluster bounds', () => {
+        const aws = result.clusters!['AWSServices'].bounds;
+        const ddb = result.clusters!['DDBTables'].bounds;
+        expect(isContainedIn(ddb, aws)).toBe(true);
+    });
+
+    it('SQSQueues cluster is nested inside AWSServices cluster bounds', () => {
+        const aws = result.clusters!['AWSServices'].bounds;
+        const sqs = result.clusters!['SQSQueues'].bounds;
+        expect(isContainedIn(sqs, aws)).toBe(true);
+    });
+
+    it('DDBTables cluster bounds contain DDBVS and DDBFifo nodes', () => {
+        const cb = result.clusters!['DDBTables'].bounds;
+        expect(isContainedIn(getNodeBounds('idm-virus-scanning-table'), cb)).toBe(true);
+        expect(isContainedIn(getNodeBounds('idm-fifo-job'), cb)).toBe(true);
+    });
+
+    it('SQSQueues cluster bounds contain all five queue nodes', () => {
+        const cb = result.clusters!['SQSQueues'].bounds;
+        for (const prefix of [
+            'virus.scan.queue',
+            'distribution.email.queue',
+            'daf.rs.textExtraction.queue',
+            'daf.rs.conversions.queue',
+            'daf.rs.auditCollection.queue'
+        ]) {
+            expect(isContainedIn(getNodeBounds(prefix), cb), `${prefix} should be within SQSQueues`).toBe(true);
+        }
+    });
+
+    it('LambdaLayer cluster bounds contain all five lambda nodes', () => {
+        const cb = result.clusters!['LambdaLayer'].bounds;
+        for (const label of ['Search Integration', 'Email Integration', 'Virus Scan', 'Text Extraction', 'File Conversion']) {
+            expect(isContainedIn(getNodeBounds(label), cb), `${label} should be within LambdaLayer`).toBe(true);
+        }
+    });
+
+    it('layout flows top-to-bottom: Clients above CoreSvcs, CoreSvcs above AWSServices, AWSServices above LambdaLayer', () => {
+        const c = result.clusters!;
+        const clientsBottom = c['Clients'].bounds.y + c['Clients'].bounds.height;
+        const coreTop = c['CoreSvcs'].bounds.y;
+        const coreBottom = c['CoreSvcs'].bounds.y + c['CoreSvcs'].bounds.height;
+        const awsTop = c['AWSServices'].bounds.y;
+        const awsBottom = c['AWSServices'].bounds.y + c['AWSServices'].bounds.height;
+        const lambdaTop = c['LambdaLayer'].bounds.y;
+
+        expect(clientsBottom).toBeLessThan(coreTop + 50);
+        expect(coreBottom).toBeLessThan(awsTop + 50);
+        expect(awsBottom).toBeLessThan(lambdaTop + 50);
+    });
+
+    it('LB node sits vertically between Clients and CoreSvcs clusters', () => {
+        const lbBounds = getNodeBounds('API Gateway / Load Balancer');
+        const clientsBottom = result.clusters!['Clients'].bounds.y + result.clusters!['Clients'].bounds.height;
+        const coreTop = result.clusters!['CoreSvcs'].bounds.y;
+
+        expect(lbBounds.y + lbBounds.height).toBeGreaterThan(clientsBottom - 50);
+        expect(lbBounds.y).toBeLessThan(coreTop + 50);
+    });
+});

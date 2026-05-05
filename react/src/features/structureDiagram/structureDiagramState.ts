@@ -40,9 +40,14 @@ export type NodeId = Id;
 export type PortId = Id;
 export type LinkId = Id;
 
+export interface ClusterPlacement {
+    bounds: Bounds;
+    label: string;
+}
 
 export interface StructureDiagramState extends Diagram {
     nodes: { [id: NodeId]: NodePlacement };
     ports: { [id: PortId]: PortPlacement };
     links: { [id: LinkId]: LinkPlacement };
+    clusters?: { [id: string]: ClusterPlacement };
 }

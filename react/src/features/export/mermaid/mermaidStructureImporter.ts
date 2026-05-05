@@ -10,10 +10,10 @@ import {
     TipStyle
 } from "../../../package/packageModel";
 import {defaultColorSchema} from "../../../common/colors/colorSchemas";
-import {StructureDiagramState} from "../../structureDiagram/structureDiagramState";
+import {ClusterPlacement, StructureDiagramState} from "../../structureDiagram/structureDiagramState";
 import {createMermaidIdGenerator, mermaidSourceLines, parseMermaidLayoutHints} from "./mermaidImportUtils";
 import {createClassMember, minimumClassNodeHeight, normalizeClassAnnotation} from "../../classDiagram/classDiagramUtils";
-import {applyAutoLayout, LayoutLink} from "../../layout/autoLayout";
+import {applyAutoLayout, ClusterDef, LayoutLink} from "../../layout/autoLayout";
 
 interface ImportStructureOptions {
     forceFlowchart?: boolean;
@@ -74,6 +74,9 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
     const layoutEdges: LayoutLink[] = [];
     const nodeMap: { [name: string]: string } = {};
     const subgraphMembers: { [name: string]: string[] } = {};
+    const subgraphLabels: { [sid: string]: string } = {};
+    const nodeParents: { [nodeId: string]: string } = {};
+    const clusterParents: { [clusterId: string]: string } = {};
     const subgraphStack: string[] = [];
     let nodeIndex = 0;
     let currentClassBlock: string | undefined;
@@ -152,6 +155,10 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
                 height: nodeHeight
             }
         };
+
+        if (subgraphStack.length > 0) {
+            nodeParents[nodeId] = subgraphStack[subgraphStack.length - 1];
+        }
 
         nodeMap[normalizedName] = nodeId;
         nodeIndex++;
@@ -283,9 +290,13 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
 
         const subgraphMatch = line.match(/^subgraph\s+([\w-]+)(?:\s*\[\s*["`]?(.+?)["`]?\s*\])?\s*$/);
         if (subgraphMatch) {
-            const [, sid] = subgraphMatch;
+            const [, sid, label] = subgraphMatch;
+            if (subgraphStack.length > 0) {
+                clusterParents[sid] = subgraphStack[subgraphStack.length - 1];
+            }
             subgraphStack.push(sid);
             if (!subgraphMembers[sid]) subgraphMembers[sid] = [];
+            subgraphLabels[sid] = label?.trim() ?? sid;
             continue;
         }
         if (lowerLine === "end") {
@@ -433,7 +444,17 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         }
     }
 
-    applyAutoLayout(nodes, layoutEdges, parseMermaidLayoutHints(content));
+    const clusterDefs: { [sid: string]: ClusterDef } = {};
+    for (const [sid, label] of Object.entries(subgraphLabels)) {
+        clusterDefs[sid] = { label };
+    }
+
+    const clusterBoundsById = applyAutoLayout(nodes, layoutEdges, parseMermaidLayoutHints(content), clusterDefs, nodeParents, clusterParents);
+
+    const clusters: { [id: string]: ClusterPlacement } = {};
+    for (const [clusterId, bounds] of Object.entries(clusterBoundsById)) {
+        clusters[clusterId] = { bounds, label: subgraphLabels[clusterId] ?? clusterId };
+    }
 
     const { width: displayWidth, height: displayHeight } = computeDisplaySize(nodes);
 
@@ -443,6 +464,7 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         nodes,
         ports,
         links,
+        clusters: Object.keys(clusters).length > 0 ? clusters : undefined,
         notes: {},
         selectedElements: [],
         display: {
