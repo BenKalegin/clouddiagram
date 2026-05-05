@@ -125,13 +125,18 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             .filter(part => /^[\w-]+$/.test(part));
     }
 
-    function estimateNodeHeight(label: string, nodeWidth = 140): number {
-        const charsPerLine = Math.floor(nodeWidth / 7); // ~7px per char at fontSize 14
+    function estimateNodeDimensions(label: string): { width: number; height: number } {
+        const defaultWidth = 140;
+        const maxWidth = 200;
+        // Expand width for long non-breakable tokens (dotted identifiers, URLs, etc.)
+        const longestToken = label.split(/[\s\n]+/).reduce((m, t) => t.length > m ? t.length : m, 0);
+        const width = Math.min(maxWidth, Math.max(defaultWidth, Math.ceil(longestToken * 7.5) + 12));
+        const charsPerLine = Math.floor(width / 7);
         let totalLines = 0;
         for (const segment of label.split("\n")) {
             totalLines += segment.length === 0 ? 1 : Math.ceil(segment.length / charsPerLine);
         }
-        return Math.max(60, totalLines * 18 + 16);
+        return { width, height: Math.max(60, totalLines * 18 + 16) };
     }
 
     function getOrCreateNode(
@@ -143,20 +148,26 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         if (nodeMap[normalizedName]) {
             const nodeId = nodeMap[normalizedName];
             if (label) {
+                const trimmed = label.trim();
                 const node = elements[nodeId] as NodeState;
-                node.text = label.trim();
-                nodes[nodeId].bounds.height = Math.max(nodes[nodeId].bounds.height, estimateNodeHeight(label.trim()));
+                node.text = trimmed;
+                const { width, height } = estimateNodeDimensions(trimmed);
+                nodes[nodeId].bounds.width = Math.max(nodes[nodeId].bounds.width, width);
+                nodes[nodeId].bounds.height = Math.max(nodes[nodeId].bounds.height, height);
             }
             if (flowchartKind && flowchartMode) {
                 (elements[nodeId] as NodeState).flowchartKind = flowchartKind;
+            }
+            // Assign parent if currently unparented and inside a subgraph
+            if (subgraphStack.length > 0 && !nodeParents[nodeId]) {
+                nodeParents[nodeId] = subgraphStack[subgraphStack.length - 1];
             }
             return nodeId;
         }
 
         const nodeId = generateId();
-        const nodeWidth = 140;
         const effectiveLabel = (label || normalizedName).trim();
-        const nodeHeight = estimateNodeHeight(effectiveLabel);
+        const { width: nodeWidth, height: nodeHeight } = estimateNodeDimensions(effectiveLabel);
         const nodesPerRow = 5;
         const spacingX = 60;
         const spacingY = 80;

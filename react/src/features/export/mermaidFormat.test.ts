@@ -966,6 +966,40 @@ describe('importMermaidStructureDiagram - nested subgraph cluster layout', () =>
     });
 });
 
+describe('importMermaidStructureDiagram - node declared in subgraph after edge reference', () => {
+    // If a node is first created via an edge (outside any subgraph) and then
+    // declared inside a subgraph, it must still receive the correct parent.
+    const mermaidContent = `graph TD
+    Outside[Standalone]
+    Outside --> Inner
+    subgraph Cluster["My Cluster"]
+        Inner["Inner Node"]
+    end`;
+
+    it('node referenced in edge before subgraph declaration is contained in cluster', () => {
+        const result = importMermaidStructureDiagram({
+            id: 'test-late-parent',
+            display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+            type: ElementType.FlowchartDiagram,
+            selectedElements: [],
+            notes: {}
+        }, mermaidContent) as StructureDiagramState & { clusters: any; elements: any };
+
+        expect(result.clusters?.['Cluster']).toBeDefined();
+        const clusterBounds = result.clusters['Cluster'].bounds;
+        const innerEntry = Object.entries(result.elements).find(
+            ([, e]: any) => e.type === ElementType.ClassNode && e.text === 'Inner Node'
+        );
+        expect(innerEntry).toBeDefined();
+        const innerBounds = result.nodes[innerEntry![0]].bounds;
+        const isContained = innerBounds.x >= clusterBounds.x - 5
+            && innerBounds.y >= clusterBounds.y - 5
+            && innerBounds.x + innerBounds.width <= clusterBounds.x + clusterBounds.width + 5
+            && innerBounds.y + innerBounds.height <= clusterBounds.y + clusterBounds.height + 5;
+        expect(isContained).toBe(true);
+    });
+});
+
 describe('importMermaidStructureDiagram - classDiagram with x-axonize frontmatter and link routing', () => {
     const mermaidContent = `---
 x-axonize:
