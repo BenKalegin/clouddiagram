@@ -36,6 +36,7 @@ const DEFAULT_EDGE_SEP = 20;
 const LAYOUT_ORIGIN_X = 80;
 const LAYOUT_ORIGIN_Y = 80;
 const CLUSTER_PADDING = 20;
+const CLUSTER_LABEL_HEIGHT = 22; // must match ClusterContainer LABEL_HEIGHT
 
 /**
  * Run a hierarchical layout (dagre) over the given nodes/links and write the
@@ -73,7 +74,7 @@ export function applyAutoLayout(
 
     if (hasCompound) {
         for (const clusterId of clusterIds) {
-            graph.setNode(clusterId, { clusterLabelPos: "top", paddingTop: CLUSTER_PADDING, paddingBottom: CLUSTER_PADDING, paddingLeft: CLUSTER_PADDING, paddingRight: CLUSTER_PADDING });
+            graph.setNode(clusterId, { clusterLabelPos: "top", paddingTop: CLUSTER_PADDING + CLUSTER_LABEL_HEIGHT, paddingBottom: CLUSTER_PADDING, paddingLeft: CLUSTER_PADDING, paddingRight: CLUSTER_PADDING });
         }
     }
 
