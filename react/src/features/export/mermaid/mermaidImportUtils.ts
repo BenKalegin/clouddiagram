@@ -11,6 +11,8 @@ export function normalizeMermaidDeclaration(line: string): string {
     return line.trim().split(/\s+/)[0].replace(/:/g, "").toLowerCase();
 }
 
+const CODE_FENCE_RE = /^`{3,}(?:mermaid)?$/i;
+
 export function mermaidSourceLines(content: string): string[] {
     const lines = content.split("\n");
     let inFrontmatter = false;
@@ -20,6 +22,10 @@ export function mermaidSourceLines(content: string): string[] {
         .map(line => line.trim())
         .filter(line => {
             if (!line) return false;
+
+            // Drop ```mermaid / ``` fences without treating them as content,
+            // so a frontmatter --- still gets detected when fences are present.
+            if (CODE_FENCE_RE.test(line)) return false;
 
             if (!hasSeenContent && line === "---") {
                 inFrontmatter = !inFrontmatter;
@@ -48,6 +54,7 @@ const DIRECTION_TOKEN_TO_LAYOUT: Record<string, LayoutDirection> = {
 };
 
 const FLOWCHART_HEADER_RE = /^(?:flowchart|graph)\s+([A-Za-z]{2})\b/i;
+const CLASS_DIRECTION_RE = /^direction\s+(TB|BT|LR|RL)\b/i;
 const RANK_SPACING_LINE_RE = /^ranksep\s*:\s*(\d+)/i;
 const RANK_SPACING_FLOW_RE = /^rankspacing\s*:\s*(\d+)/i;
 const NODE_SPACING_LINE_RE = /^nodesep\s*:\s*(\d+)/i;
@@ -81,8 +88,10 @@ export function parseMermaidLayoutHints(content: string): LayoutHints {
 
 function readHeaderDirection(content: string): LayoutDirection | undefined {
     for (const line of mermaidSourceLines(content)) {
-        const match = line.match(FLOWCHART_HEADER_RE);
-        if (match) return DIRECTION_TOKEN_TO_LAYOUT[match[1].toLowerCase()];
+        const flowMatch = line.match(FLOWCHART_HEADER_RE);
+        if (flowMatch) return DIRECTION_TOKEN_TO_LAYOUT[flowMatch[1].toLowerCase()];
+        const classMatch = line.match(CLASS_DIRECTION_RE);
+        if (classMatch) return DIRECTION_TOKEN_TO_LAYOUT[classMatch[1].toLowerCase()];
     }
     return undefined;
 }

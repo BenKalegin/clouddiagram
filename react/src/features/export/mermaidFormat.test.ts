@@ -19,7 +19,8 @@ import {
 import { Diagram } from '../../common/model';
 import { StructureDiagramState } from '../structureDiagram/structureDiagramState';
 import { SequenceDiagramState } from '../sequenceDiagram/sequenceDiagramModel';
-import { NodeState, LinkState, ElementType } from '../../package/packageModel';
+import { NodeState, LinkState, PortState, PortAlignment, RouteStyle, ElementType } from '../../package/packageModel';
+import { Bounds } from '../../common/model';
 import { exportGanttDiagramAsMermaid } from './mermaid/mermaidGanttExporter';
 import { exportClassDiagramAsMermaid } from './mermaid/mermaidClassExporter';
 import { exportErDiagramAsMermaid } from './mermaid/mermaidErExporter';
@@ -953,5 +954,257 @@ describe('importMermaidStructureDiagram - nested subgraph cluster layout', () =>
 
         expect(lbBounds.y + lbBounds.height).toBeGreaterThan(clientsBottom - 50);
         expect(lbBounds.y).toBeLessThan(coreTop + 50);
+    });
+
+    it('CoreSvcs width is not excessively wider than Clients (both have 3 nodes)', () => {
+        const clients = result.clusters!['Clients'].bounds;
+        const core = result.clusters!['CoreSvcs'].bounds;
+        // Both have 3 nodes. Ideal would be 1:1 but dagre's coordinate assignment
+        // stretches CoreSvcs because GP fans out to 9 targets in AWSServices.
+        // Current ratio is ~1.7x; guard against it getting worse (>2x).
+        expect(core.width).toBeLessThan(clients.width * 2);
+    });
+});
+
+describe('importMermaidStructureDiagram - classDiagram with x-axonize frontmatter and link routing', () => {
+    const mermaidContent = `---
+x-axonize:
+  version: 1
+  editor: clouddiagram
+  layout:
+    nodes:
+      User: { x: 100, y: 100, width: 140, height: 90 }
+      Order: { x: 300, y: 100, width: 140, height: 108 }
+      PaymentService: { x: 500, y: 100, width: 140, height: 78 }
+      Inventory: { x: 700, y: 100, width: 140, height: 78 }
+    spacing:
+      User-Order: 260
+      Order-PaymentService: 300
+  presentation:
+    steps:
+      - highlight: [User]
+      - highlight: [User, Order]
+      - highlight: [Order, PaymentService, Inventory]
+---
+classDiagram
+direction TB
+class User {
+  +string id
+  +placeOrder()
+}
+class Order {
+  +string id
+  +decimal total
+  +submit()
+}
+class PaymentService {
+  +authorize(orderId)
+  +capture(orderId)
+}
+class Inventory {
+  +reserve(orderId)
+  +release(orderId)
+}
+User --> Order : places
+Order --> PaymentService : charges
+Order --> Inventory : reserves`;
+
+    type TestResult = StructureDiagramState & { elements: { [id: string]: any } };
+
+    const result = importMermaidStructureDiagram({
+        id: 'test-class-routing',
+        display: { width: 1200, height: 800, scale: 1, offset: { x: 0, y: 0 } },
+        type: ElementType.ClassDiagram,
+        selectedElements: [],
+        notes: {}
+    }, mermaidContent) as TestResult;
+
+    function nodeById(text: string): [id: string, node: NodeState] {
+        const entry = Object.entries(result.elements).find(
+            ([, e]) => (e as NodeState).type === ElementType.ClassNode && (e as NodeState).text === text
+        );
+        if (!entry) throw new Error(`Node not found: "${text}"`);
+        return [entry[0], entry[1] as NodeState];
+    }
+
+    it('imports 4 class nodes with correct names', () => {
+        const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+        expect(nodes).toHaveLength(4);
+        expect(nodes.map(n => n.text).sort()).toEqual(['Inventory', 'Order', 'PaymentService', 'User']);
+    });
+
+    it('strips markdown code fence wrapper without leaking YAML as nodes', () => {
+        // When pasted from a chat message the content arrives wrapped in ```mermaid ... ```.
+        // The opening fence must not block frontmatter detection (hasSeenContent stays false).
+        const fenced = `\`\`\`mermaid\n${mermaidContent}\n\`\`\``;
+        const r = importMermaidStructureDiagram({
+            id: 'test-fenced',
+            display: { width: 1200, height: 800, scale: 1, offset: { x: 0, y: 0 } },
+            type: ElementType.ClassDiagram,
+            selectedElements: [],
+            notes: {}
+        }, fenced) as StructureDiagramState & { elements: { [id: string]: any } };
+        const nodes = Object.values(r.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+        expect(nodes).toHaveLength(4);
+        expect(nodes.map(n => n.text).sort()).toEqual(['Inventory', 'Order', 'PaymentService', 'User']);
+        // No YAML keys (version, editor, User-Order…) should appear as nodes
+        expect(nodes.some(n => n.text === 'version')).toBe(false);
+        expect(nodes.some(n => n.text === 'editor')).toBe(false);
+        // YAML braces must not appear as class members
+        const userNode = nodes.find(n => n.text === 'User')!;
+        expect(userNode.classMembers?.every(m => !m.text.startsWith('{'))).toBe(true);
+    });
+
+    it('imports User class members', () => {
+        const [, user] = nodeById('User');
+        expect(user.classMembers).toEqual([
+            { kind: 'field', text: '+string id' },
+            { kind: 'method', text: '+placeOrder()' }
+        ]);
+    });
+
+    it('imports Order class members', () => {
+        const [, order] = nodeById('Order');
+        expect(order.classMembers).toEqual([
+            { kind: 'field', text: '+string id' },
+            { kind: 'field', text: '+decimal total' },
+            { kind: 'method', text: '+submit()' }
+        ]);
+    });
+
+    it('imports PaymentService class members', () => {
+        const [, ps] = nodeById('PaymentService');
+        expect(ps.classMembers).toEqual([
+            { kind: 'method', text: '+authorize(orderId)' },
+            { kind: 'method', text: '+capture(orderId)' }
+        ]);
+    });
+
+    it('imports Inventory class members', () => {
+        const [, inv] = nodeById('Inventory');
+        expect(inv.classMembers).toEqual([
+            { kind: 'method', text: '+reserve(orderId)' },
+            { kind: 'method', text: '+release(orderId)' }
+        ]);
+    });
+
+    it('imports 3 links with correct labels', () => {
+        const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+        expect(links).toHaveLength(3);
+        expect(links.map(l => l.text).sort()).toEqual(['charges', 'places', 'reserves']);
+    });
+
+    it('link route style is OrthogonalRounded for class diagram', () => {
+        const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+        for (const link of links) {
+            expect(link.routeStyle).toBe(RouteStyle.OrthogonalRounded);
+        }
+    });
+
+    it('all source ports (port1) are Bottom-aligned for TB class diagram', () => {
+        const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+        for (const link of links) {
+            expect(result.ports[link.port1].alignment).toBe(PortAlignment.Bottom);
+        }
+    });
+
+    it('all target ports (port2) are Top-aligned for TB class diagram', () => {
+        const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+        for (const link of links) {
+            expect(result.ports[link.port2].alignment).toBe(PortAlignment.Top);
+        }
+    });
+
+    describe('link path geometry using auto-layout node positions', () => {
+        // Port center formulas (depthRatio=50, longitude=10, latitude=10, edgePosRatio=50):
+        //   Bottom port center = (node.x + node.width/2,  node.y + node.height)
+        //   Top    port center = (node.x + node.width/2,  node.y)
+        function bottomPortCenter(nodeId: string) {
+            const b = result.nodes[nodeId].bounds;
+            return { x: b.x + b.width / 2, y: b.y + b.height };
+        }
+
+        function topPortCenter(nodeId: string) {
+            const b = result.nodes[nodeId].bounds;
+            return { x: b.x + b.width / 2, y: b.y };
+        }
+
+        // Returns true if the open line segment (excluding t≈0 and t≈1 endpoints)
+        // passes strictly through the interior of the rectangle (shrunk by margin).
+        function segmentCrossesRect(
+            x1: number, y1: number, x2: number, y2: number,
+            rect: Bounds,
+            margin = 3
+        ): boolean {
+            const left = rect.x + margin;
+            const right = rect.x + rect.width - margin;
+            const top = rect.y + margin;
+            const bottom = rect.y + rect.height - margin;
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const candidates = [
+                Math.abs(dx) > 1e-6 ? (left - x1) / dx : NaN,
+                Math.abs(dx) > 1e-6 ? (right - x1) / dx : NaN,
+                Math.abs(dy) > 1e-6 ? (top - y1) / dy : NaN,
+                Math.abs(dy) > 1e-6 ? (bottom - y1) / dy : NaN,
+            ];
+            for (const t of candidates) {
+                if (!isNaN(t) && t > 0.02 && t < 0.98) {
+                    const px = x1 + t * dx;
+                    const py = y1 + t * dy;
+                    if (px >= left && px <= right && py >= top && py <= bottom) return true;
+                }
+            }
+            return false;
+        }
+
+        it('source port of each link is at the bottom-center of its node', () => {
+            const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+            for (const link of links) {
+                const srcPort = result.elements[link.port1] as PortState;
+                const nodeBounds = result.nodes[srcPort.nodeId].bounds;
+                const srcCenter = bottomPortCenter(srcPort.nodeId);
+                expect(srcCenter.x).toBeCloseTo(nodeBounds.x + nodeBounds.width / 2, 1);
+                expect(srcCenter.y).toBeCloseTo(nodeBounds.y + nodeBounds.height, 1);
+            }
+        });
+
+        it('target port of each link is at the top-center of its node', () => {
+            const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+            for (const link of links) {
+                const tgtPort = result.elements[link.port2] as PortState;
+                const nodeBounds = result.nodes[tgtPort.nodeId].bounds;
+                const tgtCenter = topPortCenter(tgtPort.nodeId);
+                expect(tgtCenter.x).toBeCloseTo(nodeBounds.x + nodeBounds.width / 2, 1);
+                expect(tgtCenter.y).toBeCloseTo(nodeBounds.y, 1);
+            }
+        });
+
+        it('bottom-to-top link path does not cross through any intermediate node', () => {
+            // With TB auto-layout, dagre places nodes so edges don't cross each other.
+            // A straight segment from source bottom-center to target top-center should
+            // therefore not pierce any third node's bounding box.
+            const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+
+            for (const link of links) {
+                const srcPort = result.elements[link.port1] as PortState;
+                const tgtPort = result.elements[link.port2] as PortState;
+                const src = bottomPortCenter(srcPort.nodeId);
+                const tgt = topPortCenter(tgtPort.nodeId);
+
+                for (const node of nodes) {
+                    if (node.id === srcPort.nodeId || node.id === tgtPort.nodeId) continue;
+                    const nb = result.nodes[node.id].bounds;
+                    expect(
+                        segmentCrossesRect(src.x, src.y, tgt.x, tgt.y, nb),
+                        `Link "${link.text}" (${Math.round(src.x)},${Math.round(src.y)})→` +
+                        `(${Math.round(tgt.x)},${Math.round(tgt.y)}) must not cross ` +
+                        `"${node.text}" bounds (x=${Math.round(nb.x)},y=${Math.round(nb.y)},` +
+                        `w=${Math.round(nb.width)},h=${Math.round(nb.height)})`
+                    ).toBe(false);
+                }
+            }
+        });
     });
 });

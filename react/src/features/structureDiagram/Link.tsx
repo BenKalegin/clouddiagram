@@ -43,8 +43,8 @@ export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}
                 )}
                 {link.text && (
                     <Text
-                        x={render.bounds.x + render.bounds.width / 2 - 50}
-                        y={render.bounds.y + render.bounds.height / 2 - 10}
+                        x={(render.sourcePoint.x + render.targetPoint.x) / 2 - 50}
+                        y={(render.sourcePoint.y + render.targetPoint.y) / 2 - 10}
                         width={100}
                         text={link.text}
                         align="center"

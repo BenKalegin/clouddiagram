@@ -5,6 +5,7 @@ import {
     FlowchartNodeKind,
     LinkState,
     NodeState,
+    PortAlignment,
     PortState,
     RouteStyle,
     TipStyle
@@ -41,6 +42,15 @@ export function importMermaidFlowchartDiagram(baseDiagram: Diagram, content: str
     return importMermaidStructureDiagram(baseDiagram, content, { forceFlowchart: true });
 }
 
+function linkPortAlignments(direction: string | undefined, flowchartMode: boolean): [PortAlignment, PortAlignment] {
+    switch (direction) {
+        case "LR": return [PortAlignment.Right, PortAlignment.Left];
+        case "RL": return [PortAlignment.Left, PortAlignment.Right];
+        case "BT": return [PortAlignment.Top, PortAlignment.Bottom];
+        default:   return [PortAlignment.Bottom, PortAlignment.Top];
+    }
+}
+
 export function importMermaidStructureDiagram(baseDiagram: Diagram, content: string, options?: ImportStructureOptions): Diagram {
     const generateId = createMermaidIdGenerator();
     const lines = mermaidSourceLines(content);
@@ -66,6 +76,9 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         baseDiagram.type === ElementType.FlowchartDiagram ||
         lowerHeaderLine.startsWith("flowchart") ||
         lowerHeaderLine.startsWith("graph");
+
+    const layoutHints = parseMermaidLayoutHints(content);
+    const [srcPortAlignment, tgtPortAlignment] = linkPortAlignments(layoutHints.direction, flowchartMode);
 
     const elements: { [id: string]: any } = {};
     const nodes: { [id: string]: any } = {};
@@ -112,6 +125,11 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             .filter(part => /^[\w-]+$/.test(part));
     }
 
+    function estimateNodeHeight(label: string): number {
+        const lines = label.split("\n").length;
+        return Math.max(60, lines * 14 + 16);
+    }
+
     function getOrCreateNode(
         name: string,
         label?: string,
@@ -121,7 +139,9 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         if (nodeMap[normalizedName]) {
             const nodeId = nodeMap[normalizedName];
             if (label) {
-                (elements[nodeId] as NodeState).text = label.trim();
+                const node = elements[nodeId] as NodeState;
+                node.text = label.trim();
+                nodes[nodeId].bounds.height = Math.max(nodes[nodeId].bounds.height, estimateNodeHeight(label.trim()));
             }
             if (flowchartKind && flowchartMode) {
                 (elements[nodeId] as NodeState).flowchartKind = flowchartKind;
@@ -131,7 +151,8 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
 
         const nodeId = generateId();
         const nodeWidth = 140;
-        const nodeHeight = 60;
+        const effectiveLabel = (label || normalizedName).trim();
+        const nodeHeight = estimateNodeHeight(effectiveLabel);
         const nodesPerRow = 5;
         const spacingX = 60;
         const spacingY = 80;
@@ -141,7 +162,7 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         elements[nodeId] = {
             id: nodeId,
             type: ElementType.ClassNode,
-            text: (label || normalizedName).trim(),
+            text: effectiveLabel,
             ports: [],
             colorSchema: defaultColorSchema,
             flowchartKind: flowchartMode ? (flowchartKind ?? FlowchartNodeKind.Process) : undefined
@@ -224,8 +245,8 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         }
 
         const linkId = generateId();
-        const sourcePortId = createPort(fromId, 1);
-        const targetPortId = createPort(toId, 0);
+        const sourcePortId = createPort(fromId, srcPortAlignment);
+        const targetPortId = createPort(toId, tgtPortAlignment);
 
         let tipStyle2 = TipStyle.Arrow;
         if (!flowchartMode) {
@@ -241,7 +262,7 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             port2: targetPortId,
             tipStyle1: TipStyle.None,
             tipStyle2,
-            routeStyle: flowchartMode ? RouteStyle.OrthogonalSquare : RouteStyle.Direct,
+            routeStyle: flowchartMode ? RouteStyle.OrthogonalSquare : RouteStyle.OrthogonalRounded,
             cornerStyle: CornerStyle.Straight,
             colorSchema: defaultColorSchema,
             text: edgeLabel?.trim() || undefined
@@ -449,7 +470,7 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         clusterDefs[sid] = { label };
     }
 
-    const clusterBoundsById = applyAutoLayout(nodes, layoutEdges, parseMermaidLayoutHints(content), clusterDefs, nodeParents, clusterParents);
+    const clusterBoundsById = applyAutoLayout(nodes, layoutEdges, layoutHints, clusterDefs, nodeParents, clusterParents);
 
     const clusters: { [id: string]: ClusterPlacement } = {};
     for (const [clusterId, bounds] of Object.entries(clusterBoundsById)) {
