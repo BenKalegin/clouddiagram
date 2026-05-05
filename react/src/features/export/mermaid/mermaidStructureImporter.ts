@@ -127,11 +127,12 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
 
     function estimateNodeDimensions(label: string): { width: number; height: number } {
         const defaultWidth = 140;
-        const maxWidth = 200;
+        const maxWidth = 260;
+        const charPx = 9; // conservative avg px/char at fontSize 14 for non-breakable tokens
         // Expand width for long non-breakable tokens (dotted identifiers, URLs, etc.)
         const longestToken = label.split(/[\s\n]+/).reduce((m, t) => t.length > m ? t.length : m, 0);
-        const width = Math.min(maxWidth, Math.max(defaultWidth, Math.ceil(longestToken * 7.5) + 12));
-        const charsPerLine = Math.floor(width / 7);
+        const width = Math.min(maxWidth, Math.max(defaultWidth, longestToken * charPx + 16));
+        const charsPerLine = Math.floor(width / 8); // 8px avg for mixed text including spaces
         let totalLines = 0;
         for (const segment of label.split("\n")) {
             totalLines += segment.length === 0 ? 1 : Math.ceil(segment.length / charsPerLine);

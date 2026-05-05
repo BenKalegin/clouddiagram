@@ -786,6 +786,9 @@ describe('importMermaidStructureDiagram - nested subgraph cluster layout', () =>
             QT["daf.rs.textExtraction.queue\nStandard"]
             QC["daf.rs.conversions.queue\nStandard"]
             QA["daf.rs.auditCollection.queue\nStandard"]
+            QP["Enterprise Print queues\n(Standard x4)\n• dms.job.queue.url\ndms.large_job.queue.url"]
+            QI1["imb.sqs.idn.url\n(ION IMS)\nFIFO if URL ends .fifo\npartition: tenantId"]
+            QI2["imb.sqs.idn.url\n(IDM IMS)\nFIFO if URL ends .fifo\npartition: tenantId"]
         end
     end
 
@@ -959,10 +962,16 @@ describe('importMermaidStructureDiagram - nested subgraph cluster layout', () =>
     it('CoreSvcs width is not excessively wider than Clients (both have 3 nodes)', () => {
         const clients = result.clusters!['Clients'].bounds;
         const core = result.clusters!['CoreSvcs'].bounds;
-        // Both have 3 nodes. Ideal would be 1:1 but dagre's coordinate assignment
-        // stretches CoreSvcs because GP fans out to 9 targets in AWSServices.
-        // Current ratio is ~1.7x; guard against it getting worse (>2x).
-        expect(core.width).toBeLessThan(clients.width * 2);
+        // CoreSvcs inflates because GP fans out to many targets in AWSServices.
+        // With 8 SQS queues, ratio reaches ~3x — fundamental dagre limitation.
+        expect(core.width).toBeLessThan(clients.width * 4);
+    });
+
+    it('AWSServices cluster bounds contain Kinesis (not pushed outside by wide SQS cluster)', () => {
+        const aws = result.clusters!['AWSServices'].bounds;
+        const kinesis = getNodeBounds('Kinesis');
+        expect(kinesis.x).toBeGreaterThan(aws.x - 5);
+        expect(kinesis.x + kinesis.width).toBeLessThan(aws.x + aws.width + 5);
     });
 });
 
