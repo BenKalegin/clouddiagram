@@ -1,5 +1,5 @@
 {
-  "name": "clouddiagram-editor",
+  "name": "@benkalegin/clouddiagram-editor",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/lib/editor.js",
@@ -16,6 +16,14 @@
     "dist/lib",
     "dist/editor-types"
   ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BenKalegin/clouddiagram.git",
+    "directory": "react"
+  },
   "dependencies": {
     "@dagrejs/dagre": "^3.0.0",
     "@emotion/react": "^11.14.0",
