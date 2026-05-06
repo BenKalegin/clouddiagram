@@ -8,6 +8,8 @@ import {
     importMermaidStructureDiagram
 } from "./mermaid/mermaidStructureImporter";
 import {importMermaidSourceAsNote} from "./mermaid/mermaidFallbackImporter";
+import {importMermaidStateDiagram} from "./mermaid/mermaidStateImporter";
+import {importMermaidDeploymentDiagram} from "./mermaid/mermaidDeploymentImporter";
 import {
     MermaidDiagramKind,
     MermaidDiagramTypeDefinition,
@@ -21,12 +23,14 @@ export {importMermaidErDiagram};
 export {importMermaidPieChartDiagram};
 export {importMermaidSequenceDiagram};
 export {importMermaidFlowchartDiagram, importMermaidStructureDiagram};
+export {importMermaidStateDiagram};
+export {importMermaidDeploymentDiagram};
 
 const mermaidDiagramTypeRegistry: MermaidDiagramTypeRegistryEntry[] = [
-    { kind: "flowchart", name: "Flowchart", declarations: ["flowchart", "graph"], importer: importMermaidFlowchartDiagram },
+    { kind: "flowchart", name: "Flowchart", declarations: ["flowchart", "graph"], importer: importMermaidDeploymentDiagram },
     { kind: "sequence", name: "Sequence Diagram", declarations: ["sequencediagram"], importer: importMermaidSequenceDiagram },
     { kind: "class", name: "Class Diagram", declarations: ["classdiagram"], importer: importMermaidStructureDiagram },
-    { kind: "state", name: "State Diagram", declarations: ["statediagram-v2", "statediagram"] },
+    { kind: "state", name: "State Diagram", declarations: ["statediagram-v2", "statediagram"], importer: importMermaidStateDiagram },
     { kind: "er", name: "Entity Relationship Diagram", declarations: ["erdiagram"], importer: importMermaidErDiagram },
     { kind: "journey", name: "User Journey", declarations: ["journey"] },
     { kind: "gantt", name: "Gantt", declarations: ["gantt"], importer: importMermaidGanttDiagram },

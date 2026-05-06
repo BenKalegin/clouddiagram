@@ -14,12 +14,15 @@ import {
     importMermaidPieChartDiagram,
     importMermaidStructureDiagram,
     importMermaidSequenceDiagram,
+    importMermaidStateDiagram,
+    importMermaidDeploymentDiagram,
     mermaidDiagramTypes
 } from './mermaidFormat';
 import { Diagram } from '../../common/model';
-import { StructureDiagramState } from '../structureDiagram/structureDiagramState';
+import { StructureDiagramState, ClusterPlacement } from '../structureDiagram/structureDiagramState';
 import { SequenceDiagramState } from '../sequenceDiagram/sequenceDiagramModel';
-import { NodeState, LinkState, PortState, PortAlignment, RouteStyle, ElementType } from '../../package/packageModel';
+import { NodeState, LinkState, PortState, PortAlignment, RouteStyle, ElementType, FlowchartNodeKind } from '../../package/packageModel';
+import { PredefinedSvg } from '../graphics/graphicsReader';
 import { Bounds } from '../../common/model';
 import { exportGanttDiagramAsMermaid } from './mermaid/mermaidGanttExporter';
 import { exportClassDiagramAsMermaid } from './mermaid/mermaidClassExporter';
@@ -96,32 +99,7 @@ describe('mermaidFormat', () => {
             expect(mermaidDiagramTypes.find(type => type.kind === 'er')?.nativeImport).toBe(true);
             expect(mermaidDiagramTypes.find(type => type.kind === 'gantt')?.nativeImport).toBe(true);
             expect(mermaidDiagramTypes.find(type => type.kind === 'pie')?.nativeImport).toBe(true);
-            expect(mermaidDiagramTypes.find(type => type.kind === 'state')?.nativeImport).toBe(false);
-        });
-
-        it('imports unsupported Mermaid diagram types as preserved source notes', () => {
-            const baseDiagram: Diagram = {
-                id: 'test-mermaid-fallback',
-                display: { width: 1000, height: 1000, scale: 1, offset: { x: 20, y: 30 } },
-                type: ElementType.FlowchartDiagram,
-                selectedElements: [{ id: 'old-element', type: ElementType.ClassNode }],
-                notes: {}
-            };
-
-            const content = `stateDiagram-v2
-    [*] --> Open
-    Open --> Closed`;
-
-            const result = importMermaidDiagram(baseDiagram, content);
-            const notes = Object.values(result.notes);
-
-            expect(notes).toHaveLength(1);
-            expect(notes[0].text).toContain('State Diagram Mermaid source');
-            expect(notes[0].text).toContain(content);
-            expect(result.selectedElements).toHaveLength(0);
-            expect((result as any).nodes).toEqual({});
-            expect((result as any).ports).toEqual({});
-            expect((result as any).links).toEqual({});
+            expect(mermaidDiagramTypes.find(type => type.kind === 'state')?.nativeImport).toBe(true);
         });
     });
 
@@ -1248,6 +1226,217 @@ Order --> Inventory : reserves`;
                     ).toBe(false);
                 }
             }
+        });
+    });
+
+    describe('importMermaidDeploymentDiagram', () => {
+        const baseDiagram: Diagram = {
+            id: 'test-deploy',
+            display: {width: 1000, height: 1000, scale: 1, offset: {x: 0, y: 0}},
+            type: ElementType.FlowchartDiagram,
+            selectedElements: [],
+            notes: {}
+        };
+
+        it('falls back to FlowchartDiagram when no AWS services are recognized', () => {
+            const content = `graph TD
+    A[Start] --> B[Process]
+    B --> C[End]`;
+            const result = importMermaidDeploymentDiagram(baseDiagram, content);
+            expect(result.type).toBe(ElementType.FlowchartDiagram);
+        });
+
+        it('produces DeploymentDiagram when AWS services are detected', () => {
+            const content = `graph TD
+    ELB[Load Balancer] --> Lambda[Lambda]
+    Lambda --> SQS[SQS Queue]`;
+            const result = importMermaidDeploymentDiagram(baseDiagram, content);
+            expect(result.type).toBe(ElementType.DeploymentDiagram);
+        });
+
+        it('assigns icons to recognized nodes', () => {
+            const content = `graph TD
+    LB[ELB] --> Fn[Lambda]
+    Fn --> Q[SQS]
+    Fn --> DB[DynamoDB]`;
+            const result = importMermaidDeploymentDiagram(baseDiagram, content) as any;
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const icons = nodes.map(n => n.customShape?.pictureId).filter(Boolean);
+            expect(icons).toContain(PredefinedSvg.ELB);
+            expect(icons).toContain(PredefinedSvg.Lambda);
+            expect(icons).toContain(PredefinedSvg.SQS);
+            expect(icons).toContain(PredefinedSvg.DynamoDB);
+        });
+
+        it('uses parent subgraph context to assign icons to children', () => {
+            const content = `graph TD
+    subgraph SQSQueues["SQS Queues"]
+        QV["virus.scan.queue"]
+        QE["distribution.email.queue"]
+    end`;
+            const result = importMermaidDeploymentDiagram(baseDiagram, content) as any;
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const queueNodes = nodes.filter(n => n.text?.includes('queue'));
+            expect(queueNodes.length).toBeGreaterThanOrEqual(2);
+            queueNodes.forEach(n => expect(n.customShape?.pictureId).toBe(PredefinedSvg.SQS));
+        });
+
+        it('inherits lambda icon to all children of Lambda layer', () => {
+            const content = `graph TD
+    subgraph LambdaLayer["Lambda Functions"]
+        SL["Search Integration"]
+        EL["Email Integration"]
+        VL["Virus Scan"]
+    end`;
+            const result = importMermaidDeploymentDiagram(baseDiagram, content) as any;
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            nodes.forEach(n => expect(n.customShape?.pictureId).toBe(PredefinedSvg.Lambda));
+        });
+
+        it('handles the IDM architecture pattern', () => {
+            const content = `graph TD
+    subgraph CoreSvcs["Core Services"]
+        GP["GridPackage"]
+    end
+    subgraph AWSServices["AWS Services Layer"]
+        Kinesis["Kinesis"]
+        S3["S3"]
+        subgraph DDBTables["DynamoDB Tables"]
+            DDBVS["idm-virus-scanning-table"]
+        end
+        subgraph SQSQueues["SQS Queues"]
+            QV["virus.scan.queue"]
+        end
+    end
+    subgraph LambdaLayer["Lambda Functions"]
+        SL["Search Integration"]
+    end
+    GP --> Kinesis & S3
+    GP --> QV`;
+
+            const result = importMermaidDeploymentDiagram(baseDiagram, content) as any;
+            expect(result.type).toBe(ElementType.DeploymentDiagram);
+
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const byText = new Map(nodes.map(n => [n.text, n.customShape?.pictureId]));
+
+            expect(byText.get('Kinesis')).toBe(PredefinedSvg.Kinesis);
+            expect(byText.get('S3')).toBe(PredefinedSvg.S3);
+            expect(byText.get('idm-virus-scanning-table')).toBe(PredefinedSvg.DynamoDB);
+            expect(byText.get('virus.scan.queue')).toBe(PredefinedSvg.SQS);
+            expect(byText.get('Search Integration')).toBe(PredefinedSvg.Lambda);
+        });
+
+        it('routes graph/flowchart declarations through deployment importer', () => {
+            const content = `flowchart LR
+    LB[ELB] --> App[App]
+    App --> DB[DynamoDB]`;
+            const result = importMermaidDiagram(baseDiagram, content);
+            expect(result.type).toBe(ElementType.DeploymentDiagram);
+        });
+    });
+
+    describe('importMermaidStateDiagram', () => {
+        const baseDiagram: Diagram = {
+            id: 'test-state',
+            display: {width: 1000, height: 1000, scale: 1, offset: {x: 0, y: 0}},
+            type: ElementType.FlowchartDiagram,
+            selectedElements: [],
+            notes: {}
+        };
+
+        it('detects state diagram types', () => {
+            expect(detectMermaidDiagramType('stateDiagram-v2')?.kind).toBe('state');
+            expect(detectMermaidDiagramType('stateDiagram')?.kind).toBe('state');
+        });
+
+        it('imports a simple state diagram via importMermaidDiagram', () => {
+            const content = `stateDiagram-v2
+    [*] --> Still
+    Still --> [*]
+    Still --> Moving
+    Moving --> Still
+    Moving --> Crash
+    Crash --> [*]`;
+
+            const result = importMermaidDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            expect(result.type).toBe(ElementType.FlowchartDiagram);
+            expect(result.notes).toEqual({});
+
+            const nodeList = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode);
+            const linkList = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink);
+
+            expect(nodeList.length).toBeGreaterThanOrEqual(4);
+            expect(linkList.length).toBe(6);
+
+            const nodeTexts = nodeList.map((n: any) => n.text);
+            expect(nodeTexts).toContain('Still');
+            expect(nodeTexts).toContain('Moving');
+            expect(nodeTexts).toContain('Crash');
+        });
+
+        it('imports transition labels', () => {
+            const content = `stateDiagram-v2
+    Idle --> Active : start
+    Active --> Idle : stop`;
+
+            const result = importMermaidStateDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+            expect(links).toHaveLength(2);
+            const texts = links.map(l => l.text).sort();
+            expect(texts).toEqual(['start', 'stop']);
+        });
+
+        it('imports state labels from "state ... as ..." declarations', () => {
+            const content = `stateDiagram-v2
+    state "Not Shooting" as NS
+    [*] --> NS`;
+
+            const result = importMermaidStateDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodeTexts = Object.values(result.elements)
+                .filter((e: any) => e.type === ElementType.ClassNode)
+                .map((n: any) => n.text);
+            expect(nodeTexts).toContain('Not Shooting');
+        });
+
+        it('imports choice states as decision nodes', () => {
+            const content = `stateDiagram-v2
+    state choice1 <<choice>>
+    [*] --> choice1
+    choice1 --> A : if true
+    choice1 --> B : if false`;
+
+            const result = importMermaidStateDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const choiceNode = nodes.find(n => n.text === 'choice1');
+            expect(choiceNode?.flowchartKind).toBe(FlowchartNodeKind.Decision);
+        });
+
+        it('imports composite states as clusters', () => {
+            const content = `stateDiagram-v2
+    [*] --> First
+    state First {
+        [*] --> second
+        second --> [*]
+    }
+    First --> [*]`;
+
+            const result = importMermaidStateDiagram(baseDiagram, content) as any;
+            expect(result.clusters).toBeDefined();
+            const clusterLabels = Object.values(result.clusters as Record<string, ClusterPlacement>).map(c => c.label);
+            expect(clusterLabels).toContain('First');
+        });
+
+        it('imports direction hint', () => {
+            const content = `stateDiagram-v2
+    direction LR
+    A --> B`;
+
+            const result = importMermaidStateDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const ports = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassPort) as PortState[];
+            const alignments = ports.map(p => result.ports[p.id]?.alignment);
+            expect(alignments).toContain(PortAlignment.Right);
+            expect(alignments).toContain(PortAlignment.Left);
         });
     });
 });

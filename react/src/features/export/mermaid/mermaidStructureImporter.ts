@@ -16,8 +16,15 @@ import {createMermaidIdGenerator, mermaidSourceLines, parseMermaidLayoutHints} f
 import {createClassMember, minimumClassNodeHeight, normalizeClassAnnotation} from "../../classDiagram/classDiagramUtils";
 import {applyAutoLayout, ClusterDef, LayoutLink} from "../../layout/autoLayout";
 
+export interface StructureImportOut {
+    nodeMap: Map<string, string>;       // mermaid id → internal nodeId
+    subgraphLabels: Map<string, string>; // subgraph mermaid id → display label
+    nodeParents: Map<string, string>;   // internal nodeId → direct parent subgraph mermaid id
+}
+
 interface ImportStructureOptions {
     forceFlowchart?: boolean;
+    out?: StructureImportOut;
 }
 
 function toFlowchartKind(shape: "process" | "decision" | "terminator" | "input-output" | undefined): FlowchartNodeKind | undefined {
@@ -511,6 +518,13 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             offset: { x: 0, y: 0 }
         }
     };
+
+    if (options?.out) {
+        const o = options.out;
+        for (const [k, v] of Object.entries(nodeMap)) o.nodeMap.set(k, v);
+        for (const [k, v] of Object.entries(subgraphLabels)) o.subgraphLabels.set(k, v);
+        for (const [nodeId, parentSid] of Object.entries(nodeParents)) o.nodeParents.set(nodeId, parentSid);
+    }
 
     return result as StructureDiagramState;
 }
