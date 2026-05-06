@@ -14,12 +14,16 @@ import {defaultColorSchema} from "../../../common/colors/colorSchemas";
 import {ClusterPlacement, StructureDiagramState} from "../../structureDiagram/structureDiagramState";
 import {createMermaidIdGenerator, mermaidSourceLines, parseMermaidLayoutHints} from "./mermaidImportUtils";
 import {createClassMember, minimumClassNodeHeight, normalizeClassAnnotation} from "../../classDiagram/classDiagramUtils";
-import {applyAutoLayout, ClusterDef, LayoutLink} from "../../layout/autoLayout";
+import {applyAutoLayout, ClusterDef, LayoutHints, LayoutLink} from "../../layout/autoLayout";
 
 export interface StructureImportOut {
-    nodeMap: Map<string, string>;       // mermaid id → internal nodeId
+    nodeMap: Map<string, string>;        // mermaid id → internal nodeId
     subgraphLabels: Map<string, string>; // subgraph mermaid id → display label
-    nodeParents: Map<string, string>;   // internal nodeId → direct parent subgraph mermaid id
+    nodeParents: Map<string, string>;    // internal nodeId → direct parent subgraph mermaid id
+    layoutEdges: LayoutLink[];
+    clusterDefs: { [key: string]: ClusterDef };
+    clusterParents: { [key: string]: string };
+    layoutHints: LayoutHints;
 }
 
 interface ImportStructureOptions {
@@ -524,6 +528,10 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         for (const [k, v] of Object.entries(nodeMap)) o.nodeMap.set(k, v);
         for (const [k, v] of Object.entries(subgraphLabels)) o.subgraphLabels.set(k, v);
         for (const [nodeId, parentSid] of Object.entries(nodeParents)) o.nodeParents.set(nodeId, parentSid);
+        o.layoutEdges = [...layoutEdges];
+        Object.assign(o.clusterDefs, clusterDefs);
+        Object.assign(o.clusterParents, clusterParents);
+        o.layoutHints = {...layoutHints};
     }
 
     return result as StructureDiagramState;
@@ -533,7 +541,7 @@ const DISPLAY_PADDING = 80;
 const DISPLAY_MIN_WIDTH = 800;
 const DISPLAY_MIN_HEIGHT = 600;
 
-function computeDisplaySize(nodes: { [id: string]: any }): { width: number; height: number } {
+export function computeDisplaySize(nodes: { [id: string]: any }): { width: number; height: number } {
     let maxRight = DISPLAY_MIN_WIDTH;
     let maxBottom = DISPLAY_MIN_HEIGHT;
     for (const node of Object.values(nodes)) {
