@@ -1,5 +1,5 @@
 import React, {FC, useContext} from "react";
-import {Ellipse, Line, Rect, Text} from "react-konva";
+import {Line, Rect, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
 import {AppLayoutContext} from "../../editor/editorLayout";
 import {
@@ -46,11 +46,12 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
         if (isMindMapTopic) {
             const {x, y, width, height} = placement.bounds;
             return (
-                <Ellipse
-                    x={x + width / 2}
-                    y={y + height / 2}
-                    radiusX={width / 2}
-                    radiusY={height / 2}
+                <Rect
+                    x={x}
+                    y={y}
+                    width={width}
+                    height={height}
+                    cornerRadius={Math.min(height * 0.4, width * 0.25)}
                     fill={colorSchema.fillColor}
                     stroke={colorSchema.strokeColor}
                     shadowEnabled={shadowEnabled}

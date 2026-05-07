@@ -34,6 +34,8 @@ export enum Command {
     SelectNextRight = "select-next-right",
     SelectNextUp = "select-next-up",
     SelectNextDown = "select-next-down",
+    InsertChild = "insert-child",
+    InsertSibling = "insert-sibling",
 }
 
 export interface CommandDefinition {

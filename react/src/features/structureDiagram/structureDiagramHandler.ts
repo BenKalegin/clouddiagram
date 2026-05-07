@@ -1,5 +1,6 @@
 import {
     calculateDiagramBounds,
+    defaultKeyBindings,
     DiagramHandler,
     dropFromPaletteAction,
     elementCommandAction,
@@ -8,6 +9,7 @@ import {
     elementPropertyChangedAction,
     elementResizeAction,
     Get,
+    KeyBindings,
     Set
 } from "../diagramEditor/diagramEditorSlice";
 import { addToHistory, createDiagramChangeOperation } from "../diagramEditor/historyModel";
@@ -27,7 +29,7 @@ import {
 } from "../../package/packageModel";
 import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {snapToBounds} from "../../common/Geometry/snap";
-import {DiagramId, dragReparentAtom, elementsAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, dragReparentAtom, elementsAtom, isLiveElement, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {LinkId, LinkRender, PortPlacement, PortRender, StructureDiagramState} from "./structureDiagramState";
 import {
     addNewElementAt,
@@ -307,6 +309,10 @@ export class StructureDiagramHandler implements DiagramHandler {
         addNodeAndConnect(get, set, name)
     }
 
+    getKeyBindings(): KeyBindings {
+        return defaultKeyBindings;
+    }
+
     getElement(get: Get, ref: ElementRef, diagram: StructureDiagramState): DiagramElement {
         switch (ref.type) {
             case ElementType.ClassNode:
@@ -491,8 +497,10 @@ export const linkRenderSelector = atomFamily(
     (param: LinkRenderParam) =>
         atom((get) => {
             const link = get(elementsAtom(param.linkId)) as LinkState;
+            if (!isLiveElement(link)) return null;
             const port1 = get(portSelector(link.port1));
             const port2 = get(portSelector(link.port2));
+            if (!isLiveElement(port1) || !isLiveElement(port2)) return null;
             const sourceRender = get(portRenderSelector({portId: link.port1, nodeId: port1.nodeId, diagramId: param.diagramId}));
             const targetRender = get(portRenderSelector({portId: link.port2, nodeId: port2.nodeId, diagramId: param.diagramId}));
             const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId: param.diagramId}));

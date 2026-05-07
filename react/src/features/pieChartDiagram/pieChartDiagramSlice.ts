@@ -2,9 +2,11 @@ import {Action} from "@reduxjs/toolkit";
 import {Coordinate, Diagram} from "../../common/model";
 import {DiagramElement, ElementRef, ElementType, Id} from "../../package/packageModel";
 import {
+    defaultKeyBindings,
     DiagramHandler,
     elementPropertyChangedAction,
     Get,
+    KeyBindings,
     Set
 } from "../diagramEditor/diagramEditorSlice";
 import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
@@ -32,6 +34,10 @@ class PieChartDiagramHandler implements DiagramHandler {
     }
 
     createAndConnectTo(_get: Get, _set: Set, _name: string): void {
+    }
+
+    getKeyBindings(): KeyBindings {
+        return defaultKeyBindings;
     }
 
     getElement(_get: Get, ref: ElementRef, diagram: Diagram): DiagramElement {

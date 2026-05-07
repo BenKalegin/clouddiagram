@@ -1,9 +1,8 @@
+import { useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useAtomValue } from "jotai";
-import { selectedRefsSelector } from "../diagramEditor/diagramEditorModel";
-import { elementCommandAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
-import { Command } from "../propertiesEditor/propertiesEditorModel";
-import { DiagramId } from "../diagramEditor/diagramEditorModel";
+import { selectedRefsSelector, diagramKindSelector, DiagramId } from "../diagramEditor/diagramEditorModel";
+import { elementCommandAction, useDispatch, diagramEditors } from "../diagramEditor/diagramEditorSlice";
 
 interface KeyboardShortcutsHandlerProps {
     activeDiagramId: DiagramId;
@@ -12,38 +11,21 @@ interface KeyboardShortcutsHandlerProps {
 export const useKeyboardShortcuts = ({ activeDiagramId }: KeyboardShortcutsHandlerProps) => {
     const dispatch = useDispatch();
     const selectedElements = useAtomValue(selectedRefsSelector(activeDiagramId));
+    const diagramKind = useAtomValue(diagramKindSelector(activeDiagramId));
+    const bindings = useMemo(
+        () => diagramEditors[diagramKind]?.getKeyBindings() ?? {},
+        [diagramKind]
+    );
 
-    useHotkeys('delete, backspace, left, right, up, down', (event) => {
+    const fire = useCallback((event: KeyboardEvent) => {
+        const command = bindings[event.key];
+        if (!command) return;
         event.preventDefault();
+        dispatch(elementCommandAction({ command, elements: selectedElements }));
+    }, [bindings, selectedElements, dispatch]);
 
-        let command;
-        switch (event.key) {
-            case 'Delete':
-            case 'Backspace':
-                command = Command.Delete;
-                break;
-            case 'ArrowLeft':
-                command = Command.SelectNextLeft;
-                break;
-            case 'ArrowRight':
-                command = Command.SelectNextRight;
-                break;
-            case 'ArrowUp':
-                command = Command.SelectNextUp;
-                break;
-            case 'ArrowDown':
-                command = Command.SelectNextDown;
-                break;
-            default:
-                return;
-        }
+    useHotkeys('delete, backspace, left, right, up, down', fire, [fire]);
+    useHotkeys('tab, enter', fire, { enableOnFormTags: false }, [fire]);
 
-        dispatch(elementCommandAction({
-            command,
-            elements: selectedElements
-        }));
-    });
-
-    // No need to return anything as this hook just sets up the keyboard shortcuts
     return null;
 };

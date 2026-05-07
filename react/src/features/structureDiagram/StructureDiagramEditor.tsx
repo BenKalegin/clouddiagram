@@ -45,6 +45,7 @@ export const StructureDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
         <VirtualizedLayer>
             {sortedNodeIds.map((id) => {
                 const node = diagram.nodes[id];
+                if (!node) return null;
                 return (
                     <VirtualizedItem
                         key={id}

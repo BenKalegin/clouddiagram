@@ -1,11 +1,13 @@
 import {Action} from "@reduxjs/toolkit";
 import {
+    defaultKeyBindings,
     DiagramHandler,
     dropFromPaletteAction, elementCommandAction,
     elementMoveAction,
     elementPropertyChangedAction,
     elementResizeAction,
     Get,
+    KeyBindings,
     Set
 } from "../diagramEditor/diagramEditorSlice";
 import {
@@ -64,6 +66,10 @@ class SequenceDiagramHandler implements DiagramHandler {
     }
     createAndConnectTo(get: Get, set: Set, name: string): void {
         createLifelineAndConnectTo(get, set, name);
+    }
+
+    getKeyBindings(): KeyBindings {
+        return defaultKeyBindings;
     }
 
     getElement(get: Get, ref: ElementRef, diagram: Diagram): DiagramElement {

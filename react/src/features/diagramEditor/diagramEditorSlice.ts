@@ -139,13 +139,24 @@ export const updateDiagramDisplayAction = createAction<{
 export type Get = JotaiGet;
 export type Set = JotaiSet;
 
+export type KeyBindings = Partial<Record<string, Command>>;
+
+export const defaultKeyBindings: KeyBindings = {
+    'Delete':     Command.Delete,
+    'Backspace':  Command.Delete,
+    'ArrowLeft':  Command.SelectNextLeft,
+    'ArrowRight': Command.SelectNextRight,
+    'ArrowUp':    Command.SelectNextUp,
+    'ArrowDown':  Command.SelectNextDown,
+};
+
 export interface DiagramHandler {
     handleAction(action: Action, get: Get, set: Set) : void
     snapToElements(get: Get, diagramPos: Coordinate): [Coordinate, DiagramElement] | undefined
-
     connectNodes(get: Get, set: Set, sourceId: Id, targetId: ElementRef, diagramPos: Coordinate): void;
     createAndConnectTo(get: Get, set: Set, name: string): void;
     getElement(get: Get, ref: ElementRef, diagram: Diagram): DiagramElement
+    getKeyBindings(): KeyBindings;
 }
 
 

@@ -17,7 +17,8 @@ export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}
     const render = useAtomValue(linkRenderSelector({linkId, diagramId}))
     const link = useAtomValue(elementsAtom(linkId)) as LinkState
     const { appLayout } = useContext(AppLayoutContext);
-    const colorSchema = adjustColorSchemaForTheme(link.colorSchema, appLayout.darkMode);
+    const colorSchema = adjustColorSchemaForTheme(link?.colorSchema, appLayout.darkMode);
+    if (!render) return null;
     const erRelationship = link.erRelationship;
 
     return (

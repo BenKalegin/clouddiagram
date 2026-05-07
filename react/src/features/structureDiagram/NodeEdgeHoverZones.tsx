@@ -6,6 +6,7 @@ import { Bounds, Coordinate } from "../../common/model";
 import { ColorSchema, ElementType, NodeState, PortAlignment } from "../../package/packageModel";
 import {
     elementsAtom,
+    isLiveElement,
     linkingAtom,
     SourcePortHint,
 } from "../diagramEditor/diagramEditorModel";
@@ -181,6 +182,8 @@ export const NodeEdgeHoverZones = ({ nodeId, diagramId, bounds, colorSchema, onA
     const { appLayout } = useContext(AppLayoutContext);
 
     const themedSchema = adjustColorSchemaForTheme(colorSchema, appLayout.darkMode);
+
+    if (!isLiveElement(node) || !diagram.nodes[nodeId]) return null;
 
     // Disable ghost port hints while any linking drag is in progress
     const disabled = linking?.drawing === true;

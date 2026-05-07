@@ -5,8 +5,8 @@ import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "./DrawingLink";
 import {atom, useAtomValue} from "jotai";
 import {atomFamily} from "jotai-family";
-import {DiagramId, dragReparentAtom, elementsAtom, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
-import {ElementType, NodeState, PictureLayout} from "../../package/packageModel";
+import {DiagramId, dragReparentAtom, elementsAtom, isLiveElement, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
+import {ElementType, FlowchartNodeKind, NodeState, PictureLayout} from "../../package/packageModel";
 import {NodeContentTopLeftIcon} from "./NodeContentTopLeftIcon";
 import {iconRegistry} from "../graphics/graphicsReader";
 import useImage from "use-image";
@@ -49,21 +49,22 @@ export const nodePlacement = atomFamily(
 export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const node = useAtomValue(elementsAtom(nodeId)) as NodeState
     const placement = useAtomValue(nodePlacement({nodeId, diagramId}))
-
     const selectedElements = useAtomValue(selectedRefsSelector(diagramId))
+    const linking = useAtomValue(linkingAtom)
+    const dragReparent = useAtomValue(dragReparentAtom)
+    const shapeId = node?.customShape?.pictureId
+    const iconUrl = shapeId !== undefined ? iconRegistry[shapeId] : undefined
+    const [image] = useImage(iconUrl || '');
+    const [edgeHoverActive, setEdgeHoverActive] = useState(false);
+
+    if (!isLiveElement(node) || !placement) return null;
+
     const isSelected = selectedElements.map(e => e.id).includes(nodeId);
     const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === nodeId;
-
-    const linking = useAtomValue(linkingAtom)
     const linkingTarget = linking?.targetElement;
     const linkingSource = linking?.sourceElement;
-    const dragReparent = useAtomValue(dragReparentAtom)
     const element = {id: nodeId, type: node.type};
-
-    const shapeId = node.customShape?.pictureId
-    const iconUrl = shapeId !== undefined ? iconRegistry[shapeId] : undefined
     const layout = node.customShape?.layout ?? PictureLayout.NoIconRect
-    const [image] = useImage(iconUrl || '');
     const contentComponents = {
         [PictureLayout.TopLeftCorner]: NodeContentTopLeftIcon,
         [PictureLayout.NoIconRect]: NodeContentNoIconRect,
@@ -74,8 +75,6 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const Component = isContainer
         ? NodeContentContainer
         : contentComponents[layout as keyof typeof contentComponents];
-
-    const [edgeHoverActive, setEdgeHoverActive] = useState(false);
 
     const shadowEnabled = nodeId === linkingTarget?.id || nodeId === linkingSource || nodeId === dragReparent?.targetContainerId;
     const inflatedBounds = inflate(placement.bounds, 12, 12);
@@ -112,7 +111,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                 />
             )}
 
-            {node.ports.map((port, index) =>
+            {node.flowchartKind !== FlowchartNodeKind.MindMapTopic && node.ports.map((port, index) =>
                 <Port
                     key={index}
                     portId={port}

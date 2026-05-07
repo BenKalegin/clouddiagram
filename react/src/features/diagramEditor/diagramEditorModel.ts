@@ -61,6 +61,8 @@ export interface ContextPopupProps {
 
 export const emptyElementSentinel: DiagramElement = {id: "", type: ElementType.ClassNode};
 
+export const isLiveElement = (e: DiagramElement | undefined): boolean => !!e?.id;
+
 export const diagramTitleSelector = atomFamily((id: DiagramId | undefined): Atom<string | undefined> =>
     atom((get) => {
         if (!id)

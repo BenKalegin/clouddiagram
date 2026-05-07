@@ -1,4 +1,5 @@
 import {ColorSchema} from "../../package/packageModel";
+import {defaultColorSchema} from "./colorSchemas";
 
 /**
  * A utility to store RGB components (0-255).
@@ -176,16 +177,17 @@ export function convertColorForDarkTheme(
     return rgbToHex(adjustedRgb);
 }
 
-export const adjustColorSchemaForTheme = (colorSchema: ColorSchema, darkMode: boolean): ColorSchema => {
-    if (colorSchema.rawColors) return colorSchema;
+export const adjustColorSchemaForTheme = (colorSchema: ColorSchema | undefined, darkMode: boolean): ColorSchema => {
+    const schema = colorSchema ?? defaultColorSchema;
+    if (schema.rawColors) return schema;
     if (darkMode) {
         return {
-            ...colorSchema,
-            strokeColor: convertColorForDarkTheme(colorSchema.strokeColor),
-            fillColor: convertColorForDarkTheme(colorSchema.fillColor),
+            ...schema,
+            strokeColor: convertColorForDarkTheme(schema.strokeColor),
+            fillColor: convertColorForDarkTheme(schema.fillColor),
             textColor: "#a9b7c6"
         }
     }
-    return colorSchema;
+    return schema;
 }
 
