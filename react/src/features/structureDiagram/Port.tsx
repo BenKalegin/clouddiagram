@@ -25,6 +25,8 @@ export const Port = ({diagramId, nodeId, portId, colorSchema}: PortProps) => {
     const { appLayout } = useContext(AppLayoutContext);
     colorSchema = adjustColorSchemaForTheme(colorSchema, appLayout.darkMode);
 
+    if (!render) return null;
+
     return (
         <Circle
             x={render.bounds.x + render.bounds.width / 2}

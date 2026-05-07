@@ -423,13 +423,7 @@ export const portRenderSelector = atomFamily(
             const nodePlacement = get(nodePlacementSelector({nodeId: param.nodeId, diagramId: param.diagramId}));
             const port = get(portSelector(param.portId));
             const portPlacement = get(portPlacementSelector({portId: param.portId, diagramId: param.diagramId}));
-            if (!nodePlacement) {
-                throw new Error(`Node placement is undefined for node ${param.nodeId}`);
-            } else if (!port) {
-                throw new Error(`Port is undefined for port ${param.portId}`);
-            } else if (!portPlacement) {
-                throw new Error(`Port placement is undefined for port ${param.portId} on node ${param.nodeId}`);
-            }
+            if (!nodePlacement || !port || !portPlacement) return null;
             return renderPort(nodePlacement.bounds, port, portPlacement);
         }),
     (a, b) => a.portId === b.portId && a.nodeId === b.nodeId && a.diagramId === b.diagramId
@@ -505,6 +499,7 @@ export const linkRenderSelector = atomFamily(
             const targetRender = get(portRenderSelector({portId: link.port2, nodeId: port2.nodeId, diagramId: param.diagramId}));
             const sourcePlacement = get(portPlacementSelector({portId: link.port1, diagramId: param.diagramId}));
             const targetPlacement = get(portPlacementSelector({portId: link.port2, diagramId: param.diagramId}));
+            if (!sourceRender || !targetRender || !sourcePlacement || !targetPlacement) return null;
             return renderLink(port1, sourceRender.bounds, sourcePlacement, port2, targetRender.bounds, targetPlacement, link.routeStyle, link.tipStyle1, link.tipStyle2);
         }),
     (a, b) => a.linkId === b.linkId && a.diagramId === b.diagramId

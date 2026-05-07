@@ -1,10 +1,12 @@
+import {nanoid} from "nanoid";
 import {LayoutDirection, LayoutHints} from "../../layout/autoLayout";
 
 export type MermaidIdGenerator = () => string;
 
 export function createMermaidIdGenerator(): MermaidIdGenerator {
+    const prefix = nanoid(8);
     let idCounter = 0;
-    return () => `mermaid_${++idCounter}`;
+    return () => `mermaid_${prefix}_${++idCounter}`;
 }
 
 export function normalizeMermaidDeclaration(line: string): string {

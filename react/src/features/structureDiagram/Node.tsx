@@ -110,7 +110,7 @@ export const Node: FC<NodeProps> = React.memo(({nodeId, diagramId}) => {
                 />
             )}
 
-            {node.flowchartKind !== FlowchartNodeKind.MindMapTopic && node.ports.map((port, index) =>
+            {node.flowchartKind !== FlowchartNodeKind.MindMapTopic && (node.ports ?? []).map((port, index) =>
                 <Port
                     key={index}
                     portId={port}
