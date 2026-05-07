@@ -9,7 +9,8 @@ interface ZoomControlsProps {
     scale: number;
     onZoomIn: () => void;
     onZoomOut: () => void;
-    onZoomToFit: () => void;
+    onZoomReset: () => void;
+    onFitToScreen: () => void;
 }
 
 const btnSx = {
@@ -34,7 +35,13 @@ const levelSx = {
     '&:hover': { bgcolor: 'action.hover', color: 'text.primary' },
 } as const;
 
-export const ZoomControls: React.FC<ZoomControlsProps> = ({ scale, onZoomIn, onZoomOut, onZoomToFit }) => {
+const FitIcon = () => (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <path d="M1 4V1h3M8 1h3v3M11 8v3H8M4 11H1V8"/>
+    </svg>
+);
+
+export const ZoomControls: React.FC<ZoomControlsProps> = ({ scale, onZoomIn, onZoomOut, onZoomReset, onFitToScreen }) => {
     return (
         <Box sx={{
             position: 'absolute',
@@ -50,10 +57,13 @@ export const ZoomControls: React.FC<ZoomControlsProps> = ({ scale, onZoomIn, onZ
             padding: '2px',
         }}>
             <ButtonBase sx={btnSx} onClick={onZoomOut} title="Zoom out">−</ButtonBase>
-            <ButtonBase sx={levelSx} onClick={onZoomToFit} title="Fit to screen">
+            <ButtonBase sx={levelSx} onClick={onZoomReset} title="Reset to 100%">
                 {Math.round(scale * 100)}%
             </ButtonBase>
             <ButtonBase sx={btnSx} onClick={onZoomIn} title="Zoom in">+</ButtonBase>
+            <ButtonBase sx={btnSx} onClick={onFitToScreen} title="Fit to screen">
+                <FitIcon />
+            </ButtonBase>
         </Box>
     );
 };
@@ -62,7 +72,6 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
     const activeDiagramId = useAtomValue(activeDiagramIdAtom);
     const diagramDisplay = useAtomValue(diagramDisplaySelector(activeDiagramId));
 
-    // Use diagram's display property instead of React state
     const scale = diagramDisplay.scale;
     const position = diagramDisplay.offset;
 
@@ -74,7 +83,6 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
 
         const oldScale = stage.scaleX();
 
-        // Keep the center of the view fixed when zooming
         const dimensions = stageHandler.getContainerDimensions();
         if (!dimensions) return;
 
@@ -91,27 +99,41 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
             y: centerY - mousePointTo.y * newScale,
         };
 
-        // Use stageHandler to update scale and position at once (prevents race conditions)
         stageHandler.setViewport(newScale, newPos);
     };
 
     const handleZoomIn = () => {
         if (!stageHandler) return;
-        // Define slider stops: 0.1, 0.2, ..., 5.0 (step 0.1)
         const stops = Array.from({ length: 50 }, (_, i) => +(0.1 + i * 0.1).toFixed(1));
         const currentIdx = stops.findIndex(s => Math.abs(s - scale) < 0.01);
-        const nextIdx = Math.min(currentIdx + 1, stops.length - 1);
-        const newScale = stops[nextIdx];
-        applyZoom(newScale);
+        if (currentIdx === -1) {
+            const next = stops.find(s => s > scale + 0.001);
+            if (next) applyZoom(next);
+            return;
+        }
+        applyZoom(stops[Math.min(currentIdx + 1, stops.length - 1)]);
     };
 
     const handleZoomOut = () => {
         if (!stageHandler) return;
         const stops = Array.from({ length: 50 }, (_, i) => +(0.1 + i * 0.1).toFixed(1));
         const currentIdx = stops.findIndex(s => Math.abs(s - scale) < 0.01);
-        const prevIdx = Math.max(currentIdx - 1, 0);
-        const newScale = stops[prevIdx];
-        applyZoom(newScale);
+        if (currentIdx === -1) {
+            const prev = [...stops].reverse().find(s => s < scale - 0.001);
+            if (prev) applyZoom(prev);
+            return;
+        }
+        applyZoom(stops[Math.max(currentIdx - 1, 0)]);
+    };
+
+    const handleZoomTo100 = () => {
+        if (!stageHandler) return;
+        const dimensions = stageHandler.getContainerDimensions();
+        if (!dimensions) return;
+        stageHandler.setViewport(1, {
+            x: (dimensions.width - WIDTH) / 2,
+            y: (dimensions.height - HEIGHT) / 2,
+        });
     };
 
     // Memoized so that effects depending on `handleZoomToFit` (e.g. the
@@ -127,7 +149,6 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
         const dimensions = stageHandler.getContainerDimensions();
         if (!dimensions) return;
 
-        // Calculate the scale to fit the content within the visible area
         const containerWidth = dimensions.width;
         const containerHeight = dimensions.height;
 
@@ -135,14 +156,10 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
         const scaleY = containerHeight / HEIGHT;
         const newScale = Math.min(scaleX, scaleY);
 
-        // Center the content
-        const newPos = {
+        stageHandler.setViewport(newScale, {
             x: (containerWidth - WIDTH * newScale) / 2,
             y: (containerHeight - HEIGHT * newScale) / 2,
-        };
-
-        // Use stageHandler to update scale and position at once (prevents race conditions)
-        stageHandler.setViewport(newScale, newPos);
+        });
     }, [stageHandler, WIDTH, HEIGHT]);
 
     const handleSliderChange = (_event: Event, newValue: number | number[]) => {
@@ -157,6 +174,7 @@ export const useZoom = (stageHandler: StageHandler | null, WIDTH: number, HEIGHT
         position,
         handleZoomIn,
         handleZoomOut,
+        handleZoomTo100,
         handleZoomToFit,
         handleSliderChange,
         applyZoom

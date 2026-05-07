@@ -28,6 +28,7 @@ export const DiagramContainer = () => {
     const {
         handleZoomIn,
         handleZoomOut,
+        handleZoomTo100,
         handleZoomToFit,
     } = useZoom(
         stageHandler,
@@ -82,7 +83,8 @@ export const DiagramContainer = () => {
                 scale={diagramDisplay?.scale ?? 1}
                 onZoomIn={handleZoomIn}
                 onZoomOut={handleZoomOut}
-                onZoomToFit={handleZoomToFit}
+                onZoomReset={handleZoomTo100}
+                onFitToScreen={handleZoomToFit}
             />
         </Box>
     );
