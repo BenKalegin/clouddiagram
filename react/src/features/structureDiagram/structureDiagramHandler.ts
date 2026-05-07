@@ -395,10 +395,9 @@ export const drawingLinkRenderSelector = atom<LinkRender>((get) => {
         const linking = get(linkingAtom)!
 
         const port1 = createTempPort("DrawingLinkSourcePort");
-        const port1Placement: PortPlacement = {
-            alignment: PortAlignment.Right,
-            edgePosRatio: 50,
-        }
+        const port1Placement: PortPlacement = linking.sourcePortHint
+            ? { alignment: linking.sourcePortHint.alignment, edgePosRatio: linking.sourcePortHint.edgePosRatio }
+            : { alignment: PortAlignment.Right, edgePosRatio: 50 };
 
         const diagramId = get(activeDiagramIdAtom);
         const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;

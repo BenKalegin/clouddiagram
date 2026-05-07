@@ -11,7 +11,8 @@ import {
     Linking,
     linkingAtom,
     showContextAtom,
-    snapGridSizeAtom
+    snapGridSizeAtom,
+    SourcePortHint
 } from "./diagramEditorModel";
 import {DiagramElement, ElementRef, ElementType, Id} from "../../package/packageModel";
 import type {Get as JotaiGet, Set as JotaiSet} from "../../common/state/jotaiShim";
@@ -70,6 +71,7 @@ export const linkingAction = createAction<{
     phase: LinkingPhase
     ctrlKey: boolean
     shiftKey: boolean
+    sourcePortHint?: SourcePortHint
 }>('editor/startLinking');
 
 
@@ -161,8 +163,8 @@ function handleAction(action: Action, get: Get, set: Set) {
     const diagramKind = get(elementsAtom(activeDiagramId)).type;
 
     if (linkingAction.match(action)) {
-        const {mousePos, diagramPos, elementId, phase } = action.payload;
-        handleLinking(diagramKind, get, set, elementId, mousePos, diagramPos, phase);
+        const {mousePos, diagramPos, elementId, phase, sourcePortHint} = action.payload;
+        handleLinking(diagramKind, get, set, elementId, mousePos, diagramPos, phase, sourcePortHint);
     }else if (linkToNewDialogCompletedAction.match(action)) {
         const {success, selectedName} = action.payload;
         if (success)
@@ -227,7 +229,7 @@ function scrubLinking(set: Set) {
     set(linkingAtom, undefined)
 }
 
-const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: Id, mousePos: Coordinate, diagramPos: Coordinate | undefined, phase: LinkingPhase) => {
+const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: Id, mousePos: Coordinate, diagramPos: Coordinate | undefined, phase: LinkingPhase, sourcePortHint?: SourcePortHint) => {
     if (phase === LinkingPhase.start) {
         const diagramId = get(activeDiagramIdAtom);
         const diagram = get(elementsAtom(diagramId)) as Diagram;
@@ -241,7 +243,8 @@ const handleLinking = (diagramKind: ElementType, get: Get, set: Set, elementId: 
             scale: scale,
             targetElement: undefined,
             drawing: true,
-            showLinkToNewDialog: false
+            showLinkToNewDialog: false,
+            sourcePortHint,
         })
     }else if (phase === LinkingPhase.draw) {
         const linking = get(linkingAtom);

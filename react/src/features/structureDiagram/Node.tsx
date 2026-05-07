@@ -1,5 +1,6 @@
-import React, {FC} from "react";
+import React, {FC, useState} from "react";
 import {Port} from "./Port";
+import {NodeEdgeHoverZones} from "./NodeEdgeHoverZones";
 import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "./DrawingLink";
 import {atom, useAtomValue} from "jotai";
@@ -69,6 +70,8 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
 
     const Component = contentComponents[layout as keyof typeof contentComponents];
 
+    const [edgeHoverActive, setEdgeHoverActive] = useState(false);
+
     const shadowEnabled = nodeId === linkingTarget?.id || nodeId === linkingSource;
     const inflatedBounds = inflate(placement.bounds, 12, 12);
 
@@ -91,7 +94,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                 />
             )}
 
-            {isSelected && (
+            {isSelected && !edgeHoverActive && (
                 <Scaffold
                     element={element}
                     bounds={placement.bounds}
@@ -100,6 +103,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     excludeDiagonalResize={node.ganttTask !== undefined}
                     excludeVerticalResize={node.ganttTask !== undefined}
                     linkingDrawing={<DrawingLink/>}
+                    showLinkButton={false}
                 />
             )}
 
@@ -112,6 +116,14 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
                     colorSchema={node.colorSchema}
                 />
             )}
+
+            <NodeEdgeHoverZones
+                nodeId={nodeId}
+                diagramId={diagramId}
+                bounds={placement.bounds}
+                colorSchema={node.colorSchema}
+                onActiveChange={setEdgeHoverActive}
+            />
         </React.Fragment>
     );
 }

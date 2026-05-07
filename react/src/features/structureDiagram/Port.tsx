@@ -32,6 +32,7 @@ export const Port = ({diagramId, nodeId, portId, colorSchema}: PortProps) => {
             radius={port.latitude / 2}
             stroke={colorSchema.strokeColor}
             fill={portId === linkingTarget?.id || portId === linkingSource ? colorSchema.strokeColor: colorSchema.fillColor}
+            listening={false}
         />
     )
 }

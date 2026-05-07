@@ -1,5 +1,5 @@
 import {Bounds, Coordinate, defaultDiagramDisplay, Diagram} from "../../common/model";
-import {DiagramElement, ElementType, Id, ElementRef} from "../../package/packageModel";
+import {DiagramElement, ElementType, Id, ElementRef, PortAlignment} from "../../package/packageModel";
 import {atom, Atom} from "jotai";
 import {atomFamily} from "jotai-family";
 import {persistentAtom, persistentAtomFamily} from "../../common/state/persistentAtoms";
@@ -7,6 +7,11 @@ import {elements} from "../demo";
 import {nanoid} from 'nanoid';
 import {diagramEditors} from "./diagramEditorSlice";
 import {ExportImportFormat} from "../export/exportFormats";
+
+export interface SourcePortHint {
+    alignment: PortAlignment;
+    edgePosRatio: number;
+}
 
 export interface Linking {
     sourceElement: Id
@@ -19,6 +24,7 @@ export interface Linking {
     drawing: boolean
     showLinkToNewDialog?: boolean
     targetElement?: ElementRef
+    sourcePortHint?: SourcePortHint
 }
 
 export type DiagramId = Id;

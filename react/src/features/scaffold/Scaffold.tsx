@@ -14,6 +14,7 @@ export interface ScaffoldProps {
     excludeDiagonalResize?: boolean;
     excludeVerticalResize?: boolean;
     linkingDrawing: React.JSX.Element | undefined;
+    showLinkButton?: boolean;
 }
 
 export const Scaffold = (props: ScaffoldProps) => {
@@ -81,6 +82,7 @@ export const Scaffold = (props: ScaffoldProps) => {
                 <ContextButtons
                     placement={buttonsPosition}
                     elementId={props.element.id}
+                    showLinkButton={props.showLinkButton}
                 />}
             {props.isFocused && props.isLinking && props.linkingDrawing}
         </>

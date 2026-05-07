@@ -240,7 +240,10 @@ const autoConnectNodesImpl = (get: Get, set: Set, sourceId: Id, target: ElementR
 
     const sourceNode = get(elementsAtom(sourceId)) as NodeState;
     const port1 = addNewPort(get, set, sourceNode);
-    const placement1: PortPlacement = {alignment: PortAlignment.Right, edgePosRatio: 50};
+    const hint = get(linkingAtom)?.sourcePortHint;
+    const placement1: PortPlacement = hint
+        ? { alignment: hint.alignment, edgePosRatio: hint.edgePosRatio }
+        : { alignment: PortAlignment.Right, edgePosRatio: 50 };
 
     let port2: PortState;
     let placement2: PortPlacement;
@@ -443,8 +446,21 @@ function deleteSelectedElement(diagram: Draft<StructureDiagramState>, element: E
             const port1 = getElement(link.port1) as PortState;
             const port2 = getElement(link.port2) as PortState;
 
-            setElement(link.port1, { ...port1, links: port1.links.filter(l => l !== element.id) } as PortState);
-            setElement(link.port2, { ...port2, links: port2.links.filter(l => l !== element.id) } as PortState);
+            for (const [portId, port] of [[link.port1, port1], [link.port2, port2]] as [Id, PortState][]) {
+                const remainingLinks = port.links.filter(l => l !== element.id);
+                if (remainingLinks.length === 0) {
+                    // Delete the port when its last link is removed — ports are ephemeral artifacts
+                    // of connections, not first-class elements. When typed/predefined ports land
+                    // (e.g. AWS VPC, UML component interfaces), add a `predefined` flag to PortState
+                    // and skip deletion here so schema-defined ports survive link removal.
+                    const portNode = getElement(port.nodeId) as NodeState;
+                    setElement(port.nodeId, { ...portNode, ports: portNode.ports.filter(p => p !== portId) } as NodeState);
+                    delete diagram.ports[portId];
+                    setElement(portId, emptyElementSentinel);
+                } else {
+                    setElement(portId, { ...port, links: remainingLinks } as PortState);
+                }
+            }
 
             delete diagram.links[element.id];
             setElement(element.id, emptyElementSentinel);
