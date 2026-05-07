@@ -9,6 +9,7 @@ import {defaultGanttChartStart, defaultGanttDateFormat} from "../ganttDiagram/ga
 import type {ErDiagramState} from "../erDiagram/erDiagramModel";
 import type {PieChartDiagramState} from "../pieChartDiagram/pieChartDiagramModel";
 import {defaultPieChartBounds, defaultPieSlices} from "../pieChartDiagram/pieChartDiagramModel";
+import type {MindMapDiagramState} from "../mindMapDiagram/mindMapDiagramModel";
 
 export interface DiagramTypeDefinition {
     type: ElementType;
@@ -104,6 +105,12 @@ export const diagramTypeDefinitions: DiagramTypeDefinition[] = [
             messages: {},
             activations: {},
         } as SequenceDiagramState)
+    },
+    {
+        type: ElementType.MindMapDiagram,
+        title: "Mind Map",
+        testId: "add-mind-map-diagram",
+        createDiagram: (id) => createStructureDiagram(id, ElementType.MindMapDiagram, "Mind Map") as MindMapDiagramState
     },
 ];
 

@@ -22,7 +22,9 @@ import {
     interactionBoundary,
     interactionControl,
     interactionEntity,
-    interactionLifeline
+    interactionLifeline,
+    mindmapTopic,
+    mindmapSubtopic,
 } from "../toolbox/models";
 import {dropFromPaletteAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
 import {ElementType, FlowchartNodeKind} from "../../package/packageModel";
@@ -105,6 +107,9 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
         case deploymentApiGateway:
             return { type: ElementType.DeploymentNode, subType: PredefinedSvg.ApiGateway }
 
+        case mindmapTopic:
+        case mindmapSubtopic:
+            return { type: ElementType.ClassNode, flowchartKind: FlowchartNodeKind.MindMapTopic };
 
         default:
             throw new Error("Unknown gallery type: " + galleryType);

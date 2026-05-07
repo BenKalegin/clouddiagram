@@ -252,7 +252,13 @@ export const portPlacementSelector = atomFamily(
 );
 
 // Original function wrapped with history tracking
-const autoConnectNodesImpl = (get: Get, set: Set, sourceId: Id, target: ElementRef) => {
+interface ConnectOptions {
+    routeStyle?: RouteStyle;
+    tipStyle1?: TipStyle;
+    tipStyle2?: TipStyle;
+}
+
+const autoConnectNodesImpl = (get: Get, set: Set, sourceId: Id, target: ElementRef, options?: ConnectOptions) => {
     const diagramId = get(activeDiagramIdAtom);
     const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
 
@@ -282,10 +288,10 @@ const autoConnectNodesImpl = (get: Get, set: Set, sourceId: Id, target: ElementR
         type: ElementType.ClassLink,
         port1: port1.id,
         port2: port2.id,
-        tipStyle1: TipStyle.None,
-        tipStyle2: TipStyle.Arrow,
+        tipStyle1: options?.tipStyle1 ?? TipStyle.None,
+        tipStyle2: options?.tipStyle2 ?? TipStyle.Arrow,
         colorSchema: get(defaultColorSchemaAtom),
-        routeStyle: defaultRouteStyle,
+        routeStyle: options?.routeStyle ?? defaultRouteStyle,
         cornerStyle: defaultCornerStyle
     }
     set(elementsAtom(linkId), link);
@@ -353,7 +359,9 @@ const addNewElementAtImpl = (get: Get, set: Set, droppedAt: Coordinate, name: st
         const diagramId = get(activeDiagramIdAtom);
         const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
         const diagramType = diagram.type;
-        const flowchartKind = elementType.flowchartKind ?? (diagramType === ElementType.FlowchartDiagram ? FlowchartNodeKind.Process : undefined);
+        const flowchartKind = elementType.flowchartKind
+            ?? (diagramType === ElementType.FlowchartDiagram ? FlowchartNodeKind.Process : undefined)
+            ?? (diagramType === ElementType.MindMapDiagram ? FlowchartNodeKind.MindMapTopic : undefined);
         const customShape: CustomShape | undefined = elementType.subType ?
             {
                 layout: PictureLayout.FullIconTextBelow,

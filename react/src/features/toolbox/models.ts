@@ -52,6 +52,9 @@ export const c4System = "c4:system";
 export const c4Container = "c4:container";
 export const c4Component = "c4:component";
 
+export const mindmapTopic = "mindmap:topic";
+export const mindmapSubtopic = "mindmap:subtopic";
+
 const items: GalleryItem[] = [
     {key: classClass, name: 'Class', icon: PredefinedSvg.Class},
     {key: classInterface, name: 'Interface', icon: PredefinedSvg.Interface},
@@ -89,6 +92,8 @@ const items: GalleryItem[] = [
     {key: c4System, name: 'System'},
     {key: c4Container, name: 'Container'},
     {key: c4Component, name: 'Component'},
+    {key: mindmapTopic, name: 'Topic'},
+    {key: mindmapSubtopic, name: 'Subtopic'},
 ]
 
 
@@ -128,6 +133,11 @@ export const galleryGroups: IGalleryGroup[] = [
         name: "C4",
         key: "c4",
         items: items.filter(item => item.key.startsWith("c4:"))
+    },
+    {
+        name: "Mind Map",
+        key: "mindmap",
+        items: items.filter(item => item.key.startsWith("mindmap:"))
     },
 ];
 

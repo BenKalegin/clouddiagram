@@ -22,6 +22,7 @@ export enum ElementType {
     ErDiagram,
     PieChartDiagram,
     Cluster,
+    MindMapDiagram,
 }
 
 export interface ElementRef {
@@ -170,6 +171,7 @@ export enum FlowchartNodeKind {
     C4System = "c4-system",
     C4Container = "c4-container",
     C4Component = "c4-component",
+    MindMapTopic = "mindmap-topic",
 }
 
 export enum RouteStyle {

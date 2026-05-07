@@ -8,6 +8,7 @@ import {GanttDiagramEditor} from "../ganttDiagram/GanttDiagramEditor";
 import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {ErDiagramEditor} from "../erDiagram/ErDiagramEditor";
 import {PieChartDiagramEditor} from "../pieChartDiagram/PieChartDiagramEditor";
+import {MindMapDiagramEditor} from "../mindMapDiagram/MindMapDiagramEditor";
 
 export interface DiagramEditorProps {
     diagramId: DiagramId;
@@ -21,6 +22,7 @@ const diagramEditorRegistry: Partial<Record<ElementType, ComponentType<DiagramEd
     [ElementType.GanttDiagram]: GanttDiagramEditor,
     [ElementType.PieChartDiagram]: PieChartDiagramEditor,
     [ElementType.SequenceDiagram]: SequenceDiagramEditor,
+    [ElementType.MindMapDiagram]: MindMapDiagramEditor,
 };
 
 export function getDiagramEditor(type: ElementType): ComponentType<DiagramEditorProps> {

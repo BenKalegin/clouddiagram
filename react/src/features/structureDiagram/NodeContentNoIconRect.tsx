@@ -1,5 +1,5 @@
 import React, {FC, useContext} from "react";
-import {Line, Rect, Text} from "react-konva";
+import {Ellipse, Line, Rect, Text} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
 import {AppLayoutContext} from "../../editor/editorLayout";
 import {
@@ -22,6 +22,7 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
     const isDecision = kind === FlowchartNodeKind.Decision;
     const isInputOutput = kind === FlowchartNodeKind.InputOutput;
     const isTerminator = kind === FlowchartNodeKind.Terminator;
+    const isMindMapTopic = kind === FlowchartNodeKind.MindMapTopic;
     const isC4 = kind === FlowchartNodeKind.C4Person
         || kind === FlowchartNodeKind.C4System
         || kind === FlowchartNodeKind.C4Container
@@ -29,6 +30,7 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
     const shouldRenderClassCompartments = !isDecision
         && !isInputOutput
         && !isTerminator
+        && !isMindMapTopic
         && !isC4
         && ((node.classMembers?.length ?? 0) > 0 || !!node.classAnnotation);
 
@@ -41,6 +43,26 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
     }
 
     const shape = (() => {
+        if (isMindMapTopic) {
+            const {x, y, width, height} = placement.bounds;
+            return (
+                <Ellipse
+                    x={x + width / 2}
+                    y={y + height / 2}
+                    radiusX={width / 2}
+                    radiusY={height / 2}
+                    fill={colorSchema.fillColor}
+                    stroke={colorSchema.strokeColor}
+                    shadowEnabled={shadowEnabled}
+                    shadowColor={"black"}
+                    shadowBlur={3}
+                    shadowOffset={{x: 2, y: 2}}
+                    shadowOpacity={0.4}
+                    listening={false}
+                />
+            );
+        }
+
         if (isDecision) {
             const {x, y, width, height} = placement.bounds;
             const cx = x + width / 2;

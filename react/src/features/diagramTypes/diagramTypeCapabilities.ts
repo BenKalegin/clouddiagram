@@ -5,7 +5,8 @@ export const structureLikeDiagramTypes = [
     ElementType.DeploymentDiagram,
     ElementType.ErDiagram,
     ElementType.FlowchartDiagram,
-    ElementType.GanttDiagram
+    ElementType.GanttDiagram,
+    ElementType.MindMapDiagram,
 ] as const;
 
 export function isStructureLikeDiagramType(type: ElementType): boolean {

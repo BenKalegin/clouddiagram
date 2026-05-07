@@ -30,6 +30,7 @@ import { flowchartDiagramEditor } from "../flowchartDiagram/flowchartDiagramSlic
 import { ganttDiagramEditor } from "../ganttDiagram/ganttDiagramSlice";
 import { erDiagramEditor } from "../erDiagram/erDiagramSlice";
 import { pieChartDiagramEditor } from "../pieChartDiagram/pieChartDiagramSlice";
+import { mindMapDiagramEditor } from "../mindMapDiagram/mindMapDiagramSlice";
 import {createDiagramForType} from "../diagramTypes/diagramTypeRegistry";
 import KonvaEventObject = Konva.KonvaEventObject;
 
@@ -491,4 +492,5 @@ export const diagramEditors: Record<any, DiagramHandler> = {
     [ElementType.FlowchartDiagram]: flowchartDiagramEditor,
     [ElementType.GanttDiagram]: ganttDiagramEditor,
     [ElementType.PieChartDiagram]: pieChartDiagramEditor,
+    [ElementType.MindMapDiagram]: mindMapDiagramEditor,
 };
