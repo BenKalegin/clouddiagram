@@ -19,7 +19,7 @@ import {
     mermaidDiagramTypes
 } from './mermaidFormat';
 import { Diagram } from '../../common/model';
-import { StructureDiagramState, ClusterPlacement } from '../structureDiagram/structureDiagramState';
+import { StructureDiagramState } from '../structureDiagram/structureDiagramState';
 import { SequenceDiagramState } from '../sequenceDiagram/sequenceDiagramModel';
 import { NodeState, LinkState, PortState, PortAlignment, RouteStyle, ElementType, FlowchartNodeKind } from '../../package/packageModel';
 import { PredefinedSvg } from '../graphics/graphicsReader';
@@ -839,57 +839,57 @@ describe('importMermaidStructureDiagram - nested subgraph cluster layout', () =>
     });
 
     it('creates cluster objects for all 6 subgraphs with correct labels', () => {
-        expect(result.clusters).toBeDefined();
-        const clusters = result.clusters!;
-        expect(Object.keys(clusters)).toHaveLength(6);
-        expect(clusters['Clients']?.label).toBe('Client Applications');
-        expect(clusters['AppLayer']?.label).toBe('Application Services');
-        expect(clusters['AWSLayer']?.label).toBe('AWS Services');
-        expect(clusters['Functions']?.label).toBe('Lambda Functions');
-        expect(clusters['Tables']?.label).toBe('DynamoDB Tables');
-        expect(clusters['Queues']?.label).toBe('SQS Queues');
+        const clusterElements = Object.values(result.elements as Record<string, any>)
+            .filter(e => e.type === ElementType.Cluster);
+        expect(clusterElements).toHaveLength(6);
+        expect((result.elements['Clients'] as any)?.text).toBe('Client Applications');
+        expect((result.elements['AppLayer'] as any)?.text).toBe('Application Services');
+        expect((result.elements['AWSLayer'] as any)?.text).toBe('AWS Services');
+        expect((result.elements['Functions'] as any)?.text).toBe('Lambda Functions');
+        expect((result.elements['Tables'] as any)?.text).toBe('DynamoDB Tables');
+        expect((result.elements['Queues'] as any)?.text).toBe('SQS Queues');
     });
 
     it('Clients cluster bounds contain all three client nodes', () => {
-        const cb = result.clusters!['Clients'].bounds;
+        const cb = result.nodes['Clients'].bounds;
         expect(isContainedIn(getNodeBounds('Web App'), cb)).toBe(true);
         expect(isContainedIn(getNodeBounds('Mobile App'), cb)).toBe(true);
         expect(isContainedIn(getNodeBounds('Partner API'), cb)).toBe(true);
     });
 
     it('AppLayer cluster bounds contain Api, Worker, and Frontend nodes', () => {
-        const cb = result.clusters!['AppLayer'].bounds;
+        const cb = result.nodes['AppLayer'].bounds;
         expect(isContainedIn(getNodeBounds('REST API Server'), cb)).toBe(true);
         expect(isContainedIn(getNodeBounds('Background Worker'), cb)).toBe(true);
         expect(isContainedIn(getNodeBounds('Static Frontend'), cb)).toBe(true);
     });
 
     it('AWSLayer cluster bounds contain Kinesis and S3 nodes', () => {
-        const cb = result.clusters!['AWSLayer'].bounds;
+        const cb = result.nodes['AWSLayer'].bounds;
         expect(isContainedIn(getNodeBounds('Kinesis'), cb)).toBe(true);
         expect(isContainedIn(getNodeBounds('S3'), cb)).toBe(true);
     });
 
     it('Tables cluster is nested inside AWSLayer cluster bounds', () => {
-        const aws = result.clusters!['AWSLayer'].bounds;
-        const tables = result.clusters!['Tables'].bounds;
+        const aws = result.nodes['AWSLayer'].bounds;
+        const tables = result.nodes['Tables'].bounds;
         expect(isContainedIn(tables, aws)).toBe(true);
     });
 
     it('Queues cluster is nested inside AWSLayer cluster bounds', () => {
-        const aws = result.clusters!['AWSLayer'].bounds;
-        const queues = result.clusters!['Queues'].bounds;
+        const aws = result.nodes['AWSLayer'].bounds;
+        const queues = result.nodes['Queues'].bounds;
         expect(isContainedIn(queues, aws)).toBe(true);
     });
 
     it('Tables cluster bounds contain ScansTable and JobsTable nodes', () => {
-        const cb = result.clusters!['Tables'].bounds;
+        const cb = result.nodes['Tables'].bounds;
         expect(isContainedIn(getNodeBounds('media-scan-results'), cb)).toBe(true);
         expect(isContainedIn(getNodeBounds('print-jobs-table'), cb)).toBe(true);
     });
 
     it('Queues cluster bounds contain all five standard queue nodes', () => {
-        const cb = result.clusters!['Queues'].bounds;
+        const cb = result.nodes['Queues'].bounds;
         for (const prefix of [
             'media.scan.queue',
             'email.delivery.queue',
@@ -902,14 +902,14 @@ describe('importMermaidStructureDiagram - nested subgraph cluster layout', () =>
     });
 
     it('Functions cluster bounds contain all five lambda nodes', () => {
-        const cb = result.clusters!['Functions'].bounds;
+        const cb = result.nodes['Functions'].bounds;
         for (const label of ['Search Indexer', 'Email Sender', 'Media Scanner', 'Text Extractor', 'File Converter']) {
             expect(isContainedIn(getNodeBounds(label), cb), `${label} should be within Functions`).toBe(true);
         }
     });
 
     it('layout flows top-to-bottom: Clients above AppLayer, AppLayer above AWSLayer, AWSLayer above Functions', () => {
-        const c = result.clusters!;
+        const c = result.nodes;
         const clientsBottom = c['Clients'].bounds.y + c['Clients'].bounds.height;
         const appTop = c['AppLayer'].bounds.y;
         const appBottom = c['AppLayer'].bounds.y + c['AppLayer'].bounds.height;
@@ -924,22 +924,22 @@ describe('importMermaidStructureDiagram - nested subgraph cluster layout', () =>
 
     it('LB node sits vertically between Clients and AppLayer clusters', () => {
         const lbBounds = getNodeBounds('API Gateway / Load Balancer');
-        const clientsBottom = result.clusters!['Clients'].bounds.y + result.clusters!['Clients'].bounds.height;
-        const appTop = result.clusters!['AppLayer'].bounds.y;
+        const clientsBottom = result.nodes['Clients'].bounds.y + result.nodes['Clients'].bounds.height;
+        const appTop = result.nodes['AppLayer'].bounds.y;
 
         expect(lbBounds.y + lbBounds.height).toBeGreaterThan(clientsBottom - 50);
         expect(lbBounds.y).toBeLessThan(appTop + 50);
     });
 
     it('AppLayer width is not excessively wider than Clients (both have 3 nodes)', () => {
-        const clients = result.clusters!['Clients'].bounds;
-        const app = result.clusters!['AppLayer'].bounds;
+        const clients = result.nodes['Clients'].bounds;
+        const app = result.nodes['AppLayer'].bounds;
         // AppLayer inflates because Api fans out to many targets in AWSLayer — fundamental dagre limitation.
         expect(app.width).toBeLessThan(clients.width * 4);
     });
 
     it('AWSLayer cluster bounds contain Kinesis (not pushed outside by wide Queues cluster)', () => {
-        const aws = result.clusters!['AWSLayer'].bounds;
+        const aws = result.nodes['AWSLayer'].bounds;
         const kinesis = getNodeBounds('Kinesis');
         expect(kinesis.x).toBeGreaterThan(aws.x - 5);
         expect(kinesis.x + kinesis.width).toBeLessThan(aws.x + aws.width + 5);
@@ -963,10 +963,10 @@ describe('importMermaidStructureDiagram - node declared in subgraph after edge r
             type: ElementType.FlowchartDiagram,
             selectedElements: [],
             notes: {}
-        }, mermaidContent) as StructureDiagramState & { clusters: any; elements: any };
+        }, mermaidContent) as StructureDiagramState & { elements: any };
 
-        expect(result.clusters?.['Cluster']).toBeDefined();
-        const clusterBounds = result.clusters['Cluster'].bounds;
+        expect(result.nodes['Cluster']).toBeDefined();
+        const clusterBounds = result.nodes['Cluster'].bounds;
         const innerEntry = Object.entries(result.elements).find(
             ([, e]: any) => e.type === ElementType.ClassNode && e.text === 'Inner Node'
         );
@@ -1432,8 +1432,9 @@ Order --> Inventory : reserves`;
     First --> [*]`;
 
             const result = importMermaidStateDiagram(baseDiagram, content) as any;
-            expect(result.clusters).toBeDefined();
-            const clusterLabels = Object.values(result.clusters as Record<string, ClusterPlacement>).map(c => c.label);
+            const clusterLabels = Object.values(result.elements as Record<string, any>)
+                .filter(e => e.type === ElementType.Cluster)
+                .map(e => e.text);
             expect(clusterLabels).toContain('First');
         });
 

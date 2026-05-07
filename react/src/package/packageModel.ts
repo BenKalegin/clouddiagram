@@ -62,6 +62,7 @@ export interface DiagramElement extends ElementRef {
     customShape?: CustomShape
 }
 
+
 export interface Package {
     elements: { [id: Id]: DiagramElement };
 }
@@ -157,6 +158,7 @@ export interface NodeState extends DiagramElement, HasColorSchema {
     erEntity?: ErEntityState;
     flowchartKind?: FlowchartNodeKind;
     ganttTask?: GanttTaskState;
+    memberNodeIds?: string[];
 }
 
 export enum FlowchartNodeKind {

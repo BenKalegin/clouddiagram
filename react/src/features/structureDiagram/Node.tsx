@@ -12,6 +12,7 @@ import {iconRegistry} from "../graphics/graphicsReader";
 import useImage from "use-image";
 import {NodeContentFullIconTextBelow} from "./NodeContentFullIconTextBelow";
 import {NodeContentNoIconRect} from "./NodeContentNoIconRect";
+import {NodeContentContainer} from "./NodeContentContainer";
 import {NodeId, NodePlacement} from "./structureDiagramState";
 import {structureDiagramSelector} from "./structureDiagramModel";
 import {Background} from "../scaffold/Background";
@@ -68,7 +69,10 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
         [PictureLayout.FullIconTextBelow]: NodeContentFullIconTextBelow,
     };
 
-    const Component = contentComponents[layout as keyof typeof contentComponents];
+    const isContainer = node.type === ElementType.Cluster;
+    const Component = isContainer
+        ? NodeContentContainer
+        : contentComponents[layout as keyof typeof contentComponents];
 
     const [edgeHoverActive, setEdgeHoverActive] = useState(false);
 

@@ -87,6 +87,7 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
     const diagramId = get(activeDiagramIdAtom);
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
     const node = element.type === ElementType.ClassNode ? get(elementsAtom(element.id)) as NodeState : undefined;
+    const clusterState = element.type === ElementType.Cluster ? get(elementsAtom(element.id)) as NodeState : undefined;
     const chartStart = originalDiagram.type === ElementType.GanttDiagram
         ? getGanttChartStart(originalDiagram as GanttDiagramState)
         : undefined;
@@ -107,7 +108,7 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
     // in the current diagram. Bail out instead of crashing on undefined.
     if (element.type === ElementType.ClassNode && !originalDiagram.nodes?.[element.id]) return;
     if (element.type === ElementType.Note && !originalDiagram.notes?.[element.id]) return;
-    if (element.type === ElementType.Cluster && !originalDiagram.clusters?.[element.id]) return;
+    if (element.type === ElementType.Cluster && !originalDiagram.nodes?.[element.id]) return;
 
     const update = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
         switch (element.type) {
@@ -124,9 +125,19 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
             case ElementType.Note:
                 updateElementPos(diagram.notes[element.id].bounds);
                 break;
-            case ElementType.Cluster:
-                updateElementPos(diagram.clusters![element.id].bounds);
+            case ElementType.Cluster: {
+                const preBounds = originalDiagram.nodes[element.id].bounds;
+                updateElementPos(diagram.nodes[element.id].bounds);
+                const dx = diagram.nodes[element.id].bounds.x - preBounds.x;
+                const dy = diagram.nodes[element.id].bounds.y - preBounds.y;
+                for (const nodeId of clusterState?.memberNodeIds ?? []) {
+                    if (diagram.nodes[nodeId]) {
+                        diagram.nodes[nodeId].bounds.x += dx;
+                        diagram.nodes[nodeId].bounds.y += dy;
+                    }
+                }
                 break;
+            }
         }
     })
     set(elementsAtom(diagramId), update)
@@ -152,13 +163,14 @@ export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, sugge
     if ((element.type === ElementType.ClassNode || element.type === ElementType.DeploymentNode)
         && !originalDiagram.nodes?.[element.id]) return;
     if (element.type === ElementType.Note && !originalDiagram.notes?.[element.id]) return;
-    if (element.type === ElementType.Cluster && !originalDiagram.clusters?.[element.id]) return;
+    if (element.type === ElementType.Cluster && !originalDiagram.nodes?.[element.id]) return;
 
     const update = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
         switch (element.type) {
             case ElementType.ClassNode:
             case ElementType.DeploymentNode:
-                const bounds = diagram.nodes[element.id].bounds
+            case ElementType.Cluster: {
+                const bounds = diagram.nodes[element.id].bounds;
                 bounds.x = suggestedBounds.x;
                 bounds.y = suggestedBounds.y;
                 bounds.width = Math.max(10, suggestedBounds.width);
@@ -170,6 +182,7 @@ export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, sugge
                     bounds.width = snappedBounds.width;
                 }
                 break;
+            }
             case ElementType.Note:
                 const noteBounds = diagram.notes[element.id].bounds
                 noteBounds.x = suggestedBounds.x;
@@ -177,14 +190,6 @@ export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, sugge
                 noteBounds.width = Math.max(10, suggestedBounds.width);
                 noteBounds.height = Math.max(10, suggestedBounds.height);
                 break;
-            case ElementType.Cluster: {
-                const cb = diagram.clusters![element.id].bounds;
-                cb.x = suggestedBounds.x;
-                cb.y = suggestedBounds.y;
-                cb.width = Math.max(10, suggestedBounds.width);
-                cb.height = Math.max(10, suggestedBounds.height);
-                break;
-            }
         }
     })
     set(elementsAtom(diagramId), update)

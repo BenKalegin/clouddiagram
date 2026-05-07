@@ -4,7 +4,7 @@ import {computeDisplaySize, importMermaidStructureDiagram, StructureImportOut} f
 import {detectIcon, iconHints} from "../../graphics/iconHints";
 import {PredefinedSvg} from "../../graphics/graphicsReader";
 import {applyAutoLayout} from "../../layout/autoLayout";
-import {ClusterPlacement} from "../../structureDiagram/structureDiagramState";
+import {defaultColorSchema} from "../../../common/colors/colorSchemas";
 
 const ICON_SIZE = 100;
 const LABEL_LINE_HEIGHT = 18;
@@ -74,18 +74,34 @@ export function importMermaidDeploymentDiagram(baseDiagram: Diagram, content: st
         out.clusterParents
     );
 
-    const clusters: { [id: string]: ClusterPlacement } = {};
-    for (const [clusterId, bounds] of Object.entries(clusterBoundsById)) {
-        clusters[clusterId] = {bounds, label: out.subgraphLabels.get(clusterId) ?? clusterId};
+    const nodeParentsObj = Object.fromEntries(out.nodeParents);
+    const clusterMembers: { [clusterId: string]: string[] } = {};
+    for (const [nodeId, clusterId] of Object.entries(nodeParentsObj)) {
+        (clusterMembers[clusterId] ??= []).push(nodeId);
     }
 
-    const {width, height} = computeDisplaySize(result.nodes);
+    const updatedElements = {...result.elements};
+    const updatedNodes = {...result.nodes};
+    for (const [clusterId, bounds] of Object.entries(clusterBoundsById)) {
+        updatedNodes[clusterId] = {bounds};
+        updatedElements[clusterId] = {
+            id: clusterId,
+            type: ElementType.Cluster,
+            text: out.subgraphLabels.get(clusterId) ?? clusterId,
+            ports: [],
+            colorSchema: defaultColorSchema,
+            memberNodeIds: clusterMembers[clusterId] ?? []
+        } as NodeState;
+    }
+
+    const {width, height} = computeDisplaySize(updatedNodes);
 
     return {
         ...result,
+        elements: updatedElements,
+        nodes: updatedNodes,
         type: ElementType.DeploymentDiagram,
         mermaidHints: {nodes: mermaidHintNodes},
-        clusters: Object.keys(clusters).length > 0 ? clusters : undefined,
         display: {...result.display, width, height}
     };
 }

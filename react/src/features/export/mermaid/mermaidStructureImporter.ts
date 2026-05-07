@@ -11,7 +11,7 @@ import {
     TipStyle
 } from "../../../package/packageModel";
 import {defaultColorSchema} from "../../../common/colors/colorSchemas";
-import {ClusterPlacement, StructureDiagramState} from "../../structureDiagram/structureDiagramState";
+import {StructureDiagramState} from "../../structureDiagram/structureDiagramState";
 import {createMermaidIdGenerator, mermaidSourceLines, parseMermaidLayoutHints} from "./mermaidImportUtils";
 import {createClassMember, minimumClassNodeHeight, normalizeClassAnnotation} from "../../classDiagram/classDiagramUtils";
 import {applyAutoLayout, ClusterDef, LayoutHints, LayoutLink} from "../../layout/autoLayout";
@@ -499,9 +499,21 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
 
     const clusterBoundsById = applyAutoLayout(nodes, layoutEdges, layoutHints, clusterDefs, nodeParents, clusterParents);
 
-    const clusters: { [id: string]: ClusterPlacement } = {};
+    const clusterMembers: { [clusterId: string]: string[] } = {};
+    for (const [nodeId, clusterId] of Object.entries(nodeParents)) {
+        (clusterMembers[clusterId] ??= []).push(nodeId);
+    }
+
     for (const [clusterId, bounds] of Object.entries(clusterBoundsById)) {
-        clusters[clusterId] = { bounds, label: subgraphLabels[clusterId] ?? clusterId };
+        nodes[clusterId] = { bounds };
+        elements[clusterId] = {
+            id: clusterId,
+            type: ElementType.Cluster,
+            text: subgraphLabels[clusterId] ?? clusterId,
+            ports: [],
+            colorSchema: defaultColorSchema,
+            memberNodeIds: clusterMembers[clusterId] ?? []
+        } as NodeState;
     }
 
     const { width: displayWidth, height: displayHeight } = computeDisplaySize(nodes);
@@ -512,7 +524,6 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         nodes,
         ports,
         links,
-        clusters: Object.keys(clusters).length > 0 ? clusters : undefined,
         notes: {},
         selectedElements: [],
         display: {

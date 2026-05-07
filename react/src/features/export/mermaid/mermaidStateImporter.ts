@@ -11,7 +11,7 @@ import {
     TipStyle
 } from "../../../package/packageModel";
 import {defaultColorSchema} from "../../../common/colors/colorSchemas";
-import {ClusterPlacement, StructureDiagramState} from "../../structureDiagram/structureDiagramState";
+import {StructureDiagramState} from "../../structureDiagram/structureDiagramState";
 import {createMermaidIdGenerator, mermaidSourceLines} from "./mermaidImportUtils";
 import {applyAutoLayout, ClusterDef, LayoutDirection, LayoutLink} from "../../layout/autoLayout";
 
@@ -213,9 +213,21 @@ export function importMermaidStateDiagram(baseDiagram: Diagram, content: string)
     const hints = direction ? {direction} : {};
     const clusterBoundsById = applyAutoLayout(nodes, layoutEdges, hints, clusterDefs, nodeParents, clusterParents);
 
-    const clusters: { [id: string]: ClusterPlacement } = {};
+    const clusterMembers: { [clusterId: string]: string[] } = {};
+    for (const [nodeId, clusterId] of Object.entries(nodeParents)) {
+        (clusterMembers[clusterId] ??= []).push(nodeId);
+    }
+
     for (const [key, bounds] of Object.entries(clusterBoundsById)) {
-        clusters[key] = {bounds, label: clusterDefs[key]?.label ?? key};
+        nodes[key] = {bounds};
+        elements[key] = {
+            id: key,
+            type: ElementType.Cluster,
+            text: clusterDefs[key]?.label ?? key,
+            ports: [],
+            colorSchema: defaultColorSchema,
+            memberNodeIds: clusterMembers[key] ?? []
+        } as NodeState;
     }
 
     let maxRight = 800;
@@ -225,11 +237,6 @@ export function importMermaidStateDiagram(baseDiagram: Diagram, content: string)
         maxRight = Math.max(maxRight, n.bounds.x + n.bounds.width);
         maxBottom = Math.max(maxBottom, n.bounds.y + n.bounds.height);
     }
-    for (const b of Object.values(clusterBoundsById)) {
-        if (!b) continue;
-        maxRight = Math.max(maxRight, b.x + b.width);
-        maxBottom = Math.max(maxBottom, b.y + b.height);
-    }
 
     return {
         ...baseDiagram,
@@ -238,7 +245,6 @@ export function importMermaidStateDiagram(baseDiagram: Diagram, content: string)
         nodes,
         ports,
         links,
-        clusters: Object.keys(clusters).length > 0 ? clusters : undefined,
         notes: {},
         selectedElements: [],
         display: {

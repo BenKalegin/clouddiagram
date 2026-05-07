@@ -195,7 +195,7 @@ export class StructureDiagramHandler implements DiagramHandler {
                 return get(elementsAtom(ref.id));
 
             case ElementType.Cluster:
-                return {id: ref.id, type: ElementType.Cluster};
+                return get(elementsAtom(ref.id));
 
             default:
                 throw new Error(`Unknown element type: ${ref.type}`);
