@@ -223,6 +223,14 @@ export const structureDiagramSelector = atomFamily((id: DiagramId) =>
     )
 );
 
+export const diagramNodesSelector = atomFamily((id: DiagramId) =>
+    atom((get) => get(structureDiagramSelector(id)).nodes)
+);
+
+export const diagramPortsSelector = atomFamily((id: DiagramId) =>
+    atom((get) => get(structureDiagramSelector(id)).ports)
+);
+
 interface NodePlacementParam {
     nodeId: NodeId;
     diagramId: DiagramId;

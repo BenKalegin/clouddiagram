@@ -5,7 +5,7 @@ import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "./DrawingLink";
 import {atom, useAtomValue} from "jotai";
 import {atomFamily} from "jotai-family";
-import {DiagramId, dragReparentAtom, elementsAtom, isLiveElement, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, dragReparentAtom, elementsAtom, isElementFocusedAtom, isElementSelectedAtom, isLiveElement, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {ElementType, FlowchartNodeKind, NodeState, PictureLayout} from "../../package/packageModel";
 import {NodeContentTopLeftIcon} from "./NodeContentTopLeftIcon";
 import {iconRegistry} from "../graphics/graphicsReader";
@@ -46,10 +46,11 @@ export const nodePlacement = atomFamily(
     (a, b) => a.nodeId === b.nodeId && a.diagramId === b.diagramId
 );
 
-export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
+export const Node: FC<NodeProps> = React.memo(({nodeId, diagramId}) => {
     const node = useAtomValue(elementsAtom(nodeId)) as NodeState
     const placement = useAtomValue(nodePlacement({nodeId, diagramId}))
-    const selectedElements = useAtomValue(selectedRefsSelector(diagramId))
+    const isSelected = useAtomValue(isElementSelectedAtom({elementId: nodeId, diagramId}))
+    const isFocused = useAtomValue(isElementFocusedAtom({elementId: nodeId, diagramId}))
     const linking = useAtomValue(linkingAtom)
     const dragReparent = useAtomValue(dragReparentAtom)
     const shapeId = node?.customShape?.pictureId
@@ -59,8 +60,6 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
 
     if (!isLiveElement(node) || !placement) return null;
 
-    const isSelected = selectedElements.map(e => e.id).includes(nodeId);
-    const isFocused = selectedElements.length > 0 && selectedElements.at(-1)?.id === nodeId;
     const linkingTarget = linking?.targetElement;
     const linkingSource = linking?.sourceElement;
     const element = {id: nodeId, type: node.type};
@@ -130,4 +129,4 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
             />
         </React.Fragment>
     );
-}
+});

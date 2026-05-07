@@ -84,6 +84,21 @@ export const selectedRefsSelector = atomFamily((id: DiagramId): Atom<ElementRef[
     atom((get) => (get(elementsAtom(id)) as Diagram).selectedElements ?? [])
 );
 
+export const isElementSelectedAtom = atomFamily(
+    ({elementId, diagramId}: {elementId: Id, diagramId: DiagramId}) =>
+        atom((get) => get(selectedRefsSelector(diagramId)).some(e => e.id === elementId)),
+    (a, b) => a.elementId === b.elementId && a.diagramId === b.diagramId
+);
+
+export const isElementFocusedAtom = atomFamily(
+    ({elementId, diagramId}: {elementId: Id, diagramId: DiagramId}) =>
+        atom((get) => {
+            const refs = get(selectedRefsSelector(diagramId));
+            return refs.length > 0 && refs[refs.length - 1].id === elementId;
+        }),
+    (a, b) => a.elementId === b.elementId && a.diagramId === b.diagramId
+);
+
 export const selectedElementsSelector = atomFamily((diagramId: DiagramId): Atom<ElementRef[]> =>
     atom((get) => {
         const diagram = get(elementsAtom(diagramId)) as Diagram;

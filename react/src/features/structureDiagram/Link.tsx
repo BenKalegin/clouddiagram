@@ -1,7 +1,7 @@
 import React, {useContext} from "react";
 import {Group, Path, Text} from "react-konva";
 import {useAtomValue} from "jotai";
-import {DiagramId, elementsAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, elementsAtom, isElementSelectedAtom} from "../diagramEditor/diagramEditorModel";
 import {linkRenderSelector} from "./structureDiagramHandler";
 import {LinkId} from "./structureDiagramState";
 import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
@@ -10,9 +10,8 @@ import {AppLayoutContext} from "../../editor/editorLayout";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 import {VirtualizedItem} from "../../common/components/VirtualizedLayer";
 
-export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}) => {
-    const selectedElements = useAtomValue(selectedRefsSelector(diagramId))
-    const isSelected = selectedElements.map(e => e.id).includes(linkId);
+export const Link = React.memo(({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}) => {
+    const isSelected = useAtomValue(isElementSelectedAtom({elementId: linkId, diagramId}))
     const dispatch = useDispatch()
     const render = useAtomValue(linkRenderSelector({linkId, diagramId}))
     const link = useAtomValue(elementsAtom(linkId)) as LinkState
@@ -86,4 +85,4 @@ export const Link = ({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}
             </Group>
         </VirtualizedItem>
     );
-}
+});

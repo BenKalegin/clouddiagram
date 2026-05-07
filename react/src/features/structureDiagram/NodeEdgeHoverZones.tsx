@@ -17,7 +17,7 @@ import {
     screenToCanvas,
     useDispatch,
 } from "../diagramEditor/diagramEditorSlice";
-import { structureDiagramSelector } from "./structureDiagramModel";
+import { diagramNodesSelector, diagramPortsSelector } from "./structureDiagramModel";
 import { NodeId } from "./structureDiagramState";
 import { DiagramId } from "../diagramEditor/diagramEditorModel";
 import { adjustColorSchemaForTheme } from "../../common/colors/colorTransform";
@@ -178,12 +178,13 @@ export const NodeEdgeHoverZones = ({ nodeId, diagramId, bounds, colorSchema, onA
         onActiveChange?.(next !== undefined);
     };
     const node = useAtomValue(elementsAtom(nodeId)) as NodeState;
-    const diagram = useAtomValue(structureDiagramSelector(diagramId));
+    const nodes = useAtomValue(diagramNodesSelector(diagramId));
+    const ports = useAtomValue(diagramPortsSelector(diagramId));
     const { appLayout } = useContext(AppLayoutContext);
 
     const themedSchema = adjustColorSchemaForTheme(colorSchema, appLayout.darkMode);
 
-    if (!isLiveElement(node) || !diagram.nodes[nodeId]) return null;
+    if (!isLiveElement(node) || !nodes[nodeId]) return null;
 
     // Disable ghost port hints while any linking drag is in progress
     const disabled = linking?.drawing === true;
@@ -195,7 +196,7 @@ export const NodeEdgeHoverZones = ({ nodeId, diagramId, bounds, colorSchema, onA
         [PortAlignment.Right]: [],
     };
     node.ports.forEach(portId => {
-        const placement = diagram.ports[portId];
+        const placement = ports[portId];
         if (placement) portsByAlignment[placement.alignment].push(placement.edgePosRatio);
     });
 
