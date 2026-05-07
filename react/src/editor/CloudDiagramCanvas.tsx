@@ -15,6 +15,7 @@ import {
     subscribeToDocumentChanges
 } from "./documentAdapter";
 import {PersistenceMode, PersistenceService} from "../services/persistence/persistenceService";
+import {STORAGE_KEY} from "../common/persistence/statePersistence";
 import {useTransaction} from "../common/state/jotaiShim";
 import {ColorSchema} from "../package/packageModel";
 
@@ -31,6 +32,7 @@ export interface DiagramTheme {
 
 const DEFAULT_CHANGE_DEBOUNCE_MS = 300;
 const INITIAL_HYDRATION_KEY = "initial";
+const APP_LAYOUT_STORAGE_KEY = `${STORAGE_KEY}_appLayout`;
 
 interface MainProps {
     open?: boolean;
@@ -128,11 +130,28 @@ function CloudDiagramCanvasContent({
     onDocumentLoad,
     onLayoutChange
 }: CloudDiagramCanvasProps) {
-    const [appLayout, setAppLayout] = React.useState<AppLayout>(() => ({
-        ...initialLayout,
-        ...(theme?.darkMode !== undefined && {darkMode: theme.darkMode}),
-        ...(theme?.canvasBackground !== undefined && {canvasBackground: theme.canvasBackground}),
-    }));
+    const [appLayout, setAppLayout] = React.useState<AppLayout>(() => {
+        const base: AppLayout = {
+            ...initialLayout,
+            ...(theme?.darkMode !== undefined && {darkMode: theme.darkMode}),
+            ...(theme?.canvasBackground !== undefined && {canvasBackground: theme.canvasBackground}),
+        };
+        if (persistenceMode === PersistenceMode.Host) return base;
+        try {
+            const stored = localStorage.getItem(APP_LAYOUT_STORAGE_KEY);
+            if (stored) {
+                const parsed = JSON.parse(stored) as Partial<AppLayout>;
+                return {
+                    ...base,
+                    ...parsed,
+                    // Re-apply host overrides so they always win over stored values
+                    ...(theme?.darkMode !== undefined && {darkMode: theme.darkMode}),
+                    ...(theme?.canvasBackground !== undefined && {canvasBackground: theme.canvasBackground}),
+                };
+            }
+        } catch {}
+        return base;
+    });
     const store = useStore();
     const recoverDiagrams = RecoveryService.useRecoverDiagrams();
     const themeDefaultColorSchema = theme?.defaultColorSchema;
@@ -145,6 +164,19 @@ function CloudDiagramCanvasContent({
     useEffect(() => {
         onLayoutChange?.(appLayout);
     }, [appLayout, onLayoutChange]);
+
+    useEffect(() => {
+        if (persistenceMode === PersistenceMode.Host) return;
+        try {
+            const toSave = {
+                propsPaneOpen: appLayout.propsPaneOpen,
+                propsDrawerWidth: appLayout.propsDrawerWidth,
+                darkMode: appLayout.darkMode,
+                showGrid: appLayout.showGrid,
+            };
+            localStorage.setItem(APP_LAYOUT_STORAGE_KEY, JSON.stringify(toSave));
+        } catch {}
+    }, [appLayout, persistenceMode]);
 
     useEffect(() => {
         if (theme?.darkMode !== undefined) {

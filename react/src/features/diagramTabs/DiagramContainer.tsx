@@ -10,6 +10,7 @@ import { usePanZoomHandlers } from "./PanZoomHandler";
 import { useKeyboardShortcuts } from "./KeyboardShortcutsHandler";
 import { DiagramStage, StageHandler, ScrollHandler } from "./DiagramStage";
 import { ZoomControls } from "./ZoomControls";
+import { getPersistenceMode, PersistenceMode } from "../../common/persistence/statePersistence";
 
 export const DiagramContainer = () => {
     const [activeDiagramId] = useAtom(activeDiagramIdAtom);
@@ -40,6 +41,7 @@ export const DiagramContainer = () => {
     useEffect(() => {
         if (!stageHandler || fittedRef.current) return;
         if (!diagramDisplay.width || !diagramDisplay.height) return;
+        if (getPersistenceMode() !== PersistenceMode.Host) return;
         const FIT_DELAY_MS = 80;
         let cancelled = false;
         let timer: number;
