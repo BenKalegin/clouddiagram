@@ -503,6 +503,9 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
     for (const [nodeId, clusterId] of Object.entries(nodeParents)) {
         (clusterMembers[clusterId] ??= []).push(nodeId);
     }
+    for (const [childClusterId, parentClusterId] of Object.entries(clusterParents)) {
+        (clusterMembers[parentClusterId] ??= []).push(childClusterId);
+    }
 
     for (const [clusterId, bounds] of Object.entries(clusterBoundsById)) {
         nodes[clusterId] = { bounds };

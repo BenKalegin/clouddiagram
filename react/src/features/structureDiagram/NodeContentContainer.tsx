@@ -12,14 +12,22 @@ const STROKE_WIDTH = 1.5;
 const CLUSTER_FILL = "rgb(120,160,220)";
 const CLUSTER_STROKE = "rgb(100,140,210)";
 
-export const NodeContentContainer: FC<NodeContentProps> = ({node, placement}) => {
+const HOVER_STROKE = "rgb(140,200,255)";
+const HOVER_STROKE_WIDTH = 2.5;
+
+export const NodeContentContainer: FC<NodeContentProps> = ({node, placement, shadowEnabled}) => {
     const {x, y, width, height} = placement.bounds;
     return (
         <Group listening={false}>
             <Rect x={x} y={y} width={width} height={height}
                 fill={CLUSTER_FILL} opacity={FILL_OPACITY} cornerRadius={BORDER_RADIUS} listening={false} />
             <Rect x={x} y={y} width={width} height={height}
-                stroke={CLUSTER_STROKE} strokeWidth={STROKE_WIDTH} opacity={STROKE_OPACITY}
+                stroke={shadowEnabled ? HOVER_STROKE : CLUSTER_STROKE}
+                strokeWidth={shadowEnabled ? HOVER_STROKE_WIDTH : STROKE_WIDTH}
+                opacity={shadowEnabled ? 1 : STROKE_OPACITY}
+                shadowColor={shadowEnabled ? "rgb(100,180,255)" : undefined}
+                shadowBlur={shadowEnabled ? 14 : 0}
+                shadowOpacity={shadowEnabled ? 0.7 : 0}
                 cornerRadius={BORDER_RADIUS} listening={false} />
             <Rect x={x} y={y} width={width} height={LABEL_HEIGHT}
                 fill={CLUSTER_FILL} opacity={0.18}

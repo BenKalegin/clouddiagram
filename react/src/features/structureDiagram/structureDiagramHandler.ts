@@ -12,7 +12,7 @@ import {
 } from "../diagramEditor/diagramEditorSlice";
 import { addToHistory, createDiagramChangeOperation } from "../diagramEditor/historyModel";
 import {Action} from "@reduxjs/toolkit";
-import {Bounds, Coordinate, defaultDiagramDisplay, Diagram, withinBounds} from "../../common/model";
+import {Bounds, center, Coordinate, defaultDiagramDisplay, Diagram, withinBounds} from "../../common/model";
 import {
     DiagramElement,
     ElementRef,
@@ -27,7 +27,7 @@ import {
 } from "../../package/packageModel";
 import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
 import {snapToBounds} from "../../common/Geometry/snap";
-import {DiagramId, elementsAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, dragReparentAtom, elementsAtom, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {LinkId, LinkRender, PortPlacement, PortRender, StructureDiagramState} from "./structureDiagramState";
 import {
     addNewElementAt,
@@ -48,12 +48,74 @@ import {atomFamily} from "jotai-family";
 
 const PORT_SNAP_DISTANCE = 22;
 
+function findCurrentParent(get: Get, diagramId: string, nodeId: string): string | undefined {
+    const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    for (const id of Object.keys(diagram.nodes)) {
+        const el = get(elementsAtom(id)) as NodeState;
+        if (el?.type === ElementType.Cluster && el.memberNodeIds?.includes(nodeId)) {
+            return id;
+        }
+    }
+    return undefined;
+}
+
+function collectDragExcludeIds(get: Get, elementId: string): globalThis.Set<string> {
+    const ids = new globalThis.Set<string>([elementId]);
+    const el = get(elementsAtom(elementId)) as NodeState;
+    if (el?.memberNodeIds) {
+        for (const childId of el.memberNodeIds) {
+            collectDragExcludeIds(get, childId).forEach((id: string) => ids.add(id));
+        }
+    }
+    return ids;
+}
+
+function findDeepestContainer(get: Get, diagramId: string, nodeCenter: Coordinate, excludeIds: globalThis.Set<string>): string | undefined {
+    const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+    let bestId: string | undefined;
+    let bestArea = Infinity;
+    for (const [id, placement] of Object.entries(diagram.nodes)) {
+        if (excludeIds.has(id)) continue;
+        const el = get(elementsAtom(id)) as NodeState;
+        if (el?.type !== ElementType.Cluster) continue;
+        const b = placement.bounds;
+        if (nodeCenter.x >= b.x && nodeCenter.x <= b.x + b.width &&
+            nodeCenter.y >= b.y && nodeCenter.y <= b.y + b.height) {
+            const area = b.width * b.height;
+            if (area < bestArea) {
+                bestArea = area;
+                bestId = id;
+            }
+        }
+    }
+    return bestId;
+}
+
+function reparentNode(get: Get, set: Set, nodeId: string, oldParentId: string | undefined, newParentId: string | undefined): void {
+    if (oldParentId) {
+        const oldParent = get(elementsAtom(oldParentId)) as NodeState;
+        set(elementsAtom(oldParentId), {
+            ...oldParent,
+            memberNodeIds: oldParent.memberNodeIds?.filter(id => id !== nodeId) ?? []
+        } as DiagramElement);
+    }
+    if (newParentId) {
+        const newParent = get(elementsAtom(newParentId)) as NodeState;
+        set(elementsAtom(newParentId), {
+            ...newParent,
+            memberNodeIds: [...(newParent.memberNodeIds ?? []), nodeId]
+        } as DiagramElement);
+    }
+}
+
 export class StructureDiagramHandler implements DiagramHandler {
     // Store the original diagram state for undo operations
     private originalDiagramState: any = null;
     private originalElementState: DiagramElement | null = null;
     private startElement: ElementRef | null = null;
     private startNodePosition: Coordinate | null = null;
+    private originalParentId: string | undefined = undefined;
+    private originalParentState: NodeState | undefined = undefined;
 
     handleAction(action: Action, get: Get, set: Set): void {
         if (elementMoveAction.match(action)) {
@@ -67,38 +129,97 @@ export class StructureDiagramHandler implements DiagramHandler {
                 this.startElement = element;
                 this.startNodePosition = startNodePos;
 
+                if (element.type === ElementType.ClassNode || element.type === ElementType.Cluster) {
+                    this.originalParentId = findCurrentParent(get, diagramId, element.id);
+                    this.originalParentState = this.originalParentId
+                        ? get(elementsAtom(this.originalParentId)) as NodeState
+                        : undefined;
+                    set(dragReparentAtom, {nodeId: element.id, diagramId, currentParentId: this.originalParentId, targetContainerId: undefined});
+                }
+
                 // Just update the position without creating an undo operation
                 moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos, true);
             }
             // For the 'move' phase, just update the position without creating an undo operation
             else if (phase === ElementMoveResizePhase.move) {
                 moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos, false);
+
+                if (element.type === ElementType.ClassNode || element.type === ElementType.Cluster) {
+                    const diagramId = get(activeDiagramIdAtom);
+                    const diagram = get(elementsAtom(diagramId)) as StructureDiagramState;
+                    const nodeBounds = diagram.nodes[element.id]?.bounds;
+                    if (nodeBounds) {
+                        const nodeCenter = center(nodeBounds);
+                        const excludeIds = collectDragExcludeIds(get, element.id);
+                        const targetContainerId = findDeepestContainer(get, diagramId, nodeCenter, excludeIds);
+                        const prev = get(dragReparentAtom);
+                        if (prev && prev.targetContainerId !== targetContainerId) {
+                            set(dragReparentAtom, {...prev, targetContainerId});
+                        }
+                    }
+                }
             }
             // For the 'end' phase, create a single undo operation for the entire move
             else if (phase === ElementMoveResizePhase.end) {
                 // First update the position
                 moveElementImpl(get, set, element, currentPointerPos, startPointerPos, startNodePos, true);
 
+                // Handle reparenting for ClassNode and Cluster drags
+                const needsReparent = element.type === ElementType.ClassNode || element.type === ElementType.Cluster;
+                let targetContainerId: string | undefined;
+                let oldParentPreState: NodeState | undefined;
+                let newParentPreState: NodeState | undefined;
+
+                if (needsReparent) {
+                    const dragReparent = get(dragReparentAtom);
+                    targetContainerId = dragReparent?.targetContainerId;
+                    const parentChanged = targetContainerId !== this.originalParentId;
+
+                    if (parentChanged) {
+                        oldParentPreState = this.originalParentId
+                            ? get(elementsAtom(this.originalParentId)) as NodeState
+                            : undefined;
+                        newParentPreState = targetContainerId
+                            ? get(elementsAtom(targetContainerId)) as NodeState
+                            : undefined;
+                        reparentNode(get, set, element.id, this.originalParentId, targetContainerId);
+                    }
+                    set(dragReparentAtom, undefined);
+                }
+
                 // Then create an undo operation if we have the original state
                 if (this.originalDiagramState && this.startElement && this.startElement.id === element.id) {
                     const diagramId = get(activeDiagramIdAtom);
-                    addDiagramAndElementHistory(
-                        get,
-                        set,
+                    const preDiagramState = this.originalDiagramState;
+                    const postDiagramState = get(elementsAtom(diagramId)) as Diagram;
+                    const oldParentId = this.originalParentId;
+                    const oldParentPostState = oldParentId ? get(elementsAtom(oldParentId)) as NodeState : undefined;
+                    const newParentPostState = targetContainerId ? get(elementsAtom(targetContainerId)) as NodeState : undefined;
+
+                    addToHistory(get, set, {
                         diagramId,
-                        element.id,
-                        this.originalDiagramState,
-                        get(elementsAtom(diagramId)) as Diagram,
-                        this.originalElementState,
-                        get(elementsAtom(element.id)),
-                        "Move Element"
-                    );
+                        description: "Move Element",
+                        undo: (_get, setUndo) => {
+                            const s = setUndo ?? set;
+                            s(elementsAtom(diagramId), preDiagramState);
+                            if (oldParentId && oldParentPreState) s(elementsAtom(oldParentId), oldParentPreState);
+                            if (targetContainerId && newParentPreState) s(elementsAtom(targetContainerId), newParentPreState);
+                        },
+                        redo: (_get, setRedo) => {
+                            const s = setRedo ?? set;
+                            s(elementsAtom(diagramId), postDiagramState);
+                            if (oldParentId && oldParentPostState) s(elementsAtom(oldParentId), oldParentPostState);
+                            if (targetContainerId && newParentPostState) s(elementsAtom(targetContainerId), newParentPostState);
+                        }
+                    });
 
                     // Reset the stored state
                     this.originalDiagramState = null;
                     this.originalElementState = null;
                     this.startElement = null;
                     this.startNodePosition = null;
+                    this.originalParentId = undefined;
+                    this.originalParentState = undefined;
                 }
 
                 updateActiveDiagramBounds(get, set);

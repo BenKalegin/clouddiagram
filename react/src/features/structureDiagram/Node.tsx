@@ -5,7 +5,7 @@ import {Scaffold} from "../scaffold/Scaffold";
 import {DrawingLink} from "./DrawingLink";
 import {atom, useAtomValue} from "jotai";
 import {atomFamily} from "jotai-family";
-import {DiagramId, elementsAtom, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
+import {DiagramId, dragReparentAtom, elementsAtom, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {ElementType, NodeState, PictureLayout} from "../../package/packageModel";
 import {NodeContentTopLeftIcon} from "./NodeContentTopLeftIcon";
 import {iconRegistry} from "../graphics/graphicsReader";
@@ -57,7 +57,8 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
     const linking = useAtomValue(linkingAtom)
     const linkingTarget = linking?.targetElement;
     const linkingSource = linking?.sourceElement;
-    const element = {id: nodeId, type: ElementType.ClassNode};
+    const dragReparent = useAtomValue(dragReparentAtom)
+    const element = {id: nodeId, type: node.type};
 
     const shapeId = node.customShape?.pictureId
     const iconUrl = shapeId !== undefined ? iconRegistry[shapeId] : undefined
@@ -76,7 +77,7 @@ export const Node: FC<NodeProps> = ({nodeId, diagramId}) => {
 
     const [edgeHoverActive, setEdgeHoverActive] = useState(false);
 
-    const shadowEnabled = nodeId === linkingTarget?.id || nodeId === linkingSource;
+    const shadowEnabled = nodeId === linkingTarget?.id || nodeId === linkingSource || nodeId === dragReparent?.targetContainerId;
     const inflatedBounds = inflate(placement.bounds, 12, 12);
 
     return (

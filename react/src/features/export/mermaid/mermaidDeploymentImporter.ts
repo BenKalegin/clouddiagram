@@ -79,6 +79,9 @@ export function importMermaidDeploymentDiagram(baseDiagram: Diagram, content: st
     for (const [nodeId, clusterId] of Object.entries(nodeParentsObj)) {
         (clusterMembers[clusterId] ??= []).push(nodeId);
     }
+    for (const [childClusterId, parentClusterId] of Object.entries(out.clusterParents)) {
+        (clusterMembers[parentClusterId] ??= []).push(childClusterId);
+    }
 
     const updatedElements = {...result.elements};
     const updatedNodes = {...result.nodes};

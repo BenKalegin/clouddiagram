@@ -95,7 +95,15 @@ export const selectedElementsSelector = atomFamily((diagramId: DiagramId): Atom<
     })
 );
 
+export interface DragReparent {
+    nodeId: string;
+    diagramId: string;
+    currentParentId: string | undefined;
+    targetContainerId: string | undefined;
+}
+
 export const linkingAtom = atom<Linking | undefined>(undefined);
+export const dragReparentAtom = atom<DragReparent | undefined>(undefined);
 export const exportingAtom = atom<Exporting | undefined>(undefined);
 export const importingAtom = atom<Importing | undefined>(undefined);
 export const showContextAtom = atom<ContextPopupProps | undefined>(undefined);

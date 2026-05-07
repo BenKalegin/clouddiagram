@@ -88,6 +88,19 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
     const originalDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
     const node = element.type === ElementType.ClassNode ? get(elementsAtom(element.id)) as NodeState : undefined;
     const clusterState = element.type === ElementType.Cluster ? get(elementsAtom(element.id)) as NodeState : undefined;
+
+    // Collect all descendants of a cluster recursively (before produce, using get)
+    const collectAllDescendants = (ids: string[]): string[] => {
+        const result: string[] = [];
+        for (const id of ids) {
+            result.push(id);
+            const child = get(elementsAtom(id)) as NodeState;
+            if (child?.memberNodeIds?.length) result.push(...collectAllDescendants(child.memberNodeIds));
+        }
+        return result;
+    };
+    const clusterDescendants = clusterState?.memberNodeIds ? collectAllDescendants(clusterState.memberNodeIds) : [];
+
     const chartStart = originalDiagram.type === ElementType.GanttDiagram
         ? getGanttChartStart(originalDiagram as GanttDiagramState)
         : undefined;
@@ -130,7 +143,7 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
                 updateElementPos(diagram.nodes[element.id].bounds);
                 const dx = diagram.nodes[element.id].bounds.x - preBounds.x;
                 const dy = diagram.nodes[element.id].bounds.y - preBounds.y;
-                for (const nodeId of clusterState?.memberNodeIds ?? []) {
+                for (const nodeId of clusterDescendants) {
                     if (diagram.nodes[nodeId]) {
                         diagram.nodes[nodeId].bounds.x += dx;
                         diagram.nodes[nodeId].bounds.y += dy;
