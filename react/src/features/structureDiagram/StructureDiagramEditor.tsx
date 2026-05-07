@@ -7,7 +7,7 @@ import {EmptyDiagramHint} from "../diagramEditor/EmptyDiagramHint";
 import {Note} from "../commonComponents/Note";
 import {structureDiagramSelector} from "./structureDiagramModel";
 import {VirtualizedLayer, VirtualizedItem} from "../../common/components/VirtualizedLayer";
-import {ClusterContainer} from "./ClusterContainer";
+import {ClusterNode} from "./ClusterNode";
 
 export const StructureDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
     const diagram = useAtomValue(structureDiagramSelector(diagramId))
@@ -15,13 +15,13 @@ export const StructureDiagramEditor = ({diagramId}: {diagramId: DiagramId}) => {
     const nodeIds = Object.keys(diagram.nodes);
     const notes = Object.values(diagram.notes);
     const linkIds = Object.keys(diagram.links);
-    const clusters = diagram.clusters ? Object.values(diagram.clusters) : [];
+    const clusterEntries = diagram.clusters ? Object.entries(diagram.clusters) : [];
 
     return (
         <VirtualizedLayer>
-            {clusters.map((cluster, i) => (
-                <VirtualizedItem key={`cluster-${i}`} getBounds={() => cluster.bounds}>
-                    <ClusterContainer cluster={cluster} />
+            {clusterEntries.map(([clusterId, cluster]) => (
+                <VirtualizedItem key={`cluster-${clusterId}`} getBounds={() => cluster.bounds}>
+                    <ClusterNode clusterId={clusterId} diagramId={diagramId} />
                 </VirtualizedItem>
             ))}
             {nodeIds.map((id, i) => {

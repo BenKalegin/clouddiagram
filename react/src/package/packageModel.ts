@@ -21,6 +21,7 @@ export enum ElementType {
     GanttDiagram,
     ErDiagram,
     PieChartDiagram,
+    Cluster,
 }
 
 export interface ElementRef {

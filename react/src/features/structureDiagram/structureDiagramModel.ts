@@ -107,6 +107,7 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
     // in the current diagram. Bail out instead of crashing on undefined.
     if (element.type === ElementType.ClassNode && !originalDiagram.nodes?.[element.id]) return;
     if (element.type === ElementType.Note && !originalDiagram.notes?.[element.id]) return;
+    if (element.type === ElementType.Cluster && !originalDiagram.clusters?.[element.id]) return;
 
     const update = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
         switch (element.type) {
@@ -122,6 +123,9 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
                 break;
             case ElementType.Note:
                 updateElementPos(diagram.notes[element.id].bounds);
+                break;
+            case ElementType.Cluster:
+                updateElementPos(diagram.clusters![element.id].bounds);
                 break;
         }
     })
@@ -148,6 +152,7 @@ export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, sugge
     if ((element.type === ElementType.ClassNode || element.type === ElementType.DeploymentNode)
         && !originalDiagram.nodes?.[element.id]) return;
     if (element.type === ElementType.Note && !originalDiagram.notes?.[element.id]) return;
+    if (element.type === ElementType.Cluster && !originalDiagram.clusters?.[element.id]) return;
 
     const update = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
         switch (element.type) {
@@ -172,6 +177,14 @@ export const resizeElementImpl = (get: Get, set: Set, element: ElementRef, sugge
                 noteBounds.width = Math.max(10, suggestedBounds.width);
                 noteBounds.height = Math.max(10, suggestedBounds.height);
                 break;
+            case ElementType.Cluster: {
+                const cb = diagram.clusters![element.id].bounds;
+                cb.x = suggestedBounds.x;
+                cb.y = suggestedBounds.y;
+                cb.width = Math.max(10, suggestedBounds.width);
+                cb.height = Math.max(10, suggestedBounds.height);
+                break;
+            }
         }
     })
     set(elementsAtom(diagramId), update)
