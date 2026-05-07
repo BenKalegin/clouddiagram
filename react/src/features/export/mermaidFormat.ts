@@ -10,6 +10,7 @@ import {
 import {importMermaidSourceAsNote} from "./mermaid/mermaidFallbackImporter";
 import {importMermaidStateDiagram} from "./mermaid/mermaidStateImporter";
 import {importMermaidDeploymentDiagram} from "./mermaid/mermaidDeploymentImporter";
+import {importMermaidMindMapDiagram} from "./mermaid/mermaidMindMapImporter";
 import {
     MermaidDiagramKind,
     MermaidDiagramTypeDefinition,
@@ -25,6 +26,7 @@ export {importMermaidSequenceDiagram};
 export {importMermaidFlowchartDiagram, importMermaidStructureDiagram};
 export {importMermaidStateDiagram};
 export {importMermaidDeploymentDiagram};
+export {importMermaidMindMapDiagram};
 
 const mermaidDiagramTypeRegistry: MermaidDiagramTypeRegistryEntry[] = [
     { kind: "flowchart", name: "Flowchart", declarations: ["flowchart", "graph"], importer: importMermaidDeploymentDiagram },
@@ -39,7 +41,7 @@ const mermaidDiagramTypeRegistry: MermaidDiagramTypeRegistryEntry[] = [
     { kind: "requirement", name: "Requirement Diagram", declarations: ["requirementdiagram"] },
     { kind: "gitgraph", name: "GitGraph Diagram", declarations: ["gitgraph"] },
     { kind: "c4", name: "C4 Diagram", declarations: ["c4context", "c4container", "c4component", "c4dynamic", "c4deployment"], importer: importMermaidFlowchartDiagram },
-    { kind: "mindmap", name: "Mindmap", declarations: ["mindmap"] },
+    { kind: "mindmap", name: "Mindmap", declarations: ["mindmap"], importer: importMermaidMindMapDiagram },
     { kind: "timeline", name: "Timeline", declarations: ["timeline"] },
     { kind: "zenuml", name: "ZenUML", declarations: ["zenuml"] },
     { kind: "sankey", name: "Sankey", declarations: ["sankey-beta", "sankey"] },

@@ -11,6 +11,7 @@ import {
     importMermaidErDiagram,
     importMermaidFlowchartDiagram,
     importMermaidGanttDiagram,
+    importMermaidMindMapDiagram,
     importMermaidPieChartDiagram,
     importMermaidStructureDiagram,
     importMermaidSequenceDiagram,
@@ -1448,6 +1449,132 @@ Order --> Inventory : reserves`;
             const alignments = ports.map(p => result.ports[p.id]?.alignment);
             expect(alignments).toContain(PortAlignment.Right);
             expect(alignments).toContain(PortAlignment.Left);
+        });
+    });
+
+    describe('importMermaidMindMapDiagram', () => {
+        const baseDiagram: Diagram = {
+            id: 'test-mindmap',
+            display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+            type: ElementType.MindMapDiagram,
+            selectedElements: [],
+            notes: {},
+        };
+
+        it('imports a simple mind map', () => {
+            const content = `mindmap
+  root
+    Branch A
+      Leaf 1
+      Leaf 2
+    Branch B`;
+
+            const result = importMermaidMindMapDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodeEls = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+
+            expect(nodeEls).toHaveLength(5);
+            expect(nodeEls.map(n => n.text).sort()).toEqual(['Branch A', 'Branch B', 'Leaf 1', 'Leaf 2', 'root']);
+        });
+
+        it('all nodes have MindMapTopic kind', () => {
+            const content = `mindmap
+  root
+    Child`;
+
+            const result = importMermaidMindMapDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            expect(nodes.every(n => n.flowchartKind === FlowchartNodeKind.MindMapTopic)).toBe(true);
+        });
+
+        it('creates links from parent to children', () => {
+            const content = `mindmap
+  root
+    A
+    B`;
+
+            const result = importMermaidMindMapDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const links = Object.values(result.links);
+            expect(links).toHaveLength(2);
+        });
+
+        it('uses bezier route style and no arrowheads', () => {
+            const content = `mindmap
+  root
+    Child`;
+
+            const result = importMermaidMindMapDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const link = Object.values(result.elements).find((e: any) => e.type === ElementType.ClassLink) as LinkState;
+            expect(link.routeStyle).toBe(RouteStyle.Bezier);
+            expect(link.tipStyle1).toBe('none');
+            expect(link.tipStyle2).toBe('none');
+        });
+
+        it('strips shape markers from node text', () => {
+            const content = `mindmap
+  root((Central Topic))
+    [Square]
+    (Rounded)
+    ((Circle))
+    {{Hexagon}}`;
+
+            const result = importMermaidMindMapDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const texts = nodes.map(n => n.text).sort();
+            expect(texts).toEqual(['Central Topic', 'Circle', 'Hexagon', 'Rounded', 'Square']);
+        });
+
+        it('detects mindmap via importMermaidDiagram', () => {
+            const content = `mindmap
+  root
+    A`;
+
+            const result = importMermaidDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodes = Object.values(result.elements ?? {}).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            expect(nodes.length).toBeGreaterThan(0);
+        });
+
+        it('has nativeImport true for mindmap', () => {
+            const mindmapType = mermaidDiagramTypes.find(t => t.kind === 'mindmap');
+            expect(mindmapType?.nativeImport).toBe(true);
+        });
+
+        it('places root between left and right subtrees', () => {
+            const content = `mindmap
+  root
+    Right A
+      Right A1
+    Left B
+      Left B1`;
+
+            const result = importMermaidMindMapDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodeEls = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const byText: { [text: string]: any } = {};
+            for (const n of nodeEls) byText[n.text] = result.nodes[n.id].bounds;
+
+            const rootCx = byText['root'].x + byText['root'].width / 2;
+            const rightCx = byText['Right A'].x + byText['Right A'].width / 2;
+            const leftCx = byText['Left B'].x + byText['Left B'].width / 2;
+
+            expect(rightCx).toBeGreaterThan(rootCx);
+            expect(leftCx).toBeLessThan(rootCx);
+        });
+
+        it('uses opposite port alignments for left vs right links', () => {
+            const content = `mindmap
+  root
+    A
+    B`;
+
+            const result = importMermaidMindMapDiagram(baseDiagram, content) as StructureDiagramState & { elements: { [id: string]: any } };
+            const linkEls = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+            const portAlignments = linkEls.map(l => [
+                result.ports[l.port1]?.alignment,
+                result.ports[l.port2]?.alignment,
+            ]);
+
+            // One link should be Right→Left (right side), the other Left→Right (left side)
+            expect(portAlignments).toContainEqual([PortAlignment.Right, PortAlignment.Left]);
+            expect(portAlignments).toContainEqual([PortAlignment.Left, PortAlignment.Right]);
         });
     });
 });
