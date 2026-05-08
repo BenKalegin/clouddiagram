@@ -9,6 +9,17 @@ import {
     deploymentElb,
     deploymentKinesis, deploymentLambda, deploymentRoute53, deploymentS3, deploymentS3Bucket,
     deploymentSqs, deploymentUsers, deploymentWaf,
+    deploymentEcr, deploymentKms, deploymentSecretsManager, deploymentSns,
+    deploymentXRay, deploymentCloudWatch, deploymentEventBridge,
+    deploymentNatGateway, deploymentInternetGateway, deploymentParamStore,
+    deploymentEc2, deploymentRds, deploymentAurora, deploymentIam, deploymentVpc,
+    deploymentEks, deploymentEfs, deploymentEbs, deploymentElastiCache,
+    deploymentCloudFormation, deploymentCloudTrail, deploymentStepFunctions,
+    deploymentBeanstalk, deploymentBatch, deploymentBackup,
+    deploymentTransitGateway, deploymentDirectConnect,
+    deploymentSes, deploymentMsk, deploymentFirehose, deploymentMq,
+    deploymentGlue, deploymentAthena, deploymentRedshift, deploymentOpenSearch,
+    deploymentBedrock, deploymentSageMaker,
     c4Component,
     c4Container,
     c4Person,
@@ -106,6 +117,80 @@ function mapGalleryType(galleryType: string) : TypeAndSubType {
             return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Cognito }
         case deploymentApiGateway:
             return { type: ElementType.DeploymentNode, subType: PredefinedSvg.ApiGateway }
+        case deploymentEcr:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.ECR }
+        case deploymentKms:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.KMS }
+        case deploymentSecretsManager:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.SecretsManager }
+        case deploymentSns:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.SNS }
+        case deploymentXRay:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.XRay }
+        case deploymentCloudWatch:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.CloudWatch }
+        case deploymentEventBridge:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.EventBridge }
+        case deploymentNatGateway:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.NatGateway }
+        case deploymentInternetGateway:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.InternetGateway }
+        case deploymentParamStore:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.ParamStore }
+        case deploymentEc2:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.EC2 }
+        case deploymentRds:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.RDS }
+        case deploymentAurora:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Aurora }
+        case deploymentIam:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.IAM }
+        case deploymentVpc:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.VPC }
+        case deploymentEks:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.EKS }
+        case deploymentEfs:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.EFS }
+        case deploymentEbs:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.EBS }
+        case deploymentElastiCache:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.ElastiCache }
+        case deploymentCloudFormation:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.CloudFormation }
+        case deploymentCloudTrail:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.CloudTrail }
+        case deploymentStepFunctions:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.StepFunctions }
+        case deploymentBeanstalk:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Beanstalk }
+        case deploymentBatch:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Batch }
+        case deploymentBackup:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Backup }
+        case deploymentTransitGateway:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.TransitGateway }
+        case deploymentDirectConnect:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.DirectConnect }
+        case deploymentSes:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.SES }
+        case deploymentMsk:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.MSK }
+        case deploymentFirehose:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Firehose }
+        case deploymentMq:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.MQ }
+        case deploymentGlue:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Glue }
+        case deploymentAthena:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Athena }
+        case deploymentRedshift:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Redshift }
+        case deploymentOpenSearch:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.OpenSearch }
+        case deploymentBedrock:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.Bedrock }
+        case deploymentSageMaker:
+            return { type: ElementType.DeploymentNode, subType: PredefinedSvg.SageMaker }
 
         case mindmapTopic:
         case mindmapSubtopic:

@@ -1345,6 +1345,110 @@ Order --> Inventory : reserves`;
             const result = importMermaidDiagram(baseDiagram, content);
             expect(result.type).toBe(ElementType.DeploymentDiagram);
         });
+
+        it('detects extended AWS services (ECR, KMS, Secrets Manager, SNS, X-Ray, CloudWatch, EventBridge)', () => {
+            const content = `graph TD
+    Reg[ECR] --> Fn[Lambda]
+    Fn --> Keys[KMS]
+    Fn --> Secrets["Secrets Manager"]
+    Fn --> Topic[SNS]
+    Fn --> Tracing["X-Ray"]
+    Fn --> Metrics[CloudWatch]
+    Fn --> Bus[EventBridge]`;
+            const result = importMermaidDeploymentDiagram(baseDiagram, content) as any;
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const byText = new Map(nodes.map(n => [n.text, n.customShape?.pictureId]));
+            expect(byText.get('ECR')).toBe(PredefinedSvg.ECR);
+            expect(byText.get('KMS')).toBe(PredefinedSvg.KMS);
+            expect(byText.get('Secrets Manager')).toBe(PredefinedSvg.SecretsManager);
+            expect(byText.get('SNS')).toBe(PredefinedSvg.SNS);
+            expect(byText.get('X-Ray')).toBe(PredefinedSvg.XRay);
+            expect(byText.get('CloudWatch')).toBe(PredefinedSvg.CloudWatch);
+            expect(byText.get('EventBridge')).toBe(PredefinedSvg.EventBridge);
+
+            const hints = result.mermaidHints.nodes as Record<string, { icon: string }>;
+            expect(hints['Reg']).toEqual({ icon: 'ecr' });
+            expect(hints['Keys']).toEqual({ icon: 'kms' });
+            expect(hints['Secrets']).toEqual({ icon: 'secretsmanager' });
+            expect(hints['Topic']).toEqual({ icon: 'sns' });
+            expect(hints['Tracing']).toEqual({ icon: 'xray' });
+            expect(hints['Metrics']).toEqual({ icon: 'cloudwatch' });
+            expect(hints['Bus']).toEqual({ icon: 'eventbridge' });
+        });
+
+        it('detects NAT Gateway, Internet Gateway and Parameter Store', () => {
+            const content = `graph TD
+    IGW["Internet Gateway"] --> NAT["NAT Gateway"]
+    NAT --> App[App]
+    App --> PS["Parameter Store"]`;
+            const result = importMermaidDeploymentDiagram(baseDiagram, content) as any;
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const byText = new Map(nodes.map(n => [n.text, n.customShape?.pictureId]));
+            expect(byText.get('Internet Gateway')).toBe(PredefinedSvg.InternetGateway);
+            expect(byText.get('NAT Gateway')).toBe(PredefinedSvg.NatGateway);
+            expect(byText.get('Parameter Store')).toBe(PredefinedSvg.ParamStore);
+
+            const hints = result.mermaidHints.nodes as Record<string, { icon: string }>;
+            expect(hints['IGW']).toEqual({ icon: 'internetgateway' });
+            expect(hints['NAT']).toEqual({ icon: 'natgateway' });
+            expect(hints['PS']).toEqual({ icon: 'paramstore' });
+        });
+
+        it('detects broad set of popular AWS services and abbreviations', () => {
+            const content = `graph TD
+    A[EC2] --> B[RDS]
+    B --> C[Aurora]
+    D[IAM] --> A
+    E[VPC] --> A
+    F[EKS] --> G[EFS]
+    A --> H[EBS]
+    I[ElastiCache] --> A
+    J[CloudFormation] --> A
+    K[CloudTrail] --> A
+    L["Step Functions"] --> M[Beanstalk]
+    N[Batch] --> O[Backup]
+    P["Transit Gateway"] --> Q["Direct Connect"]
+    R[SES] --> S[MSK]
+    T[Firehose] --> U[MQ]
+    V[Glue] --> W[Athena]
+    X[Redshift] --> Y[OpenSearch]
+    Z[Bedrock] --> AA[SageMaker]`;
+            const result = importMermaidDeploymentDiagram(baseDiagram, content) as any;
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            const byText = new Map(nodes.map(n => [n.text, n.customShape?.pictureId]));
+            const expected: Array<[string, PredefinedSvg]> = [
+                ['EC2', PredefinedSvg.EC2],
+                ['RDS', PredefinedSvg.RDS],
+                ['Aurora', PredefinedSvg.Aurora],
+                ['IAM', PredefinedSvg.IAM],
+                ['VPC', PredefinedSvg.VPC],
+                ['EKS', PredefinedSvg.EKS],
+                ['EFS', PredefinedSvg.EFS],
+                ['EBS', PredefinedSvg.EBS],
+                ['ElastiCache', PredefinedSvg.ElastiCache],
+                ['CloudFormation', PredefinedSvg.CloudFormation],
+                ['CloudTrail', PredefinedSvg.CloudTrail],
+                ['Step Functions', PredefinedSvg.StepFunctions],
+                ['Beanstalk', PredefinedSvg.Beanstalk],
+                ['Batch', PredefinedSvg.Batch],
+                ['Backup', PredefinedSvg.Backup],
+                ['Transit Gateway', PredefinedSvg.TransitGateway],
+                ['Direct Connect', PredefinedSvg.DirectConnect],
+                ['SES', PredefinedSvg.SES],
+                ['MSK', PredefinedSvg.MSK],
+                ['Firehose', PredefinedSvg.Firehose],
+                ['MQ', PredefinedSvg.MQ],
+                ['Glue', PredefinedSvg.Glue],
+                ['Athena', PredefinedSvg.Athena],
+                ['Redshift', PredefinedSvg.Redshift],
+                ['OpenSearch', PredefinedSvg.OpenSearch],
+                ['Bedrock', PredefinedSvg.Bedrock],
+                ['SageMaker', PredefinedSvg.SageMaker],
+            ];
+            for (const [label, expectedIcon] of expected) {
+                expect(byText.get(label), `label "${label}"`).toBe(expectedIcon);
+            }
+        });
     });
 
     describe('importMermaidStateDiagram', () => {

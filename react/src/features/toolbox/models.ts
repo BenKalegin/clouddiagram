@@ -41,6 +41,43 @@ export const deploymentWaf = 'deployment:aws:waf';
 export const deploymentS3Bucket = `deployment:aws:s3bucket`;
 export const deploymentCognito = `deployment:aws:cognito`;
 export const deploymentApiGateway = `deployment:aws:apigateway`;
+export const deploymentEcr = `deployment:aws:ecr`;
+export const deploymentKms = `deployment:aws:kms`;
+export const deploymentSecretsManager = `deployment:aws:secretsmanager`;
+export const deploymentSns = `deployment:aws:sns`;
+export const deploymentXRay = `deployment:aws:xray`;
+export const deploymentCloudWatch = `deployment:aws:cloudwatch`;
+export const deploymentEventBridge = `deployment:aws:eventbridge`;
+export const deploymentNatGateway = `deployment:aws:natgateway`;
+export const deploymentInternetGateway = `deployment:aws:internetgateway`;
+export const deploymentParamStore = `deployment:aws:paramstore`;
+export const deploymentEc2 = `deployment:aws:ec2`;
+export const deploymentRds = `deployment:aws:rds`;
+export const deploymentAurora = `deployment:aws:aurora`;
+export const deploymentIam = `deployment:aws:iam`;
+export const deploymentVpc = `deployment:aws:vpc`;
+export const deploymentEks = `deployment:aws:eks`;
+export const deploymentEfs = `deployment:aws:efs`;
+export const deploymentEbs = `deployment:aws:ebs`;
+export const deploymentElastiCache = `deployment:aws:elasticache`;
+export const deploymentCloudFormation = `deployment:aws:cloudformation`;
+export const deploymentCloudTrail = `deployment:aws:cloudtrail`;
+export const deploymentStepFunctions = `deployment:aws:stepfunctions`;
+export const deploymentBeanstalk = `deployment:aws:beanstalk`;
+export const deploymentBatch = `deployment:aws:batch`;
+export const deploymentBackup = `deployment:aws:backup`;
+export const deploymentTransitGateway = `deployment:aws:transitgateway`;
+export const deploymentDirectConnect = `deployment:aws:directconnect`;
+export const deploymentSes = `deployment:aws:ses`;
+export const deploymentMsk = `deployment:aws:msk`;
+export const deploymentFirehose = `deployment:aws:firehose`;
+export const deploymentMq = `deployment:aws:mq`;
+export const deploymentGlue = `deployment:aws:glue`;
+export const deploymentAthena = `deployment:aws:athena`;
+export const deploymentRedshift = `deployment:aws:redshift`;
+export const deploymentOpenSearch = `deployment:aws:opensearch`;
+export const deploymentBedrock = `deployment:aws:bedrock`;
+export const deploymentSageMaker = `deployment:aws:sagemaker`;
 
 export const flowchartProcess = "flowchart:process";
 export const flowchartDecision = "flowchart:decision";
@@ -84,6 +121,43 @@ const items: GalleryItem[] = [
     {key: deploymentS3Bucket, name: 'S3 Bucket', icon: PredefinedSvg.S3Bucket},
     {key: deploymentCognito, name: 'Cognito', icon: PredefinedSvg.Cognito},
     {key: deploymentApiGateway, name: 'API Gateway', icon: PredefinedSvg.ApiGateway},
+    {key: deploymentEcr, name: 'ECR', icon: PredefinedSvg.ECR},
+    {key: deploymentKms, name: 'KMS', icon: PredefinedSvg.KMS},
+    {key: deploymentSecretsManager, name: 'Secrets Manager', icon: PredefinedSvg.SecretsManager},
+    {key: deploymentSns, name: 'SNS', icon: PredefinedSvg.SNS},
+    {key: deploymentXRay, name: 'X-Ray', icon: PredefinedSvg.XRay},
+    {key: deploymentCloudWatch, name: 'CloudWatch', icon: PredefinedSvg.CloudWatch},
+    {key: deploymentEventBridge, name: 'EventBridge', icon: PredefinedSvg.EventBridge},
+    {key: deploymentNatGateway, name: 'NAT Gateway', icon: PredefinedSvg.NatGateway},
+    {key: deploymentInternetGateway, name: 'Internet Gateway', icon: PredefinedSvg.InternetGateway},
+    {key: deploymentParamStore, name: 'Parameter Store', icon: PredefinedSvg.ParamStore},
+    {key: deploymentEc2, name: 'EC2', icon: PredefinedSvg.EC2},
+    {key: deploymentRds, name: 'RDS', icon: PredefinedSvg.RDS},
+    {key: deploymentAurora, name: 'Aurora', icon: PredefinedSvg.Aurora},
+    {key: deploymentIam, name: 'IAM', icon: PredefinedSvg.IAM},
+    {key: deploymentVpc, name: 'VPC', icon: PredefinedSvg.VPC},
+    {key: deploymentEks, name: 'EKS', icon: PredefinedSvg.EKS},
+    {key: deploymentEfs, name: 'EFS', icon: PredefinedSvg.EFS},
+    {key: deploymentEbs, name: 'EBS', icon: PredefinedSvg.EBS},
+    {key: deploymentElastiCache, name: 'ElastiCache', icon: PredefinedSvg.ElastiCache},
+    {key: deploymentCloudFormation, name: 'CloudFormation', icon: PredefinedSvg.CloudFormation},
+    {key: deploymentCloudTrail, name: 'CloudTrail', icon: PredefinedSvg.CloudTrail},
+    {key: deploymentStepFunctions, name: 'Step Functions', icon: PredefinedSvg.StepFunctions},
+    {key: deploymentBeanstalk, name: 'Beanstalk', icon: PredefinedSvg.Beanstalk},
+    {key: deploymentBatch, name: 'Batch', icon: PredefinedSvg.Batch},
+    {key: deploymentBackup, name: 'Backup', icon: PredefinedSvg.Backup},
+    {key: deploymentTransitGateway, name: 'Transit Gateway', icon: PredefinedSvg.TransitGateway},
+    {key: deploymentDirectConnect, name: 'Direct Connect', icon: PredefinedSvg.DirectConnect},
+    {key: deploymentSes, name: 'SES', icon: PredefinedSvg.SES},
+    {key: deploymentMsk, name: 'MSK', icon: PredefinedSvg.MSK},
+    {key: deploymentFirehose, name: 'Firehose', icon: PredefinedSvg.Firehose},
+    {key: deploymentMq, name: 'MQ', icon: PredefinedSvg.MQ},
+    {key: deploymentGlue, name: 'Glue', icon: PredefinedSvg.Glue},
+    {key: deploymentAthena, name: 'Athena', icon: PredefinedSvg.Athena},
+    {key: deploymentRedshift, name: 'Redshift', icon: PredefinedSvg.Redshift},
+    {key: deploymentOpenSearch, name: 'OpenSearch', icon: PredefinedSvg.OpenSearch},
+    {key: deploymentBedrock, name: 'Bedrock', icon: PredefinedSvg.Bedrock},
+    {key: deploymentSageMaker, name: 'SageMaker', icon: PredefinedSvg.SageMaker},
     {key: flowchartProcess, name: 'Process'},
     {key: flowchartDecision, name: 'Decision'},
     {key: flowchartTerminator, name: 'Terminator'},
