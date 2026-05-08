@@ -1,5 +1,5 @@
 import {Diagram} from "../../../common/model";
-import {ElementType, NodeState, PictureLayout} from "../../../package/packageModel";
+import {ElementType, NodeState, PictureLayout, PortAlignment} from "../../../package/packageModel";
 import {computeDisplaySize, importMermaidStructureDiagram, StructureImportOut} from "./mermaidStructureImporter";
 import {detectIcon, iconHints} from "../../graphics/iconHints";
 import {PredefinedSvg} from "../../graphics/graphicsReader";
@@ -41,6 +41,7 @@ export function importMermaidDeploymentDiagram(baseDiagram: Diagram, content: st
 
     let anyIcons = false;
     const mermaidHintNodes: { [mermaidId: string]: { icon: string } } = {};
+    const updatedPorts = {...result.ports};
     for (const [mermaidId, nodeId] of out.nodeMap) {
         const node = result.elements[nodeId] as NodeState | undefined;
         if (!node || node.type !== ElementType.ClassNode) continue;
@@ -59,6 +60,17 @@ export function importMermaidDeploymentDiagram(baseDiagram: Diagram, content: st
         if (placement?.bounds) {
             placement.bounds.width = ICON_SIZE;
             placement.bounds.height = iconNodeHeight(node.text ?? mermaidId);
+            // Icon sits at top of taller box (label below); pull Left/Right
+            // ports up so links meet the icon's vertical center, not the
+            // box center which is below the icon.
+            const iconCenterRatio = (ICON_SIZE / 2) / placement.bounds.height * 100;
+            for (const portId of node.ports) {
+                const pp = updatedPorts[portId];
+                if (!pp) continue;
+                if (pp.alignment === PortAlignment.Left || pp.alignment === PortAlignment.Right) {
+                    updatedPorts[portId] = {...pp, edgePosRatio: iconCenterRatio};
+                }
+            }
         }
         anyIcons = true;
     }
@@ -103,6 +115,7 @@ export function importMermaidDeploymentDiagram(baseDiagram: Diagram, content: st
         ...result,
         elements: updatedElements,
         nodes: updatedNodes,
+        ports: updatedPorts,
         type: ElementType.DeploymentDiagram,
         mermaidHints: {nodes: mermaidHintNodes},
         display: {...result.display, width, height}

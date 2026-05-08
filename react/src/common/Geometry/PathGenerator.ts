@@ -454,12 +454,23 @@ const orthogonalSquare = (route: Coordinate[], source: PortState, sourceBounds: 
             if (Math.abs(start.x - end.x) > 1) waypoints.push({x: end.x, y: midY});
             break;
         }
-        case PortAlignment.Left:
-            waypoints.push({x: Math.min(start.x - _margin, end.x), y: start.y});
+        case PortAlignment.Left: {
+            // Mirror of Right: turn vertical at midX when target is in front,
+            // otherwise push out a stub to avoid running along source's edge.
+            const elbowX = end.x < start.x ? midX : start.x - _margin;
+            waypoints.push({x: elbowX, y: start.y});
+            if (Math.abs(start.y - end.y) > 1) waypoints.push({x: elbowX, y: end.y});
             break;
-        case PortAlignment.Right:
-            waypoints.push({x: Math.max(start.x + _margin, end.x), y: start.y});
+        }
+        case PortAlignment.Right: {
+            // Turn vertical at the midpoint between source and target when
+            // target is in front, so the vertical segment sits in the gap
+            // instead of hugging the target's left edge.
+            const elbowX = end.x > start.x ? midX : start.x + _margin;
+            waypoints.push({x: elbowX, y: start.y});
+            if (Math.abs(start.y - end.y) > 1) waypoints.push({x: elbowX, y: end.y});
             break;
+        }
     }
 
     // Add midpoint if needed
