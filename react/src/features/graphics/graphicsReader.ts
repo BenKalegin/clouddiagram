@@ -16,7 +16,9 @@ import EcsIcon from "../graphics/aws/ecs.svg";
 import DynamoDBIcon from "../graphics/aws/dynamodb.svg";
 import LambdaIcon from "../graphics/aws/lambda.svg";
 import UsersIcon from "../graphics/aws/users.svg";
+import UsersIconDark from "../graphics/aws/users-dark.svg";
 import ClientIcon from "../graphics/aws/client.svg";
+import ClientIconDark from "../graphics/aws/client-dark.svg";
 import WafIcon from "../graphics/aws/waf.svg";
 import S3Bucket from "../graphics/aws/s3bucket.svg";
 import Cognito from "../graphics/aws/cognito.svg";
@@ -188,6 +190,14 @@ export const iconRegistry: Record<PredefinedSvg, string> = {
     [PredefinedSvg.OpenSearch]: OpenSearchIcon,
     [PredefinedSvg.Bedrock]: BedrockIcon,
     [PredefinedSvg.SageMaker]: SageMakerIcon,
+};
+
+// AWS "General-Resource" glyphs ship as Light (dark fill) and Dark (white fill)
+// variants. Most service icons have their own colored backgrounds and look fine
+// on both themes, so only entries listed here switch in dark mode.
+export const iconRegistryDark: Partial<Record<PredefinedSvg, string>> = {
+    [PredefinedSvg.Users]: UsersIconDark,
+    [PredefinedSvg.Client]: ClientIconDark,
 };
 export type CustomDraw = (context: Context, shape: Shape<ShapeConfig>) => void
 

@@ -1,4 +1,4 @@
-import React, {FC, useState} from "react";
+import React, {FC, useContext, useState} from "react";
 import {Port} from "./Port";
 import {NodeEdgeHoverZones} from "./NodeEdgeHoverZones";
 import {Scaffold} from "../scaffold/Scaffold";
@@ -8,7 +8,8 @@ import {atomFamily} from "jotai-family";
 import {DiagramId, dragReparentAtom, elementsAtom, isElementFocusedAtom, isElementSelectedAtom, isLiveElement, linkingAtom} from "../diagramEditor/diagramEditorModel";
 import {ElementType, FlowchartNodeKind, NodeState, PictureLayout} from "../../package/packageModel";
 import {NodeContentTopLeftIcon} from "./NodeContentTopLeftIcon";
-import {iconRegistry} from "../graphics/graphicsReader";
+import {iconRegistry, iconRegistryDark} from "../graphics/graphicsReader";
+import {AppLayoutContext} from "../../editor/editorLayout";
 import useImage from "use-image";
 import {NodeContentFullIconTextBelow} from "./NodeContentFullIconTextBelow";
 import {NodeContentNoIconRect} from "./NodeContentNoIconRect";
@@ -53,8 +54,11 @@ export const Node: FC<NodeProps> = React.memo(({nodeId, diagramId}) => {
     const isFocused = useAtomValue(isElementFocusedAtom({elementId: nodeId, diagramId}))
     const linking = useAtomValue(linkingAtom)
     const dragReparent = useAtomValue(dragReparentAtom)
+    const {appLayout} = useContext(AppLayoutContext);
     const shapeId = node?.customShape?.pictureId
-    const iconUrl = shapeId !== undefined ? iconRegistry[shapeId] : undefined
+    const iconUrl = shapeId !== undefined
+        ? (appLayout.darkMode ? iconRegistryDark[shapeId] : undefined) ?? iconRegistry[shapeId]
+        : undefined
     const [image] = useImage(iconUrl || '');
     const [edgeHoverActive, setEdgeHoverActive] = useState(false);
 
