@@ -30,19 +30,26 @@ export function getPersistenceMode(): PersistenceMode {
     return persistenceMode;
 }
 
-// Helper function to clear all persisted state for the diagram editor.
-export const clearPersistedState = (): void => {
+export const clearPersistedStateByPrefix = (prefix: string): void => {
     try {
         Object.keys(localStorage).forEach(key => {
-            if (key.startsWith(STORAGE_KEY)) {
+            if (key.startsWith(prefix)) {
                 localStorage.removeItem(key);
             }
         });
+    } catch (error) {
+        console.error(`Error clearing persisted state for prefix ${prefix}:`, error);
+    }
+};
 
+export const clearPersistedState = (): void => {
+    clearPersistedStateByPrefix(STORAGE_KEY);
+
+    try {
         const request = indexedDB.deleteDatabase(STORAGE_KEY);
         request.onsuccess = () => console.log('IndexedDB state cleared');
         request.onerror = () => console.error('Error clearing IndexedDB state');
     } catch (error) {
-        console.error('Error clearing persisted state:', error);
+        console.error('Error clearing IndexedDB state:', error);
     }
 };
