@@ -2,6 +2,8 @@ import React from 'react';
 import {App} from "./app/App";
 import {createRoot} from "react-dom/client";
 import '@fontsource/roboto/400.css';
+import '@benkalegin/ui26/theme.css';
+import '@benkalegin/ui26/styles.css';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
