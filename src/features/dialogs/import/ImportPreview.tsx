@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useRef} from "react";
-import {Box, Typography} from "@mui/material";
 import {Stage} from "react-konva";
+import "./ImportPreview.css";
 import {createStore, Provider as JotaiProvider} from "jotai";
 import {Diagram, defaultDiagramDisplay} from "../../../common/model";
 import {DiagramElement, ElementType, Id} from "../../../package/packageModel";
@@ -119,18 +119,7 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({diagramKind, format
     const DiagramEditor = getDiagramEditor(previewData.diagram.type as ElementType);
 
     return (
-        <Box
-            sx={{
-                width,
-                height,
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 1,
-                bgcolor: "background.default",
-                overflow: "hidden",
-                position: "relative",
-            }}
-        >
+        <div className="import-preview" style={{ width, height }}>
             <Stage
                 width={width}
                 height={height}
@@ -144,26 +133,16 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({diagramKind, format
                     <DiagramEditor diagramId={PREVIEW_DIAGRAM_ID} />
                 </JotaiProvider>
             </Stage>
-        </Box>
+        </div>
     );
 };
 
 const PreviewMessage: React.FC<{width: number; height: number; error?: boolean; children: React.ReactNode}> = ({width, height, error, children}) => (
-    <Box
-        sx={{
-            width, height,
-            border: "1px dashed",
-            borderColor: error ? "error.main" : "divider",
-            borderRadius: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: error ? "error.main" : "text.secondary",
-            p: 2,
-            textAlign: "center",
-        }}
+    <div
+        className={"import-preview-message" + (error ? " import-preview-message--error" : "")}
+        style={{ width, height }}
     >
-        <Typography variant="body2">{children}</Typography>
-    </Box>
+        <span>{children}</span>
+    </div>
 );
 

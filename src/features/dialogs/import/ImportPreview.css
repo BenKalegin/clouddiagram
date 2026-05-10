@@ -1,0 +1,24 @@
+.import-preview {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-base);
+    overflow: hidden;
+    position: relative;
+}
+
+.import-preview-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.import-preview-message--error {
+    border-color: var(--red);
+    color: var(--red);
+}

@@ -1,41 +1,15 @@
-import {
-    Alert,
-    Box,
-    Button,
-    Chip,
-    Collapse,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    FormControl,
-    InputLabel,
-    Link,
-    List,
-    ListItemButton,
-    ListItemText,
-    ListSubheader,
-    MenuItem,
-    Select,
-    Tab,
-    Tabs,
-    TextField,
-    Typography,
-} from "@mui/material";
-import ContentPasteIcon from "@mui/icons-material/ContentPaste";
-import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import PublicIcon from "@mui/icons-material/Public";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import React, {useEffect, useMemo, useRef, useState} from "react";
-import {useAtomValue} from "jotai";
-import {importingAtom, ImportPhase} from "../diagramEditor/diagramEditorModel";
-import {importDiagramTabAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
-import {ExportImportFormat} from "../export/exportFormats";
-import {ElementType} from "../../package/packageModel";
-import {detectImportFormat, FormatDetection, formatLabel} from "./import/detectImportFormat";
-import {ImportPreview} from "./import/ImportPreview";
-import {builtInExamples, ExampleEntry} from "./import/examplesLibrary";
+import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, SelectField, Tab, TabList, Tabs } from "@benkalegin/ui26";
+import { ChevronDown, ChevronUp, Clipboard, FolderOpen, Globe } from "@benkalegin/ui26/icons";
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useAtomValue } from "jotai";
+import { importingAtom, ImportPhase } from "../diagramEditor/diagramEditorModel";
+import { importDiagramTabAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
+import { ExportImportFormat } from "../export/exportFormats";
+import { ElementType } from "../../package/packageModel";
+import { detectImportFormat, FormatDetection, formatLabel } from "./import/detectImportFormat";
+import { ImportPreview } from "./import/ImportPreview";
+import { builtInExamples, ExampleEntry } from "./import/examplesLibrary";
+import "./ImportDialog.css";
 
 type TabKey = "clipboard" | "file" | "examples";
 
@@ -112,28 +86,25 @@ export const ImportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
         setFileName(undefined);
     };
 
-    const onTabChange = (_: React.SyntheticEvent, value: TabKey) => {
-        setTab(value);
-        resetPanelState();
-    };
-
     return (
         <Dialog
             open={open}
             onClose={() => close(ImportPhase.cancel)}
-            maxWidth="lg"
-            PaperProps={{sx: {minWidth: 900}}}
+            ariaLabel="Import diagram"
+            className="import-dialog"
         >
-            <DialogTitle>Import diagram</DialogTitle>
-            <DialogContent dividers>
-                <Tabs value={tab} onChange={onTabChange} sx={{mb: 2}}>
-                    <Tab value="clipboard" icon={<ContentPasteIcon fontSize="small" />} iconPosition="start" label="Clipboard" />
-                    <Tab value="file" icon={<FolderOpenIcon fontSize="small" />} iconPosition="start" label="From file" />
-                    <Tab value="examples" icon={<PublicIcon fontSize="small" />} iconPosition="start" label="Examples" />
+            <DialogHeader onClose={() => close(ImportPhase.cancel)}>Import diagram</DialogHeader>
+            <DialogBody>
+                <Tabs value={tab} onValueChange={(v) => { setTab(v as TabKey); resetPanelState(); }}>
+                    <TabList ariaLabel="Import sources" className="import-dialog__tabs">
+                        <Tab value="clipboard"><span className="import-dialog__inline-icon"><Clipboard size={14} /></span>Clipboard</Tab>
+                        <Tab value="file"><span className="import-dialog__inline-icon"><FolderOpen size={14} /></span>From file</Tab>
+                        <Tab value="examples"><span className="import-dialog__inline-icon"><Globe size={14} /></span>Examples</Tab>
+                    </TabList>
                 </Tabs>
 
-                <Box sx={{display: "flex", gap: 2, alignItems: "stretch"}}>
-                    <Box sx={{width: 320, display: "flex", flexDirection: "column", gap: 1}}>
+                <div className="import-dialog__layout">
+                    <div className="import-dialog__panel">
                         {tab === "clipboard" && (
                             <ClipboardPanel
                                 onPaste={handlePasteClick}
@@ -156,9 +127,9 @@ export const ImportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
                                 selectedSource={source}
                             />
                         )}
-                    </Box>
+                    </div>
 
-                    <Box sx={{flex: 1, display: "flex", flexDirection: "column", gap: 1}}>
+                    <div className="import-dialog__main">
                         <DetectionStatus
                             detection={detection}
                             override={overrideFormat}
@@ -172,41 +143,38 @@ export const ImportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
                             width={PREVIEW_W}
                             height={PREVIEW_H}
                         />
-                        <Box>
-                            <Button
-                                size="small"
+                        <div>
+                            <button
+                                type="button"
+                                className="import-dialog__source-toggle"
                                 onClick={() => setShowSource(s => !s)}
-                                startIcon={showSource ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                                sx={{textTransform: "none"}}
                             >
+                                {showSource ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                 {showSource ? "Hide source" : "Show source"}
-                            </Button>
-                            <Collapse in={showSource}>
-                                <TextField
-                                    multiline
-                                    fullWidth
-                                    minRows={6}
-                                    maxRows={12}
+                            </button>
+                            {showSource && (
+                                <textarea
+                                    className="import-dialog__source"
+                                    rows={8}
                                     value={source}
-                                    onChange={(e) => { setSource(e.target.value); setOverrideFormat(undefined); }}
-                                    InputProps={{style: {fontFamily: "monospace", fontSize: 12}}}
+                                    onChange={(e: ChangeEvent<HTMLTextAreaElement>) => { setSource(e.target.value); setOverrideFormat(undefined); }}
                                     placeholder="Paste, drop a file, or pick an example to populate this."
                                 />
-                            </Collapse>
-                        </Box>
-                    </Box>
-                </Box>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={() => close(ImportPhase.cancel)}>Cancel</Button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </DialogBody>
+            <DialogFooter>
+                <Button variant="secondary" onClick={() => close(ImportPhase.cancel)}>Cancel</Button>
                 <Button
-                    variant="contained"
+                    variant="primary"
                     onClick={() => close(ImportPhase.importing)}
                     disabled={!source.trim() || !effectiveFormat || detection.confidence === "mismatch"}
                 >
                     Import
                 </Button>
-            </DialogActions>
+            </DialogFooter>
         </Dialog>
     );
 };
@@ -216,54 +184,46 @@ const DetectionStatus: React.FC<{
     override?: ExportImportFormat;
     onOverride: (f: ExportImportFormat | undefined) => void;
     diagramKind: ElementType;
-}> = ({detection, override, onOverride}) => {
+}> = ({ detection, override, onOverride }) => {
     if (detection.confidence === "empty") {
-        return <Alert severity="info" variant="outlined" sx={{py: 0}}>Waiting for source…</Alert>;
+        return <div className="alert alert--info" role="status">Waiting for source…</div>;
     }
     if (detection.confidence === "unknown") {
-        return <Alert severity="warning" variant="outlined" sx={{py: 0}}>{detection.message}</Alert>;
+        return <div className="alert alert--warning" role="alert">{detection.message}</div>;
     }
     if (detection.confidence === "mismatch") {
-        return <Alert severity="error" variant="outlined" sx={{py: 0}}>{detection.message ?? "Format does not match this diagram type"}</Alert>;
+        return <div className="alert alert--error" role="alert">{detection.message ?? "Format does not match this diagram type"}</div>;
     }
 
     return (
-        <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
-            <Chip size="small" color="success" label={`Detected: ${detection.detectedLabel}`} />
+        <div className="import-dialog__detection-row">
+            <span className="chip chip--success">Detected: {detection.detectedLabel}</span>
             {detection.candidates.length > 1 && (
-                <FormControl size="small" sx={{minWidth: 220}}>
-                    <InputLabel id="format-override-label">Importer</InputLabel>
-                    <Select
-                        labelId="format-override-label"
-                        label="Importer"
-                        value={override ?? detection.format ?? ""}
-                        onChange={(e) => onOverride(e.target.value as ExportImportFormat)}
-                    >
-                        {detection.candidates.map(f => (
-                            <MenuItem key={f} value={f}>{formatLabel(f)}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                <SelectField
+                    label="Importer"
+                    value={override ?? detection.format ?? ""}
+                    onChange={(v) => onOverride(v as ExportImportFormat)}
+                    options={detection.candidates.map(f => ({ value: f, label: formatLabel(f) }))}
+                />
             )}
-        </Box>
+        </div>
     );
 };
 
-const ClipboardPanel: React.FC<{onPaste: () => void; error?: string; source: string}> = ({onPaste, error, source}) => (
-    <Box sx={{display: "flex", flexDirection: "column", gap: 1.5}}>
-        <Typography variant="body2" color="text.secondary">
+const ClipboardPanel: React.FC<{ onPaste: () => void; error?: string; source: string }> = ({ onPaste, error, source }) => (
+    <>
+        <p className="import-dialog__panel-text">
             Paste a diagram you copied (Mermaid, CloudDiagram JSON…) and we'll detect the format.
-        </Typography>
-        <Button variant="outlined" startIcon={<ContentPasteIcon />} onClick={onPaste}>
+        </p>
+        <Button variant="secondary" onClick={onPaste}>
+            <span className="import-dialog__inline-icon"><Clipboard size={14} /></span>
             Paste from clipboard
         </Button>
-        {error && <Alert severity="warning" variant="outlined" sx={{py: 0}}>{error}</Alert>}
+        {error && <div className="alert alert--warning" role="alert">{error}</div>}
         {source && (
-            <Typography variant="caption" color="text.secondary">
-                {source.length.toLocaleString()} characters loaded
-            </Typography>
+            <p className="import-dialog__caption">{source.length.toLocaleString()} characters loaded</p>
         )}
-    </Box>
+    </>
 );
 
 const FilePanel: React.FC<{
@@ -271,12 +231,13 @@ const FilePanel: React.FC<{
     onPick: () => void;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
     onFile: (file: File) => void;
-}> = ({fileName, onPick, fileInputRef, onFile}) => (
-    <Box sx={{display: "flex", flexDirection: "column", gap: 1.5}}>
-        <Typography variant="body2" color="text.secondary">
+}> = ({ fileName, onPick, fileInputRef, onFile }) => (
+    <>
+        <p className="import-dialog__panel-text">
             Pick a file from your computer. We'll detect the format from its contents.
-        </Typography>
-        <Button variant="outlined" startIcon={<FolderOpenIcon />} onClick={onPick}>
+        </p>
+        <Button variant="secondary" onClick={onPick}>
+            <span className="import-dialog__inline-icon"><FolderOpen size={14} /></span>
             Choose file…
         </Button>
         <input
@@ -291,50 +252,49 @@ const FilePanel: React.FC<{
             }}
         />
         {fileName && (
-            <Typography variant="caption" color="text.secondary">Loaded: {fileName}</Typography>
+            <p className="import-dialog__caption">Loaded: {fileName}</p>
         )}
-    </Box>
+    </>
 );
 
 const ExamplesPanel: React.FC<{
     diagramKind: ElementType;
     onSelect: (ex: ExampleEntry) => void;
     selectedSource: string;
-}> = ({diagramKind, onSelect, selectedSource}) => {
+}> = ({ diagramKind, onSelect, selectedSource }) => {
     const groups = builtInExamples.groups;
     return (
-        <Box sx={{display: "flex", flexDirection: "column", gap: 0.5}}>
-            <Typography variant="body2" color="text.secondary" sx={{mb: 0.5}}>
+        <>
+            <p className="import-dialog__panel-text">
                 Pick a starter from the library. Compatible with this diagram type:
-            </Typography>
-            <Box sx={{maxHeight: PREVIEW_H + 24, overflowY: "auto", border: 1, borderColor: "divider", borderRadius: 1}}>
-                <List dense disablePadding>
+            </p>
+            <div className="examples-list-wrap">
+                <ul className="examples-list">
                     {groups.flatMap(group => {
                         const compatible = group.examples.filter(ex => ex.diagramKind === diagramKind);
                         if (compatible.length === 0) return [];
                         return [
-                            <ListSubheader key={`${group.id}-header`} sx={{lineHeight: "32px"}}>{group.title}</ListSubheader>,
+                            <li key={`${group.id}-header`} className="examples-list__group">{group.title}</li>,
                             ...compatible.map(ex => (
-                                <ListItemButton
-                                    key={ex.id}
-                                    selected={selectedSource === ex.source}
-                                    onClick={() => onSelect(ex)}
-                                >
-                                    <ListItemText
-                                        primary={ex.title}
-                                        secondary={ex.description}
-                                        secondaryTypographyProps={{variant: "caption"}}
-                                    />
-                                </ListItemButton>
-                            )),
+                                <li key={ex.id}>
+                                    <button
+                                        type="button"
+                                        className={"examples-list__btn" + (selectedSource === ex.source ? " examples-list__btn--selected" : "")}
+                                        onClick={() => onSelect(ex)}
+                                    >
+                                        <span className="examples-list__title">{ex.title}</span>
+                                        {ex.description && <span className="examples-list__desc">{ex.description}</span>}
+                                    </button>
+                                </li>
+                            ))
                         ];
                     })}
-                </List>
-            </Box>
-            <Typography variant="caption" color="text.secondary">
+                </ul>
+            </div>
+            <p className="import-dialog__caption">
                 More examples coming soon at{" "}
-                <Link href="https://clouddiagram.com/examples" target="_blank" rel="noreferrer">clouddiagram.com/examples</Link>
-            </Typography>
-        </Box>
+                <a href="https://clouddiagram.com/examples" target="_blank" rel="noreferrer">clouddiagram.com/examples</a>
+            </p>
+        </>
     );
 };
