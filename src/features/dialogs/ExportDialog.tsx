@@ -1,47 +1,41 @@
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle, Grid,
-    List,
-    ListItemButton,
-    ListItemText,
-} from "@mui/material";
-import React from "react";
-import {useAtomValue} from "jotai";
-import {useStoreCallback} from "../../common/state/jotaiShim";
-import {elementsAtom, exportingAtom, ExportPhase} from "../diagramEditor/diagramEditorModel";
-import {useState, useEffect} from "react";
-import {exportDiagramTabAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
-import {exportDiagramAs, exportFormats, ExportImportFormat} from "../export/exportFormats";
-import {CodeMemo} from "../commonControls/CodeMemo";
-import {DiagramElement, ElementType, Id} from "../../package/packageModel";
+import { Button, Dialog, DialogBody, DialogFooter, DialogHeader } from "@benkalegin/ui26";
+import { useAtomValue } from "jotai";
+import { useStoreCallback } from "../../common/state/jotaiShim";
+import { elementsAtom, exportingAtom, ExportPhase } from "../diagramEditor/diagramEditorModel";
+import { useEffect, useState } from "react";
+import { exportDiagramTabAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
+import { exportDiagramAs, exportFormats, ExportImportFormat } from "../export/exportFormats";
+import { CodeMemo } from "../commonControls/CodeMemo";
+import { DiagramElement, ElementType, Id } from "../../package/packageModel";
 import Konva from "konva";
-import {activeDiagramIdAtom} from "../diagramTabs/diagramTabsModel";
-import {Diagram} from "../../common/model";
+import { activeDiagramIdAtom } from "../diagramTabs/diagramTabsModel";
+import { Diagram } from "../../common/model";
+import "./ExportDialog.css";
 
-export const ExportDialog = ({diagramKind, getStage}: {diagramKind: ElementType, getStage: () => Konva.Stage | null}) => {
-    const exporting = useAtomValue(exportingAtom)
+export const ExportDialog = ({ diagramKind, getStage }: { diagramKind: ElementType; getStage: () => Konva.Stage | null }) => {
+    const exporting = useAtomValue(exportingAtom);
     const dispatch = useDispatch();
     const activeDiagramId = useAtomValue(activeDiagramIdAtom);
     const diagram = useAtomValue(elementsAtom(activeDiagramId)) as Diagram;
     const [exportedContent, setExportedContent] = useState("");
 
-    function toggleHideDialog(item: ExportImportFormat | undefined) {
-        dispatch(exportDiagramTabAction({exportState: item === undefined ? ExportPhase.cancel : ExportPhase.selected, format: item}));
-    }
+    const closeWith = (item: ExportImportFormat | undefined) => {
+        dispatch(exportDiagramTabAction({
+            exportState: item === undefined ? ExportPhase.cancel : ExportPhase.selected,
+            format: item
+        }));
+    };
 
+    const cancel = () => closeWith(undefined);
     const stage = getStage();
-    const exportSelectedDiagram = useStoreCallback(({get}) =>
+
+    const exportSelectedDiagram = useStoreCallback(({ get }) =>
         async (format: ExportImportFormat, diagram: Diagram, stage: Konva.Stage | null) =>
             exportDiagramAs(
                 diagram,
                 format,
                 stage,
-                (id: Id): DiagramElement | undefined => {
-                    return get(elementsAtom(id)) as DiagramElement | undefined;
-                }
+                (id: Id): DiagramElement | undefined => get(elementsAtom(id)) as DiagramElement | undefined
             ),
         []
     );
@@ -60,45 +54,40 @@ export const ExportDialog = ({diagramKind, getStage}: {diagramKind: ElementType,
                 setExportedContent("");
             }
         };
-
         fetchExportedContent();
     }, [diagram, exporting?.format, exportSelectedDiagram, stage]);
 
     return (
-        <Dialog
-            PaperProps={{ sx: { m: 0 }, style: { minWidth: '600px'}}}
-            open={exporting !== undefined}
-            onClose={() => toggleHideDialog(undefined)}
-        >
-            <DialogTitle>{'Exporting diagram...'}</DialogTitle>
-            <DialogContent>
-                <Grid container spacing={2} style={{ display: 'flex', flexWrap: 'nowrap' }}>
-                        <Grid item xs={4}>
-                            <List>
-                                { exportFormats(diagramKind).map(([kind, name], index) => (
-                                    <ListItemButton
-                                        key={index}
-                                        onClick={() => toggleHideDialog(kind)}
-                                    >
-                                        <ListItemText primary={name}/>
-                                    </ListItemButton>
-                                ))}
-                            </List>
-                        </Grid>
-                        <Grid item xs={8}>
-                            <CodeMemo
-                                label="Exported code"
-                                placeholder="Exported code"
-                                value={exportedContent}
-                                //readOnly={true}
-                                minRows={20}
-                            />
-                        </Grid>
-                    </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={() => toggleHideDialog(undefined)}>Close</Button>
-            </DialogActions>
+        <Dialog open={exporting !== undefined} onClose={cancel} ariaLabel="Export diagram">
+            <DialogHeader onClose={cancel}>Exporting diagram...</DialogHeader>
+            <DialogBody>
+                <div className="export-dialog__body">
+                    <ul className="export-dialog__formats">
+                        {exportFormats(diagramKind).map(([kind, name], index) => (
+                            <li key={index}>
+                                <button
+                                    type="button"
+                                    className="export-dialog__format-item"
+                                    onClick={() => closeWith(kind)}
+                                >
+                                    {name}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                    <div className="export-dialog__preview">
+                        <CodeMemo
+                            label="Exported code"
+                            placeholder="Exported code"
+                            value={exportedContent}
+                            minRows={20}
+                        />
+                    </div>
+                </div>
+            </DialogBody>
+            <DialogFooter>
+                <Button onClick={cancel}>Close</Button>
+            </DialogFooter>
         </Dialog>
-    )
-}
+    );
+};

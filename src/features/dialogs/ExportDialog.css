@@ -1,0 +1,37 @@
+.export-dialog__body {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 16px;
+    min-width: 600px;
+}
+
+.export-dialog__formats {
+    flex: 0 0 200px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.export-dialog__format-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: var(--text-primary);
+    font: inherit;
+}
+
+.export-dialog__format-item:hover {
+    background: var(--bg-overlay);
+}
+
+.export-dialog__preview {
+    flex: 1;
+    min-width: 0;
+}
