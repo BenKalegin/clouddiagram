@@ -1,48 +1,31 @@
-import React from "react";
-import { IconButton, Menu } from "@mui/material";
-import MenuItem from '@mui/material/MenuItem';
-import AddIcon from '@mui/icons-material/Add';
+import { Menu, MenuTrigger, MenuContent, MenuItem } from "@benkalegin/ui26";
+import { Plus } from "@benkalegin/ui26/icons";
 import { ElementType } from "../../package/packageModel";
 import { addDiagramTabAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
-import {diagramTypeDefinitions} from "../diagramTypes/diagramTypeRegistry";
+import { diagramTypeDefinitions } from "../diagramTypes/diagramTypeRegistry";
 
 export function AddNewTabButton() {
-    const dispatch = useDispatch()
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const dispatch = useDispatch();
 
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = (diagramKind: ElementType) => {
-        setAnchorEl(null);
-        dispatch(addDiagramTabAction({diagramKind}));
+    const addTab = (diagramKind: ElementType) => {
+        dispatch(addDiagramTabAction({ diagramKind }));
     };
 
     return (
-        <div style={{lineHeight: "3em"}}>
-            <IconButton
-                data-testid="add-diagram-button"
-                onClick={handleClick}
-                size="small"
-            >
-                <AddIcon fontSize="inherit" />
-            </IconButton>
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-            >
-                {diagramTypeDefinitions.map(definition => (
+        <Menu>
+            <MenuTrigger className="add-tab-trigger">
+                <Plus size={16} />
+            </MenuTrigger>
+            <MenuContent>
+                {diagramTypeDefinitions.map((definition) => (
                     <MenuItem
                         key={definition.type}
-                        data-testid={definition.testId}
-                        onClick={() => handleClose(definition.type)}
+                        onSelect={() => addTab(definition.type)}
                     >
                         {definition.title}
                     </MenuItem>
                 ))}
-            </Menu>
-        </div>
+            </MenuContent>
+        </Menu>
     );
 }

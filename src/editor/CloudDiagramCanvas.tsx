@@ -1,5 +1,6 @@
 import React, {ReactNode, useEffect, useRef} from "react";
 import {Box, CssBaseline, Divider, Stack, styled, ThemeProvider} from "@mui/material";
+import {applyTheme, ThemeId} from "@benkalegin/ui26";
 import {Provider as JotaiProvider, createStore, useStore} from "jotai";
 import {AppLayout, AppLayoutContext, defaultAppLayout} from "./editorLayout";
 import {PropertiesDrawer} from "./PropertiesDrawer";
@@ -216,6 +217,10 @@ function CloudDiagramCanvasContent({
         () => getTheme(appLayout.darkMode, {default: theme?.canvasBackground, paper: theme?.panelBackground}),
         [appLayout.darkMode, theme?.canvasBackground, theme?.panelBackground]
     );
+
+    useEffect(() => {
+        applyTheme(appLayout.darkMode ? ThemeId.Graphite : ThemeId.GithubLight);
+    }, [appLayout.darkMode]);
 
     return (
         <AppLayoutContext.Provider value={contextValue}>

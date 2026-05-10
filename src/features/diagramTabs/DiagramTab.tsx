@@ -1,122 +1,50 @@
-import {Icon, Menu, styled, Tab} from "@mui/material";
+import {Tab, Menu, MenuTrigger, MenuContent, MenuItem} from "@benkalegin/ui26";
+import {MoreVertical} from "@benkalegin/ui26/icons";
 import {useAtomValue} from "jotai";
 import {DiagramId, diagramTitleSelector, ExportPhase, ImportPhase} from "../diagramEditor/diagramEditorModel";
-import React, {useState} from "react";
+import React from "react";
 import {
     closeDiagramTabAction,
     exportDiagramTabAction,
     importDiagramTabAction,
     useDispatch
 } from "../diagramEditor/diagramEditorSlice";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import MenuItem from "@mui/material/MenuItem";
-import MenuDivider from "@mui/material/Divider";
 import {activeDiagramIdAtom} from "./diagramTabsModel";
+import "./DiagramTab.css";
 
-export const TabHeight = '48px';
+export const TabHeight = "40px";
 
-
-interface StyledTabProps {
-    diagram_id: DiagramId
+interface PlainTabProps {
+    diagram_id: DiagramId;
 }
 
-const objectWithoutKey = (object: any, key: string) => {
-    const {[key]: deletedKey, ...otherKeys} = object;
-    return otherKeys;
-}
+export const PlainTab: React.FC<PlainTabProps> = ({diagram_id}) => {
+    const label = useAtomValue(diagramTitleSelector(diagram_id)) ?? "New";
+    const activeDiagramId = useAtomValue(activeDiagramIdAtom);
+    const isActive = diagram_id === activeDiagramId;
+    const dispatch = useDispatch();
 
-interface DiagramTabProps {
-    onClose: () => void;
-    diagram_id: DiagramId
-}
+    const closeTab = () => dispatch(closeDiagramTabAction({}));
+    const exportTab = () => dispatch(exportDiagramTabAction({exportState: ExportPhase.start}));
+    const importTab = () => dispatch(importDiagramTabAction({importState: ImportPhase.start}));
 
-const DiagramTab: React.FC<DiagramTabProps & React.ComponentProps<typeof Tab>> =
-    ({
-         onClose,
-         ...props
-     }) => {
-        const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-        const activeDiagramId = useAtomValue(activeDiagramIdAtom)
-        const isIconVisible = props.diagram_id === activeDiagramId
-        const dispatch = useDispatch()
-
-        const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-            setAnchorEl(event.currentTarget);
-        };
-
-        const closeTab = () => {
-            handleCloseMenu()
-            dispatch(closeDiagramTabAction({}))
-        }
-
-        const exportTab = () => {
-            handleCloseMenu()
-            dispatch(exportDiagramTabAction({exportState: ExportPhase.start}))
-        }
-        const importTab = () => {
-            handleCloseMenu()
-            dispatch(importDiagramTabAction({importState: ImportPhase.start}))
-        }
-        const handleCloseMenu = () => {
-            setAnchorEl(null);
-        };
-
-        return (
-
-            <Tab
-                sx={{height: TabHeight, minHeight: TabHeight, paddingRight: "0px"}}
-                icon={
-                    <span>
-                        <Icon
-                            aria-label="options"
-                            arial-controls="tab-options-menu"
-                            aria-haspopup="true"
-                            onClick={handleClick}
-                            sx={{
-                                padding: '2px',
-                                borderRadius: '50%',
-                                visibility: isIconVisible ? 'visible' : 'hidden',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                                },
-                            }}
-                        >
-                            <MoreVertIcon
-                                sx={{
-                                    fontSize: '14px',
-                                    marginBottom: '0.4em',
-                                }}
-                            />
-                        </Icon>
-                        <Menu
-                            id="tab-options-menu"
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl)}
-                            onClose={handleCloseMenu}
-                        >
-                            <MenuItem onClick={exportTab}>Export</MenuItem>
-                            <MenuItem onClick={importTab}>Import</MenuItem>
-                            <MenuDivider />
-                            <MenuItem onClick={closeTab}>Close</MenuItem>
-                        </Menu>
-                    </span>
-                }
-                iconPosition={"end"}
-                {...props}
-            />
-        );
-    };
-export const PlainTab: React.ComponentType<StyledTabProps> = styled((props: StyledTabProps) => {
-    const label = useAtomValue(diagramTitleSelector(props.diagram_id)) ?? "New";
-
-    return <DiagramTab
-        label={label}
-        {...objectWithoutKey(props, "diagramId")}
-        disableRipple={true}
-        diagram_id={props.diagram_id}
-    />;
-})(
-    () => ({
-        textTransform: 'none'
-    }),
-);
+    return (
+        <div className="diagram-tab-wrapper">
+            <Tab value={diagram_id}>{label}</Tab>
+            <span className="diagram-tab__menu-slot">
+                {isActive && (
+                    <Menu>
+                        <MenuTrigger className="diagram-tab__menu-trigger">
+                            <MoreVertical size={14} aria-label="options"/>
+                        </MenuTrigger>
+                        <MenuContent>
+                            <MenuItem onSelect={exportTab}>Export</MenuItem>
+                            <MenuItem onSelect={importTab}>Import</MenuItem>
+                            <MenuItem onSelect={closeTab}>Close</MenuItem>
+                        </MenuContent>
+                    </Menu>
+                )}
+            </span>
+        </div>
+    );
+};

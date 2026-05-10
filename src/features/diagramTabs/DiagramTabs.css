@@ -1,0 +1,45 @@
+.diagram-tabs-root {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.diagram-tabs-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.diagram-tabs-list {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.add-tab-trigger {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+}
+
+.add-tab-trigger:hover {
+    background: var(--bg-overlay);
+    color: var(--text-primary);
+}
+
+.add-tab-trigger[data-state="open"] {
+    background: var(--bg-overlay);
+    color: var(--text-primary);
+}

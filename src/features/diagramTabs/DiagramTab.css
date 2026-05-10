@@ -1,0 +1,71 @@
+.diagram-tab-wrapper {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 0;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: background 0.12s ease;
+}
+
+.diagram-tab-wrapper:has(.ui26-tab--active) {
+    border-bottom-color: var(--accent);
+    background: var(--bg-base);
+}
+
+.diagram-tab-wrapper .ui26-tab {
+    text-transform: none;
+    border: none;
+    margin: 0;
+    padding: 6px 6px 6px 14px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.diagram-tab-wrapper .ui26-tab--active {
+    background: transparent;
+    color: var(--text-primary);
+}
+
+.diagram-tab-wrapper .ui26-tab:hover:not(:disabled) {
+    background: transparent;
+    color: var(--text-primary);
+}
+
+.diagram-tab-wrapper .ui26-tab:focus,
+.diagram-tab-wrapper .ui26-tab:focus-visible {
+    outline: none;
+}
+
+.diagram-tab__menu-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    margin-right: 4px;
+}
+
+.diagram-tab__menu-trigger {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.diagram-tab__menu-trigger:hover {
+    background: var(--bg-overlay);
+    color: var(--text-primary);
+}
+
+.diagram-tab__menu-trigger:focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 1px;
+}
