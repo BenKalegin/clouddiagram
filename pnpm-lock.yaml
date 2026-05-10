@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@benkalegin/ui26':
-        specifier: ^0.1.1
-        version: 0.1.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^0.1.2
+        version: 0.1.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@dagrejs/dagre':
         specifier: ^3.0.0
         version: 3.0.0
@@ -652,8 +652,8 @@ packages:
     resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
     engines: {node: '>=6.9.0'}
 
-  '@benkalegin/ui26@0.1.1':
-    resolution: {integrity: sha512-oNR23h9E0JZm8ociHe899YcXHBKIW1mdubMNWlLLa6rG+6U3wuCvbvCvwDECp/QcBcnCKSK2SYI2Uoa6EVnHdQ==, tarball: https://npm.pkg.github.com/download/@benkalegin/ui26/0.1.1/86f824d3d942fa6840b125dcdcfc37b6afd5596f}
+  '@benkalegin/ui26@0.1.2':
+    resolution: {integrity: sha512-DK1ke9epyDMYpdKd+JHPxaZgZqR8NYlxaCsktWsToEhi8dZahJMlpFSskT4t5P1D6CeWYWk0LNMs2+Za+P0qQA==, tarball: https://npm.pkg.github.com/download/@benkalegin/ui26/0.1.2/a669d844d43dc1d4ff06151acff244d5477d5f25}
     peerDependencies:
       react: '>=19'
       react-dom: '>=19'
@@ -4011,7 +4011,7 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@benkalegin/ui26@0.1.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@benkalegin/ui26@0.1.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       '@floating-ui/react': 0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       lucide-react: 1.14.0(react@19.2.5)

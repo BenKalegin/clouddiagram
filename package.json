@@ -24,7 +24,7 @@
     "url": "git+https://github.com/BenKalegin/clouddiagram.git"
   },
   "dependencies": {
-    "@benkalegin/ui26": "^0.1.1",
+    "@benkalegin/ui26": "^0.1.2",
     "@dagrejs/dagre": "^3.0.0",
     "@modelcontextprotocol/sdk": "^1.25.3",
     "@reduxjs/toolkit": "^2.11.2",
