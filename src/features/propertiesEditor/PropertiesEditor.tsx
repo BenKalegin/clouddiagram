@@ -151,9 +151,7 @@ export const PropertiesEditor = () => {
 
     return (
         <>
-            <hr className="properties-divider" />
             {PropertiesSection}
-            <hr className="properties-divider" />
             {actionsSection}
         </>
     );

@@ -40,11 +40,12 @@
 
 .properties-actions {
     list-style: none;
-    margin: 0;
-    padding: 0 16px 16px 16px;
+    margin: 8px 16px 0 16px;
+    padding: 12px 0 16px 0;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    border-top: 1px solid var(--border);
 }
 
 .properties-actions__item {
@@ -55,6 +56,12 @@
 .properties-actions__item .ui26-btn {
     width: 100%;
     justify-content: flex-start;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+}
+
+.properties-actions__item .ui26-btn:hover:not(:disabled) {
+    border-color: var(--accent);
 }
 
 .prop-editor-row {

@@ -9,3 +9,11 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+/* ui26 z-index overrides: Menu/Popover/Tooltip must render above Drawer (z-1200)
+ * because dropdowns inside a drawer would otherwise render behind it. */
+.ui26-menu,
+.ui26-popover,
+.ui26-tooltip {
+  z-index: 1500;
+}
