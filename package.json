@@ -1,6 +1,6 @@
 {
   "name": "@benkalegin/clouddiagram-editor",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "main": "./dist/lib/editor.js",
   "module": "./dist/lib/editor.js",
@@ -10,7 +10,8 @@
       "types": "./dist/editor-types/editor/index.d.ts",
       "import": "./dist/lib/editor.js",
       "default": "./dist/lib/editor.js"
-    }
+    },
+    "./styles.css": "./dist/lib/clouddiagram-editor.css"
   },
   "files": [
     "dist/lib",
