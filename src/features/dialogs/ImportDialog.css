@@ -63,22 +63,13 @@
     background: var(--bg-overlay);
 }
 
-.import-dialog__source {
-    width: 100%;
+.import-dialog__source-wrap {
     margin-top: 6px;
-    background: var(--bg-base);
-    color: var(--text-primary);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 8px 10px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 12px;
-    outline: none;
-    resize: vertical;
 }
 
-.import-dialog__source:focus {
-    border-color: var(--accent);
+.import-dialog__source-input {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
 }
 
 .import-dialog__detection-row {

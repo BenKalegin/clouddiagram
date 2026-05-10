@@ -1,5 +1,4 @@
-import { Button, SelectField, Switch, TextField } from "@benkalegin/ui26";
-import { ChangeEvent } from "react";
+import { Button, SelectField, Switch, TextareaField, TextField } from "@benkalegin/ui26";
 import { useAtomValue } from "jotai";
 import {diagramKindSelector, selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {
@@ -67,15 +66,12 @@ export const PropertiesEditor = () => {
     );
 
     const MultilineStringPropertyEditor = (p: PropAndKind, value: string, updateProps: (v: any) => void) => (
-        <div className="props-textarea-field">
-            <label className="props-textarea-field__label">{p.prop.label}</label>
-            <textarea
-                className="props-textarea-field__input"
-                rows={4}
-                value={value || ""}
-                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => updateProps(e.target.value)}
-            />
-        </div>
+        <TextareaField
+            label={p.prop.label}
+            value={value || ""}
+            onChange={updateProps}
+            rows={4}
+        />
     );
 
     const NumberPropertyEditor = (p: PropAndKind, value: number | undefined, updateProps: (v: any) => void) => (

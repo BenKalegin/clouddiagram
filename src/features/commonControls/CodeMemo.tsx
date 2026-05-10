@@ -1,5 +1,5 @@
-import React, { ChangeEvent, useEffect, useId, useState } from "react";
-import { IconButton, Tooltip } from "@benkalegin/ui26";
+import React, { useEffect, useState } from "react";
+import { IconButton, TextareaField, Tooltip } from "@benkalegin/ui26";
 import { Copy } from "@benkalegin/ui26/icons";
 import "./CodeMemo.css";
 
@@ -7,7 +7,7 @@ interface CodeMemoProps {
     label: string;
     placeholder: string;
     value: string | undefined;
-    onChange?: (event: ChangeEvent<HTMLTextAreaElement>) => void;
+    onChange?: (value: string) => void;
     minRows: number;
 }
 
@@ -34,18 +34,16 @@ const useCopyToClipboard = (text: string) => {
 
 export const CodeMemo: React.FC<CodeMemoProps> = ({ label, placeholder, value, onChange, minRows }) => {
     const [isCopied, copy] = useCopyToClipboard(value || "");
-    const id = useId();
 
     return (
         <div className="code-memo">
-            <label htmlFor={id} className="code-memo__label">{label}</label>
-            <textarea
-                id={id}
-                className="code-memo__textarea"
+            <TextareaField
+                label={label}
                 placeholder={value ? "" : placeholder}
                 value={value ?? ""}
                 onChange={onChange}
                 rows={minRows}
+                className="code-memo__textarea"
             />
             <Tooltip content={isCopied ? "Copied!" : "Copy to Clipboard"}>
                 <IconButton aria-label="Copy to clipboard" onClick={copy} className="code-memo__copy">

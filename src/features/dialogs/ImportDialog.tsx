@@ -1,6 +1,6 @@
-import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, SelectField, Tab, TabList, Tabs } from "@benkalegin/ui26";
+import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, SelectField, Tab, TabList, Tabs, TextareaField } from "@benkalegin/ui26";
 import { ChevronDown, ChevronUp, Clipboard, FolderOpen, Globe } from "@benkalegin/ui26/icons";
-import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAtomValue } from "jotai";
 import { importingAtom, ImportPhase } from "../diagramEditor/diagramEditorModel";
 import { importDiagramTabAction, useDispatch } from "../diagramEditor/diagramEditorSlice";
@@ -153,12 +153,13 @@ export const ImportDialog = ({diagramKind}: {diagramKind: ElementType}) => {
                                 {showSource ? "Hide source" : "Show source"}
                             </button>
                             {showSource && (
-                                <textarea
-                                    className="import-dialog__source"
+                                <TextareaField
                                     rows={8}
                                     value={source}
-                                    onChange={(e: ChangeEvent<HTMLTextAreaElement>) => { setSource(e.target.value); setOverrideFormat(undefined); }}
+                                    onChange={(v) => { setSource(v); setOverrideFormat(undefined); }}
                                     placeholder="Paste, drop a file, or pick an example to populate this."
+                                    containerClassName="import-dialog__source-wrap"
+                                    className="import-dialog__source-input"
                                 />
                             )}
                         </div>
