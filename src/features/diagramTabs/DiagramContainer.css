@@ -1,0 +1,8 @@
+.diagram-container-wrapper {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+}

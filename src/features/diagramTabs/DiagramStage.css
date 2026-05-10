@@ -1,0 +1,30 @@
+.diagram-stage-scroll {
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+.diagram-stage-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.diagram-stage-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.diagram-stage-scroll::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+}
+
+.diagram-stage-scroll::-webkit-scrollbar-thumb:hover {
+    filter: brightness(1.4);
+}
+
+.diagram-stage-scroll::-webkit-scrollbar-corner {
+    background: transparent;
+}

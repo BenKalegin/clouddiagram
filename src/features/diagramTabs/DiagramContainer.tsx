@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { Box } from "@mui/material";
 import { useAtom, useAtomValue } from "jotai";
+import "./DiagramContainer.css";
 import {
     diagramDisplaySelector,
 } from "../diagramEditor/diagramEditorModel";
@@ -73,7 +73,7 @@ export const DiagramContainer = () => {
     useKeyboardShortcuts({ activeDiagramId });
 
     return (
-        <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', minWidth: 0, minHeight: 0 }}>
+        <div className="diagram-container-wrapper">
             <DiagramStage
                 activeDiagramId={activeDiagramId!}
                 width={diagramDisplay.width || 3000}
@@ -88,6 +88,6 @@ export const DiagramContainer = () => {
                 onZoomReset={handleZoomTo100}
                 onFitToScreen={handleZoomToFit}
             />
-        </Box>
+        </div>
     );
 };

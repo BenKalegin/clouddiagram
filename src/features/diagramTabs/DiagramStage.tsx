@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useLayoutEffect, useCallback } from "react";
-import { Box } from "@mui/material";
 import { Stage } from 'react-konva';
+import "./DiagramStage.css";
 import Konva from "konva";
 import { useAtomValue, useStore, Provider as JotaiProvider } from "jotai";
 import { diagramKindSelector, diagramDisplaySelector } from "../diagramEditor/diagramEditorModel";
@@ -246,29 +246,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                 backgroundColor: appLayout.canvasBackground,
             }}
         >
-            <Box
-                ref={scrollContainerRef}
-                sx={{
-                    width: '100%',
-                    height: '100%',
-                    overflow: 'scroll',
-                    position: 'relative',
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: appLayout.darkMode
-                        ? 'rgba(255,255,255,0.18) transparent'
-                        : 'rgba(0,0,0,0.18) transparent',
-                    '&::-webkit-scrollbar': { width: '8px', height: '8px' },
-                    '&::-webkit-scrollbar-track': { background: 'transparent' },
-                    '&::-webkit-scrollbar-thumb': {
-                        background: appLayout.darkMode ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.18)',
-                        borderRadius: '4px',
-                        '&:hover': {
-                            background: appLayout.darkMode ? 'rgba(255,255,255,0.32)' : 'rgba(0,0,0,0.32)',
-                        },
-                    },
-                    '&::-webkit-scrollbar-corner': { background: 'transparent' },
-                }}
-            >
+            <div ref={scrollContainerRef} className="diagram-stage-scroll">
                 <div
                     ref={containerRef}
                     style={{
@@ -312,7 +290,7 @@ export const DiagramStage: React.FC<DiagramStageProps> = ({
                     </HtmlDrop>
                     </div>
                 </div>
-            </Box>
+            </div>
         </div>
     );
 };

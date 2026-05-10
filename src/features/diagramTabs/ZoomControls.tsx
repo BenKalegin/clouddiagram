@@ -1,9 +1,10 @@
 import React, { useCallback } from "react";
-import { Box, ButtonBase } from "@mui/material";
+import { Tooltip } from "@benkalegin/ui26";
 import { useAtomValue } from "jotai";
 import { activeDiagramIdAtom } from "./diagramTabsModel";
 import { diagramDisplaySelector } from "../diagramEditor/diagramEditorModel";
 import { StageHandler } from "./DiagramStage";
+import "./ZoomControls.css";
 
 interface ZoomControlsProps {
     scale: number;
@@ -13,28 +14,6 @@ interface ZoomControlsProps {
     onFitToScreen: () => void;
 }
 
-const btnSx = {
-    width: 28,
-    height: 24,
-    borderRadius: '4px',
-    fontSize: '16px',
-    fontWeight: 600,
-    color: 'text.secondary',
-    opacity: 0.7,
-    transition: 'opacity 0.15s, background 0.15s',
-    '&:hover': { opacity: 1, bgcolor: 'action.hover' },
-} as const;
-
-const levelSx = {
-    minWidth: 44,
-    height: 24,
-    borderRadius: '4px',
-    fontSize: '11px',
-    color: 'text.disabled',
-    transition: 'background 0.15s, color 0.15s',
-    '&:hover': { bgcolor: 'action.hover', color: 'text.primary' },
-} as const;
-
 const FitIcon = () => (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
         <path d="M1 4V1h3M8 1h3v3M11 8v3H8M4 11H1V8"/>
@@ -43,28 +22,24 @@ const FitIcon = () => (
 
 export const ZoomControls: React.FC<ZoomControlsProps> = ({ scale, onZoomIn, onZoomOut, onZoomReset, onFitToScreen }) => {
     return (
-        <Box sx={{
-            position: 'absolute',
-            bottom: 12,
-            right: 12,
-            display: 'flex',
-            gap: '2px',
-            zIndex: 20,
-            bgcolor: 'background.paper',
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: '6px',
-            padding: '2px',
-        }}>
-            <ButtonBase sx={btnSx} onClick={onZoomOut} title="Zoom out">−</ButtonBase>
-            <ButtonBase sx={levelSx} onClick={onZoomReset} title="Reset to 100%">
-                {Math.round(scale * 100)}%
-            </ButtonBase>
-            <ButtonBase sx={btnSx} onClick={onZoomIn} title="Zoom in">+</ButtonBase>
-            <ButtonBase sx={btnSx} onClick={onFitToScreen} title="Fit to screen">
-                <FitIcon />
-            </ButtonBase>
-        </Box>
+        <div className="zoom-controls">
+            <Tooltip content="Zoom out">
+                <button className="zoom-btn" onClick={onZoomOut} aria-label="Zoom out">−</button>
+            </Tooltip>
+            <Tooltip content="Reset to 100%">
+                <button className="zoom-btn zoom-btn--level" onClick={onZoomReset} aria-label="Reset zoom">
+                    {Math.round(scale * 100)}%
+                </button>
+            </Tooltip>
+            <Tooltip content="Zoom in">
+                <button className="zoom-btn" onClick={onZoomIn} aria-label="Zoom in">+</button>
+            </Tooltip>
+            <Tooltip content="Fit to screen">
+                <button className="zoom-btn" onClick={onFitToScreen} aria-label="Fit to screen">
+                    <FitIcon />
+                </button>
+            </Tooltip>
+        </div>
     );
 };
 
