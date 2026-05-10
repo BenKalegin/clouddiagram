@@ -13,9 +13,6 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: react
     steps:
       - uses: actions/checkout@v4
 
@@ -27,7 +24,7 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
-          cache-dependency-path: react/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
           registry-url: https://npm.pkg.github.com
           scope: '@benkalegin'
 
