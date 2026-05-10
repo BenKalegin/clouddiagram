@@ -1,7 +1,6 @@
-import {Box, Button, Divider, FormControlLabel, ListItem, MenuItem, Switch, TextField} from "@mui/material";
-import List from "@mui/material/List";
-import React from "react";
-import {useAtomValue} from "jotai";
+import { Button, SelectField, Switch, TextField } from "@benkalegin/ui26";
+import { ChangeEvent } from "react";
+import { useAtomValue } from "jotai";
 import {diagramKindSelector, selectedElementsSelector, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
 import {
     ColorSchema,
@@ -28,154 +27,137 @@ import {getGanttTaskDurationDays} from "../ganttDiagram/ganttDiagramUtils";
 import {getClassFieldsText, getClassMethodsText} from "../classDiagram/classDiagramUtils";
 import {getErAttributesText} from "../erDiagram/erDiagramUtils";
 import {getPieSlicesText} from "../pieChartDiagram/pieChartDiagramUtils";
-
+import "./PropertiesEditor.css";
 
 
 export const PropertiesEditor = () => {
-    const diagramId = useAtomValue(activeDiagramIdAtom)
-    const diagramKind = useAtomValue(diagramKindSelector(diagramId))
-    const selectedIds = useAtomValue(selectedRefsSelector(diagramId))
-    const selectedElements = new Map(useAtomValue(selectedElementsSelector(diagramId)).map(e => [e.id, e]))
+    const diagramId = useAtomValue(activeDiagramIdAtom);
+    const diagramKind = useAtomValue(diagramKindSelector(diagramId));
+    const selectedIds = useAtomValue(selectedRefsSelector(diagramId));
+    const selectedElements = new Map(useAtomValue(selectedElementsSelector(diagramId)).map(e => [e.id, e]));
 
-    const selectedKinds = [...new Set(selectedIds.map(element => element.type))]
-    const dispatch = useDispatch()
+    const selectedKinds = [...new Set(selectedIds.map(element => element.type))];
+    const dispatch = useDispatch();
 
 
     const properties = selectedKinds
-        .flatMap(kind => getPropertyList(kind, diagramKind).map<PropAndKind>(prop => ({kind, prop: prop})))
-        .filter(({prop}) => prop.supportMultiEdit || selectedIds.length === 1)
+        .flatMap(kind => getPropertyList(kind, diagramKind).map<PropAndKind>(prop => ({ kind, prop })))
+        .filter(({ prop }) => prop.supportMultiEdit || selectedIds.length === 1);
 
     const commands = selectedKinds
-        .flatMap(kind => getActionList(kind).map<CommandAndKind>(action => ({kind, command: action})))
-        .filter(({command}) => command.supportMultiEdit || selectedIds.length === 1)
+        .flatMap(kind => getActionList(kind).map<CommandAndKind>(action => ({ kind, command: action })))
+        .filter(({ command }) => command.supportMultiEdit || selectedIds.length === 1);
 
     const getPropertyValue = (property: PropAndKind): any => {
-        const {kind, prop} = property;
-        const elementsOfAKind = selectedIds.filter(element => element.type === kind)
-
+        const { kind, prop } = property;
+        const elementsOfAKind = selectedIds.filter(element => element.type === kind);
         const values: any[] = elementsOfAKind.map(element => {
-            const obj: any = selectedElements.get(element.id)
+            const obj: any = selectedElements.get(element.id);
             return getObjectPropertyValue(obj, prop.name);
-        })
+        });
+        return values.every(value => value === values[0]) ? values[0] : undefined;
+    };
 
-        if (values.every(value => value === values[0])) {
-            return values[0]
-        }
-        else {
-            return undefined
-        }
-    }
+    const StringPropertyEditor = (p: PropAndKind, value: string, updateProps: (v: any) => void) => (
+        <TextField
+            label={p.prop.label}
+            value={value || ""}
+            onChange={updateProps}
+        />
+    );
 
-    function StringPropertyEditor(p: PropAndKind, value: string, updateProps: (value: any) => void) {
-        return (
-            <TextField
-                label={p.prop.label}
-                variant="outlined"
-                size="small"
+    const MultilineStringPropertyEditor = (p: PropAndKind, value: string, updateProps: (v: any) => void) => (
+        <div className="props-textarea-field">
+            <label className="props-textarea-field__label">{p.prop.label}</label>
+            <textarea
+                className="props-textarea-field__input"
+                rows={4}
                 value={value || ""}
-                onChange={e => updateProps(e.target.value)}
-            /> )
-    }
-
-    function MultilineStringPropertyEditor(p: PropAndKind, value: string, updateProps: (value: any) => void) {
-        return (
-            <TextField
-                label={p.prop.label}
-                variant="outlined"
-                size="small"
-                value={value || ""}
-                multiline
-                minRows={4}
-                onChange={e => updateProps(e.target.value)}
-            /> )
-    }
-
-    function NumberPropertyEditor(p: PropAndKind, value: number | undefined, updateProps: (value: any) => void) {
-        return (
-            <TextField
-                label={p.prop.label}
-                variant="outlined"
-                size="small"
-                type="number"
-                value={value ?? ""}
-                onChange={e => updateProps(e.target.value === "" ? undefined : Number(e.target.value))}
-            /> )
-    }
-
-    function BooleanPropertyEditor(p: PropAndKind, value: boolean, updateProps: (value: any) => void) {
-        return <FormControlLabel control={
-            <Switch
-                checked={value}
-                onChange={e => updateProps(e.target.checked)}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => updateProps(e.target.value)}
             />
-        } label={p.prop.label}
-        />;
-    }
+        </div>
+    );
 
-    function SelectPropertyEditor(p: PropAndKind, value: string | undefined, updateProps: (value: any) => void) {
-        return (
-            <TextField
-                select
-                label={p.prop.label}
-                variant="outlined"
-                size="small"
-                value={value ?? ""}
-                onChange={e => updateProps(e.target.value)}
-            >
-                {(p.prop.options ?? []).map(option =>
-                    <MenuItem key={option || "none"} value={option}>{option || "Not set"}</MenuItem>
-                )}
-            </TextField>
-        );
-    }
+    const NumberPropertyEditor = (p: PropAndKind, value: number | undefined, updateProps: (v: any) => void) => (
+        <TextField
+            label={p.prop.label}
+            type="number"
+            value={value === undefined ? "" : String(value)}
+            onChange={(s) => updateProps(s === "" ? undefined : Number(s))}
+        />
+    );
+
+    const BooleanPropertyEditor = (p: PropAndKind, value: boolean, updateProps: (v: any) => void) => (
+        <Switch
+            checked={value}
+            onChange={updateProps}
+            label={p.prop.label}
+        />
+    );
+
+    const SelectPropertyEditor = (p: PropAndKind, value: string | undefined, updateProps: (v: any) => void) => (
+        <SelectField
+            label={p.prop.label}
+            value={value ?? ""}
+            onChange={updateProps}
+            options={(p.prop.options ?? []).map(option => ({
+                value: option ?? "",
+                label: option || "Not set"
+            }))}
+        />
+    );
 
     const PropertiesSection = properties.map((p, i) => {
-        const value = getPropertyValue(p)
-        function updateProps(value: any) {
+        const value = getPropertyValue(p);
+        const updateProps = (v: any) => {
             dispatch(elementPropertyChangedAction({
                 elements: selectedIds.filter(element => element.type === p.kind),
                 propertyName: p.prop.name,
-                value
-            }))}
+                value: v
+            }));
+        };
 
         return (
-            <Box display="flex" flexDirection="column" p={2} key={i}>
+            <div className="properties-row" key={i}>
                 {p.prop.type === PropertyType.String && StringPropertyEditor(p, value as string, updateProps)}
                 {p.prop.type === PropertyType.MultilineString && MultilineStringPropertyEditor(p, value as string, updateProps)}
                 {p.prop.type === PropertyType.Number && NumberPropertyEditor(p, value as number | undefined, updateProps)}
                 {p.prop.type === PropertyType.Boolean && BooleanPropertyEditor(p, value as boolean, updateProps)}
                 {p.prop.type === PropertyType.Select && SelectPropertyEditor(p, value as string | undefined, updateProps)}
-                {p.prop.type === PropertyType.ColorSchema && value != null && <ColorSchemaPropertyEditor propAndKind={p} value = {value as ColorSchema} updateProps={updateProps}/>}
-                {p.prop.type === PropertyType.ShapeLayout && <NodeLayoutPropertyEditor propAndKind={p} value = {value as CustomShape} updateProps={updateProps}/>}
-                {p.prop.type === PropertyType.LineStyle && <LineStylePropertyEditor propAndKind={p} value = {value as LineStyle} updateProps={updateProps}/>}
-                {p.prop.type === PropertyType.RouteStyle && <LinkStylePropertyEditor propAndKind={p} value = {value as RouteStyle} updateProps={updateProps}/>}
-                {p.prop.type === PropertyType.TipStyle && <TipStylePropertyEditor propAndKind={p} value = {value as TipStyle} updateProps={updateProps}/>}
-            </Box>
-
+                {p.prop.type === PropertyType.ColorSchema && value != null && <ColorSchemaPropertyEditor propAndKind={p} value={value as ColorSchema} updateProps={updateProps} />}
+                {p.prop.type === PropertyType.ShapeLayout && <NodeLayoutPropertyEditor propAndKind={p} value={value as CustomShape} updateProps={updateProps} />}
+                {p.prop.type === PropertyType.LineStyle && <LineStylePropertyEditor propAndKind={p} value={value as LineStyle} updateProps={updateProps} />}
+                {p.prop.type === PropertyType.RouteStyle && <LinkStylePropertyEditor propAndKind={p} value={value as RouteStyle} updateProps={updateProps} />}
+                {p.prop.type === PropertyType.TipStyle && <TipStylePropertyEditor propAndKind={p} value={value as TipStyle} updateProps={updateProps} />}
+            </div>
         );
     });
 
-    const actionsSection = <List>
-        {commands.map((a,i) => (
-            <ListItem key={i}>
-                <Button variant="text" size="small" onClick={() => dispatch(elementCommandAction({
-                    elements: selectedIds, command: a.command.kind}))}>
-                    {a.command.label}
-                </Button>
-            </ListItem>
-        ))}
-    </List>;
+    const actionsSection = (
+        <ul className="properties-actions">
+            {commands.map((a, i) => (
+                <li key={i} className="properties-actions__item">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => dispatch(elementCommandAction({ elements: selectedIds, command: a.command.kind }))}
+                    >
+                        {a.command.label}
+                    </Button>
+                </li>
+            ))}
+        </ul>
+    );
 
     return (
         <>
-            <Divider/>
+            <hr className="properties-divider" />
             {PropertiesSection}
-
-            <Divider/>
+            <hr className="properties-divider" />
             {actionsSection}
         </>
     );
-}
+};
 
 function getObjectPropertyValue(obj: any, propertyName: string): any {
     if (!obj) return undefined;

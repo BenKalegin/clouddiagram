@@ -1,0 +1,13 @@
+.properties-drawer .ui26-drawer__body {
+    padding: 0;
+}
+
+.properties-drawer__header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 8px;
+    min-height: 48px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-surface);
+}

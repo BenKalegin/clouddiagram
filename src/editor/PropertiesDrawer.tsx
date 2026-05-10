@@ -1,47 +1,34 @@
-import {Drawer, IconButton, styled, useTheme} from "@mui/material";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import React, {useContext} from "react";
-import {PropertiesEditor} from "../features/propertiesEditor/PropertiesEditor";
-import {AppLayoutContext, togglePropertiesPane} from "./editorLayout";
-
-const DrawerHeader = styled("div")(({theme}) => ({
-    display: "flex",
-    alignItems: "center",
-    padding: theme.spacing(0, 1),
-    ...theme.mixins.toolbar,
-    justifyContent: "flex-start"
-}));
+import { Drawer, IconButton } from "@benkalegin/ui26";
+import { ChevronRight } from "@benkalegin/ui26/icons";
+import { useContext } from "react";
+import { PropertiesEditor } from "../features/propertiesEditor/PropertiesEditor";
+import { AppLayoutContext, togglePropertiesPane } from "./editorLayout";
+import "./PropertiesDrawer.css";
 
 export const PropertiesDrawer = () => {
-    const {appLayout, setAppLayout} = useContext(AppLayoutContext);
-    const theme = useTheme();
+    const { appLayout, setAppLayout } = useContext(AppLayoutContext);
 
     const handleDrawerClose = () => {
         setAppLayout(togglePropertiesPane(appLayout));
     };
 
-    return <Drawer
-        sx={{
-            width: appLayout.propsDrawerWidth,
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
-                width: appLayout.propsDrawerWidth
-            }
-        }}
-        variant="persistent"
-        anchor="right"
-        open={appLayout.propsPaneOpen}
-    >
-        <DrawerHeader>
-            <IconButton onClick={handleDrawerClose}>
-                {theme.direction === "rtl" ? (
-                    <ChevronLeftIcon/>
-                ) : (
-                    <ChevronRightIcon/>
-                )}
-            </IconButton>
-        </DrawerHeader>
-        <PropertiesEditor/>
-    </Drawer>;
+    return (
+        <Drawer
+            open={appLayout.propsPaneOpen}
+            onClose={handleDrawerClose}
+            side="right"
+            size={appLayout.propsDrawerWidth}
+            modal={false}
+            closeOnEscape={false}
+            ariaLabel="Properties"
+            className="properties-drawer"
+        >
+            <div className="properties-drawer__header">
+                <IconButton aria-label="Close properties pane" onClick={handleDrawerClose}>
+                    <ChevronRight size={20} />
+                </IconButton>
+            </div>
+            <PropertiesEditor />
+        </Drawer>
+    );
 };

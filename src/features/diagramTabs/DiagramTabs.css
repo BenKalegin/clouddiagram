@@ -12,12 +12,14 @@
     flex-direction: row;
     align-items: center;
     gap: 8px;
+    background: var(--bg-base);
 }
 
 .diagram-tabs-list {
     flex: 1;
     overflow-x: auto;
     overflow-y: hidden;
+    background: var(--bg-base);
 }
 
 .add-tab-trigger {
