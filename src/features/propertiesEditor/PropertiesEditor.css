@@ -56,3 +56,46 @@
     width: 100%;
     justify-content: flex-start;
 }
+
+.prop-editor-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.prop-editor-row__label {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.prop-editor-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.prop-editor-trigger:hover {
+    background: var(--bg-overlay);
+}
+
+.prop-editor-trigger[data-state="open"] {
+    background: var(--bg-overlay);
+    border-color: var(--accent);
+}
+
+.prop-editor-trigger svg {
+    display: block;
+}
+
+.prop-editor-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

@@ -1,21 +1,12 @@
-import {
-    RouteStyle
-} from "../../package/packageModel";
-import React, {useState} from "react";
-import {
-    ButtonGroup,
-    FormControlLabel,
-    IconButton, Menu,
-    SvgIcon
-} from "@mui/material";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import MenuItem from "@mui/material/MenuItem";
-import {PropAndKind} from "./propertiesEditorModel";
-import {enumKeys} from "../../common/EnumUtils";
+import { RouteStyle } from "../../package/packageModel";
+import React from "react";
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "@benkalegin/ui26";
+import { ChevronDown } from "@benkalegin/ui26/icons";
+import { PropAndKind } from "./propertiesEditorModel";
+import { enumKeys } from "../../common/EnumUtils";
 
 const LinkStyleIcon: React.FC<{ linkStyle: RouteStyle }> = ({ linkStyle }) => {
     let path;
-
     switch (linkStyle) {
         case RouteStyle.Direct:
             path = <path d="M10 60 L90 20 M80 20 L90 20 L80 30" stroke="currentColor" fill="none" strokeWidth="4" />;
@@ -38,74 +29,40 @@ const LinkStyleIcon: React.FC<{ linkStyle: RouteStyle }> = ({ linkStyle }) => {
         default:
             path = <path d="M10 40 L90 40 M80 30 L90 40 L80 50" stroke="currentColor" fill="none" strokeWidth="4" />;
     }
-
     return (
-        <SvgIcon>
-            <svg viewBox="0 0 100 80">
-                {path}
-            </svg>
-        </SvgIcon>
+        <svg width="30" height="24" viewBox="0 0 100 80">
+            {path}
+        </svg>
     );
+};
+
+interface LinkStylePropertyEditorProps {
+    propAndKind: PropAndKind;
+    value: RouteStyle;
+    updateProps: (value: any) => void;
 }
-interface LinkStylePropertyEditorProps{
-    propAndKind: PropAndKind
-    value: RouteStyle
-    updateProps: (value: any) => void
-}
 
-export const LinkStylePropertyEditor: React.FC<LinkStylePropertyEditorProps> = (props: LinkStylePropertyEditorProps ) => {
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const handleItemClick = (style: RouteStyle) => {
-        props.updateProps(style);
-        handleClose();
-    };
-
-    const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const popupOpen = Boolean(anchorEl);
-    return (
-            <FormControlLabel control={
-                <span>
-                    <ButtonGroup variant="text" aria-label="split button">
-                        <IconButton
-                            aria-label="change color"
-                            sx={{
-                                borderRadius: "10%"
-                            }}
-                            onClick={handleOpenMenu}
-                        >
-                            <LinkStyleIcon linkStyle={props.value} />
-                            <ArrowDropDownIcon/>
-                        </IconButton>
-                    </ButtonGroup>
-                    <Menu
-                        onClose={handleClose}
-                        anchorEl={anchorEl}
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                        open={popupOpen}
+export const LinkStylePropertyEditor: React.FC<LinkStylePropertyEditorProps> = (props) => (
+    <div className="prop-editor-row">
+        <label className="prop-editor-row__label">{props.propAndKind.prop.label}</label>
+        <Menu placement="bottom-start">
+            <MenuTrigger className="prop-editor-trigger">
+                <LinkStyleIcon linkStyle={props.value} />
+                <ChevronDown size={14} />
+            </MenuTrigger>
+            <MenuContent>
+                {enumKeys(RouteStyle).map((styleKey) => (
+                    <MenuItem
+                        key={styleKey}
+                        onSelect={() => props.updateProps(RouteStyle[styleKey])}
                     >
-                        {enumKeys(RouteStyle).map((styleKey) => (
-                            <MenuItem
-                                key={styleKey}
-                                sx={{height: "40px"}}
-                                onClick={() => handleItemClick(RouteStyle[styleKey])}>
-                                <LinkStyleIcon linkStyle={RouteStyle[styleKey]} />
-                                <span style={{marginLeft: 10}}>{styleKey}</span>
-                            </MenuItem>
-                            ))
-                        }
-                    </Menu>
-                </span>
-            }
-             label={props.propAndKind.prop.label}
-            />
-
-    );
-}
+                        <span className="prop-editor-menu-item">
+                            <LinkStyleIcon linkStyle={RouteStyle[styleKey]} />
+                            <span>{styleKey}</span>
+                        </span>
+                    </MenuItem>
+                ))}
+            </MenuContent>
+        </Menu>
+    </div>
+);

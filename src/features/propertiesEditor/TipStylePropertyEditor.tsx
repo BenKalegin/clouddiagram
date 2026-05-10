@@ -1,21 +1,12 @@
-import {
-    TipStyle
-} from "../../package/packageModel";
-import React, {useState} from "react";
-import {
-    ButtonGroup,
-    FormControlLabel,
-    IconButton, Menu,
-    SvgIcon
-} from "@mui/material";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import MenuItem from "@mui/material/MenuItem";
-import {PropAndKind} from "./propertiesEditorModel";
-import {enumKeys} from "../../common/EnumUtils";
+import { TipStyle } from "../../package/packageModel";
+import React from "react";
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "@benkalegin/ui26";
+import { ChevronDown } from "@benkalegin/ui26/icons";
+import { PropAndKind } from "./propertiesEditorModel";
+import { enumKeys } from "../../common/EnumUtils";
 
 const TipStyleIcon: React.FC<{ tipStyle: TipStyle }> = ({ tipStyle }) => {
     let path;
-
     switch (tipStyle) {
         case TipStyle.Arrow:
             path = <path d="M10,40 L80,40 L60,25 M80,40 L60,55" stroke="currentColor" fill="none" strokeWidth="4" />;
@@ -32,80 +23,44 @@ const TipStyleIcon: React.FC<{ tipStyle: TipStyle }> = ({ tipStyle }) => {
         case TipStyle.Square:
             path = <rect x="70" y="30" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="4" />;
             break;
-
         case TipStyle.None:
             path = <path d="M10,40 L80,40" stroke="currentColor" fill="none" strokeWidth="4" />;
             break;
-
     }
-
     return (
-        <SvgIcon>
-            <svg viewBox="0 0 100 80">
-                {path}
-            </svg>
-        </SvgIcon>
+        <svg width="30" height="24" viewBox="0 0 100 80">
+            {path}
+        </svg>
     );
+};
+
+interface TipStylePropertyEditorProps {
+    propAndKind: PropAndKind;
+    value: TipStyle;
+    updateProps: (value: any) => void;
 }
-interface TipStylePropertyEditorProps{
-    propAndKind: PropAndKind
-    value: TipStyle
-    updateProps: (value: any) => void
-}
 
-export const TipStylePropertyEditor: React.FC<TipStylePropertyEditorProps> = (props: TipStylePropertyEditorProps ) => {
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const handleItemClick = (style: TipStyle) => {
-        props.updateProps(style);
-        handleClose();
-    };
-
-    const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const popupOpen = Boolean(anchorEl);
-    return (
-            <FormControlLabel control={
-                <span>
-                    <ButtonGroup variant="text" aria-label="split button">
-                        <IconButton
-                            aria-label="change color"
-                            sx={{
-                                borderRadius: "10%"
-                            }}
-                            onClick={handleOpenMenu}
-                        >
-                            <TipStyleIcon tipStyle={props.value} />
-                            <ArrowDropDownIcon/>
-                        </IconButton>
-                    </ButtonGroup>
-                    <Menu
-                        onClose={handleClose}
-                        anchorEl={anchorEl}
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                        open={popupOpen}
+export const TipStylePropertyEditor: React.FC<TipStylePropertyEditorProps> = (props) => (
+    <div className="prop-editor-row">
+        <label className="prop-editor-row__label">{props.propAndKind.prop.label}</label>
+        <Menu placement="bottom-start">
+            <MenuTrigger className="prop-editor-trigger">
+                <TipStyleIcon tipStyle={props.value} />
+                <ChevronDown size={14} />
+            </MenuTrigger>
+            <MenuContent>
+                {enumKeys(TipStyle).map((styleKey) => (
+                    <MenuItem
+                        key={styleKey}
+                        onSelect={() => props.updateProps(TipStyle[styleKey])}
                     >
-                        {enumKeys(TipStyle).map((styleKey) => (
-                            <MenuItem
-                                key={styleKey}
-                                sx={{height: "40px"}}
-                                onClick={() => handleItemClick(TipStyle[styleKey])}>
-                                <TipStyleIcon tipStyle={TipStyle[styleKey]} />
-                                <span style={{marginLeft: 10}}>{styleKey}</span>
-                            </MenuItem>
-                            ))
-                        }
-                    </Menu>
-                </span>
-            }
-             label={props.propAndKind.prop.label}
-            />
-
-    );
-}
+                        <span className="prop-editor-menu-item">
+                            <TipStyleIcon tipStyle={TipStyle[styleKey]} />
+                            <span>{styleKey}</span>
+                        </span>
+                    </MenuItem>
+                ))}
+            </MenuContent>
+        </Menu>
+    </div>
+);
