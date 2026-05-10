@@ -1,73 +1,58 @@
-import React from 'react';
-import TextField from '@mui/material/TextField';
-import Box from '@mui/material/Box';
+import React, { ChangeEvent, useEffect, useId, useState } from "react";
+import { IconButton, Tooltip } from "@benkalegin/ui26";
+import { Copy } from "@benkalegin/ui26/icons";
+import "./CodeMemo.css";
 
-import {CSSProperties} from "@mui/material/styles/createTypography";
-import {IconButton, Tooltip} from "@mui/material";
-import FileCopyIcon from '@mui/icons-material/FileCopy';
 interface CodeMemoProps {
     label: string;
     placeholder: string;
-    value: string | undefined
-    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    value: string | undefined;
+    onChange?: (event: ChangeEvent<HTMLTextAreaElement>) => void;
     minRows: number;
 }
 
 const useCopyToClipboard = (text: string) => {
-    const [isCopied, setIsCopied] = React.useState<boolean>(false);
+    const [isCopied, setIsCopied] = useState(false);
 
     const copy = async () => {
         try {
             await navigator.clipboard.writeText(text);
             setIsCopied(true);
         } catch (err) {
-            console.error('Failed to copy text: ', err);
+            console.error("Failed to copy text: ", err);
         }
     };
 
-    React.useEffect(() => {
-        if (isCopied) {
-            const timeoutId = setTimeout(() => setIsCopied(false), 2000);
-            return () => clearTimeout(timeoutId);
-        }
+    useEffect(() => {
+        if (!isCopied) return;
+        const timeoutId = setTimeout(() => setIsCopied(false), 2000);
+        return () => clearTimeout(timeoutId);
     }, [isCopied]);
 
     return [isCopied, copy] as const;
 };
 
-export const CodeMemo: React.FC<CodeMemoProps> = (props) => {
-    const { label, placeholder, value, onChange, minRows } = props;
-    const [isCopied, copy] = useCopyToClipboard(value || '');
-
-    const fixedFontStyle: CSSProperties = {
-        fontFamily: 'monospace',
-        whiteSpace: 'pre-wrap',
-    };
+export const CodeMemo: React.FC<CodeMemoProps> = ({ label, placeholder, value, onChange, minRows }) => {
+    const [isCopied, copy] = useCopyToClipboard(value || "");
+    const id = useId();
 
     return (
-        <Box>
-            <TextField
-                label={label}
+        <div className="code-memo">
+            <label htmlFor={id} className="code-memo__label">{label}</label>
+            <textarea
+                id={id}
+                className="code-memo__textarea"
                 placeholder={value ? "" : placeholder}
-                value={value}
+                value={value ?? ""}
                 onChange={onChange}
-                multiline
-                minRows={minRows}
-                fullWidth
-                InputProps={{ style: fixedFontStyle }}
+                rows={minRows}
             />
-            <Tooltip title={isCopied ? 'Copied!' : 'Copy to Clipboard'} >
-                <IconButton
-                    onClick={copy}
-                    edge="end"
-                    color="primary"
-                    sx={{ position: 'absolute',
-                          top: 75,
-                          right: 35}}>
-                    <FileCopyIcon />
+            <Tooltip content={isCopied ? "Copied!" : "Copy to Clipboard"}>
+                <IconButton aria-label="Copy to clipboard" onClick={copy} className="code-memo__copy">
+                    <Copy size={16} />
                 </IconButton>
             </Tooltip>
-        </Box>
+        </div>
     );
 };
 

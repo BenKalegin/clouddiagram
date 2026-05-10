@@ -1,0 +1,37 @@
+.code-memo {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.code-memo__label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.code-memo__textarea {
+    width: 100%;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    outline: none;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.code-memo__textarea:focus {
+    border-color: var(--accent);
+}
+
+.code-memo__copy {
+    position: absolute;
+    top: 28px;
+    right: 8px;
+    color: var(--accent);
+}
