@@ -1,37 +1,24 @@
-import React, {useContext} from "react";
-import {AppBar, IconButton, Stack, Toolbar, Typography} from "@mui/material";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
-import GridOnIcon from "@mui/icons-material/GridOn";
-import GridOffIcon from "@mui/icons-material/GridOff";
-import SaveIcon from "@mui/icons-material/Save";
+import { useContext } from "react";
+import { IconButton } from "@benkalegin/ui26";
+import { ChevronRight, Grid3x3, Moon, Save, Sun } from "@benkalegin/ui26/icons";
 import {
     AppLayoutContext,
     toggleDarkMode,
     togglePropertiesPane,
     toggleShowGrid
 } from "./editorLayout";
-import {UndoRedoControls} from "../features/diagramEditor/UndoRedoControls";
-import {CloudDiagramCanvas, CloudDiagramCanvasProps} from "./CloudDiagramCanvas";
-import {CloudDiagramDocument} from "../features/export/CloudDiagramFormat";
-import {getCloudDiagramDocument} from "./documentAdapter";
-import {useStoreCallback} from "../common/state/jotaiShim";
-
-const TOP_BAR_HEIGHT = 64;
+import { UndoRedoControls } from "../features/diagramEditor/UndoRedoControls";
+import { CloudDiagramCanvas, CloudDiagramCanvasProps } from "./CloudDiagramCanvas";
+import { CloudDiagramDocument } from "../features/export/CloudDiagramFormat";
+import { getCloudDiagramDocument } from "./documentAdapter";
+import { useStoreCallback } from "../common/state/jotaiShim";
+import "./CloudDiagramEditor.css";
 
 export interface CloudDiagramEditorProps extends CloudDiagramCanvasProps {
     title?: string;
     onSave?: (document: CloudDiagramDocument) => void;
 }
 
-/**
- * Standalone-app shell around `CloudDiagramCanvas`. Renders an MUI AppBar with
- * title, save, theme toggle, grid toggle, and properties-pane toggle.
- *
- * Embedders that don't want the AppBar should use `CloudDiagramCanvas` directly
- * and compose their own chrome.
- */
 export function CloudDiagramEditor({
     title = "Cloud Diagram",
     onSave,
@@ -52,47 +39,45 @@ interface EditorTopBarProps {
     onSave?: (document: CloudDiagramDocument) => void;
 }
 
-function EditorTopBar({title, onSave}: EditorTopBarProps) {
-    const {appLayout, setAppLayout} = useContext(AppLayoutContext);
+function EditorTopBar({ title, onSave }: EditorTopBarProps) {
+    const { appLayout, setAppLayout } = useContext(AppLayoutContext);
 
-    const handleSave = useStoreCallback(({get}) => () => {
+    const handleSave = useStoreCallback(({ get }) => () => {
         if (!onSave) return;
         const document = getCloudDiagramDocument(get);
         if (document) onSave(document);
     }, [onSave]);
 
     return (
-        <AppBar
-            position="static"
-            sx={{height: TOP_BAR_HEIGHT, flexShrink: 0, zIndex: (theme) => theme.zIndex.drawer + 1}}
-        >
-            <Toolbar sx={{justifyContent: "space-between"}}>
-                <Typography variant="h6" noWrap component="div">
-                    {title}
-                </Typography>
-                <Stack direction="row" spacing={1}>
-                    <UndoRedoControls/>
-                    {onSave && (
-                        <IconButton onClick={handleSave} color="inherit">
-                            <SaveIcon/>
-                        </IconButton>
-                    )}
-                    <IconButton onClick={() => setAppLayout(toggleDarkMode(appLayout))} color="inherit">
-                        {appLayout.darkMode ? <Brightness7Icon/> : <Brightness4Icon/>}
+        <header className="cd-editor-topbar">
+            <h1 className="cd-editor-topbar__title">{title}</h1>
+            <div className="cd-editor-topbar__actions">
+                <UndoRedoControls/>
+                {onSave && (
+                    <IconButton aria-label="Save" onClick={handleSave}>
+                        <Save size={20}/>
                     </IconButton>
-                    <IconButton onClick={() => setAppLayout(toggleShowGrid(appLayout))} color="inherit">
-                        {appLayout.showGrid ? <GridOnIcon/> : <GridOffIcon/>}
-                    </IconButton>
-                    <IconButton
-                        onClick={() => setAppLayout(togglePropertiesPane(appLayout))}
-                        color="inherit"
-                        edge="end"
-                        sx={{borderRadius: "50%"}}
-                    >
-                        <ChevronRightIcon/>
-                    </IconButton>
-                </Stack>
-            </Toolbar>
-        </AppBar>
+                )}
+                <IconButton
+                    aria-label={appLayout.darkMode ? "Switch to light mode" : "Switch to dark mode"}
+                    onClick={() => setAppLayout(toggleDarkMode(appLayout))}
+                >
+                    {appLayout.darkMode ? <Sun size={20}/> : <Moon size={20}/>}
+                </IconButton>
+                <IconButton
+                    aria-label={appLayout.showGrid ? "Hide grid" : "Show grid"}
+                    onClick={() => setAppLayout(toggleShowGrid(appLayout))}
+                    style={{ opacity: appLayout.showGrid ? 1 : 0.5 }}
+                >
+                    <Grid3x3 size={20}/>
+                </IconButton>
+                <IconButton
+                    aria-label="Toggle properties pane"
+                    onClick={() => setAppLayout(togglePropertiesPane(appLayout))}
+                >
+                    <ChevronRight size={20}/>
+                </IconButton>
+            </div>
+        </header>
     );
 }

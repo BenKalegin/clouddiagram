@@ -1,0 +1,37 @@
+.cd-editor-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    flex-shrink: 0;
+    padding: 0 16px;
+    background: var(--accent);
+    color: var(--bg-base);
+    z-index: 1300;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cd-editor-topbar__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cd-editor-topbar__actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+}
+
+.cd-editor-topbar .ui26-icon-btn {
+    color: var(--bg-base);
+}
+
+.cd-editor-topbar .ui26-icon-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--bg-base);
+}

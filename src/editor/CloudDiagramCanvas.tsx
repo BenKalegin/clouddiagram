@@ -1,10 +1,9 @@
 import React, {ReactNode, useEffect, useRef} from "react";
-import {Box, CssBaseline, Divider, Stack, styled, ThemeProvider} from "@mui/material";
 import {applyTheme, ThemeId} from "@benkalegin/ui26";
 import {Provider as JotaiProvider, createStore, useStore} from "jotai";
 import {AppLayout, AppLayoutContext, defaultAppLayout} from "./editorLayout";
 import {PropertiesDrawer} from "./PropertiesDrawer";
-import {defaultColorSchema, defaultColorSchemaAtom, getTheme} from "../common/colors/colorSchemas";
+import {defaultColorSchema, defaultColorSchemaAtom} from "../common/colors/colorSchemas";
 import {KeyboardShortcuts} from "../features/diagramEditor/KeyboardShortcuts";
 import {Toolbox} from "../features/toolbox/Toolbox";
 import {DiagramTabs} from "../features/diagramTabs/DiagramTabs";
@@ -19,13 +18,14 @@ import {PersistenceMode, PersistenceService} from "../services/persistence/persi
 import {STORAGE_KEY} from "../common/persistence/statePersistence";
 import {useTransaction} from "../common/state/jotaiShim";
 import {ColorSchema} from "../package/packageModel";
+import "./CloudDiagramCanvas.css";
 
 export interface DiagramTheme {
-    /** Switches the MUI chrome to dark or light mode. */
+    /** Switches the editor chrome to dark or light mode. */
     darkMode?: boolean;
     /** Background colour of the canvas area (Konva stage wrapper). */
     canvasBackground?: string;
-    /** Background colour of side panels (toolbox, properties pane). Maps to MUI background.paper. */
+    /** Background colour of side panels (toolbox, properties pane). */
     panelBackground?: string;
     /** Colour schema applied to newly created and imported nodes/links. */
     defaultColorSchema?: ColorSchema;
@@ -34,30 +34,6 @@ export interface DiagramTheme {
 const DEFAULT_CHANGE_DEBOUNCE_MS = 300;
 const INITIAL_HYDRATION_KEY = "initial";
 const APP_LAYOUT_STORAGE_KEY = `${STORAGE_KEY}_appLayout`;
-
-interface MainProps {
-    open?: boolean;
-    drawerwidth: number;
-}
-
-const Main = styled("main", {
-    shouldForwardProp: (prop) => prop !== "open" && prop !== "drawerwidth"
-})<MainProps>(({theme, open, drawerwidth}) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create("margin", {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen
-    }),
-    marginRight: -drawerwidth,
-    ...(open && {
-        transition: theme.transitions.create("margin", {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen
-        }),
-        marginRight: 0
-    })
-}));
 
 export interface CloudDiagramCanvasProps {
     /**
@@ -213,10 +189,6 @@ function CloudDiagramCanvasContent({
     const contextValue = React.useMemo(() => ({appLayout, setAppLayout}), [appLayout]);
     const drawerWidth = showPropertiesPane ? appLayout.propsDrawerWidth : 0;
     const drawerOpen = showPropertiesPane && appLayout.propsPaneOpen;
-    const muiTheme = React.useMemo(
-        () => getTheme(appLayout.darkMode, {default: theme?.canvasBackground, paper: theme?.panelBackground}),
-        [appLayout.darkMode, theme?.canvasBackground, theme?.panelBackground]
-    );
 
     useEffect(() => {
         applyTheme(appLayout.darkMode ? ThemeId.Graphite : ThemeId.GithubLight);
@@ -224,34 +196,24 @@ function CloudDiagramCanvasContent({
 
     return (
         <AppLayoutContext.Provider value={contextValue}>
-            <ThemeProvider theme={muiTheme}>
-                <Box sx={{display: "flex", flexDirection: "column", height, overflow: "hidden"}}>
-                    <CssBaseline/>
-                    <KeyboardShortcuts/>
-                    {onChange && <CloudDiagramDocumentChangeObserver onChange={onChange}/>}
-                    {header}
-                    <Box sx={{display: "flex", flex: 1, minHeight: 0, overflow: "hidden"}}>
-                        <Main
-                            open={drawerOpen}
-                            drawerwidth={drawerWidth}
-                            sx={{
-                                height: "100%",
-                                display: "flex",
-                                flexDirection: "column",
-                                p: 0,
-                                overflow: "hidden"
-                            }}
-                        >
-                            <Stack direction="row" sx={{flex: 1, overflow: "hidden", minWidth: 0, minHeight: 0}}>
-                                <Toolbox/>
-                                <Divider orientation="vertical" flexItem/>
-                                <DiagramTabs/>
-                            </Stack>
-                        </Main>
-                        {showPropertiesPane && <PropertiesDrawer/>}
-                    </Box>
-                </Box>
-            </ThemeProvider>
+            <div className="cd-canvas-root" style={{height}}>
+                <KeyboardShortcuts/>
+                {onChange && <CloudDiagramDocumentChangeObserver onChange={onChange}/>}
+                {header}
+                <div className="cd-canvas-body">
+                    <main
+                        className={"cd-canvas-main" + (drawerOpen ? " cd-canvas-main--open" : "")}
+                        style={{marginRight: drawerOpen ? 0 : -drawerWidth}}
+                    >
+                        <div className="cd-canvas-row">
+                            <Toolbox/>
+                            <div className="cd-canvas-divider"/>
+                            <DiagramTabs/>
+                        </div>
+                    </main>
+                    {showPropertiesPane && <PropertiesDrawer/>}
+                </div>
+            </div>
         </AppLayoutContext.Provider>
     );
 }
