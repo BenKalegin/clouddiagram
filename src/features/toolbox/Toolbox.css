@@ -1,0 +1,67 @@
+.toolbox {
+    width: 100%;
+    max-width: 360px;
+    min-width: 180px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.toolbox__subheader {
+    margin: 0;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+}
+
+.toolbox .ui26-collapsible__trigger {
+    padding: 8px 16px;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.toolbox .ui26-collapsible__content {
+    padding: 0;
+}
+
+.toolbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 16px;
+    cursor: grab;
+    user-select: none;
+    color: var(--text-primary);
+}
+
+.toolbox-item:hover {
+    background: var(--bg-overlay);
+}
+
+.toolbox-item:active {
+    cursor: grabbing;
+}
+
+.toolbox-item__icon {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.toolbox-item__icon img {
+    width: 24px;
+    height: 24px;
+}
+
+.toolbox-item__label {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.2;
+}
