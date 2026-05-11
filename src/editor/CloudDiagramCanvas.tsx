@@ -203,7 +203,7 @@ function CloudDiagramCanvasContent({
                 <div className="cd-canvas-body">
                     <main
                         className={"cd-canvas-main" + (drawerOpen ? " cd-canvas-main--open" : "")}
-                        style={{marginRight: drawerOpen ? 0 : -drawerWidth}}
+                        style={{marginRight: drawerOpen ? drawerWidth : 0}}
                     >
                         <div className="cd-canvas-row">
                             <Toolbox/>
