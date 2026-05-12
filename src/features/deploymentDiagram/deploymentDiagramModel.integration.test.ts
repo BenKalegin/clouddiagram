@@ -119,9 +119,9 @@ describe('Deployment Diagram Integration Tests', () => {
       const updatedDiagram = get(elementsAtom(diagramId)) as StructureDiagramState;
       const nodePlacement = updatedDiagram.nodes[node.id];
 
-      // Should snap to grid (grid size is 10)
-      expect(nodePlacement.bounds.x).toBe(50); // Actual implementation returns 50
-      expect(nodePlacement.bounds.y).toBe(50); // Actual implementation returns 50
+      // startNodePos (50,30) + pointer delta (50,20) = (100,50), snapped to grid 10 = (100,50)
+      expect(nodePlacement.bounds.x).toBe(100);
+      expect(nodePlacement.bounds.y).toBe(50);
     });
   });
 

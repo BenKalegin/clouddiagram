@@ -125,6 +125,8 @@ export function getPropertyList(type: ElementType, diagramType?: ElementType): P
             ];
         case ElementType.Note:
             return [textProp, colorSchemaProp];
+        case ElementType.DeploymentNode:
+            return [textProp, colorSchemaProp, shapeLayoutProp];
         default:
             return [];
     }

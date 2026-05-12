@@ -119,13 +119,15 @@ export const moveElementImpl = (get: Get, set: Set, element: ElementRef, current
     // Drag-end events can fire during component teardown (React strict-mode
     // remount or modal close), with element references that no longer exist
     // in the current diagram. Bail out instead of crashing on undefined.
-    if (element.type === ElementType.ClassNode && !originalDiagram.nodes?.[element.id]) return;
+    if ((element.type === ElementType.ClassNode || element.type === ElementType.DeploymentNode)
+        && !originalDiagram.nodes?.[element.id]) return;
     if (element.type === ElementType.Note && !originalDiagram.notes?.[element.id]) return;
     if (element.type === ElementType.Cluster && !originalDiagram.nodes?.[element.id]) return;
 
     const update = produce(originalDiagram, (diagram: Draft<StructureDiagramState>) => {
         switch (element.type) {
             case ElementType.ClassNode:
+            case ElementType.DeploymentNode:
                 updateElementPos(diagram.nodes[element.id].bounds);
                 if (node?.ganttTask && chartStart) {
                     const bounds = diagram.nodes[element.id].bounds;
