@@ -1,7 +1,7 @@
 import React, {ReactNode, useEffect, useRef} from "react";
 import {applyTheme, ThemeId} from "@benkalegin/ui26";
 import {Provider as JotaiProvider, createStore, useStore} from "jotai";
-import {AppLayout, AppLayoutContext, defaultAppLayout} from "./editorLayout";
+import {AppLayout, AppLayoutContext, defaultAppLayout, isDarkThemeId} from "./editorLayout";
 import {PropertiesDrawer} from "./PropertiesDrawer";
 import {defaultColorSchema, defaultColorSchemaAtom} from "../common/colors/colorSchemas";
 import {KeyboardShortcuts} from "../features/diagramEditor/KeyboardShortcuts";
@@ -21,7 +21,9 @@ import {ColorSchema} from "../package/packageModel";
 import "./CloudDiagramCanvas.css";
 
 export interface DiagramTheme {
-    /** Switches the editor chrome to dark or light mode. */
+    /** Host-supplied skin. When set, takes precedence over user-stored preference. */
+    themeId?: ThemeId;
+    /** @deprecated Pass `themeId` instead. When set without themeId, maps to Graphite (dark) / GithubLight (light). */
     darkMode?: boolean;
     /** Background colour of the canvas area (Konva stage wrapper). */
     canvasBackground?: string;
@@ -29,6 +31,12 @@ export interface DiagramTheme {
     panelBackground?: string;
     /** Colour schema applied to newly created and imported nodes/links. */
     defaultColorSchema?: ColorSchema;
+}
+
+function resolveThemeIdFromHost(theme: DiagramTheme | undefined): ThemeId | undefined {
+    if (theme?.themeId !== undefined) return theme.themeId;
+    if (theme?.darkMode !== undefined) return theme.darkMode ? ThemeId.Graphite : ThemeId.GithubLight;
+    return undefined;
 }
 
 const DEFAULT_CHANGE_DEBOUNCE_MS = 300;
@@ -108,9 +116,13 @@ function CloudDiagramCanvasContent({
     onLayoutChange
 }: CloudDiagramCanvasProps) {
     const [appLayout, setAppLayout] = React.useState<AppLayout>(() => {
+        const hostThemeId = resolveThemeIdFromHost(theme);
+        const themeOverride: Partial<AppLayout> = hostThemeId !== undefined
+            ? {themeId: hostThemeId, darkMode: isDarkThemeId(hostThemeId)}
+            : {};
         const base: AppLayout = {
             ...initialLayout,
-            ...(theme?.darkMode !== undefined && {darkMode: theme.darkMode}),
+            ...themeOverride,
             ...(theme?.canvasBackground !== undefined && {canvasBackground: theme.canvasBackground}),
         };
         if (persistenceMode === PersistenceMode.Host) return base;
@@ -118,11 +130,14 @@ function CloudDiagramCanvasContent({
             const stored = localStorage.getItem(APP_LAYOUT_STORAGE_KEY);
             if (stored) {
                 const parsed = JSON.parse(stored) as Partial<AppLayout>;
+                const restored: AppLayout = {...base, ...parsed};
+                if (parsed.themeId !== undefined) {
+                    restored.darkMode = isDarkThemeId(parsed.themeId);
+                }
                 return {
-                    ...base,
-                    ...parsed,
+                    ...restored,
                     // Re-apply host overrides so they always win over stored values
-                    ...(theme?.darkMode !== undefined && {darkMode: theme.darkMode}),
+                    ...themeOverride,
                     ...(theme?.canvasBackground !== undefined && {canvasBackground: theme.canvasBackground}),
                 };
             }
@@ -148,7 +163,7 @@ function CloudDiagramCanvasContent({
             const toSave = {
                 propsPaneOpen: appLayout.propsPaneOpen,
                 propsDrawerWidth: appLayout.propsDrawerWidth,
-                darkMode: appLayout.darkMode,
+                themeId: appLayout.themeId,
                 showGrid: appLayout.showGrid,
             };
             localStorage.setItem(APP_LAYOUT_STORAGE_KEY, JSON.stringify(toSave));
@@ -156,10 +171,11 @@ function CloudDiagramCanvasContent({
     }, [appLayout, persistenceMode]);
 
     useEffect(() => {
-        if (theme?.darkMode !== undefined) {
-            setAppLayout(prev => ({...prev, darkMode: theme.darkMode!}));
+        const hostThemeId = resolveThemeIdFromHost(theme);
+        if (hostThemeId !== undefined) {
+            setAppLayout(prev => ({...prev, themeId: hostThemeId, darkMode: isDarkThemeId(hostThemeId)}));
         }
-    }, [theme?.darkMode]);
+    }, [theme?.themeId, theme?.darkMode]);
 
     useEffect(() => {
         setAppLayout(prev => ({...prev, canvasBackground: theme?.canvasBackground}));
@@ -191,8 +207,8 @@ function CloudDiagramCanvasContent({
     const drawerOpen = showPropertiesPane && appLayout.propsPaneOpen;
 
     useEffect(() => {
-        applyTheme(appLayout.darkMode ? ThemeId.Graphite : ThemeId.GithubLight);
-    }, [appLayout.darkMode]);
+        applyTheme(appLayout.themeId);
+    }, [appLayout.themeId]);
 
     return (
         <AppLayoutContext.Provider value={contextValue}>

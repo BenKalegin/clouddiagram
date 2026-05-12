@@ -1,17 +1,13 @@
-import { useContext } from "react";
-import { IconButton } from "@benkalegin/ui26";
-import { ChevronRight, Grid3x3, Moon, Save, Sun } from "@benkalegin/ui26/icons";
-import {
-    AppLayoutContext,
-    toggleDarkMode,
-    togglePropertiesPane,
-    toggleShowGrid
-} from "./editorLayout";
-import { UndoRedoControls } from "../features/diagramEditor/UndoRedoControls";
-import { CloudDiagramCanvas, CloudDiagramCanvasProps } from "./CloudDiagramCanvas";
-import { CloudDiagramDocument } from "../features/export/CloudDiagramFormat";
-import { getCloudDiagramDocument } from "./documentAdapter";
-import { useStoreCallback } from "../common/state/jotaiShim";
+import {useContext, useState} from "react";
+import {IconButton} from "@benkalegin/ui26";
+import {ChevronRight, Save} from "@benkalegin/ui26/icons";
+import {AppLayoutContext, togglePropertiesPane} from "./editorLayout";
+import {UndoRedoControls} from "../features/diagramEditor/UndoRedoControls";
+import {CloudDiagramCanvas, CloudDiagramCanvasProps} from "./CloudDiagramCanvas";
+import {CloudDiagramDocument} from "../features/export/CloudDiagramFormat";
+import {getCloudDiagramDocument} from "./documentAdapter";
+import {useStoreCallback} from "../common/state/jotaiShim";
+import {SettingsDialog} from "./SettingsDialog";
 import "./CloudDiagramEditor.css";
 
 export interface CloudDiagramEditorProps extends CloudDiagramCanvasProps {
@@ -39,10 +35,11 @@ interface EditorTopBarProps {
     onSave?: (document: CloudDiagramDocument) => void;
 }
 
-function EditorTopBar({ title, onSave }: EditorTopBarProps) {
-    const { appLayout, setAppLayout } = useContext(AppLayoutContext);
+function EditorTopBar({title, onSave}: EditorTopBarProps) {
+    const {appLayout, setAppLayout} = useContext(AppLayoutContext);
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
-    const handleSave = useStoreCallback(({ get }) => () => {
+    const handleSave = useStoreCallback(({get}) => () => {
         if (!onSave) return;
         const document = getCloudDiagramDocument(get);
         if (document) onSave(document);
@@ -58,18 +55,8 @@ function EditorTopBar({ title, onSave }: EditorTopBarProps) {
                         <Save size={20}/>
                     </IconButton>
                 )}
-                <IconButton
-                    aria-label={appLayout.darkMode ? "Switch to light mode" : "Switch to dark mode"}
-                    onClick={() => setAppLayout(toggleDarkMode(appLayout))}
-                >
-                    {appLayout.darkMode ? <Sun size={20}/> : <Moon size={20}/>}
-                </IconButton>
-                <IconButton
-                    aria-label={appLayout.showGrid ? "Hide grid" : "Show grid"}
-                    onClick={() => setAppLayout(toggleShowGrid(appLayout))}
-                    style={{ opacity: appLayout.showGrid ? 1 : 0.5 }}
-                >
-                    <Grid3x3 size={20}/>
+                <IconButton aria-label="Settings" onClick={() => setSettingsOpen(true)}>
+                    <SettingsIcon size={20}/>
                 </IconButton>
                 <IconButton
                     aria-label="Toggle properties pane"
@@ -78,6 +65,27 @@ function EditorTopBar({ title, onSave }: EditorTopBarProps) {
                     <ChevronRight size={20}/>
                 </IconButton>
             </div>
+            <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)}/>
         </header>
+    );
+}
+
+function SettingsIcon({size = 20}: {size?: number}) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
     );
 }

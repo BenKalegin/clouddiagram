@@ -1,8 +1,11 @@
 import React, {createContext} from "react";
+import {DEFAULT_THEME_ID, findTheme, ThemeGroup, ThemeId} from "@benkalegin/ui26";
 
 export interface AppLayout {
     propsPaneOpen: boolean;
     propsDrawerWidth: number;
+    themeId: ThemeId;
+    /** Derived from themeId — kept in sync via setThemeId(). Read-only signal for diagram renderers. */
     darkMode: boolean;
     showGrid: boolean;
     canvasBackground?: string;
@@ -13,10 +16,15 @@ export interface AppLayoutContextType {
     setAppLayout: React.Dispatch<React.SetStateAction<AppLayout>>;
 }
 
+export function isDarkThemeId(themeId: ThemeId): boolean {
+    return findTheme(themeId)?.group === ThemeGroup.Dark;
+}
+
 export const defaultAppLayout: AppLayout = {
     propsPaneOpen: false,
     propsDrawerWidth: 240,
-    darkMode: false,
+    themeId: DEFAULT_THEME_ID,
+    darkMode: isDarkThemeId(DEFAULT_THEME_ID),
     showGrid: true
 };
 
@@ -25,10 +33,11 @@ export const AppLayoutContext = createContext<AppLayoutContextType>({
     setAppLayout: () => {}
 });
 
-export function toggleDarkMode(appLayout: AppLayout): AppLayout {
+export function setThemeId(appLayout: AppLayout, themeId: ThemeId): AppLayout {
     return {
         ...appLayout,
-        darkMode: !appLayout.darkMode
+        themeId,
+        darkMode: isDarkThemeId(themeId)
     };
 }
 

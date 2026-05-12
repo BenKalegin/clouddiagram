@@ -22,7 +22,7 @@ export {
     AppLayoutContext,
     defaultAppLayout,
     setPropertiesDrawerWidth,
-    toggleDarkMode,
+    setThemeId,
     togglePropertiesPane,
     toggleShowGrid
 } from "./editorLayout";
