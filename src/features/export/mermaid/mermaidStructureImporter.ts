@@ -119,8 +119,7 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
     function normalizeLabel(label: string | undefined): string | undefined {
         return label
             ?.replace(/\\n/g, "\n")
-            .replace(/<br\s*\/?>/gi, "\n")
-            .replace(/<\/?(?:b|strong|i|em|u)\s*>/gi, "");
+            .replace(/<br\s*\/?>/gi, "\n");
     }
 
     function stripLabelQuotes(label: string | undefined): string | undefined {

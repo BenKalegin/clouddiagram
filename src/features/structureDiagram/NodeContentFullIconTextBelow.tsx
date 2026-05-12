@@ -1,9 +1,10 @@
 import React, {FC, useContext} from "react";
-import {Image, Text} from "react-konva";
+import {Image} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
 import {AppLayoutContext} from "../../editor/editorLayout";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 import {Bounds} from "../../common/model";
+import {RichText} from "../../common/canvas/RichText";
 
 export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
       node,
@@ -48,8 +49,7 @@ export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
                 />
             )}
 
-            <Text
-                {...placement.bounds}
+            <RichText
                 fontSize={14}
                 fill={colorSchema.textColor}
                 align={"center"}
@@ -61,7 +61,7 @@ export const NodeContentFullIconTextBelow: FC<NodeContentProps> = ({
                 x={placement.bounds.x}
                 y={placement.bounds.y + imageBounds.height}
                 width={placement.bounds.width}
-                //height={textHeight}
+                height={placement.bounds.height - imageBounds.height}
             />
         </>
     );

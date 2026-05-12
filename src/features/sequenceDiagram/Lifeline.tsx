@@ -1,4 +1,5 @@
-import {Group, Line, Rect, Shape, Text} from "react-konva";
+import {Group, Line, Rect, Shape} from "react-konva";
+import {RichText} from "../../common/canvas/RichText";
 import {LifelineId, lifelinePoints, lifelineSelector} from "./sequenceDiagramModel";
 import React, {FC, useContext} from "react";
 import {Scaffold} from "../scaffold/Scaffold";
@@ -62,7 +63,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 width={placement.headBounds.width}
                 height={placement.headBounds.height}
             />
-            <Text
+            <RichText
                 x={0}
                 y={0}
                 width={placement.headBounds.width}
@@ -113,7 +114,7 @@ export const Lifeline: FC<LifelineProps> = ({lifelineId, diagramId}) => {
                 width={placement.headBounds.width}
                 height={placement.headBounds.height - 16}
             />
-            <Text
+            <RichText
                 x={0}
                 y={placement.headBounds.height - 14}
                 width={placement.headBounds.width}

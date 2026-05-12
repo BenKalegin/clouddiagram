@@ -1,6 +1,6 @@
 import {NoteId, noteSelector} from "./commonComponentsModel";
 import {DiagramId, diagramKindSelector, linkingAtom, selectedRefsSelector} from "../diagramEditor/diagramEditorModel";
-import {Group, Shape, Text} from "react-konva";
+import {Group, Shape} from "react-konva";
 import {useAtomValue} from "jotai";
 import {Scaffold} from "../scaffold/Scaffold";
 import {ElementRef, ElementType} from "../../package/packageModel";
@@ -9,6 +9,7 @@ import {DrawingLink} from "../structureDiagram/DrawingLink";
 import React from "react";
 import {inflate} from "../../common/model";
 import {Background} from "../scaffold/Background";
+import {RichText} from "../../common/canvas/RichText";
 
 export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId }) => {
     const selectedElements = useAtomValue(selectedRefsSelector(diagramId))
@@ -65,7 +66,7 @@ export const Note = ({noteId, diagramId}: { noteId: NoteId, diagramId: DiagramId
                 listening={false}
 
             />
-            <Text
+            <RichText
                 text={note.text}
                 fontSize={14}
                 {...note.bounds}

@@ -1,8 +1,9 @@
 import React, {FC, useContext, useMemo} from "react";
-import {Image, Rect, Text} from "react-konva";
+import {Image, Rect} from "react-konva";
 import {NodeContentProps} from "./NodeContentProps";
 import {AppLayoutContext} from "../../editor/editorLayout";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
+import {RichText} from "../../common/canvas/RichText";
 
 // Add a WeakMap to cache results by image instance
 const pixelColorCache = new WeakMap<HTMLImageElement, { color: string | null, hasTopLeftPixel: boolean }>();
@@ -96,8 +97,8 @@ export const NodeContentTopLeftIcon: FC<NodeContentProps> = ({
                 />
             )}
 
-            <Text
-                x={placement.bounds.x + 32 + 4} // Right of icon with padding
+            <RichText
+                x={placement.bounds.x + 32 + 4}
                 y={placement.bounds.y}
                 width={placement.bounds.width - 32 - 4}
                 height={32}

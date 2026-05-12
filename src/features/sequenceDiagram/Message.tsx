@@ -1,4 +1,5 @@
-import {Arrow, Group, Text} from "react-konva";
+import {Arrow, Group} from "react-konva";
+import {RichText} from "../../common/canvas/RichText";
 import {useAtomValue} from "jotai";
 import {ElementRef, ElementType, Id} from "../../package/packageModel";
 import {messageRenderSelector, messageSelector} from "./sequenceDiagramModel";
@@ -65,7 +66,7 @@ export const Message = ({messageId, diagramId}: {messageId: Id, diagramId: Diagr
                 }}
 
             />
-            <Text
+            <RichText
                 {...textBounds}
                 fontSize={14}
                 align={"center"}

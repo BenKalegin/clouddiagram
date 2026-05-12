@@ -251,7 +251,7 @@ describe('mermaidFormat', () => {
             expect(nodes.map(n => n.text).sort()).toEqual(['A', 'B']);
         });
 
-        it('should strip <b>/<i>/<em>/<strong>/<u> formatting tags from node labels', () => {
+        it('should preserve <b>/<i>/<em>/<strong>/<u> formatting tags in node labels (RichText renders them)', () => {
             const baseDiagram: Diagram = {
                 id: 'test-diagram',
                 display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
@@ -266,8 +266,8 @@ describe('mermaidFormat', () => {
             const result = importMermaidStructureDiagram(baseDiagram, flowchart) as StructureDiagramState & { elements: { [id: string]: any } };
             const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
             expect(nodes.map(n => n.text).sort()).toEqual([
-                'Long tail\n~3,000+ transactions',
-                'italic and strong'
+                '<b>Long tail</b>\n~3,000+ transactions',
+                '<i>italic</i> and <STRONG>strong</STRONG>'
             ]);
         });
 

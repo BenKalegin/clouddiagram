@@ -9,6 +9,7 @@ import {ElementRef, ElementType, LinkState} from "../../package/packageModel";
 import {AppLayoutContext} from "../../editor/editorLayout";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 import {VirtualizedItem} from "../../common/components/VirtualizedLayer";
+import {RichText} from "../../common/canvas/RichText";
 
 export const Link = React.memo(({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}) => {
     const isSelected = useAtomValue(isElementSelectedAtom({elementId: linkId, diagramId}))
@@ -42,10 +43,11 @@ export const Link = React.memo(({linkId, diagramId}: {linkId: LinkId, diagramId:
                     }
                 )}
                 {link.text && (
-                    <Text
+                    <RichText
                         x={(render.sourcePoint.x + render.targetPoint.x) / 2 - 50}
                         y={(render.sourcePoint.y + render.targetPoint.y) / 2 - 10}
                         width={100}
+                        height={20}
                         text={link.text}
                         align="center"
                         verticalAlign="middle"

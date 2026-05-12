@@ -8,6 +8,7 @@ import {
 import {ClassMemberKind, ColorSchema, FlowchartNodeKind, NodeState} from "../../package/packageModel";
 import {Bounds} from "../../common/model";
 import {formatErAttribute, getErEntityDisplayName} from "../erDiagram/erDiagramUtils";
+import {RichText} from "../../common/canvas/RichText";
 
 export const NodeContentNoIconRect: FC<NodeContentProps> = ({
       node,
@@ -125,7 +126,7 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
         <>
             {shape}
 
-            <Text
+            <RichText
                 {...placement.bounds}
                 fill={colorSchema.textColor}
                 fontSize={14}
