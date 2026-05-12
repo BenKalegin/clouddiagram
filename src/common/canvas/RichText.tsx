@@ -2,8 +2,6 @@ import React, {FC, useMemo} from "react";
 import {Group, Text} from "react-konva";
 import {HAS_RICH_TAGS_RE, parseRichText, RichSegment} from "./richTextParser";
 
-export {parseRichText} from "./richTextParser";
-
 export interface RichTextProps {
     text: string | undefined;
     x?: number;
@@ -12,7 +10,6 @@ export interface RichTextProps {
     height?: number;
     fontSize: number;
     fontFamily?: string;
-    fontStyle?: string;
     fill?: string;
     align?: "left" | "center" | "right";
     verticalAlign?: "top" | "middle" | "bottom" | "center";
@@ -24,13 +21,17 @@ export interface RichTextProps {
     preventDefault?: boolean;
 }
 
+function fontStyleFor(bold: boolean, italic: boolean): string {
+    return [italic ? "italic" : "", bold ? "bold" : ""].filter(Boolean).join(" ") || "normal";
+}
+
 const measureCanvas = typeof document !== "undefined" ? document.createElement("canvas") : null;
 const measureCtx = measureCanvas ? measureCanvas.getContext("2d") : null;
 
 function measureSegment(text: string, fontSize: number, fontFamily: string, bold: boolean, italic: boolean): number {
     if (!measureCtx) return text.length * fontSize * 0.6;
-    const style = [italic ? "italic" : "", bold ? "bold" : ""].filter(Boolean).join(" ");
-    measureCtx.font = `${style} ${fontSize}px ${fontFamily}`;
+    const style = fontStyleFor(bold, italic);
+    measureCtx.font = `${style === "normal" ? "" : style} ${fontSize}px ${fontFamily}`;
     return measureCtx.measureText(text).width;
 }
 
@@ -178,25 +179,21 @@ export const RichText: FC<RichTextProps> = (props) => {
                     else if (align === "right") lineX = padding + (innerWidth - line.width);
                 }
                 const lineY = blockY + lineIdx * lineHeightPx;
-                return line.segments.map((seg, i) => {
-                    const fontStyle = [seg.italic ? "italic" : "", seg.bold ? "bold" : ""]
-                        .filter(Boolean).join(" ") || "normal";
-                    return (
-                        <Text
-                            key={`${lineIdx}-${i}`}
-                            x={lineX + seg.x}
-                            y={lineY}
-                            text={seg.text}
-                            fontSize={fontSize}
-                            fontFamily={fontFamily}
-                            fontStyle={fontStyle}
-                            textDecoration={seg.underline ? "underline" : ""}
-                            fill={fill}
-                            listening={false}
-                            preventDefault={preventDefault}
-                        />
-                    );
-                });
+                return line.segments.map((seg, i) => (
+                    <Text
+                        key={`${lineIdx}-${i}`}
+                        x={lineX + seg.x}
+                        y={lineY}
+                        text={seg.text}
+                        fontSize={fontSize}
+                        fontFamily={fontFamily}
+                        fontStyle={fontStyleFor(seg.bold, seg.italic)}
+                        textDecoration={seg.underline ? "underline" : ""}
+                        fill={fill}
+                        listening={false}
+                        preventDefault={preventDefault}
+                    />
+                ));
             })}
         </Group>
     );
