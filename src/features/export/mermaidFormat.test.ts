@@ -251,6 +251,47 @@ describe('mermaidFormat', () => {
             expect(nodes.map(n => n.text).sort()).toEqual(['A', 'B']);
         });
 
+        it('should strip <b>/<i>/<em>/<strong>/<u> formatting tags from node labels', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-diagram',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.ClassDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const flowchart = `flowchart LR
+    A["<b>Long tail</b><br>~3,000+ transactions"] --> B["<i>italic</i> and <STRONG>strong</STRONG>"]`;
+
+            const result = importMermaidStructureDiagram(baseDiagram, flowchart) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            expect(nodes.map(n => n.text).sort()).toEqual([
+                'Long tail\n~3,000+ transactions',
+                'italic and strong'
+            ]);
+        });
+
+        it('should convert <br> tags in node and edge labels to newlines', () => {
+            const baseDiagram: Diagram = {
+                id: 'test-diagram',
+                display: { width: 1000, height: 1000, scale: 1, offset: { x: 0, y: 0 } },
+                type: ElementType.ClassDiagram,
+                selectedElements: [],
+                notes: {}
+            };
+
+            const flowchart = `flowchart LR
+    A["First line<br>second line"] -->|edge<br/>label| B["mixed<BR />case<br />break"]`;
+
+            const result = importMermaidStructureDiagram(baseDiagram, flowchart) as StructureDiagramState & { elements: { [id: string]: any } };
+            const nodes = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassNode) as NodeState[];
+            expect(nodes.map(n => n.text).sort()).toEqual(['First line\nsecond line', 'mixed\ncase\nbreak']);
+
+            const links = Object.values(result.elements).filter((e: any) => e.type === ElementType.ClassLink) as LinkState[];
+            expect(links).toHaveLength(1);
+            expect(links[0].text).toBe('edge\nlabel');
+        });
+
         it('should clear old notes and selected elements on import', () => {
             const baseDiagram: Diagram = {
                 id: 'test-diagram',
