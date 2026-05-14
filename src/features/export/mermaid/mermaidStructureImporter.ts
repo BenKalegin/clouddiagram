@@ -154,6 +154,16 @@ export async function importMermaidStructureDiagram(baseDiagram: Diagram, conten
         return trimmed;
     }
 
+    function hasChainedEdge(line: string): boolean {
+        // True if the line has `&` (parallel sources/targets) or 2+ arrows
+        // (chained like `A --> B --> C`). Either case needs the multi-segment
+        // parser; single-arrow `A --> B[...]` stays on the flowMatch path
+        // which understands inline shapes.
+        if (line.includes("&")) return true;
+        const arrowCount = (line.match(/\s+(?:<\|--|<-->|<--|-->|---|-\.-|==>|--\.\.|--o|--\*|<->|--)\s+/g) ?? []).length;
+        return arrowCount >= 2;
+    }
+
     function splitChainSide(side: string): string[] {
         return side
             .split(/\s*&\s*/)
@@ -334,21 +344,31 @@ export async function importMermaidStructureDiagram(baseDiagram: Diagram, conten
     }
 
     function tryEdgeChain(line: string): boolean {
-        const arrowMatch = line.match(/\s+(<\|--|<-->|<--|-->|---|-\.-|==>|--\.\.|--o|--\*|<->|--)\s+(?:\|([^|]+)\|\s+)?/);
-        if (!arrowMatch || arrowMatch.index === undefined) return false;
-        const arrow = arrowMatch[1];
-        const edgeLabel = normalizeLabel(stripLabelQuotes(arrowMatch[2]));
-        const lhs = line.slice(0, arrowMatch.index);
-        const rhs = line.slice(arrowMatch.index + arrowMatch[0].length);
-        const fromNames = splitChainSide(lhs);
-        const toNames = splitChainSide(rhs);
-        if (fromNames.length === 0 || toNames.length === 0) return false;
+        // Match every arrow (with optional |label|) so a single line like
+        // `A --> B --> C --> D` or `A & B --> C --> D & E` yields edges
+        // between each consecutive pair of segments.
+        const arrowRe = /\s+(<\|--|<-->|<--|-->|---|-\.-|==>|--\.\.|--o|--\*|<->|--)\s+(?:\|([^|]+)\|\s+)?/g;
+        const arrows = [...line.matchAll(arrowRe)];
+        if (arrows.length === 0) return false;
 
-        for (const fromName of fromNames) {
-            for (const toName of toNames) {
-                for (const fid of expandSubgraphRef(fromName)) {
-                    for (const tid of expandSubgraphRef(toName)) {
-                        createLink(getOrCreateNode(fid), getOrCreateNode(tid), arrow, edgeLabel);
+        const segments: string[][] = [];
+        let cursor = 0;
+        for (const m of arrows) {
+            segments.push(splitChainSide(line.slice(cursor, m.index)));
+            cursor = m.index! + m[0].length;
+        }
+        segments.push(splitChainSide(line.slice(cursor)));
+        if (segments.some(s => s.length === 0)) return false;
+
+        for (let i = 0; i < arrows.length; i++) {
+            const arrow = arrows[i][1];
+            const edgeLabel = normalizeLabel(stripLabelQuotes(arrows[i][2]));
+            for (const fromName of segments[i]) {
+                for (const toName of segments[i + 1]) {
+                    for (const fid of expandSubgraphRef(fromName)) {
+                        for (const tid of expandSubgraphRef(toName)) {
+                            createLink(getOrCreateNode(fid), getOrCreateNode(tid), arrow, edgeLabel);
+                        }
                     }
                 }
             }
@@ -408,7 +428,7 @@ export async function importMermaidStructureDiagram(baseDiagram: Diagram, conten
             continue;
         }
 
-        if (flowchartMode && line.includes("&") && tryEdgeChain(line)) {
+        if (flowchartMode && hasChainedEdge(line) && tryEdgeChain(line)) {
             continue;
         }
 

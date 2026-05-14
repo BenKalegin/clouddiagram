@@ -106,6 +106,40 @@ describe("Structure relayout via importDiagramAs", () => {
         L.nodes("First detail", "Second detail", "Third detail").orderedLeftToRight();
     });
 
+    it("places intra-subgraph edges so chain members stack vertically (TB)", async () => {
+        const source = `graph TB
+            subgraph Pipe["Pipeline"]
+                A[Upload]
+                B[Parse]
+                C[Embed]
+                D[Store]
+                A --> B --> C --> D
+            end`;
+        const result = await importFlowchart(source, "test-intra-stack");
+        const L = layoutFor(result);
+        L.nodes("Upload", "Parse", "Embed", "Store").orderedTopToBottom();
+        L.nodes("Upload", "Parse", "Embed", "Store").sameColumn();
+    });
+
+    it("imports chained-arrow edges (A --> B --> C --> D as three edges)", async () => {
+        const source = `flowchart TB
+            subgraph Ingestion["Ingestion Pipeline"]
+                Upload[Document Upload]
+                Parse[Document Parser]
+                Chunk[Text Chunker]
+                Embed[Embedding]
+                Store1[Vector Store]
+                Upload --> Parse --> Chunk --> Embed --> Store1
+            end`;
+        const result = await importFlowchart(source, "test-chain");
+        const L = layoutFor(result);
+        L.edges().count(4);
+        L.edge({fromText: "Document Upload", toText: "Document Parser"}).hasLabel(undefined);
+        L.edge({fromText: "Document Parser", toText: "Text Chunker"}).hasLabel(undefined);
+        L.edge({fromText: "Text Chunker", toText: "Embedding"}).hasLabel(undefined);
+        L.edge({fromText: "Embedding", toText: "Vector Store"}).hasLabel(undefined);
+    });
+
     it("preserves source order with rich-text labels and per-node styles (ERP screenshot shape)", async () => {
         const source = `flowchart TB
             A[All ERP UI surfaces] --> B{Usage frequency}

@@ -95,14 +95,45 @@ export async function applyFiligreeLayout(
         (childrenOf[containerFor(id)] ??= []).push({id, width, height});
     }
 
-    const edges: MutableEdge[] = [];
+    // Filigree's per-compound layout only sees edges declared inside the
+    // compound's own `edges` array — there's no INCLUDE_CHILDREN. Place each
+    // edge at the lowest common ancestor of its endpoints so intra-compound
+    // chains stack within the compound.
+    const parentOf = (id: string): string | undefined =>
+        nodeParents?.[id] ?? clusterParents?.[id];
+    const ancestorsOf = (id: string): string[] => {
+        const acc: string[] = [];
+        let cur = parentOf(id);
+        while (cur) {
+            acc.push(cur);
+            cur = clusterParents?.[cur];
+        }
+        return acc;
+    };
+    const lca = (a: string, b: string): string => {
+        const aChain = new Set<string>([a, ...ancestorsOf(a)]);
+        if (aChain.has(b)) return b;
+        let cur = parentOf(b);
+        while (cur) {
+            if (aChain.has(cur)) return cur;
+            cur = clusterParents?.[cur];
+        }
+        return ROOT;
+    };
+
+    const edgesByContainer: { [containerId: string]: MutableEdge[] } = {};
     for (const [index, link] of links.entries()) {
         if (!nodes[link.source] || !nodes[link.target]) continue;
-        edges.push({
+        const container = lca(link.source, link.target);
+        (edgesByContainer[container] ??= []).push({
             id: `e${index}`,
             sources: [link.source],
             targets: [link.target]
         });
+    }
+    for (const cid of clusterIds) {
+        const containerEdges = edgesByContainer[cid];
+        if (containerEdges) clusterNodeById[cid].edges = containerEdges;
     }
 
     const root: MutableGraph = {
@@ -115,7 +146,7 @@ export async function applyFiligreeLayout(
             "elk.padding": compoundPadding
         },
         children: childrenOf[ROOT],
-        edges,
+        edges: edgesByContainer[ROOT] ?? [],
         filigreeHints: orderHints?.length
             ? orderHints.map(h => ({kind: "order-before", nodeAId: h.before, nodeBId: h.after}))
             : undefined
