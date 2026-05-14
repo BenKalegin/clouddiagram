@@ -1,52 +1,15 @@
 import {atom} from "jotai";
-import {ColorSchema} from "../../package/packageModel";
+import {ColorSchema, defaultColorSchema} from "@benkalegin/doodles-api";
 
-export const defaultColorSchema: ColorSchema = {
-    strokeColor: "#deb887",
-    fillColor: "#FFF8DC",
-    textColor: "#000000"
-};
-
-const pinkColorSchema: ColorSchema = {
-    strokeColor: "#F08080",
-    fillColor: "#FFE4E1",
-    textColor: "#000000"
-};
-
-const leafColorSchema: ColorSchema = {
-    strokeColor: "#9EBD5D",
-    fillColor: "#F4F7EC",
-    textColor: "#000000"
-};
-
-const steelColorSchema: ColorSchema = {
-    strokeColor: "#AEBFD1",
-    fillColor: "#F0F5FF",
-    textColor: "#000000"
-};
-
-const darkForest1Colors: ColorSchema = {
-    strokeColor: "#A57777",
-    fillColor: "#EAD3D3",
-    textColor: "#000000"
-};
-
-const darkForest2Colors: ColorSchema = {
-    strokeColor: "#82a3b7",
-    fillColor: "#bcd9ef",
-    textColor: "#000000"
-};
-
-
-export const colorSchemaList: ColorSchema[] = [
+// Color palette and default schema come from doodles-core (shared with the
+// layout / future renderer). Re-exported here so existing imports keep working.
+export {
     defaultColorSchema,
-    pinkColorSchema,
-    leafColorSchema,
-    steelColorSchema,
-    darkForest1Colors,
-    darkForest2Colors
-];
-
+    colorSchemaList,
+    lineStyleList,
+    defaultLineStyle,
+} from "@benkalegin/doodles-api";
 
 // Per-store atom so each CloudDiagramCanvas instance can have its own default.
+// jotai dependency stays out of doodles-core.
 export const defaultColorSchemaAtom = atom<ColorSchema>(defaultColorSchema);
