@@ -1,6 +1,6 @@
 import {Diagram} from "../../../common/model";
 
-export type MermaidImporter = (baseDiagram: Diagram, content: string) => Diagram;
+export type MermaidImporter = (baseDiagram: Diagram, content: string) => Diagram | Promise<Diagram>;
 
 export type MermaidDiagramKind =
     | "flowchart"

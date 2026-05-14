@@ -1,5 +1,6 @@
 import {Diagram} from "../../../common/model";
 import {
+    ColorSchema,
     CornerStyle,
     ElementType,
     FlowchartNodeKind,
@@ -14,7 +15,9 @@ import {defaultColorSchema} from "../../../common/colors/colorSchemas";
 import {StructureDiagramState} from "../../structureDiagram/structureDiagramState";
 import {createMermaidIdGenerator, mermaidSourceLines, parseMermaidLayoutHints} from "./mermaidImportUtils";
 import {createClassMember, minimumClassNodeHeight, normalizeClassAnnotation} from "../../classDiagram/classDiagramUtils";
-import {applyAutoLayout, ClusterDef, LayoutHints, LayoutLink} from "../../layout/autoLayout";
+import {applyAutoLayout, ClusterDef, computeDisplaySize, LayoutHints, LayoutLink, OrderHint} from "../../layout/autoLayout";
+
+export {computeDisplaySize};
 
 export interface StructureImportOut {
     nodeMap: Map<string, string>;        // mermaid id → internal nodeId
@@ -29,6 +32,23 @@ export interface StructureImportOut {
 interface ImportStructureOptions {
     forceFlowchart?: boolean;
     out?: StructureImportOut;
+}
+
+type StyleProps = Partial<Pick<ColorSchema, "fillColor" | "strokeColor" | "textColor">>;
+
+function parseMermaidStyleProps(propsStr: string): StyleProps {
+    const result: StyleProps = {};
+    for (const part of propsStr.split(/[,;]/)) {
+        const sep = part.indexOf(":");
+        if (sep < 0) continue;
+        const key = part.slice(0, sep).trim().toLowerCase();
+        const val = part.slice(sep + 1).trim();
+        if (!val) continue;
+        if (key === "fill") result.fillColor = val;
+        else if (key === "stroke") result.strokeColor = val;
+        else if (key === "color") result.textColor = val;
+    }
+    return result;
 }
 
 function toFlowchartKind(shape: "process" | "decision" | "terminator" | "input-output" | undefined): FlowchartNodeKind | undefined {
@@ -49,7 +69,7 @@ function toFlowchartKind(shape: "process" | "decision" | "terminator" | "input-o
 /**
  * Import a Mermaid class/flowchart diagram into CloudDiagram structure format
  */
-export function importMermaidFlowchartDiagram(baseDiagram: Diagram, content: string): Diagram {
+export function importMermaidFlowchartDiagram(baseDiagram: Diagram, content: string): Promise<Diagram> {
     return importMermaidStructureDiagram(baseDiagram, content, { forceFlowchart: true });
 }
 
@@ -62,7 +82,7 @@ function linkPortAlignments(direction: string | undefined, flowchartMode: boolea
     }
 }
 
-export function importMermaidStructureDiagram(baseDiagram: Diagram, content: string, options?: ImportStructureOptions): Diagram {
+export async function importMermaidStructureDiagram(baseDiagram: Diagram, content: string, options?: ImportStructureOptions): Promise<Diagram> {
     const generateId = createMermaidIdGenerator();
     const lines = mermaidSourceLines(content);
 
@@ -102,6 +122,9 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
     const nodeParents: { [nodeId: string]: string } = {};
     const clusterParents: { [clusterId: string]: string } = {};
     const subgraphStack: string[] = [];
+    const classDefs: { [name: string]: StyleProps } = {};
+    const classAssignments: { [mermaidId: string]: string[] } = {};
+    const inlineStyles: { [mermaidId: string]: StyleProps } = {};
     let nodeIndex = 0;
     let currentClassBlock: string | undefined;
 
@@ -139,15 +162,21 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
     }
 
     function estimateNodeDimensions(label: string): { width: number; height: number } {
-        const defaultWidth = 140;
+        const defaultWidth = 150;
         const maxWidth = 260;
-        const charPx = 9; // conservative avg px/char at fontSize 14 for non-breakable tokens
-        // Expand width for long non-breakable tokens (dotted identifiers, URLs, etc.)
+        const charPx = 8;       // avg px/char at fontSize 14 for mixed prose
+        const padding = 24;     // horizontal padding inside box
+        const lines = label.split("\n");
+        // Size to longest line (so prose stays on one row when it can fit), and
+        // separately size to longest non-breakable token (so dotted ids/URLs aren't clipped).
+        const longestLine = lines.reduce((m, l) => l.length > m ? l.length : m, 0);
         const longestToken = label.split(/[\s\n]+/).reduce((m, t) => t.length > m ? t.length : m, 0);
-        const width = Math.min(maxWidth, Math.max(defaultWidth, longestToken * charPx + 16));
-        const charsPerLine = Math.floor(width / 8); // 8px avg for mixed text including spaces
+        const lineWidth = longestLine * charPx + padding;
+        const tokenWidth = longestToken * (charPx + 1) + padding;
+        const width = Math.min(maxWidth, Math.max(defaultWidth, lineWidth, tokenWidth));
+        const charsPerLine = Math.max(1, Math.floor((width - padding) / charPx));
         let totalLines = 0;
-        for (const segment of label.split("\n")) {
+        for (const segment of lines) {
             totalLines += segment.length === 0 ? 1 : Math.ceil(segment.length / charsPerLine);
         }
         return { width, height: Math.max(60, totalLines * 18 + 16) };
@@ -308,7 +337,7 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         const arrowMatch = line.match(/\s+(<\|--|<-->|<--|-->|---|-\.-|==>|--\.\.|--o|--\*|<->|--)\s+(?:\|([^|]+)\|\s+)?/);
         if (!arrowMatch || arrowMatch.index === undefined) return false;
         const arrow = arrowMatch[1];
-        const edgeLabel = arrowMatch[2];
+        const edgeLabel = normalizeLabel(stripLabelQuotes(arrowMatch[2]));
         const lhs = line.slice(0, arrowMatch.index);
         const rhs = line.slice(arrowMatch.index + arrowMatch[0].length);
         const fromNames = splitChainSide(lhs);
@@ -351,6 +380,31 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         }
         if (lowerLine === "end") {
             subgraphStack.pop();
+            continue;
+        }
+
+        const styleMatch = line.match(/^style\s+([\w-]+)\s+(.+?)\s*;?\s*$/);
+        if (styleMatch) {
+            const [, id, propsStr] = styleMatch;
+            inlineStyles[id] = { ...inlineStyles[id], ...parseMermaidStyleProps(propsStr) };
+            continue;
+        }
+
+        const classDefMatch = line.match(/^classDef\s+([\w-]+)\s+(.+?)\s*;?\s*$/);
+        if (classDefMatch) {
+            const [, name, propsStr] = classDefMatch;
+            classDefs[name] = { ...classDefs[name], ...parseMermaidStyleProps(propsStr) };
+            continue;
+        }
+
+        const classAssignMatch = flowchartMode
+            ? line.match(/^class\s+([\w-]+(?:\s*,\s*[\w-]+)*)\s+([\w-]+)\s*;?\s*$/)
+            : null;
+        if (classAssignMatch) {
+            const [, idsStr, className] = classAssignMatch;
+            for (const id of idsStr.split(/\s*,\s*/)) {
+                (classAssignments[id] ??= []).push(className);
+            }
             continue;
         }
 
@@ -443,7 +497,7 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         const flowMatch = line.match(/^([\w-]+)\s*(?:\[\/([^\]]+)\/\]|\[\(("[^"]+"|.+?)\)\]|\[([^\]]+)\]|\(\[([^\]]+)\]\)|\(\(([^)]+)\)\)|\(([^)]+)\)|\{([^}]+)\})?\s*(<\|--|<-->|<--|-->|---|-\.-|==>|--|--\.\.|--o|--\*|<->)\s*(?:\|([^|]+)\|\s*)?([\w-]+)\s*(?:\[\/([^\]]+)\/\]|\[\(("[^"]+"|.+?)\)\]|\[([^\]]+)\]|\(\[([^\]]+)\]\)|\(\(([^)]+)\)\)|\(([^)]+)\)|\{([^}]+)\})?(?:\s*\|([^|]+)\|)?$/);
         if (flowMatch) {
             const [, from, fio, fcyl, fsquare, fstadium, fcircle, fround, fdecision, arrow, edgeLabelBefore, to, tio, tcyl, tsquare, tstadium, tcircle, tround, tdecision, edgeLabelAfter] = flowMatch;
-            const edgeLabel = normalizeLabel(edgeLabelBefore || edgeLabelAfter);
+            const edgeLabel = normalizeLabel(stripLabelQuotes(edgeLabelBefore || edgeLabelAfter));
             const fromLabel = normalizeLabel(stripLabelQuotes(fio || fcyl || fsquare || fstadium || fcircle || fround || fdecision));
             const toLabel = normalizeLabel(stripLabelQuotes(tio || tcyl || tsquare || tstadium || tcircle || tround || tdecision));
             const fromHasShape = !!(fio || fcyl || fsquare || fstadium || fcircle || fround || fdecision);
@@ -499,7 +553,24 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
         clusterDefs[sid] = { label };
     }
 
-    const clusterBoundsById = applyAutoLayout(nodes, layoutEdges, layoutHints, clusterDefs, nodeParents, clusterParents);
+    // Preserve Mermaid declaration order across sibling targets: for every
+    // source node, chain consecutive outgoing targets with OrderBefore hints.
+    // Filigree honors these in its layered algorithm when the pair lands on
+    // the same layer.
+    const targetsBySource = new Map<string, string[]>();
+    for (const edge of layoutEdges) {
+        const list = targetsBySource.get(edge.source);
+        if (list) list.push(edge.target);
+        else targetsBySource.set(edge.source, [edge.target]);
+    }
+    const orderHints: OrderHint[] = [];
+    for (const targets of targetsBySource.values()) {
+        for (let i = 1; i < targets.length; i++) {
+            orderHints.push({before: targets[i - 1], after: targets[i]});
+        }
+    }
+
+    const clusterBoundsById = await applyAutoLayout(nodes, layoutEdges, layoutHints, clusterDefs, nodeParents, clusterParents, orderHints);
 
     const clusterMembers: { [clusterId: string]: string[] } = {};
     for (const [nodeId, clusterId] of Object.entries(nodeParents)) {
@@ -519,6 +590,28 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
             colorSchema: defaultColorSchema,
             memberNodeIds: clusterMembers[clusterId] ?? []
         } as NodeState;
+    }
+
+    function applyStyleToTarget(mermaidId: string, props: StyleProps): void {
+        const target = elements[nodeMap[mermaidId] ?? mermaidId] as NodeState | undefined;
+        if (!target) return;
+        const base = target.colorSchema ?? defaultColorSchema;
+        target.colorSchema = {
+            strokeColor: props.strokeColor ?? props.fillColor ?? base.strokeColor,
+            fillColor: props.fillColor ?? base.fillColor,
+            textColor: props.textColor ?? base.textColor,
+            rawColors: true
+        };
+    }
+
+    for (const [mermaidId, classNames] of Object.entries(classAssignments)) {
+        for (const className of classNames) {
+            const props = classDefs[className];
+            if (props) applyStyleToTarget(mermaidId, props);
+        }
+    }
+    for (const [mermaidId, props] of Object.entries(inlineStyles)) {
+        applyStyleToTarget(mermaidId, props);
     }
 
     const { width: displayWidth, height: displayHeight } = computeDisplaySize(nodes);
@@ -553,21 +646,3 @@ export function importMermaidStructureDiagram(baseDiagram: Diagram, content: str
     return result as StructureDiagramState;
 }
 
-const DISPLAY_PADDING = 80;
-const DISPLAY_MIN_WIDTH = 800;
-const DISPLAY_MIN_HEIGHT = 600;
-
-export function computeDisplaySize(nodes: { [id: string]: any }): { width: number; height: number } {
-    let maxRight = DISPLAY_MIN_WIDTH;
-    let maxBottom = DISPLAY_MIN_HEIGHT;
-    for (const node of Object.values(nodes)) {
-        const bounds = node?.bounds;
-        if (!bounds) continue;
-        maxRight = Math.max(maxRight, bounds.x + bounds.width);
-        maxBottom = Math.max(maxBottom, bounds.y + bounds.height);
-    }
-    return {
-        width: maxRight + DISPLAY_PADDING,
-        height: maxBottom + DISPLAY_PADDING
-    };
-}

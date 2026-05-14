@@ -68,7 +68,7 @@ export function detectMermaidDiagramType(content: string): MermaidDiagramTypeDef
     return type ? toPublicMermaidDiagramType(type) : undefined;
 }
 
-export function importMermaidDiagram(baseDiagram: Diagram, content: string): Diagram {
+export async function importMermaidDiagram(baseDiagram: Diagram, content: string): Promise<Diagram> {
     const type = detectMermaidDiagramTypeEntry(content);
     return type?.importer
         ? type.importer(baseDiagram, content)

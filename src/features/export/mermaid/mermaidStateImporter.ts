@@ -17,7 +17,7 @@ import {applyAutoLayout, ClusterDef, LayoutDirection, LayoutLink} from "../../la
 
 type SpecialKind = "fork" | "join" | "choice";
 
-export function importMermaidStateDiagram(baseDiagram: Diagram, content: string): Diagram {
+export async function importMermaidStateDiagram(baseDiagram: Diagram, content: string): Promise<Diagram> {
     const generateId = createMermaidIdGenerator();
     const lines = mermaidSourceLines(content);
 
@@ -211,7 +211,7 @@ export function importMermaidStateDiagram(baseDiagram: Diagram, content: string)
     }
 
     const hints = direction ? {direction} : {};
-    const clusterBoundsById = applyAutoLayout(nodes, layoutEdges, hints, clusterDefs, nodeParents, clusterParents);
+    const clusterBoundsById = await applyAutoLayout(nodes, layoutEdges, hints, clusterDefs, nodeParents, clusterParents);
 
     const clusterMembers: { [clusterId: string]: string[] } = {};
     for (const [nodeId, clusterId] of Object.entries(nodeParents)) {

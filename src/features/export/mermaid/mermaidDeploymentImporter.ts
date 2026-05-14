@@ -16,7 +16,7 @@ function iconNodeHeight(label: string): number {
     return ICON_SIZE + lines * LABEL_LINE_HEIGHT + LABEL_PADDING;
 }
 
-export function importMermaidDeploymentDiagram(baseDiagram: Diagram, content: string): Diagram {
+export async function importMermaidDeploymentDiagram(baseDiagram: Diagram, content: string): Promise<Diagram> {
     const out: StructureImportOut = {
         nodeMap: new Map(),
         subgraphLabels: new Map(),
@@ -27,7 +27,7 @@ export function importMermaidDeploymentDiagram(baseDiagram: Diagram, content: st
         layoutHints: {},
     };
 
-    const result = importMermaidStructureDiagram(baseDiagram, content, {forceFlowchart: true, out}) as any;
+    const result = await importMermaidStructureDiagram(baseDiagram, content, {forceFlowchart: true, out}) as any;
 
     // Detect icons for subgraphs (parent context for children)
     const subgraphIcons = new Map<string, { icon: PredefinedSvg; inherit: boolean }>();
@@ -77,7 +77,7 @@ export function importMermaidDeploymentDiagram(baseDiagram: Diagram, content: st
 
     if (!anyIcons) return result;
 
-    const clusterBoundsById = applyAutoLayout(
+    const clusterBoundsById = await applyAutoLayout(
         result.nodes,
         out.layoutEdges,
         {...out.layoutHints, nodeSep: 30},

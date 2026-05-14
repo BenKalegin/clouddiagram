@@ -113,7 +113,7 @@ function parseTree(content: string): TreeNode | undefined {
 
 type Side = "root" | "right" | "left";
 
-export function importMermaidMindMapDiagram(baseDiagram: Diagram, content: string): Diagram {
+export async function importMermaidMindMapDiagram(baseDiagram: Diagram, content: string): Promise<Diagram> {
     const generateId = createMermaidIdGenerator();
 
     const elements: { [id: string]: any } = {};
@@ -244,7 +244,7 @@ export function importMermaidMindMapDiagram(baseDiagram: Diagram, content: strin
 
     const rootId = buildTree(root, null, "root");
 
-    applyMindMapRadialLayout(nodes, rootId, rightSubtree, leftSubtree, rightEdges, leftEdges);
+    await applyMindMapRadialLayout(nodes, rootId, rightSubtree, leftSubtree, rightEdges, leftEdges);
 
     const { width: displayWidth, height: displayHeight } = computeDisplaySize(nodes);
 
@@ -265,14 +265,14 @@ export function importMermaidMindMapDiagram(baseDiagram: Diagram, content: strin
     } as StructureDiagramState;
 }
 
-function applyMindMapRadialLayout(
+async function applyMindMapRadialLayout(
     nodes: { [id: string]: any },
     rootId: string,
     rightSubtree: Set<string>,
     leftSubtree: Set<string>,
     rightEdges: LayoutLink[],
     leftEdges: LayoutLink[],
-): void {
+): Promise<void> {
     const cloneBounds = (ids: Iterable<string>) => {
         const out: { [id: string]: any } = {};
         for (const id of ids) out[id] = { bounds: { ...nodes[id].bounds } };
@@ -283,10 +283,10 @@ function applyMindMapRadialLayout(
     const leftNodes = cloneBounds([rootId, ...leftSubtree]);
 
     if (rightSubtree.size > 0) {
-        applyAutoLayout(rightNodes, rightEdges, { direction: "LR" });
+        await applyAutoLayout(rightNodes, rightEdges, { direction: "LR" });
     }
     if (leftSubtree.size > 0) {
-        applyAutoLayout(leftNodes, leftEdges, { direction: "LR" });
+        await applyAutoLayout(leftNodes, leftEdges, { direction: "LR" });
     }
 
     // Anchor: right side's root position (or left's if no right side)

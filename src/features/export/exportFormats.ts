@@ -26,6 +26,7 @@ import {exportGanttDiagramAsMermaid} from "./mermaid/mermaidGanttExporter";
 import {exportClassDiagramAsMermaid} from "./mermaid/mermaidClassExporter";
 import {exportErDiagramAsMermaid} from "./mermaid/mermaidErExporter";
 import {exportPieChartDiagramAsMermaid} from "./mermaid/mermaidPieExporter";
+import {canRelayoutStructure, relayoutStructure} from "../layout/structureRelayout";
 
 export type {ElementResolver};
 
@@ -59,7 +60,7 @@ interface ExportRegistryEntry {
     name: string;
     supportedDiagram: ElementType[];
     exportFunction?: (diagram: Diagram, context: DiagramExportContext) => Promise<string>;
-    importFunction?: (diagram: Diagram, content: string) => ImportedDiagram;
+    importFunction?: (diagram: Diagram, content: string) => ImportedDiagram | Promise<ImportedDiagram>;
 }
 
 export const formatRegistry: ExportRegistryEntry[] = [
@@ -172,11 +173,21 @@ export async function exportDiagramAs(
     return await entry.exportFunction!(diagram, {stage, resolveElement});
 }
 
-export function importDiagramAs(diagram: Diagram, kind: ExportImportFormat, content: string): DiagramImportResult {
+const RELAYOUT_FORMATS = new Set<ExportImportFormat>([
+    ExportImportFormat.MermaidStructureDiagram,
+    ExportImportFormat.MermaidFlowchartDiagram,
+    ExportImportFormat.MermaidDiagram
+]);
+
+export async function importDiagramAs(diagram: Diagram, kind: ExportImportFormat, content: string): Promise<DiagramImportResult> {
     const entry = formatRegistry.find(e => e.format === kind);
     if (!entry)
         throw new Error("Unknown export kind " + kind);
-    return toDiagramImportResult(entry.importFunction!(diagram, content));
+    let imported = await entry.importFunction!(diagram, content);
+    if (RELAYOUT_FORMATS.has(kind) && !isDiagramImportResult(imported) && canRelayoutStructure(imported)) {
+        imported = await relayoutStructure(imported, content);
+    }
+    return toDiagramImportResult(imported);
 }
 
 function toDiagramImportResult(imported: ImportedDiagram): DiagramImportResult {
