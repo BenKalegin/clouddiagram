@@ -2,7 +2,7 @@ import {describe, it, expect} from "vitest";
 import {ElementType, FlowchartNodeKind, PortAlignment} from "../../package/packageModel";
 import {createDiagramForType} from "../diagramTypes/diagramTypeRegistry";
 import {ExportImportFormat, importDiagramAs} from "../export/exportFormats";
-import {layoutFor} from "./layoutTesting";
+import {layoutFor} from "@benkalegin/doodles-api";
 
 const USER_FLOWCHART = `flowchart LR
     U["User intent<br/>(free text)"] --> R["<b>Router</b><br/>operating screen?<br/>generated task?<br/>direct answer?"]

@@ -26,7 +26,8 @@ import {exportGanttDiagramAsMermaid} from "./mermaid/mermaidGanttExporter";
 import {exportClassDiagramAsMermaid} from "./mermaid/mermaidClassExporter";
 import {exportErDiagramAsMermaid} from "./mermaid/mermaidErExporter";
 import {exportPieChartDiagramAsMermaid} from "./mermaid/mermaidPieExporter";
-import {canRelayoutStructure, relayoutStructure} from "../layout/structureRelayout";
+import {canRelayoutStructure, relayoutStructure} from "@benkalegin/doodles-api";
+import {parseMermaidLayoutHints} from "./mermaid/mermaidImportUtils";
 
 export type {ElementResolver};
 
@@ -185,7 +186,7 @@ export async function importDiagramAs(diagram: Diagram, kind: ExportImportFormat
         throw new Error("Unknown export kind " + kind);
     let imported = await entry.importFunction!(diagram, content);
     if (RELAYOUT_FORMATS.has(kind) && !isDiagramImportResult(imported) && canRelayoutStructure(imported)) {
-        imported = await relayoutStructure(imported, content);
+        imported = await relayoutStructure(imported, parseMermaidLayoutHints(content));
     }
     return toDiagramImportResult(imported);
 }

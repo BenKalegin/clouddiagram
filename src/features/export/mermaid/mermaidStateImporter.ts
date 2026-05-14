@@ -13,7 +13,7 @@ import {
 import {defaultColorSchema} from "../../../common/colors/colorSchemas";
 import {StructureDiagramState} from "../../structureDiagram/structureDiagramState";
 import {createMermaidIdGenerator, mermaidSourceLines} from "./mermaidImportUtils";
-import {applyAutoLayout, ClusterDef, LayoutDirection, LayoutLink} from "../../layout/autoLayout";
+import {applyAutoLayout, ClusterDef, LayoutDirection, LayoutLink} from "@benkalegin/doodles-api";
 
 type SpecialKind = "fork" | "join" | "choice";
 

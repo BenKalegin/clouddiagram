@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@benkalegin/doodles-api':
+        specifier: ^0.1.1
+        version: 0.1.1
       '@benkalegin/filigree-api':
         specifier: ^0.1.0
         version: 0.1.0
@@ -651,6 +654,21 @@ packages:
   '@babel/types@7.29.0':
     resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
     engines: {node: '>=6.9.0'}
+
+  '@benkalegin/doodles-api@0.1.1':
+    resolution: {integrity: sha512-BjCPdY228zFUocRZrGouW7m2isFa8uIPQt0qGHDNDL0DYQoYVrrLicjUfDYobZuQrRTLgDPQedgjr0MFTBg7zA==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-api/0.1.1/f30eb375469da9656d2c989e90274f9940d80b91}
+
+  '@benkalegin/doodles-core@0.1.1':
+    resolution: {integrity: sha512-ri/ztCJHPtRfKy5Y1CcWIKzRGzXXE93c2EBa0Fb+O5fTZINbEcizu+AyJZwt+m9ldTh1CknxlkGN8Qyy+IKY9Q==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-core/0.1.1/13d3996704e27f085264a6062360f3d593ccd03a}
+
+  '@benkalegin/doodles-layout@0.1.1':
+    resolution: {integrity: sha512-EmjsrCQbU1WWXPq48Q1EWxwH0l5ASVKidg+TsYccftJO/GgjA3RB9j+6RqDXAwqG1DNr9v8y+evfZMAgn+5s4w==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-layout/0.1.1/2343d7f60c010989b3e7a2010f6ab650990e737c}
+
+  '@benkalegin/doodles-mermaid@0.1.1':
+    resolution: {integrity: sha512-55DshS49KL7mxTb6fUJ83KUNCbsqxJxvuL7+8CG07yYkXf+dtSth1f++SAa2By7mg+AnTi3FYTNZ8bhCRKygLw==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-mermaid/0.1.1/fe18d9f5f29f96113550aec21ed715ae78703fb5}
+
+  '@benkalegin/doodles-svg@0.1.1':
+    resolution: {integrity: sha512-8dzBfRPW5Exnci4sjlett1mbGQmXdvF2KXd7frTGhy+Go1mryZ+HMHDDX/XhAGyn1h+mhXDFOGI5JQ7py6rvEg==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-svg/0.1.1/02eee972e9dc718fc871984624bd2447014d2603}
 
   '@benkalegin/filigree-alg-force@0.1.0':
     resolution: {integrity: sha512-CMwzMULbinVEGVv79/wryiDR9cQjWpEwuXGo8TdgBcY/37/wO/4wB8KO/S08vAntgNNzw3qcSR1WjGFc8Fpm7w==, tarball: https://npm.pkg.github.com/download/@benkalegin/filigree-alg-force/0.1.0/2c4f8e8196309bd9344c428df2cbe21977de1fa7}
@@ -4043,6 +4061,29 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
+
+  '@benkalegin/doodles-api@0.1.1':
+    dependencies:
+      '@benkalegin/doodles-core': 0.1.1
+      '@benkalegin/doodles-layout': 0.1.1
+      '@benkalegin/doodles-mermaid': 0.1.1
+      '@benkalegin/doodles-svg': 0.1.1
+
+  '@benkalegin/doodles-core@0.1.1': {}
+
+  '@benkalegin/doodles-layout@0.1.1':
+    dependencies:
+      '@benkalegin/doodles-core': 0.1.1
+      '@benkalegin/filigree-api': 0.1.0
+
+  '@benkalegin/doodles-mermaid@0.1.1':
+    dependencies:
+      '@benkalegin/doodles-core': 0.1.1
+      nanoid: 3.3.12
+
+  '@benkalegin/doodles-svg@0.1.1':
+    dependencies:
+      '@benkalegin/doodles-core': 0.1.1
 
   '@benkalegin/filigree-alg-force@0.1.0':
     dependencies:

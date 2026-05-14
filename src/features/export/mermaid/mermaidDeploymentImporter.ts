@@ -3,7 +3,7 @@ import {ElementType, NodeState, PictureLayout, PortAlignment} from "../../../pac
 import {computeDisplaySize, importMermaidStructureDiagram, StructureImportOut} from "./mermaidStructureImporter";
 import {detectIcon, iconHints} from "../../graphics/iconHints";
 import {PredefinedSvg} from "../../graphics/graphicsReader";
-import {applyAutoLayout} from "../../layout/autoLayout";
+import {applyAutoLayout} from "@benkalegin/doodles-api";
 import {defaultColorSchema} from "../../../common/colors/colorSchemas";
 
 const ICON_SIZE = 100;

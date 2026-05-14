@@ -13,7 +13,7 @@ import {
 import {defaultColorSchema} from "../../../common/colors/colorSchemas";
 import {StructureDiagramState} from "../../structureDiagram/structureDiagramState";
 import {createMermaidIdGenerator} from "./mermaidImportUtils";
-import {applyAutoLayout, LayoutLink} from "../../layout/autoLayout";
+import {applyAutoLayout, LayoutLink} from "@benkalegin/doodles-api";
 import {computeDisplaySize} from "./mermaidStructureImporter";
 
 const CODE_FENCE_RE = /^`{3,}(?:mermaid)?$/i;

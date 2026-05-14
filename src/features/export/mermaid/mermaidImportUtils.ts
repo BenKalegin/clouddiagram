@@ -1,5 +1,5 @@
 import {nanoid} from "nanoid";
-import {LayoutDirection, LayoutHints} from "../../layout/autoLayout";
+import {LayoutDirection, LayoutHints} from "@benkalegin/doodles-api";
 
 export type MermaidIdGenerator = () => string;
 

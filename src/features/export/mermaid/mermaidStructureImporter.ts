@@ -15,7 +15,7 @@ import {defaultColorSchema} from "../../../common/colors/colorSchemas";
 import {StructureDiagramState} from "../../structureDiagram/structureDiagramState";
 import {createMermaidIdGenerator, mermaidSourceLines, parseMermaidLayoutHints} from "./mermaidImportUtils";
 import {createClassMember, minimumClassNodeHeight, normalizeClassAnnotation} from "../../classDiagram/classDiagramUtils";
-import {applyAutoLayout, ClusterDef, computeDisplaySize, LayoutHints, LayoutLink, OrderHint} from "../../layout/autoLayout";
+import {applyAutoLayout, ClusterDef, computeDisplaySize, LayoutHints, LayoutLink, OrderHint} from "@benkalegin/doodles-api";
 
 export {computeDisplaySize};
 

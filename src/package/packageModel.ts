@@ -2,33 +2,10 @@ import {PredefinedSvg} from "../features/graphics/graphicsReader";
 import {NodeId} from "../features/structureDiagram/structureDiagramState";
 import {colorSchemaList} from "../common/colors/colorSchemas";
 
-export type Id = string;
-export enum ElementType {
-    Unexpected,
-    ClassNode,
-    ClassDiagram,
-    ClassLink,
-    ClassPort,
-    SequenceDiagram,
-    SequenceLifeLine,
-    SequenceMessage,
-    SequenceActivation,
-    Note,
-    DeploymentDiagram,
-    DeploymentNode,
-    DeploymentLink,
-    FlowchartDiagram,
-    GanttDiagram,
-    ErDiagram,
-    PieChartDiagram,
-    Cluster,
-    MindMapDiagram,
-}
-
-export interface ElementRef {
-    id: Id;
-    type: ElementType
-}
+// Single source of truth in @benkalegin/doodles-core. clouddiagram extends
+// these with editor-specific types (NodeState, LinkState, ColorSchema, etc.)
+// below.
+export {type Id, ElementType, type ElementRef, PortAlignment, FlowchartNodeKind} from "@benkalegin/doodles-api";
 
 export interface ColorSchema {
     strokeColor: string;
@@ -68,13 +45,6 @@ export interface Package {
     elements: { [id: Id]: DiagramElement };
 }
 
-
-export enum PortAlignment {
-    Left,
-    Right,
-    Top,
-    Bottom,
-}
 
 export interface PortState extends DiagramElement {
     /**
@@ -160,18 +130,6 @@ export interface NodeState extends DiagramElement, HasColorSchema {
     flowchartKind?: FlowchartNodeKind;
     ganttTask?: GanttTaskState;
     memberNodeIds?: string[];
-}
-
-export enum FlowchartNodeKind {
-    Process = "process",
-    Decision = "decision",
-    Terminator = "terminator",
-    InputOutput = "input-output",
-    C4Person = "c4-person",
-    C4System = "c4-system",
-    C4Container = "c4-container",
-    C4Component = "c4-component",
-    MindMapTopic = "mindmap-topic",
 }
 
 export enum RouteStyle {

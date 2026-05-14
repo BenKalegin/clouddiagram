@@ -2,7 +2,7 @@ import {describe, it, beforeAll} from "vitest";
 import {ElementType} from "../../package/packageModel";
 import {createDiagramForType} from "../diagramTypes/diagramTypeRegistry";
 import {ExportImportFormat, importDiagramAs} from "../export/exportFormats";
-import {LayoutFacade, layoutFor} from "./layoutTesting";
+import {LayoutFacade, layoutFor} from "@benkalegin/doodles-api";
 
 /**
  * Bug regressions, one test per reported issue, using the full real source
