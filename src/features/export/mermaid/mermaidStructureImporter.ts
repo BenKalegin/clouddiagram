@@ -573,6 +573,26 @@ export async function importMermaidStructureDiagram(baseDiagram: Diagram, conten
         clusterDefs[sid] = { label };
     }
 
+    // For flowcharts, normalize node widths within each compound to the
+    // widest member. Filigree's Brandes-Köpf placer pins same-column nodes
+    // by their left edge; varying widths leave centers misaligned, which
+    // our orthogonal edge router exposes as a horizontal jog mid-edge.
+    // Uniform widths within a compound make centers line up.
+    if (flowchartMode) {
+        const ROOT_GROUP = "__root__";
+        const widthByGroup = new Map<string, number>();
+        for (const [nodeId, n] of Object.entries(nodes)) {
+            const group = nodeParents[nodeId] ?? ROOT_GROUP;
+            const cur = widthByGroup.get(group) ?? 0;
+            if (n.bounds.width > cur) widthByGroup.set(group, n.bounds.width);
+        }
+        for (const [nodeId, n] of Object.entries(nodes)) {
+            const group = nodeParents[nodeId] ?? ROOT_GROUP;
+            const max = widthByGroup.get(group);
+            if (max && n.bounds.width < max) n.bounds.width = max;
+        }
+    }
+
     // Preserve Mermaid declaration order across sibling targets: for every
     // source node, chain consecutive outgoing targets with OrderBefore hints.
     // Filigree honors these in its layered algorithm when the pair lands on
