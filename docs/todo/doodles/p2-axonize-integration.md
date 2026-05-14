@@ -28,40 +28,47 @@ const svgString = svg.render(positioned, { theme });
 
 ## Step 2 — "Edit visually" handoff
 
-ax has a button on each Mermaid block that opens cd-editor on that block. After P2:
+### Current state (deferred)
 
-- Handoff sends the **doodle** to cd-editor, not the Mermaid source. Preserves any post-import positioning, hints, and user style overrides.
-- cd-editor opens, lets the user edit, returns the modified doodle.
-- ax stores the modified doodle alongside the markdown (sidecar file `block.doodle.json`, or in the markdown frontmatter under a `doodles:` key, or in an Electron-side store keyed by block hash).
+The original sketch (full doodle stored in markdown frontmatter or sidecar files) is **deferred**. Reason: a full doodle bloats the semantic volume of the markdown source — typical doodle JSON is 1–3 KB and a complex AWS diagram is 10–20 KB, dwarfing the user's Mermaid text. Sidecar files fragment the document and complicate sharing. The previous `x-axonize:` per-block overlay (positions only) has been **removed from ax**'s visual-edit apply path — visual edit is now effectively preview-only until the future model below lands.
 
-### Source-of-truth question
+### Future direction — hint-based persistence
 
-Once a Mermaid block has been visually edited, what's authoritative?
-
-- **Option A — Doodle wins**: the saved doodle is the source of truth. The Mermaid source becomes a historical comment / starting point. Future re-renders use the doodle. Re-importing Mermaid would overwrite the doodle (explicit user action only).
-- **Option B — Mermaid wins**: cd-editor regenerates Mermaid from the doodle on save (lossy export — hints and positions are lost). The markdown file always has the canonical text.
-
-**Recommendation: Option A.** Mermaid is fire-and-forget input. Once a user customizes, that customization is the document. Mermaid → doodle is one-way; doodle is the artifact.
-
-### Storage shape
+The new vision: a user (or LLM agent) makes a structural change in cd-editor. Instead of dumping all `(x, y, width, height)` coordinates back into the markdown, cd-editor emits a small, human-readable **hint** describing the change in semantic terms. Examples:
 
 ```yaml
-# in the markdown frontmatter
----
-title: My architecture
-doodles:
-  block-3a4f: { ... }  # serialized doodle, keyed by block hash
----
-
-# ...
-
-```mermaid
-graph TB
-  A --> B
+x-axonize:
+  hints:
+    - pin: "Database"           # keep this node where it is now
+      at: { x: 800, y: 200 }
+    - move-between:             # insert the cache between API and DB
+      node: "Redis cache"
+      between: ["API", "Database"]
+    - group:
+      members: ["Lambda", "DynamoDB"]
+      compound: "AWS services"
+    - reparent:
+      node: "API"
+      into: "VPC v2"
 ```
-```
 
-Block hash keys are stable across edits to the Mermaid source as long as the source doesn't change. When the source changes, the doodle is invalidated (or migrated, if structure-compatible).
+Properties of this model:
+- **Small** — a typical hint set is a handful of YAML lines, not kilobytes of JSON.
+- **Readable** — a reviewer reading the markdown source can see what the visual edit semantically changed.
+- **Robust to re-layout** — the auto-layouter consumes hints (`OrderBefore`, `Pin`, `Group`, `SameLayer` already exist in filigree), so the rendered result follows the intent even if other nodes move around.
+- **LLM-friendly** — an agent can emit hints directly without computing pixel coordinates.
+
+The hints subsystem already exists in filigree and is partially used in the import pipeline (`OrderBefore` for source-declaration order preservation). Extending it to capture user intent from cd-editor edits is the natural next step.
+
+### What lands when this future model is implemented
+
+1. cd-editor exposes a "what did the user change?" delta on save, expressed as a list of `Hint` objects.
+2. ax serializes that delta into the Mermaid block's `x-axonize.hints:` frontmatter.
+3. On render, ax parses Mermaid → applies hints → lays out via doodles → renders.
+4. On re-open visual editor, the hints are loaded into cd-editor's hint registry, and the editor shows the diagram in its hinted state (and lets the user add/edit/remove hints).
+5. Round-trip is lossless for hints; structural changes (add/remove nodes, rename) still flow through the Mermaid text.
+
+This is its own work-item — call it **P2.4-hints** — and depends on cd-editor exposing the delta API.
 
 ## Step 3 — Golden tests for cross-app consistency
 
