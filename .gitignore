@@ -31,3 +31,8 @@ yarn-error.log*
 # local Claude Code + Playwright MCP working state
 /.claude/settings.local.json
 /.playwright-mcp/
+
+# Claude Code: ignore user-private settings, allow team-shared workflow files
+.claude/*
+!.claude/skills/
+!.claude/commands/
