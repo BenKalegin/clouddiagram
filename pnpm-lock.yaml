@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@benkalegin/doodles-api':
-        specifier: ^0.3.3
-        version: 0.3.3
+        specifier: ^0.3.4
+        version: 0.3.4
       '@benkalegin/filigree-api':
         specifier: ^0.1.0
         version: 0.1.0
@@ -655,20 +655,20 @@ packages:
     resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
     engines: {node: '>=6.9.0'}
 
-  '@benkalegin/doodles-api@0.3.3':
-    resolution: {integrity: sha512-MEoirlNfgb1V74+B0dsMiiJ2mYDWIekKnShXOS/T85t6u6DrilqTDJzsCfctIjKspnof+e2D6XgHRmLpTLqVjg==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-api/0.3.3/c86aa8ff86eb259e3d8d167789297f4df5e8b951}
+  '@benkalegin/doodles-api@0.3.4':
+    resolution: {integrity: sha512-JdyIBeEN2z8yB2STGem/a2o/sxBu76fZieuIG7gZVjbTwUi9Afyub14pa8X4WpvOEz6sH6fl5+uRP4n0keFUQw==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-api/0.3.4/44c5fabf52717d9d0b8cca4e3b24c0fb25ee792f}
 
-  '@benkalegin/doodles-core@0.3.3':
-    resolution: {integrity: sha512-0VcXWibgDN7pZZk8sYJsUrsVe+Sd1FOpShXc42JbP3caDltYOKRX73Nu0s9wVblwGcQysZLFAkJrHrz1RKPAmg==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-core/0.3.3/b8269838d3f4c419460fe0d906093c03690c791f}
+  '@benkalegin/doodles-core@0.3.4':
+    resolution: {integrity: sha512-ydSaVyW1Vo2btqKgp3Tqo3D7XBOcf30dqlG7jBRlvK6XJT5jEQiyW4e3j+CyCsKnyywDlU4uoF4+RT9h0qf9ow==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-core/0.3.4/6dd62922ff7b1a6fdc20620e990560217f359e2f}
 
-  '@benkalegin/doodles-layout@0.3.3':
-    resolution: {integrity: sha512-eYvXRgxXaRVL0joevqz/8rVngF8UkNmP6k7iAHuFAoqV5VQLUB4YijBVmGLoG/t/LKGN5qUO5lH0lpC/qmexyw==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-layout/0.3.3/a274cbbd065bff2c88568fa7c1c2e0665e282f79}
+  '@benkalegin/doodles-layout@0.3.4':
+    resolution: {integrity: sha512-gSKK6GLBNFwIKTKm9n+6mWWag5bsqbHUwB5K/oUnPqkaAfU/g14sZMQgxsheFThrmSsBBUpCNWSEIEsBw+U/tg==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-layout/0.3.4/a6bc2cafadee3bc6cd7a517a620d0960768eabb8}
 
-  '@benkalegin/doodles-mermaid@0.3.3':
-    resolution: {integrity: sha512-jaUsVfw4FwqDFrmqH9WqPFQv25FjuMDspFZ6AhREhNfxi7X56yHEgpmiKdKBcaKeBWq1LPjS+Ri98CQbIAM2dw==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-mermaid/0.3.3/ea86a1b47e11a23a2d3df7967cc275a00091133c}
+  '@benkalegin/doodles-mermaid@0.3.4':
+    resolution: {integrity: sha512-J/QUdTI7tAYToKtCDlXvCAJHBRHT0VlhXfSQLZnoHUi6GzrBsp9EKA05iIP8See8RBopTW9z7MSSNBBRT5j+oA==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-mermaid/0.3.4/3ceef6bbf56ba848c4dbd8145262b350640495a4}
 
-  '@benkalegin/doodles-svg@0.3.3':
-    resolution: {integrity: sha512-ylzVdblZiQjkENNCUOLRiu5V7sSzracGL+Qo9FzBGBNSUXqaZQQY9S192mNCNKcGdMX3n97pF+4h73JRdBjD+w==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-svg/0.3.3/7e1763bde47630390e6569755e6a8b5e94376ee9}
+  '@benkalegin/doodles-svg@0.3.4':
+    resolution: {integrity: sha512-zzOlZy1xI9BnRTQrmCpYbMl5Ww3fOwPz5QdBetcaOjmqJ6VbnfokXtHtPvnKIG1YtaJaetl8LzrxrtevjKc0EQ==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-svg/0.3.4/bb7828a3d9ac95cddaabe9b00e84b89ecc39d0fd}
 
   '@benkalegin/filigree-alg-force@0.1.0':
     resolution: {integrity: sha512-CMwzMULbinVEGVv79/wryiDR9cQjWpEwuXGo8TdgBcY/37/wO/4wB8KO/S08vAntgNNzw3qcSR1WjGFc8Fpm7w==, tarball: https://npm.pkg.github.com/download/@benkalegin/filigree-alg-force/0.1.0/2c4f8e8196309bd9344c428df2cbe21977de1fa7}
@@ -4062,29 +4062,29 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@benkalegin/doodles-api@0.3.3':
+  '@benkalegin/doodles-api@0.3.4':
     dependencies:
-      '@benkalegin/doodles-core': 0.3.3
-      '@benkalegin/doodles-layout': 0.3.3
-      '@benkalegin/doodles-mermaid': 0.3.3
-      '@benkalegin/doodles-svg': 0.3.3
+      '@benkalegin/doodles-core': 0.3.4
+      '@benkalegin/doodles-layout': 0.3.4
+      '@benkalegin/doodles-mermaid': 0.3.4
+      '@benkalegin/doodles-svg': 0.3.4
 
-  '@benkalegin/doodles-core@0.3.3': {}
+  '@benkalegin/doodles-core@0.3.4': {}
 
-  '@benkalegin/doodles-layout@0.3.3':
+  '@benkalegin/doodles-layout@0.3.4':
     dependencies:
-      '@benkalegin/doodles-core': 0.3.3
+      '@benkalegin/doodles-core': 0.3.4
       '@benkalegin/filigree-api': 0.1.0
 
-  '@benkalegin/doodles-mermaid@0.3.3':
+  '@benkalegin/doodles-mermaid@0.3.4':
     dependencies:
-      '@benkalegin/doodles-core': 0.3.3
-      '@benkalegin/doodles-layout': 0.3.3
+      '@benkalegin/doodles-core': 0.3.4
+      '@benkalegin/doodles-layout': 0.3.4
       nanoid: 3.3.12
 
-  '@benkalegin/doodles-svg@0.3.3':
+  '@benkalegin/doodles-svg@0.3.4':
     dependencies:
-      '@benkalegin/doodles-core': 0.3.3
+      '@benkalegin/doodles-core': 0.3.4
 
   '@benkalegin/filigree-alg-force@0.1.0':
     dependencies:
