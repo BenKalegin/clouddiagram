@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Stage} from "react-konva";
 import "./ImportPreview.css";
 import {createStore, Provider as JotaiProvider} from "jotai";
@@ -57,36 +57,44 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({diagramKind, format
     const previewStoreRef = useRef<ReturnType<typeof createStore> | null>(null);
     if (!previewStoreRef.current) previewStoreRef.current = createStore();
 
-    const parsed = useMemo<{data?: PreviewData; error?: string}>(() => {
-        if (!format || !source.trim()) return {};
-        try {
-            const baseDiagram = createDiagramForType(diagramKind, PREVIEW_DIAGRAM_ID);
-            const result = importDiagramAs(baseDiagram, format, source);
-            const diagram = {
-                ...result.diagram,
-                id: PREVIEW_DIAGRAM_ID,
-                display: defaultDiagramDisplay,
-                selectedElements: [],
-            };
-            return {data: {diagram, elements: result.elements}};
-        } catch (e) {
-            return {error: e instanceof Error ? e.message : "Failed to parse"};
+    const [parsed, setParsed] = useState<{data?: PreviewData; error?: string}>({});
+    useEffect(() => {
+        if (!format || !source.trim()) {
+            setParsed({});
+            return;
         }
+        let cancelled = false;
+        (async () => {
+            try {
+                const baseDiagram = createDiagramForType(diagramKind, PREVIEW_DIAGRAM_ID);
+                const result = await importDiagramAs(baseDiagram, format, source);
+                if (cancelled) return;
+                const diagram = {
+                    ...result.diagram,
+                    id: PREVIEW_DIAGRAM_ID,
+                    display: defaultDiagramDisplay,
+                    selectedElements: [],
+                };
+                // Seed atoms before the rerender so DiagramEditor sees the
+                // imported diagram on its first render, not the empty sentinel.
+                const store = previewStoreRef.current!;
+                store.set(elementsAtom(PREVIEW_DIAGRAM_ID), diagram);
+                const ids: string[] = [];
+                for (const [id, el] of Object.entries(result.elements)) {
+                    store.set(elementsAtom(id), el);
+                    ids.push(id);
+                }
+                store.set(elementIdsAtom, [PREVIEW_DIAGRAM_ID, ...ids]);
+                setParsed({data: {diagram, elements: result.elements}});
+            } catch (e) {
+                if (cancelled) return;
+                setParsed({error: e instanceof Error ? e.message : "Failed to parse"});
+            }
+        })();
+        return () => { cancelled = true; };
     }, [diagramKind, format, source]);
     const previewData = parsed.data;
     const error = parsed.error;
-
-    useEffect(() => {
-        const store = previewStoreRef.current;
-        if (!store || !previewData) return;
-        store.set(elementsAtom(PREVIEW_DIAGRAM_ID), previewData.diagram);
-        const ids: string[] = [];
-        for (const [id, el] of Object.entries(previewData.elements)) {
-            store.set(elementsAtom(id), el);
-            ids.push(id);
-        }
-        store.set(elementIdsAtom, [PREVIEW_DIAGRAM_ID, ...ids]);
-    }, [previewData]);
 
     useEffect(() => () => clearPersistedStateByPrefix(PREVIEW_KEY_PREFIX), []);
 
