@@ -10,6 +10,8 @@ export {
     FlowchartNodeKind,
     type ColorSchema,
     type LineStyle,
+    lineStyleList,
+    defaultLineStyle,
     PictureLayout,
     type CustomShape,
     type DiagramElement,
