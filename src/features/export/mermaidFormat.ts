@@ -5,6 +5,7 @@ import {importMermaidPieChartDiagram} from "./mermaid/mermaidPieImporter";
 import {importMermaidSequenceDiagram} from "./mermaid/mermaidSequenceImporter";
 import {
     importMermaidFlowchartDiagram,
+    importMermaidFlowchartWithLayout,
     importMermaidStructureDiagram
 } from "./mermaid/mermaidStructureImporter";
 import {importMermaidSourceAsNote} from "./mermaid/mermaidFallbackImporter";
@@ -23,7 +24,7 @@ export {importMermaidGanttDiagram};
 export {importMermaidErDiagram};
 export {importMermaidPieChartDiagram};
 export {importMermaidSequenceDiagram};
-export {importMermaidFlowchartDiagram, importMermaidStructureDiagram};
+export {importMermaidFlowchartDiagram, importMermaidFlowchartWithLayout, importMermaidStructureDiagram};
 export {importMermaidStateDiagram};
 export {importMermaidDeploymentDiagram};
 export {importMermaidMindMapDiagram};

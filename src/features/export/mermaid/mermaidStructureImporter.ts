@@ -2,6 +2,7 @@
 export {
     type StructureImportOut,
     importMermaidFlowchartDiagram,
+    importMermaidFlowchartWithLayout,
     importMermaidStructureDiagram,
     computeDisplaySize,
 } from "@benkalegin/doodles-api";

@@ -15,7 +15,7 @@ import {
 import {
     importMermaidDiagram,
     importMermaidErDiagram,
-    importMermaidFlowchartDiagram,
+    importMermaidFlowchartWithLayout,
     importMermaidGanttDiagram,
     importMermaidMindMapDiagram,
     importMermaidPieChartDiagram,
@@ -112,7 +112,7 @@ export const formatRegistry: ExportRegistryEntry[] = [
     {
         format: ExportImportFormat.MermaidFlowchartDiagram,
         name: "Mermaid Flowchart (UML/C4)",
-        importFunction: importMermaidFlowchartDiagram,
+        importFunction: importMermaidFlowchartWithLayout,
         supportedDiagram: [ElementType.FlowchartDiagram]
     },
     {
@@ -176,8 +176,7 @@ export async function exportDiagramAs(
 
 const RELAYOUT_FORMATS = new Set<ExportImportFormat>([
     ExportImportFormat.MermaidStructureDiagram,
-    ExportImportFormat.MermaidFlowchartDiagram,
-    ExportImportFormat.MermaidDiagram
+    ExportImportFormat.MermaidDiagram,
 ]);
 
 export async function importDiagramAs(diagram: Diagram, kind: ExportImportFormat, content: string): Promise<DiagramImportResult> {
