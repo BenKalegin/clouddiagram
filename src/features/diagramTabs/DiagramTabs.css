@@ -12,14 +12,17 @@
     flex-direction: row;
     align-items: center;
     gap: 8px;
-    background: var(--bg-base);
+    flex: 1;
+    min-width: 0;
+    background: transparent;
 }
 
 .diagram-tabs-list {
     flex: 1;
+    min-width: 0;
     overflow-x: auto;
     overflow-y: hidden;
-    background: var(--bg-base);
+    background: transparent;
 }
 
 .add-tab-trigger {
@@ -34,6 +37,7 @@
     align-items: center;
     justify-content: center;
     margin-right: 4px;
+    flex-shrink: 0;
 }
 
 .add-tab-trigger:hover {

@@ -35,7 +35,7 @@ export class ExportService {
         return exportDiagramAs(diagram, format, stage, resolveElement);
     }
 
-    static importDiagram(diagram: Diagram, format: ExportImportFormat, content: string): DiagramImportResult {
+    static async importDiagram(diagram: Diagram, format: ExportImportFormat, content: string): Promise<DiagramImportResult> {
         return importDiagramAs(diagram, format, content);
     }
 }

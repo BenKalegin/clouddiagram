@@ -1,10 +1,10 @@
 .cd-editor-topbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     height: 48px;
     flex-shrink: 0;
     padding: 0 16px;
+    gap: 16px;
     background: var(--bg-surface);
     color: var(--text-primary);
     border-bottom: 1px solid var(--border);
@@ -19,6 +19,15 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    flex-shrink: 0;
+}
+
+.cd-editor-topbar__tabs {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
 }
 
 .cd-editor-topbar__actions {
@@ -26,4 +35,5 @@
     flex-direction: row;
     align-items: center;
     gap: 4px;
+    flex-shrink: 0;
 }

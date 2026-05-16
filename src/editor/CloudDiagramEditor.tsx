@@ -3,6 +3,7 @@ import {IconButton} from "@benkalegin/ui26";
 import {ChevronRight, Save} from "@benkalegin/ui26/icons";
 import {AppLayoutContext, togglePropertiesPane} from "./editorLayout";
 import {UndoRedoControls} from "../features/diagramEditor/UndoRedoControls";
+import {DiagramTabBar} from "../features/diagramTabs/DiagramTabBar";
 import {CloudDiagramCanvas, CloudDiagramCanvasProps} from "./CloudDiagramCanvas";
 import {CloudDiagramDocument} from "../features/export/CloudDiagramFormat";
 import {getCloudDiagramDocument} from "./documentAdapter";
@@ -48,6 +49,9 @@ function EditorTopBar({title, onSave}: EditorTopBarProps) {
     return (
         <header className="cd-editor-topbar">
             <h1 className="cd-editor-topbar__title">{title}</h1>
+            <div className="cd-editor-topbar__tabs">
+                <DiagramTabBar/>
+            </div>
             <div className="cd-editor-topbar__actions">
                 <UndoRedoControls/>
                 {onSave && (

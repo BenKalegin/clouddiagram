@@ -368,27 +368,29 @@ export function importDiagramTab(get: Get, set: Set, phase: ImportPhase, format:
             if (format && code) {
                 const diagramId = get(activeDiagramIdAtom);
                 const originalDiagram = get(elementsAtom(diagramId)) as Diagram;
-                const importedResult = importDiagramAs(originalDiagram, format, code);
-                const imported = normalizeDiagram(importedResult.diagram);
+                importDiagramAs(originalDiagram, format, code).then(importedResult => {
+                    const imported = normalizeDiagram(importedResult.diagram);
 
-                // Structure-like diagrams keep element payloads in the elements atom family.
-                if (Object.keys(importedResult.elements).length > 0) {
-                    const importedIds = Object.keys(importedResult.elements);
-                    importedIds.forEach(id => {
-                        set(elementsAtom(id), importedResult.elements[id] as DiagramElement);
-                    });
+                    if (Object.keys(importedResult.elements).length > 0) {
+                        const importedIds = Object.keys(importedResult.elements);
+                        importedIds.forEach(id => {
+                            set(elementsAtom(id), importedResult.elements[id] as DiagramElement);
+                        });
 
-                    // Update elementIdsAtom with new IDs
-                    const currentIds = get(elementIdsAtom);
-                    const newIds = Array.from(new Set([...currentIds, ...importedIds]));
-                    set(elementIdsAtom, newIds);
-                }
+                        const currentIds = get(elementIdsAtom);
+                        const newIds = Array.from(new Set([...currentIds, ...importedIds]));
+                        set(elementIdsAtom, newIds);
+                    }
 
-                // Set the diagram itself
-                set(elementsAtom(diagramId), imported);
+                    set(elementsAtom(diagramId), imported);
+                    set(importingAtom, undefined);
+                }).catch(err => {
+                    console.error("Diagram import failed:", err);
+                    set(importingAtom, undefined);
+                });
+            } else {
+                set(importingAtom, undefined);
             }
-
-            set(importingAtom, undefined);
             break;
 
         case ImportPhase.cancel:
