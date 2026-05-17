@@ -9,6 +9,12 @@ import {ClassMemberKind, ColorSchema, FlowchartNodeKind, NodeState} from "../../
 import {Bounds} from "../../common/model";
 import {formatErAttribute, getErEntityDisplayName} from "../erDiagram/erDiagramUtils";
 import {RichText} from "../../common/canvas/RichText";
+import {
+    classNodeHeaderTextInsets,
+    classNodeMemberFontSize,
+    classNodeMemberTextInsets,
+    classNodeSectionsLayout,
+} from "../classDiagram/classDiagramUtils";
 
 export const NodeContentNoIconRect: FC<NodeContentProps> = ({
       node,
@@ -145,12 +151,8 @@ function renderClassNode(node: NodeState, bounds: Bounds, colorSchema: ColorSche
     const fields = (node.classMembers ?? []).filter(member => member.kind === "field");
     const methods = (node.classMembers ?? []).filter(member => member.kind === "method");
     const {x, y, width, height} = bounds;
-    const headerHeight = node.classAnnotation ? 46 : 32;
-    const rowHeight = 18;
-    const sectionPadding = 6;
-    const fieldsHeight = fields.length > 0 ? fields.length * rowHeight + sectionPadding * 2 : 0;
-    const methodsHeight = methods.length > 0 ? methods.length * rowHeight + sectionPadding * 2 : 0;
-    const methodsY = y + headerHeight + fieldsHeight;
+    const sections = classNodeSectionsLayout(node, height);
+    const methodsY = y + sections.methodsTop;
 
     return (
         <>
@@ -167,9 +169,9 @@ function renderClassNode(node: NodeState, bounds: Bounds, colorSchema: ColorSche
                 draggable={false}
                 listening={false}
             />
-            {(fields.length > 0 || methods.length > 0) && (
+            {sections.hasMembers && (
                 <Line
-                    points={[x, y + headerHeight, x + width, y + headerHeight]}
+                    points={[x, y + sections.headerHeight, x + width, y + sections.headerHeight]}
                     stroke={colorSchema.strokeColor}
                     listening={false}
                 />
@@ -182,12 +184,12 @@ function renderClassNode(node: NodeState, bounds: Bounds, colorSchema: ColorSche
                 />
             )}
             <Text
-                x={x + 8}
-                y={y + 5}
-                width={width - 16}
-                height={headerHeight - 10}
+                x={x + classNodeHeaderTextInsets.left}
+                y={y + classNodeHeaderTextInsets.top}
+                width={width - classNodeHeaderTextInsets.horizontal}
+                height={sections.headerHeight - classNodeHeaderTextInsets.vertical}
                 fill={colorSchema.textColor}
-                fontSize={node.classAnnotation ? 13 : 14}
+                fontSize={node.classAnnotation ? classNodeMemberFontSize : 14}
                 fontStyle={"bold"}
                 align={"center"}
                 verticalAlign={"middle"}
@@ -196,8 +198,8 @@ function renderClassNode(node: NodeState, bounds: Bounds, colorSchema: ColorSche
                 listening={false}
                 preventDefault={true}
             />
-            {renderMembers(fields.map(member => member.text), "field", x, y + headerHeight, width, fieldsHeight, colorSchema.textColor)}
-            {renderMembers(methods.map(member => member.text), "method", x, methodsY, width, Math.max(height - (methodsY - y), methodsHeight), colorSchema.textColor)}
+            {renderMembers(fields.map(member => member.text), "field", x, y + sections.headerHeight, width, sections.fieldsHeight, colorSchema.textColor)}
+            {renderMembers(methods.map(member => member.text), "method", x, methodsY, width, sections.methodsHeight, colorSchema.textColor)}
         </>
     );
 }
@@ -215,12 +217,12 @@ function renderMembers(
 
     return (
         <Text
-            x={x + 10}
-            y={y + 6}
-            width={width - 20}
-            height={Math.max(0, height - 12)}
+            x={x + classNodeMemberTextInsets.left}
+            y={y + classNodeMemberTextInsets.top}
+            width={width - classNodeMemberTextInsets.horizontal}
+            height={Math.max(0, height - classNodeMemberTextInsets.vertical)}
             fill={fill}
-            fontSize={13}
+            fontSize={classNodeMemberFontSize}
             align={"left"}
             verticalAlign={"top"}
             text={members.join("\n")}

@@ -25,7 +25,8 @@
     "url": "git+https://github.com/BenKalegin/clouddiagram.git"
   },
   "dependencies": {
-    "@benkalegin/doodles-api": "^0.3.11",
+    "@benkalegin/doodles-api": "file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.11.tgz",
+    "@benkalegin/doodles-core": "file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz",
     "@benkalegin/filigree-api": "^0.1.3",
     "@benkalegin/ui26": "^0.1.3",
     "@modelcontextprotocol/sdk": "^1.25.3",
@@ -38,8 +39,8 @@
     "konva": "^9.3.22",
     "nanoid": "^3.3.12",
     "playwright": "^1.49.0",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
+    "react": ">=19",
+    "react-dom": ">=19",
     "react-draggable": "^4.5.0",
     "react-hotkeys-hook": "^4.6.1",
     "react-konva": "^19.2.3",
