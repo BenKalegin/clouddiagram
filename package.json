@@ -82,5 +82,14 @@
     "vite": "^8.0.10",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^4.1.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "@benkalegin/doodles-core": "file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz",
+      "@benkalegin/doodles-api": "file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.11.tgz",
+      "@benkalegin/doodles-layout": "file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.11.tgz",
+      "@benkalegin/doodles-mermaid": "file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.11.tgz",
+      "@benkalegin/doodles-svg": "file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.11.tgz"
+    }
   }
 }

@@ -4,13 +4,23 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@benkalegin/doodles-core': file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz
+  '@benkalegin/doodles-api': file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.11.tgz
+  '@benkalegin/doodles-layout': file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.11.tgz
+  '@benkalegin/doodles-mermaid': file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.11.tgz
+  '@benkalegin/doodles-svg': file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.11.tgz
+
 importers:
 
   .:
     dependencies:
       '@benkalegin/doodles-api':
-        specifier: ^0.3.11
-        version: 0.3.11
+        specifier: file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.11.tgz
+        version: file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.11.tgz
+      '@benkalegin/doodles-core':
+        specifier: file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz
+        version: file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz
       '@benkalegin/filigree-api':
         specifier: ^0.1.3
         version: 0.1.3
@@ -48,10 +58,10 @@ importers:
         specifier: ^1.49.0
         version: 1.59.1
       react:
-        specifier: ^19.2.5
+        specifier: '>=19'
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.5
+        specifier: '>=19'
         version: 19.2.5(react@19.2.5)
       react-draggable:
         specifier: ^4.5.0
@@ -655,20 +665,25 @@ packages:
     resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
     engines: {node: '>=6.9.0'}
 
-  '@benkalegin/doodles-api@0.3.11':
-    resolution: {integrity: sha512-RnAyvBHBSGajrIpvqGtSBX6BMw/E/TYfrNQyKiP2KTC9Xpd/C0SKXh6M7gsFXq72khkxj6miUXlE0NDnOCGYKQ==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-api/0.3.11/416bc65b279273f440917b5ec3b5254b6e2ea1fa}
+  '@benkalegin/doodles-api@file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.11.tgz':
+    resolution: {integrity: sha512-GABWvPAleqp/jq7HMfJjWiy1nvbJRvexWJsYKnmEtBT5fqwnXQco9F9di1JxlmXOozAPUsQ9qFlGPsHyad0N0Q==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.11.tgz}
+    version: 0.3.11
 
-  '@benkalegin/doodles-core@0.3.11':
-    resolution: {integrity: sha512-e4scwLK/5G9uh9ymC+XxA5+msaV3BMLT0tQ3LXaeewByov1J40gd0X5w/RFqb7ta/kNqQ37uoPLOnnByeDjV7w==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-core/0.3.11/0d76db4aa2c004fb8d80ce416852b5a5605ecb0a}
+  '@benkalegin/doodles-core@file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz':
+    resolution: {integrity: sha512-9HKNDqbjr61G4+0UduKraUYfMNKGUloLq4V/kdibnBlAL/REMRN6BVN8oTm9xj4UlwIW2Wf9KYRzxZaNIZIcBw==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz}
+    version: 0.3.11
 
-  '@benkalegin/doodles-layout@0.3.11':
-    resolution: {integrity: sha512-Mud1hkyzi4xRGA2Gu72DOSjr/MsPJ/7M8BiUq9PBaWiLIxet7kVr3Xr6OwGrl9JxZijFOj09MMm4zlDoSsW5AA==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-layout/0.3.11/96380c0d9c85f5d49f44a31ecf01301bbc04bf16}
+  '@benkalegin/doodles-layout@file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.11.tgz':
+    resolution: {integrity: sha512-Q3cS0ISdXolMdt1vtlXrWWYxFdE6Ar/8XZj/V7PQ9ctesi/WHt2gZ7IDGwM9d6tbmc2Ampu8hTIboWTcmLLPig==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.11.tgz}
+    version: 0.3.11
 
-  '@benkalegin/doodles-mermaid@0.3.11':
-    resolution: {integrity: sha512-kb7hnbPDQddkw6uotoJfFQuF9W9oDL0p6KqJ7zqPX0E/AJ3kr+ktULvsRldZrZ+kb0d97hwNjUt4HJXx8zt2GA==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-mermaid/0.3.11/5c95b0e05f165af9594e719ea46bd3d9038b05f3}
+  '@benkalegin/doodles-mermaid@file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.11.tgz':
+    resolution: {integrity: sha512-Ur/xmcl7LeRD2tEFxo517RhFRfZY6DdIyNokR1YGhlkUGHC0vqo7tLAjM941gqF/BtlkR+zrFo5pdrAVfupPdw==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.11.tgz}
+    version: 0.3.11
 
-  '@benkalegin/doodles-svg@0.3.11':
-    resolution: {integrity: sha512-l+Zd0tpM66bxIx+VCHW3P3xOr2D31mIvQaAXcqRuGWduX3eTrfHpKLGdhQ6xUQewm4H2vnHUEbxlmR0bMO3ufQ==, tarball: https://npm.pkg.github.com/download/@benkalegin/doodles-svg/0.3.11/55697fdb661dfede7d8e1ef386fad399b7951a21}
+  '@benkalegin/doodles-svg@file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.11.tgz':
+    resolution: {integrity: sha512-5MSIu3zA/TDcTqS4ul/lNocgny7t6ZWhGu6d2PXMhWQFVUBriuyzyMhkEOrs/VYoVq/SVqslXUJS/M1NTnkjzg==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.11.tgz}
+    version: 0.3.11
 
   '@benkalegin/filigree-alg-force@0.1.3':
     resolution: {integrity: sha512-7QzGhMnXyENnkeKmmlKPl3qdwAJp5QFyUMSXY7ge5nhZKjF/+MX2/Izvw54HIHfdjW2QSoc2kMkHQOdHoKX0tw==, tarball: https://npm.pkg.github.com/download/@benkalegin/filigree-alg-force/0.1.3/25b9ead17f8aeb9b48ab3db11b19f22fd2f4d1f4}
@@ -4062,29 +4077,29 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@benkalegin/doodles-api@0.3.11':
+  '@benkalegin/doodles-api@file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.11.tgz':
     dependencies:
-      '@benkalegin/doodles-core': 0.3.11
-      '@benkalegin/doodles-layout': 0.3.11
-      '@benkalegin/doodles-mermaid': 0.3.11
-      '@benkalegin/doodles-svg': 0.3.11
+      '@benkalegin/doodles-core': file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz
+      '@benkalegin/doodles-layout': file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.11.tgz
+      '@benkalegin/doodles-mermaid': file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.11.tgz
+      '@benkalegin/doodles-svg': file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.11.tgz
 
-  '@benkalegin/doodles-core@0.3.11': {}
+  '@benkalegin/doodles-core@file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz': {}
 
-  '@benkalegin/doodles-layout@0.3.11':
+  '@benkalegin/doodles-layout@file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.11.tgz':
     dependencies:
-      '@benkalegin/doodles-core': 0.3.11
+      '@benkalegin/doodles-core': file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz
       '@benkalegin/filigree-api': 0.1.3
 
-  '@benkalegin/doodles-mermaid@0.3.11':
+  '@benkalegin/doodles-mermaid@file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.11.tgz':
     dependencies:
-      '@benkalegin/doodles-core': 0.3.11
-      '@benkalegin/doodles-layout': 0.3.11
+      '@benkalegin/doodles-core': file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz
+      '@benkalegin/doodles-layout': file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.11.tgz
       nanoid: 3.3.12
 
-  '@benkalegin/doodles-svg@0.3.11':
+  '@benkalegin/doodles-svg@file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.11.tgz':
     dependencies:
-      '@benkalegin/doodles-core': 0.3.11
+      '@benkalegin/doodles-core': file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.11.tgz
 
   '@benkalegin/filigree-alg-force@0.1.3':
     dependencies:
