@@ -666,23 +666,23 @@ packages:
     engines: {node: '>=6.9.0'}
 
   '@benkalegin/doodles-api@file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.12.tgz':
-    resolution: {integrity: sha512-bCMXwAlc3LrFI/9zT+Gtgd3N3H5xLDe1WpAvfYsoXXaMqbFFvIkwfS3wnRAB3VNmLT9vz720besLC1fCH+O8rw==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.12.tgz}
+    resolution: {integrity: sha512-oaUgR3ewER8PEga/1b1Y4UtUYmHIlGDywXJ7i1RW8mM9O3mBPNn6fNw9XCMXAYtRldme+4rpPtxxN0mr1dAUMA==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.12.tgz}
     version: 0.3.12
 
   '@benkalegin/doodles-core@file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.12.tgz':
-    resolution: {integrity: sha512-9rVUD0ek2Dc5bQ20iU8r68vwT69b2a7UOF4+Xz8vgATyDUJHeA0JJ3F4A4YTugguiYX/6eK5b9wFcP8oyh1VnA==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.12.tgz}
+    resolution: {integrity: sha512-YQR8m6PRBYv31fu1wZCNeePsic4tnV71zaRKn/yke6moMKPPv8h8G3Bd75+sdoJRWuCLuhzE5BXCKj8ARofB0w==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.12.tgz}
     version: 0.3.12
 
   '@benkalegin/doodles-layout@file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.12.tgz':
-    resolution: {integrity: sha512-0VhE9Hqtdla+CmOfHm7AjPgy5SQbQ+VGy3vqYuC17vOr1DEuPX8HbJaJnSqGoOkCS06awfXbmHKuPTrxmXFPsA==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.12.tgz}
+    resolution: {integrity: sha512-VpSxiwlWphxbhoh13jCb4BfyVa76WfzXtC/N+rEN8dvZtkDbbdGeyU/co9aF41P2yxhIUAtmAgSCY8BolLgUcw==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.12.tgz}
     version: 0.3.12
 
   '@benkalegin/doodles-mermaid@file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.12.tgz':
-    resolution: {integrity: sha512-PS5xtBByb5sMJizpikMNAh6uMPKsFO5w+kpHbKKhw70wHJ8F7zoitWx+w6h+hKvx6XEltbHb6OiJa2LeoN8b1w==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.12.tgz}
+    resolution: {integrity: sha512-6iVM0QHoGWTwSW4FlC9yr3lhqYm2guflAkQojtEe882mRETVPC5m+/hTFmP0XTxO0QyoJI/W046bAmSoZ0gunA==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.12.tgz}
     version: 0.3.12
 
   '@benkalegin/doodles-svg@file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.12.tgz':
-    resolution: {integrity: sha512-npQlAEQ6Nzhe1BOtSQRfNeVSD6I35j2jcMIPH9VuGPMFJqyx/gu1y9ZlukL9rLo/xA4dovf+EHz8nxVKnCeWng==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.12.tgz}
+    resolution: {integrity: sha512-N6kpwBqRAqn0lcMamWF0hhfnGDDksDHJk+LOs/CAtnXIvp0vEpm+b6W3c92IefvOpuhoVzLlvw3t1vd+zLkSqg==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.12.tgz}
     version: 0.3.12
 
   '@benkalegin/filigree-alg-force@0.1.3':
