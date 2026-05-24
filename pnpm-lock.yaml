@@ -667,7 +667,7 @@ packages:
     engines: {node: '>=6.9.0'}
 
   '@benkalegin/doodles-api@file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.12.tgz':
-    resolution: {integrity: sha512-qRaDn4sm0eyqI5xl84CF8yiVTuRi8m6GzrC16+hAd3e0uQfDmmJMMsQjkbj3rXOBpi/6Z9dSkGWI5npKTaYqew==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.12.tgz}
+    resolution: {integrity: sha512-PBbVYUAq9Rty/X1/jj3bMO54XowEXconKpnpsc1qqXa4Oz1tGWQgIO6JBj5PPXiGnQ+hO0yBhbJniJWlx/Ee8w==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.12.tgz}
     version: 0.3.12
 
   '@benkalegin/doodles-bpmn@file:../axonize/tmp-pack/benkalegin-doodles-bpmn-0.1.0.tgz':
@@ -679,11 +679,11 @@ packages:
     version: 0.3.12
 
   '@benkalegin/doodles-layout@file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.12.tgz':
-    resolution: {integrity: sha512-3GrCP5J36+AxtxQyYHrqmiKDUyM4jrEgTQNYVNd6eqX/mcWf4o1fPaEVIqpC5mC8q7mEiBYXm8w4sJV7IQ+lnQ==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.12.tgz}
+    resolution: {integrity: sha512-lS9takNSkNZ7ppH1jAFFjeKwweqKSlCg3s+6MGSbD3JVIrmmQ81x/0Q98+nPTQX9JFY2Vox88jc2fnuoqz6MGA==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.12.tgz}
     version: 0.3.12
 
   '@benkalegin/doodles-mermaid@file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.12.tgz':
-    resolution: {integrity: sha512-EwXZ6SunDlwTQFBRnzT1zzViamooYi7OnTdwSRDN8Qc+YXoFBNItw5AZGCTtjlMwYxHj2yC6LdYChYaTe+so8Q==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.12.tgz}
+    resolution: {integrity: sha512-+GnrvfPtBQHdCTaCPBAzJOXOMIfhn60HHia+iQzAK4wqkxrGT8bB19wsJW14KeSNtFJAbJu1RH+quEtxcZZdHg==, tarball: file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.12.tgz}
     version: 0.3.12
 
   '@benkalegin/doodles-svg@file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.12.tgz':
