@@ -28,6 +28,7 @@ import {exportErDiagramAsMermaid} from "./mermaid/mermaidErExporter";
 import {exportPieChartDiagramAsMermaid} from "./mermaid/mermaidPieExporter";
 import {canRelayoutStructure, relayoutStructure} from "@benkalegin/doodles-api";
 import {parseMermaidLayoutHints} from "./mermaid/mermaidImportUtils";
+import {exportClouddiagramAsBpmn} from "./bpmnFormat";
 
 export type {ElementResolver};
 
@@ -45,6 +46,7 @@ export enum ExportImportFormat {
     MermaidErDiagram = "mermaid_er",
     MermaidPieChartDiagram = "mermaid_pie",
     MermaidMindMapDiagram = "mermaid_mindmap",
+    Bpmn = "bpmn",
 }
 
 export interface DiagramExportContext {
@@ -147,6 +149,12 @@ export const formatRegistry: ExportRegistryEntry[] = [
         name: "Mermaid Mind Map",
         importFunction: importMermaidMindMapDiagram,
         supportedDiagram: [ElementType.MindMapDiagram]
+    },
+    {
+        format: ExportImportFormat.Bpmn,
+        name: "BPMN 2.0 XML",
+        exportFunction: async (diagram: Diagram, {resolveElement}) => exportClouddiagramAsBpmn(diagram, resolveElement),
+        supportedDiagram: [ElementType.BpmnDiagram]
     },
 ];
 

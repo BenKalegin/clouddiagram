@@ -10,6 +10,7 @@ import type {ErDiagramState} from "../erDiagram/erDiagramModel";
 import type {PieChartDiagramState} from "../pieChartDiagram/pieChartDiagramModel";
 import {defaultPieChartBounds, defaultPieSlices} from "../pieChartDiagram/pieChartDiagramModel";
 import type {MindMapDiagramState} from "../mindMapDiagram/mindMapDiagramModel";
+import type {BpmnDiagramState} from "../bpmnDiagram/bpmnDiagramModel";
 
 export interface DiagramTypeDefinition {
     type: ElementType;
@@ -111,6 +112,12 @@ export const diagramTypeDefinitions: DiagramTypeDefinition[] = [
         title: "Mind Map",
         testId: "add-mind-map-diagram",
         createDiagram: (id) => createStructureDiagram(id, ElementType.MindMapDiagram, "Mind Map") as MindMapDiagramState
+    },
+    {
+        type: ElementType.BpmnDiagram,
+        title: "BPMN Diagram",
+        testId: "add-bpmn-diagram",
+        createDiagram: (id) => createStructureDiagram(id, ElementType.BpmnDiagram, "BPMN Diagram") as BpmnDiagramState
     },
 ];
 

@@ -1,15 +1,20 @@
 import React, {useContext} from "react";
-import {Group, Path, Text} from "react-konva";
+import {Circle, Group, Path, Text} from "react-konva";
 import {useAtomValue} from "jotai";
 import {DiagramId, elementsAtom, isElementSelectedAtom} from "../diagramEditor/diagramEditorModel";
 import {linkRenderSelector} from "./structureDiagramHandler";
 import {LinkId} from "./structureDiagramState";
 import {elementSelectedAction, useDispatch} from "../diagramEditor/diagramEditorSlice";
-import {ElementRef, ElementType, LinkState} from "../../package/packageModel";
+import {BpmnFlowKind, ElementRef, ElementType, LinkState} from "../../package/packageModel";
 import {AppLayoutContext} from "../../editor/editorLayout";
 import {adjustColorSchemaForTheme} from "../../common/colors/colorTransform";
 import {VirtualizedItem} from "../../common/components/VirtualizedLayer";
 import {RichText} from "../../common/canvas/RichText";
+
+// BPMN flow styling — see doodles-svg/bpmn.ts for the SVG counterpart.
+const BPMN_MESSAGE_DASH = [6, 4];
+const BPMN_ASSOCIATION_DASH = [2, 3];
+const BPMN_MESSAGE_SOURCE_CIRCLE_RADIUS = 4;
 
 export const Link = React.memo(({linkId, diagramId}: {linkId: LinkId, diagramId: DiagramId}) => {
     const isSelected = useAtomValue(isElementSelectedAtom({elementId: linkId, diagramId}))
@@ -20,6 +25,15 @@ export const Link = React.memo(({linkId, diagramId}: {linkId: LinkId, diagramId:
     const colorSchema = adjustColorSchemaForTheme(link?.colorSchema, appLayout.darkMode);
     if (!render) return null;
     const erRelationship = link.erRelationship;
+    const bpmnFlow = link.bpmnFlow;
+    const isMessage = bpmnFlow?.kind === BpmnFlowKind.Message;
+    const isAssociation = bpmnFlow?.kind === BpmnFlowKind.Association;
+    const bpmnDash = isMessage ? BPMN_MESSAGE_DASH : isAssociation ? BPMN_ASSOCIATION_DASH : undefined;
+    const erDash = erRelationship && !erRelationship.identifying ? [6, 4] : undefined;
+    const dash = bpmnDash ?? erDash;
+    // Open (unfilled) arrowhead for message and association flows; filled for sequence.
+    const openArrowFill = appLayout.darkMode ? "#000" : "#fff";
+    const closedShapeFill = bpmnFlow && bpmnFlow.kind !== BpmnFlowKind.Sequence ? openArrowFill : colorSchema.fillColor;
 
     return (
         <VirtualizedItem
@@ -31,16 +45,27 @@ export const Link = React.memo(({linkId, diagramId}: {linkId: LinkId, diagramId:
                             key={index}
                             hitStrokeWidth={10}
                             data={pathData}
-                            fill={pathData.trim().endsWith('Z') ? colorSchema.fillColor : "transparent"}
+                            fill={pathData.trim().endsWith('Z') ? closedShapeFill : "transparent"}
                             strokeWidth={isSelected ? 3 : 1.4}
                             stroke={colorSchema.strokeColor}
-                            dash={erRelationship && !erRelationship.identifying ? [6, 4] : undefined}
+                            dash={dash}
                             onClick={(e) => {
                                 const element: ElementRef = {id: linkId, type: ElementType.ClassLink}
                                 dispatch(elementSelectedAction({element, shiftKey: e.evt.shiftKey, ctrlKey: e.evt.ctrlKey}))
                             }}
                         />;
                     }
+                )}
+                {isMessage && (
+                    <Circle
+                        x={render.sourcePoint.x}
+                        y={render.sourcePoint.y}
+                        radius={BPMN_MESSAGE_SOURCE_CIRCLE_RADIUS}
+                        fill={openArrowFill}
+                        stroke={colorSchema.strokeColor}
+                        strokeWidth={1.4}
+                        listening={false}
+                    />
                 )}
                 {link.text && (
                     <RichText

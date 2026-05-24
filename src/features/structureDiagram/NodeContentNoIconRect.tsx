@@ -15,6 +15,7 @@ import {
     classNodeMemberTextInsets,
     classNodeSectionsLayout,
 } from "../classDiagram/classDiagramUtils";
+import {isBpmnFlowNode, renderBpmnFlowNode} from "./NodeContentBpmn";
 
 export const NodeContentNoIconRect: FC<NodeContentProps> = ({
       node,
@@ -40,6 +41,10 @@ export const NodeContentNoIconRect: FC<NodeContentProps> = ({
         && !isMindMapTopic
         && !isC4
         && ((node.classMembers?.length ?? 0) > 0 || !!node.classAnnotation);
+
+    if (isBpmnFlowNode(node)) {
+        return renderBpmnFlowNode(node, placement.bounds, colorSchema, shadowEnabled);
+    }
 
     if (node.erEntity) {
         return renderErEntityNode(node, placement.bounds, colorSchema, shadowEnabled);

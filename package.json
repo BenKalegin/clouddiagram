@@ -87,6 +87,7 @@
     "overrides": {
       "@benkalegin/doodles-core": "file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.12.tgz",
       "@benkalegin/doodles-api": "file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.12.tgz",
+      "@benkalegin/doodles-bpmn": "file:../axonize/tmp-pack/benkalegin-doodles-bpmn-0.1.0.tgz",
       "@benkalegin/doodles-layout": "file:../axonize/tmp-pack/benkalegin-doodles-layout-0.3.12.tgz",
       "@benkalegin/doodles-mermaid": "file:../axonize/tmp-pack/benkalegin-doodles-mermaid-0.3.12.tgz",
       "@benkalegin/doodles-svg": "file:../axonize/tmp-pack/benkalegin-doodles-svg-0.3.12.tgz"

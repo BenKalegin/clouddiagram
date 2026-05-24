@@ -9,6 +9,7 @@ import {SequenceDiagramEditor} from "../sequenceDiagram/SequenceDiagramEditor";
 import {ErDiagramEditor} from "../erDiagram/ErDiagramEditor";
 import {PieChartDiagramEditor} from "../pieChartDiagram/PieChartDiagramEditor";
 import {MindMapDiagramEditor} from "../mindMapDiagram/MindMapDiagramEditor";
+import {BpmnDiagramEditor} from "../bpmnDiagram/BpmnDiagramEditor";
 
 export interface DiagramEditorProps {
     diagramId: DiagramId;
@@ -23,6 +24,7 @@ const diagramEditorRegistry: Partial<Record<ElementType, ComponentType<DiagramEd
     [ElementType.PieChartDiagram]: PieChartDiagramEditor,
     [ElementType.SequenceDiagram]: SequenceDiagramEditor,
     [ElementType.MindMapDiagram]: MindMapDiagramEditor,
+    [ElementType.BpmnDiagram]: BpmnDiagramEditor,
 };
 
 export function getDiagramEditor(type: ElementType): ComponentType<DiagramEditorProps> {
