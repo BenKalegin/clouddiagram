@@ -1,6 +1,6 @@
 {
   "name": "@benkalegin/clouddiagram-editor",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "type": "module",
   "main": "./dist/lib/editor.js",
   "module": "./dist/lib/editor.js",
@@ -27,7 +27,7 @@
   "dependencies": {
     "@benkalegin/doodles-api": "file:../axonize/tmp-pack/benkalegin-doodles-api-0.3.12.tgz",
     "@benkalegin/doodles-core": "file:../axonize/tmp-pack/benkalegin-doodles-core-0.3.12.tgz",
-    "@benkalegin/filigree-api": "^0.1.3",
+    "@benkalegin/filigree-api": "^0.1.4",
     "@benkalegin/ui26": "^0.1.3",
     "@modelcontextprotocol/sdk": "^1.25.3",
     "@reduxjs/toolkit": "^2.11.2",
