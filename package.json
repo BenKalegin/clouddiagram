@@ -1,6 +1,6 @@
 {
   "name": "@benkalegin/clouddiagram-editor",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "type": "module",
   "main": "./dist/lib/editor.js",
   "module": "./dist/lib/editor.js",
